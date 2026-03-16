@@ -1,0 +1,18 @@
+{
+  "name": "tipflow",
+  "version": "1.0.0",
+  "description": "TipFlow — AI-Powered Multi-Chain Tipping Agent built with Tether WDK",
+  "private": true,
+  "scripts": {
+    "install:all": "cd agent && npm install && cd ../dashboard && npm install",
+    "dev": "concurrently -n agent,dashboard -c green,blue \"cd agent && npm run dev\" \"cd dashboard && npm run dev\"",
+    "dev:agent": "cd agent && npm run dev",
+    "dev:dashboard": "cd dashboard && npm run dev",
+    "build": "cd dashboard && npm run build",
+    "lint": "cd agent && npm run lint"
+  },
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
