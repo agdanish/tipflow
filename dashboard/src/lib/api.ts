@@ -7,6 +7,8 @@ import type {
   HealthResponse,
   ChainId,
   ChainConfig,
+  TokenType,
+  BatchTipResult,
 } from '../types';
 
 const BASE = '/api';
@@ -36,10 +38,16 @@ export const api = {
   getSeed: () =>
     fetchJson<{ seed: string }>('/wallet/seed'),
 
-  sendTip: (recipient: string, amount: string, preferredChain?: ChainId, message?: string) =>
+  sendTip: (recipient: string, amount: string, token?: TokenType, preferredChain?: ChainId, message?: string) =>
     fetchJson<{ result: TipResult }>('/tip', {
       method: 'POST',
-      body: JSON.stringify({ recipient, amount, preferredChain, message }),
+      body: JSON.stringify({ recipient, amount, token: token ?? 'native', preferredChain, message }),
+    }),
+
+  sendBatchTip: (recipients: Array<{ address: string; amount: string; message?: string }>, token?: TokenType, preferredChain?: ChainId) =>
+    fetchJson<{ result: BatchTipResult }>('/tip/batch', {
+      method: 'POST',
+      body: JSON.stringify({ recipients, token: token ?? 'native', preferredChain }),
     }),
 
   estimateFees: (recipient: string, amount: string) =>

@@ -29,6 +29,18 @@ TipFlow's AI agent autonomously:
 
 ---
 
+## Key Features
+
+- **AI-Powered Chain Selection** — LLM reasoning (Ollama) with rule-based fallback
+- **Multi-Chain Support** — Ethereum Sepolia + TON Testnet via WDK
+- **Native & USDT Transfers** — Send native tokens or USDT (ERC-20) via WDK `transfer()`
+- **Batch Tipping** — Tip up to 10 recipients in a single batch operation
+- **Real-Time Pipeline** — Watch the 6-step agent pipeline execute live via SSE
+- **Self-Custodial Wallets** — WDK seed phrase management, persistent across sessions
+- **Zero-Cost AI** — Local Ollama LLM, no API keys needed
+
+---
+
 ## Architecture
 
 ```
@@ -36,9 +48,9 @@ TipFlow's AI agent autonomously:
 │         React Dashboard             │
 │   (Vite + Tailwind CSS)             │
 │   Wallet View │ Tip Form │ History  │
-│   Agent Panel │ Analytics           │
+│   Batch Tips  │ Agent Panel         │
 └──────────────┬──────────────────────┘
-               │ REST API
+               │ REST API + SSE
 ┌──────────────┴──────────────────────┐
 │         Node.js Agent Server        │
 │   ┌─────────────────────────────┐   │
@@ -87,7 +99,8 @@ TipFlow uses Tether WDK extensively:
 | TON wallet management | `@tetherto/wdk-wallet-ton` | `getAccount()`, `getAddress()` |
 | Balance queries | Both wallet modules | `getBalance()`, `getTokenBalance()` |
 | Fee estimation | Both wallet modules | `quoteSendTransaction()` |
-| Transaction execution | Both wallet modules | `sendTransaction()`, `transfer()` |
+| Native transfers | Both wallet modules | `sendTransaction()` |
+| USDT token transfers | `@tetherto/wdk-wallet-evm` | `transfer()` |
 | Fee rate queries | `@tetherto/wdk` | `getFeeRates()` |
 | Resource cleanup | `@tetherto/wdk` | `dispose()` |
 
@@ -144,14 +157,14 @@ npm run dev
 
 Every tip goes through a 6-step autonomous pipeline:
 
-1. **INTAKE** — Parse and validate the tip request
+1. **INTAKE** — Parse and validate the tip request (supports native & USDT)
 2. **ANALYZE** — Query balances and fees across all chains
 3. **REASON** — AI selects the optimal chain with natural language explanation
-4. **EXECUTE** — Build and send transaction via WDK
+4. **EXECUTE** — Build and send transaction via WDK (`sendTransaction` or `transfer`)
 5. **VERIFY** — Confirm transaction broadcast
 6. **REPORT** — Update dashboard with results and reasoning
 
-The entire pipeline is visible in real-time on the dashboard.
+The entire pipeline is visible in real-time on the dashboard via Server-Sent Events.
 
 ---
 
@@ -161,10 +174,12 @@ The entire pipeline is visible in real-time on the dashboard.
 |--------|------|-------------|
 | GET | `/api/health` | Service health check |
 | GET | `/api/wallet/addresses` | All wallet addresses |
-| GET | `/api/wallet/balances` | All wallet balances |
-| POST | `/api/tip` | Execute a tip |
+| GET | `/api/wallet/balances` | All wallet balances (native + USDT) |
+| POST | `/api/tip` | Execute a single tip (native or USDT) |
+| POST | `/api/tip/batch` | Execute batch tips (up to 10 recipients) |
 | GET | `/api/tip/estimate` | Estimate fees |
 | GET | `/api/agent/state` | Current agent state |
+| GET | `/api/agent/events` | SSE stream for real-time updates |
 | GET | `/api/agent/history` | Tip history |
 | GET | `/api/agent/stats` | Agent statistics |
 | GET | `/api/chains` | Supported chains |
@@ -177,7 +192,7 @@ The entire pipeline is visible in real-time on the dashboard.
 tipflow/
 ├── agent/                    # Node.js agent server
 │   ├── src/
-│   │   ├── core/agent.ts     # TipFlow agent pipeline
+│   │   ├── core/agent.ts     # TipFlow agent pipeline (single + batch)
 │   │   ├── services/
 │   │   │   ├── wallet.service.ts  # WDK wallet operations
 │   │   │   └── ai.service.ts     # Ollama LLM integration
@@ -189,6 +204,14 @@ tipflow/
 ├── dashboard/                # React frontend
 │   ├── src/
 │   │   ├── components/       # UI components
+│   │   │   ├── TipForm.tsx       # Single tip with token selection
+│   │   │   ├── BatchTipForm.tsx  # Batch tip form
+│   │   │   ├── AgentPanel.tsx    # Real-time pipeline display
+│   │   │   ├── WalletCard.tsx    # Wallet balance display
+│   │   │   ├── TipHistory.tsx    # Transaction history
+│   │   │   ├── StatsPanel.tsx    # Analytics dashboard
+│   │   │   ├── Header.tsx        # App header
+│   │   │   └── Toast.tsx         # Notifications
 │   │   ├── hooks/            # API polling hooks
 │   │   ├── lib/              # API client + utilities
 │   │   └── types/            # TypeScript types
@@ -204,8 +227,6 @@ tipflow/
 ## Future Roadmap
 
 - **Gasless transactions** via ERC-4337 and TON Gasless modules
-- **USDT transfers** on all supported chains
-- **Batch tipping** — tip multiple recipients at once
 - **Discord/Telegram bots** — tip from chat platforms
 - **Tip leaderboards** and streak tracking
 - **Scheduled tips** — recurring payments

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Send, Loader2, AlertCircle } from 'lucide-react';
+import { Send, Loader2, AlertCircle, Coins } from 'lucide-react';
 import { api } from '../lib/api';
-import type { ChainId, TipResult } from '../types';
+import type { ChainId, TokenType, TipResult } from '../types';
 
 interface TipFormProps {
   onTipComplete: (result: TipResult) => void;
@@ -11,6 +11,7 @@ interface TipFormProps {
 export function TipForm({ onTipComplete, disabled }: TipFormProps) {
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
+  const [token, setToken] = useState<TokenType>('native');
   const [chain, setChain] = useState<ChainId | ''>('');
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
@@ -27,6 +28,7 @@ export function TipForm({ onTipComplete, disabled }: TipFormProps) {
       const { result } = await api.sendTip(
         recipient,
         amount,
+        token,
         chain || undefined,
         message || undefined,
       );
@@ -42,7 +44,7 @@ export function TipForm({ onTipComplete, disabled }: TipFormProps) {
     }
   };
 
-  const presetAmounts = ['0.001', '0.005', '0.01', '0.05'];
+  const presetAmounts = token === 'usdt' ? ['1', '5', '10', '25'] : ['0.001', '0.005', '0.01', '0.05'];
 
   return (
     <div className="rounded-xl border border-border bg-surface-1 p-5">
@@ -52,25 +54,58 @@ export function TipForm({ onTipComplete, disabled }: TipFormProps) {
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Token selector */}
+        <div>
+          <label className="block text-xs text-text-secondary mb-1.5">Token</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => { setToken('native'); setAmount(''); }}
+              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all ${
+                token === 'native'
+                  ? 'border-accent bg-accent-dim text-accent'
+                  : 'border-border bg-surface-2 text-text-secondary hover:border-border-light'
+              }`}
+            >
+              <Coins className="w-4 h-4" />
+              Native (ETH/TON)
+            </button>
+            <button
+              type="button"
+              onClick={() => { setToken('usdt'); setAmount(''); setChain('ethereum-sepolia'); }}
+              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all ${
+                token === 'usdt'
+                  ? 'border-accent bg-accent-dim text-accent'
+                  : 'border-border bg-surface-2 text-text-secondary hover:border-border-light'
+              }`}
+            >
+              <span className="text-xs font-bold">$</span>
+              USDT
+            </button>
+          </div>
+        </div>
+
         <div>
           <label className="block text-xs text-text-secondary mb-1.5">Recipient Address</label>
           <input
             type="text"
             value={recipient}
             onChange={(e) => setRecipient(e.target.value)}
-            placeholder="0x... or UQ..."
+            placeholder={token === 'usdt' ? '0x...' : '0x... or UQ...'}
             className="w-full px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border focus:ring-1 focus:ring-accent-border transition-colors font-mono"
             disabled={sending || disabled}
           />
         </div>
 
         <div>
-          <label className="block text-xs text-text-secondary mb-1.5">Amount</label>
+          <label className="block text-xs text-text-secondary mb-1.5">
+            Amount {token === 'usdt' ? '(USDT)' : ''}
+          </label>
           <input
             type="text"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="0.01"
+            placeholder={token === 'usdt' ? '10.00' : '0.01'}
             className="w-full px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border focus:ring-1 focus:ring-accent-border transition-colors"
             disabled={sending || disabled}
           />
@@ -82,7 +117,7 @@ export function TipForm({ onTipComplete, disabled }: TipFormProps) {
                 onClick={() => setAmount(preset)}
                 className="px-2.5 py-1 text-xs rounded-md bg-surface-3 border border-border text-text-secondary hover:text-text-primary hover:border-border-light transition-colors"
               >
-                {preset}
+                {token === 'usdt' ? `$${preset}` : preset}
               </button>
             ))}
           </div>
@@ -96,11 +131,17 @@ export function TipForm({ onTipComplete, disabled }: TipFormProps) {
             value={chain}
             onChange={(e) => setChain(e.target.value as ChainId | '')}
             className="w-full px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary focus:outline-none focus:border-accent-border transition-colors"
-            disabled={sending || disabled}
+            disabled={sending || disabled || token === 'usdt'}
           >
-            <option value="">Auto (AI decides)</option>
-            <option value="ethereum-sepolia">Ethereum Sepolia</option>
-            <option value="ton-testnet">TON Testnet</option>
+            {token === 'usdt' ? (
+              <option value="ethereum-sepolia">Ethereum Sepolia (USDT)</option>
+            ) : (
+              <>
+                <option value="">Auto (AI decides)</option>
+                <option value="ethereum-sepolia">Ethereum Sepolia</option>
+                <option value="ton-testnet">TON Testnet</option>
+              </>
+            )}
           </select>
         </div>
 
@@ -138,7 +179,7 @@ export function TipForm({ onTipComplete, disabled }: TipFormProps) {
           ) : (
             <>
               <Send className="w-4 h-4" />
-              Send Tip
+              Send {token === 'usdt' ? 'USDT' : ''} Tip
             </>
           )}
         </button>

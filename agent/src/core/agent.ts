@@ -6,12 +6,15 @@ import type {
   AgentDecision,
   AgentState,
   AgentStats,
+  BatchTipRequest,
+  BatchTipResult,
   ChainAnalysis,
   ChainId,
   ReasoningStep,
   TipHistoryEntry,
   TipRequest,
   TipResult,
+  TokenType,
 } from '../types/index.js';
 
 /**
@@ -60,15 +63,14 @@ export class TipFlowAgent {
 
   /**
    * Execute a tip — the full agent pipeline.
-   * This is the main entry point for processing tips.
    */
   async executeTip(request: TipRequest): Promise<TipResult> {
     const tipId = request.id || uuidv4();
     const steps: ReasoningStep[] = [];
+    const token: TokenType = request.token ?? 'native';
     const addStep = (action: string, detail: string): void => {
       steps.push({ step: steps.length + 1, action, detail, timestamp: new Date().toISOString() });
       logger.info(`[Step ${steps.length}] ${action}: ${detail}`);
-      // Broadcast partial decision with current steps to SSE clients
       this.setState({
         currentDecision: {
           selectedChain: this.state.currentDecision?.selectedChain ?? 'ethereum-sepolia',
@@ -83,7 +85,8 @@ export class TipFlowAgent {
     try {
       // Step 1: INTAKE
       this.setState({ status: 'analyzing', currentTip: request });
-      addStep('INTAKE', `Received tip request: ${request.amount} to ${request.recipient}`);
+      const tokenLabel = token === 'usdt' ? 'USDT' : 'native';
+      addStep('INTAKE', `Received tip request: ${request.amount} ${tokenLabel} to ${request.recipient}`);
       this.validateTipRequest(request);
 
       // Step 2: ANALYZE
@@ -100,8 +103,8 @@ export class TipFlowAgent {
 
       // Step 4: EXECUTE
       this.setState({ status: 'executing' });
-      addStep('EXECUTE', `Sending ${request.amount} on ${decision.selectedChain}...`);
-      const txResult = await this.executeTransaction(decision.selectedChain, request);
+      addStep('EXECUTE', `Sending ${request.amount} ${tokenLabel} on ${decision.selectedChain}...`);
+      const txResult = await this.executeTransaction(decision.selectedChain, request, token);
       addStep('EXECUTE', `Transaction sent: ${txResult.hash}`);
 
       // Step 5: VERIFY
@@ -120,6 +123,7 @@ export class TipFlowAgent {
         from: (await this.wallet.getAddress(decision.selectedChain)),
         to: request.recipient,
         amount: request.amount,
+        token,
         fee: txResult.fee,
         explorerUrl,
         decision,
@@ -147,6 +151,7 @@ export class TipFlowAgent {
         from: '',
         to: request.recipient,
         amount: request.amount,
+        token,
         fee: '0',
         explorerUrl: '',
         decision: this.state.currentDecision ?? {
@@ -165,6 +170,52 @@ export class TipFlowAgent {
     }
   }
 
+  /**
+   * Execute a batch tip — send tips to multiple recipients.
+   * The agent analyzes chains once, then executes all transactions sequentially.
+   */
+  async executeBatchTip(batch: BatchTipRequest): Promise<BatchTipResult> {
+    const batchId = uuidv4();
+    const results: TipResult[] = [];
+    let totalFees = 0;
+    let totalAmount = 0;
+    const now = new Date().toISOString();
+
+    logger.info('Starting batch tip', { batchId, count: batch.recipients.length });
+
+    for (const recipient of batch.recipients) {
+      const request: TipRequest = {
+        id: uuidv4(),
+        recipient: recipient.address,
+        amount: recipient.amount,
+        token: batch.token ?? 'native',
+        preferredChain: batch.preferredChain,
+        message: recipient.message,
+        createdAt: now,
+      };
+
+      const result = await this.executeTip(request);
+      results.push(result);
+      totalAmount += parseFloat(recipient.amount);
+      if (result.status === 'confirmed') {
+        totalFees += parseFloat(result.fee);
+      }
+    }
+
+    const succeeded = results.filter((r) => r.status === 'confirmed').length;
+
+    return {
+      id: batchId,
+      total: batch.recipients.length,
+      succeeded,
+      failed: batch.recipients.length - succeeded,
+      results,
+      totalAmount: totalAmount.toFixed(6),
+      totalFees: totalFees.toFixed(6),
+      createdAt: now,
+    };
+  }
+
   /** Validate the tip request */
   private validateTipRequest(request: TipRequest): void {
     const amount = parseFloat(request.amount);
@@ -174,6 +225,9 @@ export class TipFlowAgent {
     if (!request.recipient || request.recipient.trim().length === 0) {
       throw new Error('Recipient address is required');
     }
+    if (request.token === 'usdt' && request.preferredChain === 'ton-testnet') {
+      throw new Error('USDT transfers are only supported on Ethereum Sepolia');
+    }
   }
 
   /** Analyze all available chains for this tip */
@@ -182,6 +236,9 @@ export class TipFlowAgent {
     const analyses: ChainAnalysis[] = [];
 
     for (const chainId of chains) {
+      if (request.token === 'usdt' && chainId === 'ton-testnet') {
+        continue;
+      }
       try {
         const analysis = await this.analyzeChain(chainId, request);
         analyses.push(analysis);
@@ -216,17 +273,14 @@ export class TipFlowAgent {
       logger.warn(`Fee estimation failed for ${chainId}, using default`);
     }
 
-    // Calculate approximate USD fee (simplified pricing)
     const feeUsd = this.estimateFeeUsd(chainId, feeEstimate.fee);
-
-    // Score the chain (0-100)
-    const score = this.scoreChain(chainId, balance, feeEstimate, request.amount);
+    const score = this.scoreChain(chainId, balance, feeEstimate, request);
 
     return {
       chainId,
       chainName: config.name,
-      available: parseFloat(balance.nativeBalance) > 0 || true, // Available even with zero balance for demo
-      balance: balance.nativeBalance,
+      available: parseFloat(balance.nativeBalance) > 0 || true,
+      balance: request.token === 'usdt' ? balance.usdtBalance : balance.nativeBalance,
       estimatedFee: feeEstimate.fee,
       estimatedFeeUsd: feeUsd.toFixed(4),
       networkStatus: 'healthy',
@@ -238,35 +292,37 @@ export class TipFlowAgent {
   /** Score a chain from 0-100 based on multiple factors */
   private scoreChain(
     chainId: ChainId,
-    balance: { nativeBalance: string },
+    balance: { nativeBalance: string; usdtBalance: string },
     feeEstimate: { fee: string; feeRaw: bigint },
-    _tipAmount: string,
+    request: TipRequest,
   ): number {
-    let score = 50; // Base score
+    let score = 50;
 
-    // Balance factor (higher balance = better)
-    const nativeBalance = parseFloat(balance.nativeBalance);
-    if (nativeBalance > 0.1) score += 20;
-    else if (nativeBalance > 0.01) score += 10;
-    else if (nativeBalance > 0) score += 5;
+    if (request.token === 'usdt') {
+      const usdtBal = parseFloat(balance.usdtBalance);
+      if (usdtBal >= parseFloat(request.amount)) score += 25;
+      else if (usdtBal > 0) score += 10;
+    } else {
+      const nativeBalance = parseFloat(balance.nativeBalance);
+      if (nativeBalance > 0.1) score += 20;
+      else if (nativeBalance > 0.01) score += 10;
+      else if (nativeBalance > 0) score += 5;
+    }
 
-    // Fee factor (lower fee = better)
     const feeVal = parseFloat(feeEstimate.fee);
     if (feeVal < 0.0001) score += 20;
     else if (feeVal < 0.001) score += 15;
     else if (feeVal < 0.01) score += 10;
     else score -= 10;
 
-    // Chain preference (EVM slightly preferred for USDT support)
     if (chainId === 'ethereum-sepolia') score += 5;
 
     return Math.max(0, Math.min(100, score));
   }
 
-  /** Estimate fee in USD (simplified — in production use oracle) */
+  /** Estimate fee in USD */
   private estimateFeeUsd(chainId: ChainId, fee: string): number {
     const feeVal = parseFloat(fee);
-    // Approximate testnet prices (for demo purposes)
     if (chainId.startsWith('ethereum')) return feeVal * 2500;
     if (chainId.startsWith('ton')) return feeVal * 2.5;
     return feeVal;
@@ -278,7 +334,6 @@ export class TipFlowAgent {
     request: TipRequest,
     steps: ReasoningStep[],
   ): Promise<AgentDecision> {
-    // If user specified a chain preference, honor it
     if (request.preferredChain) {
       const preferred = analyses.find((a) => a.chainId === request.preferredChain);
       if (preferred && preferred.available) {
@@ -298,7 +353,6 @@ export class TipFlowAgent {
       }
     }
 
-    // Select chain with highest score
     const available = analyses.filter((a) => a.available);
     if (available.length === 0) {
       throw new Error('No available chains for this tip');
@@ -327,9 +381,11 @@ export class TipFlowAgent {
   private async executeTransaction(
     chainId: ChainId,
     request: TipRequest,
+    token: TokenType,
   ): Promise<{ hash: string; fee: string }> {
-    // For now, send native token transfers
-    // In production, this would handle USDT transfers too
+    if (token === 'usdt') {
+      return this.wallet.sendUsdtTransfer(chainId, request.recipient, request.amount);
+    }
     return this.wallet.sendTransaction(chainId, request.recipient, request.amount);
   }
 
@@ -339,6 +395,7 @@ export class TipFlowAgent {
       id: result.id,
       recipient: result.to,
       amount: result.amount,
+      token: result.token,
       chainId: result.chainId,
       txHash: result.txHash,
       status: result.status === 'confirmed' ? 'confirmed' : 'failed',
@@ -364,7 +421,6 @@ export class TipFlowAgent {
       chainDist[h.chainId] = (chainDist[h.chainId] ?? 0) + 1;
     }
 
-    // Tips by day
     const dayMap = new Map<string, { count: number; amount: number }>();
     for (const h of confirmed) {
       const day = h.createdAt.split('T')[0];
@@ -377,7 +433,7 @@ export class TipFlowAgent {
     return {
       totalTips: confirmed.length,
       totalAmount: totalAmount.toFixed(6),
-      totalFeesSaved: (totalFees * 0.3).toFixed(6), // Estimated savings vs worst chain
+      totalFeesSaved: (totalFees * 0.3).toFixed(6),
       avgTipAmount: confirmed.length > 0 ? (totalAmount / confirmed.length).toFixed(6) : '0',
       chainDistribution: chainDist as Record<ChainId, number>,
       tipsByDay: Array.from(dayMap.entries()).map(([date, data]) => ({
@@ -402,7 +458,9 @@ export class TipFlowAgent {
     if (raw.includes('TIMEOUT') || raw.includes('timeout')) {
       return 'Request timed out. The network may be congested.';
     }
-    // Truncate very long errors
+    if (raw.includes('USDT not supported')) {
+      return 'USDT transfers are only supported on Ethereum Sepolia.';
+    }
     if (raw.length > 150) {
       return raw.slice(0, 147) + '...';
     }

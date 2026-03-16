@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { TipFlowAgent } from '../core/agent.js';
 import type { WalletService } from '../services/wallet.service.js';
 import type { AIService } from '../services/ai.service.js';
-import type { ChainId, TipRequest } from '../types/index.js';
+import type { ChainId, TipRequest, TokenType, BatchTipRequest } from '../types/index.js';
 import { logger } from '../utils/logger.js';
 
 /** Create API router with injected dependencies */
@@ -55,9 +55,10 @@ export function createApiRouter(
   /** POST /api/tip — Execute a tip */
   router.post('/tip', async (req, res) => {
     try {
-      const { recipient, amount, preferredChain, message } = req.body as {
+      const { recipient, amount, token, preferredChain, message } = req.body as {
         recipient: string;
         amount: string;
+        token?: TokenType;
         preferredChain?: ChainId;
         message?: string;
       };
@@ -71,17 +72,56 @@ export function createApiRouter(
         id: uuidv4(),
         recipient,
         amount,
+        token: token ?? 'native',
         preferredChain,
         message,
         createdAt: new Date().toISOString(),
       };
 
-      logger.info('Processing tip request', { tipId: tipRequest.id, recipient, amount });
+      logger.info('Processing tip request', { tipId: tipRequest.id, recipient, amount, token: tipRequest.token });
 
       const result = await agent.executeTip(tipRequest);
       res.json({ result });
     } catch (err) {
       logger.error('Tip execution failed', { error: String(err) });
+      res.status(500).json({ error: String(err) });
+    }
+  });
+
+  /** POST /api/tip/batch — Execute batch tips to multiple recipients */
+  router.post('/tip/batch', async (req, res) => {
+    try {
+      const { recipients, token, preferredChain } = req.body as BatchTipRequest;
+
+      if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
+        res.status(400).json({ error: 'recipients array is required and must not be empty' });
+        return;
+      }
+
+      if (recipients.length > 10) {
+        res.status(400).json({ error: 'Maximum 10 recipients per batch' });
+        return;
+      }
+
+      for (const r of recipients) {
+        if (!r.address || !r.amount) {
+          res.status(400).json({ error: 'Each recipient must have an address and amount' });
+          return;
+        }
+      }
+
+      const batch: BatchTipRequest = {
+        recipients,
+        token: token ?? 'native',
+        preferredChain,
+      };
+
+      logger.info('Processing batch tip', { count: recipients.length });
+
+      const result = await agent.executeBatchTip(batch);
+      res.json({ result });
+    } catch (err) {
+      logger.error('Batch tip failed', { error: String(err) });
       res.status(500).json({ error: String(err) });
     }
   });
@@ -153,10 +193,7 @@ export function createApiRouter(
 
   /** GET /api/chains — Get supported chains info */
   router.get('/chains', (_req, res) => {
-    const chains = wallet.getRegisteredChains().map((id) => ({
-      id,
-      ...wallet.getChainConfig(id),
-    }));
+    const chains = wallet.getRegisteredChains().map((id) => wallet.getChainConfig(id));
     res.json({ chains });
   });
 

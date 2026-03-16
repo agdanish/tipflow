@@ -1,6 +1,9 @@
 /** Supported blockchain networks */
 export type ChainId = 'ethereum-sepolia' | 'ton-testnet';
 
+/** Token types supported for tipping */
+export type TokenType = 'native' | 'usdt';
+
 /** Chain configuration for WDK wallet modules */
 export interface ChainConfig {
   id: ChainId;
@@ -26,8 +29,32 @@ export interface TipRequest {
   id: string;
   recipient: string;
   amount: string;
+  token: TokenType;
   preferredChain?: ChainId;
   message?: string;
+  createdAt: string;
+}
+
+/** Batch tip request — tip multiple recipients at once */
+export interface BatchTipRequest {
+  recipients: Array<{
+    address: string;
+    amount: string;
+    message?: string;
+  }>;
+  token: TokenType;
+  preferredChain?: ChainId;
+}
+
+/** Batch tip result */
+export interface BatchTipResult {
+  id: string;
+  total: number;
+  succeeded: number;
+  failed: number;
+  results: TipResult[];
+  totalAmount: string;
+  totalFees: string;
   createdAt: string;
 }
 
@@ -71,6 +98,7 @@ export interface TipResult {
   from: string;
   to: string;
   amount: string;
+  token: TokenType;
   fee: string;
   explorerUrl: string;
   decision: AgentDecision;
@@ -92,6 +120,7 @@ export interface TipHistoryEntry {
   id: string;
   recipient: string;
   amount: string;
+  token: TokenType;
   chainId: ChainId;
   txHash: string;
   status: 'confirmed' | 'failed';

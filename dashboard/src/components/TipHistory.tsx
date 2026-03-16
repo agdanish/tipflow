@@ -67,7 +67,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-text-primary">
-                        {formatNumber(entry.amount)} {entry.chainId.startsWith('ethereum') ? 'ETH' : 'TON'}
+                        {formatNumber(entry.amount)} {entry.token === 'usdt' ? 'USDT' : entry.chainId.startsWith('ethereum') ? 'ETH' : 'TON'}
                       </span>
                       <span className="text-xs text-text-muted">→</span>
                       <span className="text-xs text-text-secondary font-mono truncate">

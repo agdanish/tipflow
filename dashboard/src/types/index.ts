@@ -1,4 +1,5 @@
 export type ChainId = 'ethereum-sepolia' | 'ton-testnet';
+export type TokenType = 'native' | 'usdt';
 
 export interface WalletBalance {
   chainId: ChainId;
@@ -44,6 +45,7 @@ export interface TipResult {
   from: string;
   to: string;
   amount: string;
+  token: TokenType;
   fee: string;
   explorerUrl: string;
   decision: AgentDecision;
@@ -56,6 +58,7 @@ export interface TipHistoryEntry {
   id: string;
   recipient: string;
   amount: string;
+  token: TokenType;
   chainId: ChainId;
   txHash: string;
   status: 'confirmed' | 'failed';
@@ -95,4 +98,15 @@ export interface ChainConfig {
   isTestnet: boolean;
   nativeCurrency: string;
   explorerUrl: string;
+}
+
+export interface BatchTipResult {
+  id: string;
+  total: number;
+  succeeded: number;
+  failed: number;
+  results: TipResult[];
+  totalAmount: string;
+  totalFees: string;
+  createdAt: string;
 }

@@ -24,8 +24,10 @@ export function WalletCard({ balance }: WalletCardProps) {
     ? 'https://sepolia.etherscan.io/address/'
     : 'https://testnet.tonviewer.com/';
 
+  const hasUsdt = balance.usdtBalance !== '0.000000' && balance.usdtBalance !== '0';
+
   return (
-    <div className="rounded-xl border border-border bg-surface-1 p-5 hover:border-border-light transition-colors">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 card-hover">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <div
@@ -53,21 +55,20 @@ export function WalletCard({ balance }: WalletCardProps) {
 
       <div className="space-y-3">
         <div>
-          <p className="text-xs text-text-muted mb-1">Balance</p>
+          <p className="text-xs text-text-muted mb-1">Native Balance</p>
           <p className="text-2xl font-semibold text-text-primary">
             {formatNumber(balance.nativeBalance)}{' '}
             <span className="text-sm text-text-secondary">{balance.nativeCurrency}</span>
           </p>
         </div>
 
-        {balance.usdtBalance !== '0.000000' && (
-          <div>
-            <p className="text-xs text-text-muted mb-1">USDT</p>
-            <p className="text-lg font-medium text-accent">
-              {formatNumber(balance.usdtBalance, 2)} USDT
-            </p>
-          </div>
-        )}
+        <div>
+          <p className="text-xs text-text-muted mb-1">USDT Balance</p>
+          <p className={`text-lg font-medium ${hasUsdt ? 'text-accent' : 'text-text-muted'}`}>
+            {hasUsdt ? formatNumber(balance.usdtBalance, 2) : '0.00'}{' '}
+            <span className="text-sm">USDT</span>
+          </p>
+        </div>
 
         <div className="pt-2 border-t border-border">
           <button
