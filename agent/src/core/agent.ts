@@ -134,8 +134,9 @@ export class TipFlowAgent {
       return result;
 
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : String(err);
-      logger.error('Tip execution failed', { tipId, error: errorMsg });
+      const rawError = err instanceof Error ? err.message : String(err);
+      const errorMsg = this.friendlyError(rawError);
+      logger.error('Tip execution failed', { tipId, error: rawError });
 
       const result: TipResult = {
         id: uuidv4(),
@@ -385,5 +386,26 @@ export class TipFlowAgent {
         amount: data.amount,
       })),
     };
+  }
+
+  /** Convert raw error messages to user-friendly text */
+  private friendlyError(raw: string): string {
+    if (raw.includes('INSUFFICIENT_FUNDS') || raw.includes('insufficient funds')) {
+      return 'Insufficient funds — wallet needs testnet tokens. Visit a Sepolia faucet to get free test ETH.';
+    }
+    if (raw.includes('INVALID_ARGUMENT') || raw.includes('bad address')) {
+      return 'Invalid recipient address. Please check the address format.';
+    }
+    if (raw.includes('NETWORK_ERROR') || raw.includes('network')) {
+      return 'Network error — could not connect to the blockchain. Please try again.';
+    }
+    if (raw.includes('TIMEOUT') || raw.includes('timeout')) {
+      return 'Request timed out. The network may be congested.';
+    }
+    // Truncate very long errors
+    if (raw.length > 150) {
+      return raw.slice(0, 147) + '...';
+    }
+    return raw;
   }
 }
