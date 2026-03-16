@@ -123,6 +123,15 @@ npm run dev
 
 The dashboard opens at `http://localhost:5173` and the agent API runs on `http://localhost:3001`.
 
+### Getting Testnet Funds
+
+To send real test transactions, you need testnet tokens:
+
+1. **Sepolia ETH**: Visit a Sepolia faucet (e.g. Google Cloud faucet, Alchemy faucet)
+2. **TON Testnet**: Visit [testnet.toncenter.com](https://testnet.toncenter.com) faucet
+3. Copy your wallet addresses from the TipFlow dashboard and request testnet tokens
+4. Once funded, you can send real tips through the dashboard
+
 ### One-Command Start
 
 ```bash
