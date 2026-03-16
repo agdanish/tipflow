@@ -56,24 +56,49 @@ export function useBalances(interval = 10000) {
   return { balances, loading, refresh };
 }
 
-/** Hook for agent state with polling */
-export function useAgentState(interval = 2000) {
+/** Hook for agent state via SSE (real-time) with polling fallback */
+export function useAgentState() {
   const [state, setState] = useState<AgentState>({ status: 'idle' });
 
   useEffect(() => {
-    let mounted = true;
-    const poll = async () => {
-      try {
-        const { state: s } = await api.getAgentState();
-        if (mounted) setState(s);
-      } catch {
-        // Ignore
-      }
+    let es: EventSource | null = null;
+    let fallbackId: ReturnType<typeof setInterval> | null = null;
+
+    const connectSSE = () => {
+      es = new EventSource('/api/agent/events');
+      es.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'state' && data.state) {
+            setState(data.state);
+          }
+        } catch {
+          // Ignore parse errors
+        }
+      };
+      es.onerror = () => {
+        es?.close();
+        // Fallback to polling on SSE failure
+        if (!fallbackId) {
+          fallbackId = setInterval(async () => {
+            try {
+              const { state: s } = await api.getAgentState();
+              setState(s);
+            } catch {
+              // Ignore
+            }
+          }, 2000);
+        }
+      };
     };
-    poll();
-    const id = setInterval(poll, interval);
-    return () => { mounted = false; clearInterval(id); };
-  }, [interval]);
+
+    connectSSE();
+
+    return () => {
+      es?.close();
+      if (fallbackId) clearInterval(fallbackId);
+    };
+  }, []);
 
   return state;
 }

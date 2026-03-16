@@ -68,6 +68,16 @@ export class TipFlowAgent {
     const addStep = (action: string, detail: string): void => {
       steps.push({ step: steps.length + 1, action, detail, timestamp: new Date().toISOString() });
       logger.info(`[Step ${steps.length}] ${action}: ${detail}`);
+      // Broadcast partial decision with current steps to SSE clients
+      this.setState({
+        currentDecision: {
+          selectedChain: this.state.currentDecision?.selectedChain ?? 'ethereum-sepolia',
+          reasoning: this.state.currentDecision?.reasoning ?? '',
+          analyses: this.state.currentDecision?.analyses ?? [],
+          steps: [...steps],
+          confidence: this.state.currentDecision?.confidence ?? 0,
+        },
+      });
     };
 
     try {

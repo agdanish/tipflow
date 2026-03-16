@@ -123,6 +123,24 @@ export function createApiRouter(
     res.json({ state: agent.getState() });
   });
 
+  /** GET /api/agent/events — SSE stream for real-time agent updates */
+  router.get('/agent/events', (_req, res) => {
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
+    });
+    res.write('data: {"type":"connected"}\n\n');
+
+    const unsubscribe = agent.onStateChange((state) => {
+      res.write(`data: ${JSON.stringify({ type: 'state', state })}\n\n`);
+    });
+
+    _req.on('close', () => {
+      unsubscribe();
+    });
+  });
+
   /** GET /api/agent/history — Get tip history */
   router.get('/agent/history', (_req, res) => {
     res.json({ history: agent.getHistory() });

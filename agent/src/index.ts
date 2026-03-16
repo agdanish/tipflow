@@ -1,13 +1,41 @@
 import 'dotenv/config';
+import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import cors from 'cors';
+import WDK from '@tetherto/wdk';
 import { WalletService } from './services/wallet.service.js';
 import { AIService } from './services/ai.service.js';
 import { TipFlowAgent } from './core/agent.js';
 import { createApiRouter } from './routes/api.js';
 import { logger } from './utils/logger.js';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const SEED_FILE = resolve(__dirname, '..', '.seed');
 const PORT = parseInt(process.env.PORT ?? '3001', 10);
+
+/** Load or generate a persistent seed phrase */
+function getOrCreateSeed(): string {
+  // 1. Check env variable
+  if (process.env.WDK_SEED && process.env.WDK_SEED.trim().length > 0) {
+    logger.info('Using seed phrase from WDK_SEED env variable');
+    return process.env.WDK_SEED.trim();
+  }
+  // 2. Check local seed file
+  if (existsSync(SEED_FILE)) {
+    const seed = readFileSync(SEED_FILE, 'utf-8').trim();
+    if (seed.length > 0) {
+      logger.info('Using seed phrase from .seed file');
+      return seed;
+    }
+  }
+  // 3. Generate and persist a new seed
+  const newSeed = WDK.getRandomSeedPhrase();
+  writeFileSync(SEED_FILE, newSeed, 'utf-8');
+  logger.info('Generated new seed phrase and saved to .seed file');
+  return newSeed;
+}
 
 async function main(): Promise<void> {
   logger.info('Starting TipFlow Agent...');
@@ -16,11 +44,8 @@ async function main(): Promise<void> {
   const walletService = new WalletService();
   const aiService = new AIService();
 
-  // Initialize wallet with seed from env or generate new one
-  const seed = process.env.WDK_SEED || undefined;
-  if (!seed) {
-    logger.warn('No WDK_SEED found in env — generating new seed phrase');
-  }
+  // Initialize wallet with persistent seed
+  const seed = getOrCreateSeed();
   await walletService.initialize(seed);
 
   // Log wallet addresses
