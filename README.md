@@ -351,7 +351,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 | **Containerization** | Docker multi-stage build + docker-compose |
 | **Logging** | Winston structured logging with audit trail |
 | **Security** | Rate limiting, input validation, audit logging |
-| **Prices** | CoinGecko free API (no key needed) with static fallback |
+| **Prices** | Bitfinex public API (no key needed) with static fallback |
 | **ENS** | ethers.js for .eth name resolution |
 
 ---
@@ -368,7 +368,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 | `GET` | `/api/chains` | Supported chain configurations |
 | `GET` | `/api/gas` | Real-time gas prices |
 | `GET` | `/api/gas/speeds` | Gas speed options (slow/normal/fast) |
-| `GET` | `/api/prices` | Live crypto prices (CoinGecko) |
+| `GET` | `/api/prices` | Live crypto prices (Bitfinex) |
 | `GET` | `/api/network/health` | RPC connectivity check |
 | `GET` | `/api/system/info` | Runtime system information |
 
@@ -513,7 +513,7 @@ No paid APIs. No cloud services. Everything runs locally.
 | Need | Solution | Cost |
 |------|----------|------|
 | AI | Local Ollama LLM + regex fallback | $0 |
-| Prices | CoinGecko free API (no key) | $0 |
+| Prices | Bitfinex public API (no key) | $0 |
 | RPC | Public endpoints (publicnode.com, toncenter.com) | $0 |
 | QR Codes | qrserver.com API | $0 |
 | Charts | Custom SVG (no charting library) | $0 |

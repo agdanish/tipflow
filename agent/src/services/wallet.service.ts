@@ -1,6 +1,7 @@
 import WDK from '@tetherto/wdk';
 import WalletManagerEvm from '@tetherto/wdk-wallet-evm';
 import WalletManagerTon from '@tetherto/wdk-wallet-ton';
+import WalletManagerTron from '@tetherto/wdk-wallet-tron';
 import WalletManagerEvmErc4337 from '@tetherto/wdk-wallet-evm-erc-4337';
 import WalletManagerTonGasless from '@tetherto/wdk-wallet-ton-gasless';
 import { logger } from '../utils/logger.js';
@@ -30,6 +31,14 @@ const CHAIN_CONFIGS: Record<ChainId, ChainConfig> = {
     isTestnet: true,
     nativeCurrency: 'TON',
     explorerUrl: 'https://testnet.tonviewer.com',
+  },
+  'tron-nile': {
+    id: 'tron-nile',
+    name: 'Tron Nile',
+    blockchain: 'tron',
+    isTestnet: true,
+    nativeCurrency: 'TRX',
+    explorerUrl: 'https://nile.tronscan.org',
   },
   'ethereum-sepolia-gasless': {
     id: 'ethereum-sepolia-gasless',
@@ -114,6 +123,19 @@ export class WalletService {
       logger.info('Registered TON wallet (Testnet)');
     } catch (err) {
       logger.error('Failed to register TON wallet', { error: String(err) });
+    }
+
+    // Register Tron (Nile Testnet)
+    try {
+      const tronProvider = process.env.TRON_NILE_RPC ?? 'https://nile.trongrid.io';
+      this.wdk.registerWallet('tron', WalletManagerTron, {
+        provider: tronProvider,
+        transferMaxFee: 10000000n, // 10 TRX max fee in sun
+      });
+      this.registeredChains.add('tron-nile');
+      logger.info('Registered Tron wallet (Nile Testnet)');
+    } catch (err) {
+      logger.error('Failed to register Tron wallet', { error: String(err) });
     }
 
     // Register EVM ERC-4337 (Account Abstraction / Gasless)
@@ -334,14 +356,15 @@ export class WalletService {
   /** Estimate fee in USD using approximate prices.
    *  Prices are rough estimates for fee comparison ranking only —
    *  not used for financial calculations or trading decisions. */
-  private static approxPrices = { ETH: 2500, TON: 2.5 };
-  static updatePrices(eth: number, ton: number) {
-    WalletService.approxPrices = { ETH: eth, TON: ton };
+  private static approxPrices = { ETH: 2500, TON: 2.5, TRX: 0.25 };
+  static updatePrices(eth: number, ton: number, trx: number = 0.25) {
+    WalletService.approxPrices = { ETH: eth, TON: ton, TRX: trx };
   }
   private estimateFeeUsd(chainId: ChainId, fee: string): number {
     const feeVal = parseFloat(fee);
     if (chainId.startsWith('ethereum')) return feeVal * WalletService.approxPrices.ETH;
     if (chainId.startsWith('ton')) return feeVal * WalletService.approxPrices.TON;
+    if (chainId.startsWith('tron')) return feeVal * WalletService.approxPrices.TRX;
     return feeVal;
   }
 
@@ -446,16 +469,16 @@ export class WalletService {
       return { confirmed: false, blockNumber: 0, gasUsed: '0' };
     }
 
-    // TON chains: transaction was broadcast successfully.
-    // TON doesn't support standard receipt polling via public RPC,
+    // TON / Tron chains: transaction was broadcast successfully.
+    // These chains don't support standard receipt polling via public RPC,
     // so we mark as confirmed based on successful broadcast.
-    logger.info('TON transaction broadcast successful — no receipt polling available', { txHash });
+    logger.info(`${config.blockchain.toUpperCase()} transaction broadcast successful — no receipt polling available`, { txHash });
     return { confirmed: true, blockNumber: 0, gasUsed: '0' };
   }
 
   /** Format raw balance to human-readable string */
   private formatBalance(raw: bigint, chainId: ChainId): string {
-    const decimals = chainId.startsWith('ton') ? 9 : 18;
+    const decimals = chainId.startsWith('tron') ? 6 : chainId.startsWith('ton') ? 9 : 18;
     const divisor = 10n ** BigInt(decimals);
     const whole = raw / divisor;
     const fraction = raw % divisor;
@@ -473,7 +496,7 @@ export class WalletService {
 
   /** Parse human-readable amount to raw bigint */
   private parseAmount(amount: string, chainId: ChainId): bigint {
-    const decimals = chainId.startsWith('ton') ? 9 : 18;
+    const decimals = chainId.startsWith('tron') ? 6 : chainId.startsWith('ton') ? 9 : 18;
     const parts = amount.split('.');
     const whole = BigInt(parts[0] ?? '0');
     const fractionStr = (parts[1] ?? '').padEnd(decimals, '0').slice(0, decimals);
@@ -647,6 +670,9 @@ export class WalletService {
     const config = CHAIN_CONFIGS[chainId];
     if (chainId === 'ton-testnet' || chainId === 'ton-testnet-gasless') {
       return `${config.explorerUrl}/transaction/${txHash}`;
+    }
+    if (chainId === 'tron-nile') {
+      return `${config.explorerUrl}/#/transaction/${txHash}`;
     }
     return `${config.explorerUrl}/tx/${txHash}`;
   }

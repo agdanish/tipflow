@@ -21,9 +21,10 @@ export function timeAgo(timestamp: string): string {
 
 /** Get chain display name */
 export function chainName(chainId: ChainId): string {
-  const names: Record<ChainId, string> = {
+  const names: Partial<Record<ChainId, string>> = {
     'ethereum-sepolia': 'Ethereum Sepolia',
     'ton-testnet': 'TON Testnet',
+    'tron-nile': 'Tron Nile',
   };
   return names[chainId] ?? chainId;
 }
@@ -32,6 +33,7 @@ export function chainName(chainId: ChainId): string {
 export function chainColor(chainId: ChainId): string {
   if (chainId.startsWith('ethereum')) return '#627eea';
   if (chainId.startsWith('ton')) return '#0098ea';
+  if (chainId.startsWith('tron')) return '#eb0029';
   return '#22c55e';
 }
 
@@ -39,6 +41,7 @@ export function chainColor(chainId: ChainId): string {
 export function chainIcon(chainId: ChainId): string {
   if (chainId.startsWith('ethereum')) return 'ETH';
   if (chainId.startsWith('ton')) return 'TON';
+  if (chainId.startsWith('tron')) return 'TRX';
   return '?';
 }
 

@@ -10,6 +10,7 @@ interface WalletCardProps {
 export function WalletCard({ balance }: WalletCardProps) {
   const [copied, setCopied] = useState(false);
   const isEth = balance.chainId.startsWith('ethereum');
+  const isTron = balance.chainId.startsWith('tron');
   const color = chainColor(balance.chainId);
 
   const handleCopy = async () => {
@@ -22,12 +23,14 @@ export function WalletCard({ balance }: WalletCardProps) {
 
   const explorerBase = isEth
     ? 'https://sepolia.etherscan.io/address/'
-    : 'https://testnet.tonviewer.com/';
+    : isTron
+      ? 'https://nile.tronscan.org/#/address/'
+      : 'https://testnet.tonviewer.com/';
 
   const hasUsdt = balance.usdtBalance !== '0.000000' && balance.usdtBalance !== '0';
 
   return (
-    <div className={`rounded-xl border border-border bg-surface-1 p-4 sm:p-5 card-hover ${isEth ? 'chain-gradient-eth' : 'chain-gradient-ton'}`}>
+    <div className={`rounded-xl border border-border bg-surface-1 p-4 sm:p-5 card-hover ${isEth ? 'chain-gradient-eth' : isTron ? 'chain-gradient-tron' : 'chain-gradient-ton'}`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <div
@@ -37,11 +40,11 @@ export function WalletCard({ balance }: WalletCardProps) {
               boxShadow: `0 4px 12px ${color}33`,
             }}
           >
-            {isEth ? 'ETH' : 'TON'}
+            {isEth ? 'ETH' : isTron ? 'TRX' : 'TON'}
           </div>
           <div>
             <p className="text-sm font-semibold text-text-primary">
-              {isEth ? 'Ethereum Sepolia' : 'TON Testnet'}
+              {isEth ? 'Ethereum Sepolia' : isTron ? 'Tron Nile' : 'TON Testnet'}
             </p>
             <p className="text-[11px] text-text-muted">Testnet</p>
           </div>

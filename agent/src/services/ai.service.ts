@@ -148,10 +148,10 @@ Explain which chain you recommend and why, considering fees, balance, and networ
   private async llmParseTip(input: string): Promise<NLPTipParse> {
     const prompt = `You are a tip command parser. Extract tip details from the user's natural language input.
 Return ONLY a JSON object with these fields (no markdown, no explanation):
-- recipient: the wallet address (0x... for EVM, UQ... or EQ... for TON), empty string if not found
+- recipient: the wallet address (0x... for EVM, UQ... or EQ... for TON, T... for Tron), empty string if not found
 - amount: the numeric amount as a string, empty string if not found
 - token: "usdt" if USDT/Tether is mentioned, otherwise "native"
-- chain: "ethereum-sepolia" if ETH/Ethereum/Sepolia mentioned, "ton-testnet" if TON mentioned, null if not specified
+- chain: "ethereum-sepolia" if ETH/Ethereum/Sepolia mentioned, "ton-testnet" if TON mentioned, "tron-nile" if Tron/TRX mentioned, null if not specified
 - message: any tip message or reason (e.g. "great work"), null if none
 
 Input: "${input}"
@@ -197,7 +197,7 @@ JSON:`;
       recipient,
       amount,
       token,
-      chain: chain && (chain === 'ethereum-sepolia' || chain === 'ton-testnet') ? chain : undefined,
+      chain: chain && (chain === 'ethereum-sepolia' || chain === 'ton-testnet' || chain === 'tron-nile') ? chain : undefined,
       message: message || undefined,
       confidence: Math.min(confidence, 100),
       rawInput: input,
@@ -208,10 +208,11 @@ JSON:`;
   private regexParseTip(input: string): NLPTipParse {
     const lower = input.toLowerCase();
 
-    // Extract recipient address: EVM (0x...) or TON (UQ.../EQ...)
+    // Extract recipient address: EVM (0x...), TON (UQ.../EQ...), or Tron (T...)
     const evmMatch = input.match(/\b(0x[a-fA-F0-9]{40})\b/);
     const tonMatch = input.match(/\b([UE]Q[a-zA-Z0-9_-]{46})\b/);
-    const recipient = evmMatch?.[1] ?? tonMatch?.[1] ?? '';
+    const tronMatch = input.match(/\b(T[a-zA-Z0-9]{33})\b/);
+    const recipient = evmMatch?.[1] ?? tonMatch?.[1] ?? tronMatch?.[1] ?? '';
 
     // Extract amount: number potentially with decimals, before or after token name
     // Patterns: "0.01 ETH", "send 5 USDT", "tip 0.001", "$10"
@@ -233,8 +234,8 @@ JSON:`;
       amount = usdtNameBeforeMatch[1];
       token = 'usdt';
     } else {
-      // Native token pattern: "X ETH", "X TON", "X eth", or just a number
-      const nativeMatch = input.match(/(\d+(?:\.\d+)?)\s*(?:eth|ton|ether|toncoin)?/i);
+      // Native token pattern: "X ETH", "X TON", "X TRX", "X eth", or just a number
+      const nativeMatch = input.match(/(\d+(?:\.\d+)?)\s*(?:eth|ton|trx|tron|ether|toncoin)?/i);
       if (nativeMatch) {
         amount = nativeMatch[1];
       }
@@ -242,7 +243,9 @@ JSON:`;
 
     // Detect chain from token mentions or explicit chain names
     let chain: string | undefined;
-    if (tonMatch || /\bton\b/i.test(lower)) {
+    if (tronMatch || /\b(?:tron|trx|nile)\b/i.test(lower)) {
+      chain = 'tron-nile';
+    } else if (tonMatch || /\bton\b/i.test(lower)) {
       chain = 'ton-testnet';
     } else if (evmMatch || /\b(?:eth|ethereum|sepolia|evm)\b/i.test(lower)) {
       chain = 'ethereum-sepolia';
@@ -276,7 +279,7 @@ JSON:`;
       recipient,
       amount,
       token,
-      chain: chain as 'ethereum-sepolia' | 'ton-testnet' | undefined,
+      chain: chain as 'ethereum-sepolia' | 'ton-testnet' | 'tron-nile' | undefined,
       message,
       confidence: Math.min(confidence, 100),
       rawInput: input,

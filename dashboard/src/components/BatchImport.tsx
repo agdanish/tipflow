@@ -42,7 +42,7 @@ export function BatchImport() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validTokens = ['native', 'usdt'];
-  const validChains = ['ethereum-sepolia', 'ton-testnet', 'ethereum-sepolia-gasless', 'ton-testnet-gasless', ''];
+  const validChains = ['ethereum-sepolia', 'ton-testnet', 'tron-nile', 'ethereum-sepolia-gasless', 'ton-testnet-gasless', ''];
 
   const parseCSV = (text: string): ParsedRow[] => {
     const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);

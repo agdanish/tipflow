@@ -131,6 +131,9 @@ html.light .chain-gradient-eth {
 html.light .chain-gradient-ton {
   background: linear-gradient(135deg, rgba(0, 152, 234, 0.1) 0%, rgba(130, 71, 229, 0.05) 100%);
 }
+html.light .chain-gradient-tron {
+  background: linear-gradient(135deg, rgba(235, 0, 41, 0.1) 0%, rgba(235, 0, 41, 0.03) 100%);
+}
 
 html.light .stat-card-green {
   background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, #f1f5f9 100%);
@@ -301,6 +304,9 @@ html.light .animate-shimmer {
 }
 .chain-gradient-ton {
   background: linear-gradient(135deg, rgba(0, 152, 234, 0.08) 0%, rgba(130, 71, 229, 0.04) 100%);
+}
+.chain-gradient-tron {
+  background: linear-gradient(135deg, rgba(235, 0, 41, 0.08) 0%, rgba(235, 0, 41, 0.02) 100%);
 }
 
 /* Stat card subtle gradient backgrounds */

@@ -25,6 +25,7 @@ const CHAIN_OPTIONS: Array<{ value: ChainId | ''; label: string }> = [
   { value: '', label: 'Auto (AI decides)' },
   { value: 'ethereum-sepolia', label: 'Ethereum Sepolia' },
   { value: 'ton-testnet', label: 'TON Testnet' },
+  { value: 'tron-nile', label: 'Tron Nile' },
 ];
 
 const DEFAULT_SETTINGS: AgentSettings = {

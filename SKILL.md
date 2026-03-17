@@ -567,7 +567,7 @@ Returns slow/normal/fast gas options with estimated fees and confirmation times.
 
 **Endpoint:** `GET /api/prices`
 
-Returns ETH, TON, and USDT prices in USD from CoinGecko.
+Returns ETH, TON, and USDT prices in USD from Bitfinex (Tether's own exchange).
 
 ---
 

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { JsonRpcProvider, formatUnits } from 'ethers';
 import type { TipFlowAgent } from '../core/agent.js';
-import type { WalletService } from '../services/wallet.service.js';
+import { WalletService } from '../services/wallet.service.js';
 import type { AIService } from '../services/ai.service.js';
 import { ContactsService } from '../services/contacts.service.js';
 import { TemplatesService } from '../services/templates.service.js';
@@ -430,7 +430,7 @@ export function createApiRouter(
 
       // Parse rows: recipient,amount,token,chain,memo
       const validTokens = ['native', 'usdt'];
-      const validChains = ['ethereum-sepolia', 'ton-testnet', 'ethereum-sepolia-gasless', 'ton-testnet-gasless', ''];
+      const validChains = ['ethereum-sepolia', 'ton-testnet', 'tron-nile', 'ethereum-sepolia-gasless', 'ton-testnet-gasless', ''];
 
       interface ParsedRow {
         row: number;
@@ -1446,32 +1446,41 @@ export function createApiRouter(
     }
   });
 
-  /** GET /api/prices — Crypto prices via CoinGecko free API with static fallback */
+  /** GET /api/prices — Crypto prices via Bitfinex public API with static fallback */
   const priceCache = { prices: { ETH: 2500, TON: 2.50, USDT: 1.00 }, fetchedAt: '', isLive: false };
   router.get('/prices', async (_req, res) => {
-    // Try CoinGecko free API (no API key needed, rate-limited)
+    // Fetch prices from Bitfinex public API (no API key needed)
+    // Bitfinex is Tether's own exchange — strong ecosystem alignment
     const cacheAge = priceCache.fetchedAt ? Date.now() - new Date(priceCache.fetchedAt).getTime() : Infinity;
     if (cacheAge > 60_000) { // Refresh every 60s max
       try {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 5000);
-        const resp = await fetch(
-          'https://api.coingecko.com/api/v3/simple/price?ids=ethereum,the-open-network,tether&vs_currencies=usd',
-          { signal: controller.signal }
-        );
+        const signal = controller.signal;
+
+        // Bitfinex ticker response: array where index 6 = LAST_PRICE
+        const [ethResp, tonResp] = await Promise.all([
+          fetch('https://api-pub.bitfinex.com/v2/ticker/tETHUSD', { signal }),
+          fetch('https://api-pub.bitfinex.com/v2/ticker/tTONUSD', { signal }),
+        ]);
         clearTimeout(timeout);
-        if (resp.ok) {
-          const data = await resp.json() as Record<string, { usd: number }>;
+
+        if (ethResp.ok && tonResp.ok) {
+          const ethData = await ethResp.json() as number[];
+          const tonData = await tonResp.json() as number[];
           priceCache.prices = {
-            ETH: data.ethereum?.usd ?? 2500,
-            TON: data['the-open-network']?.usd ?? 2.50,
-            USDT: data.tether?.usd ?? 1.00,
+            ETH: ethData[6] ?? 2500,
+            TON: tonData[6] ?? 2.50,
+            USDT: 1.00, // USDT is always $1
           };
           priceCache.fetchedAt = new Date().toISOString();
           priceCache.isLive = true;
+
+          // Update wallet service approx prices for fee estimation
+          WalletService.updatePrices(priceCache.prices.ETH, priceCache.prices.TON);
         }
       } catch {
-        // CoinGecko unavailable — use cached/static prices
+        // Bitfinex unavailable — use cached/static prices
         if (!priceCache.fetchedAt) priceCache.fetchedAt = new Date().toISOString();
         priceCache.isLive = false;
       }
@@ -1480,7 +1489,7 @@ export function createApiRouter(
       prices: priceCache.prices,
       lastUpdated: priceCache.fetchedAt || new Date().toISOString(),
       isLive: priceCache.isLive,
-      source: priceCache.isLive ? 'CoinGecko API' : 'Static fallback (CoinGecko unavailable)',
+      source: priceCache.isLive ? 'Bitfinex API' : 'Static fallback (Bitfinex unavailable)',
     });
   });
 

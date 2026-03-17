@@ -27,7 +27,7 @@
 
 **[Click on wallet — show balances loading]**
 
-> "Balances are fetched in real-time. We also have live gas monitoring and a currency converter powered by CoinGecko's free API."
+> "Balances are fetched in real-time. We also have live gas monitoring and a currency converter powered by Bitfinex's public API — that's Tether's own exchange."
 
 **[Show Gas Monitor widget]**
 
