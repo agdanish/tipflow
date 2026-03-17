@@ -12,9 +12,9 @@
     <img src="https://img.shields.io/badge/Track-Tipping%20Bot-ff6b6b" alt="Track: Tipping Bot" />
   </p>
   <p align="center">
-    <img src="https://img.shields.io/badge/Endpoints-160+-blueviolet" alt="160+ API Endpoints" />
+    <img src="https://img.shields.io/badge/Endpoints-173-blueviolet" alt="173 API Endpoints" />
     <img src="https://img.shields.io/badge/Components-77-orange" alt="77 React Components" />
-    <img src="https://img.shields.io/badge/Services-24-green" alt="24 Agent Services" />
+    <img src="https://img.shields.io/badge/Services-29-green" alt="29 Agent Services" />
     <img src="https://img.shields.io/badge/Budget-%240-red" alt="$0 Budget" />
   </p>
 </p>
@@ -36,7 +36,11 @@ TipFlow watches your viewing habits, learns your preferences, and autonomously m
 - **Multi-chain** — Ethereum Sepolia + TON Testnet + TRON Nile with intelligent chain selection
 - **Voice commands** — Speak your tips via Web Speech API
 - **Chat interface** — Conversational AI that understands tip intents, balance queries, and fee comparisons
-- **160+ API endpoints** — Full REST + SSE real-time streaming
+- **173 API endpoints** — Full REST + SSE real-time streaming
+- **Multi-Agent Orchestration** — 3 sub-agents (TipExecutor, Guardian, TreasuryOptimizer) vote on every tip with 2-of-3 consensus + Guardian veto
+- **Predictive Tipping Intelligence** — Agent predicts tips before user asks (time patterns, recipient affinity, streaks)
+- **Cross-Chain Fee Arbitrage** — Real-time fee monitoring across 3 chains with optimal timing
+- **Tip Escrow Protocol** — Hold tips until conditions met (manual, 24h auto, creator confirm)
 - **Tip Streaming Protocol** — Continuous micro-tipping per second (like Superfluid without smart contracts)
 - **Cryptographic Tip Receipts** — WDK-signed Proof-of-Tip using `account.sign()` / `account.verify()`
 - **Social Reputation Engine** — AI-driven creator scoring with time-decay and tier system
@@ -489,6 +493,8 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 ### 1. Agent Intelligence
 
 - 6-step autonomous decision pipeline: INTAKE > ANALYZE > REASON > EXECUTE > VERIFY > REPORT
+- **Multi-Agent Orchestration Protocol** — 3 sub-agents (TipExecutor, Guardian, TreasuryOptimizer) independently evaluate every tip with 2-of-3 consensus and Guardian veto power
+- **Predictive Tipping Intelligence** — Agent anticipates tips before user asks (time patterns, recipient affinity, milestone detection, streak tracking)
 - LLM reasoning with Ollama (phi3:mini) + robust regex NLP fallback
 - Natural language processing — type or speak tip commands conversationally
 - Intent detection: tip, balance, fees, address, help, history
@@ -502,7 +508,7 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 - 8 WDK packages integrated: core, EVM, TON, TRON, ERC-4337 gasless, TON gasless, USDT0 bridge, Aave lending
 - WDK Indexer API for unified cross-chain balance and transfer data
 - Full-stack TypeScript with 100+ typed interfaces
-- 160+ REST/SSE API endpoints across 20 categories
+- 173 REST/SSE API endpoints across 24 categories
 - Clean WDK integration — 15+ methods including `sign()`, `verify()`, `keyPair`, zero mocked calls
 - Real testnet transactions (Ethereum Sepolia + TON Testnet + TRON Nile)
 - HD wallet derivation with multi-account support (BIP-44 paths, account switching)
@@ -510,7 +516,7 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 
 ### 3. Technical Execution
 
-- 77 React components, 24 backend services, 5 custom hooks
+- 77 React components, 29 backend services, 5 custom hooks
 - Dual SSE streams for real-time updates
 - OpenAPI 3.0 specification
 - Express 5 + rate limiting + validation + audit logging
@@ -532,12 +538,19 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 - **Tip Streaming Protocol** — continuous micro-tipping at intervals (pay-per-second)
 - **Tiered approval** — small tips auto-execute, large tips need human confirmation
 - **Autonomous decision loop** — agent proposes, evaluates, and executes tips on its own every 60s
+- **Multi-Agent consensus** — 3 sub-agents vote on every tip, Guardian has veto power
+- **Tip Escrow Protocol** — hold tips until conditions met, auto-release after 24h
+- **Cross-Chain Fee Arbitrage** — real-time fee monitoring with optimal timing recommendations
 - Transaction retry with exponential backoff prevents wasted gas
 - $0 infrastructure — no paid APIs, runs entirely locally
 
 ### 5. Originality
 
 - Extends (not replaces) Rumble's existing WDK-based tipping wallet — same seed, same keys, same addresses
+- **Multi-Agent Orchestration Protocol** — 3 independent sub-agents with weighted voting consensus (no tipping bot has this)
+- **Predictive Tipping Intelligence** — agent anticipates tips before user asks (5 prediction categories)
+- **Tip Escrow Protocol** — escrowed tips with 4 release conditions (nobody has escrow for tipping)
+- **Cross-Chain Fee Arbitrage** — real-time fee comparison with trend analysis across 3 chains
 - Community tipping pools — collaborative fundraising with goals for creators
 - Creator collab splits — multi-creator videos automatically split tips
 - Event-triggered tips (new video, milestones, live streams) drive creator engagement
@@ -554,6 +567,7 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 - Mobile-responsive PWA installable to home screen
 - 5-language support (EN/ES/FR/AR/ZH) with RTL support for global reach
 - Guided onboarding tour for first-time users
+- **Demo mode with pre-seeded data** — judges see a rich, active dashboard instantly
 - Demo mode with testnet faucet links for easy evaluation
 - Loading skeletons, empty states, error boundaries for polished UX
 - Dark/light theme with custom accent colors
@@ -592,9 +606,14 @@ tipflow/
 ├── agent/                          # Node.js agent server
 │   └── src/
 │       ├── core/agent.ts           # 6-step pipeline + scheduler + conditions
-│       ├── services/               # 24 services
+│       ├── services/               # 29 services
 │       │   ├── wallet.service.ts   # WDK operations + HD derivation + multi-account + gasless
 │       │   ├── ai.service.ts       # Ollama LLM + NLP + intent detection
+│       │   ├── orchestrator.service.ts # Multi-Agent Orchestration (3 sub-agents + consensus)
+│       │   ├── predictor.service.ts # Predictive Tipping Intelligence
+│       │   ├── fee-arbitrage.service.ts # Cross-Chain Fee Arbitrage
+│       │   ├── escrow.service.ts   # Tip Escrow Protocol
+│       │   ├── demo.service.ts     # Demo data seeding for judges
 │       │   ├── rumble.service.ts   # Rumble creator profiles + watch-time + events
 │       │   ├── autonomy.service.ts # Pattern analysis + auto-execution + policy engine
 │       │   ├── streaming.service.ts # Tip Streaming Protocol (continuous micro-tips)
@@ -621,7 +640,7 @@ tipflow/
 │       │   ├── rateLimit.ts        # Rate limiting
 │       │   └── validate.ts         # Input validation + audit
 │       ├── routes/
-│       │   ├── api.ts              # 160+ REST + SSE endpoints
+│       │   ├── api.ts              # 173 REST + SSE endpoints
 │       │   └── openapi.ts          # OpenAPI 3.0 spec
 │       ├── __tests__/              # 24 automated tests
 │       └── index.ts                # Express 5 entry point

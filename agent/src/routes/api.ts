@@ -30,6 +30,9 @@ import { ReceiptService } from '../services/receipt.service.js';
 import { StreamingService } from '../services/streaming.service.js';
 import { ReputationService } from '../services/reputation.service.js';
 import { EscrowService } from '../services/escrow.service.js';
+import { OrchestratorService } from '../services/orchestrator.service.js';
+import { PredictorService } from '../services/predictor.service.js';
+import { FeeArbitrageService } from '../services/fee-arbitrage.service.js';
 
 /** Shared challenges service instance — exported for agent integration */
 export const challenges = new ChallengesService();
@@ -63,6 +66,15 @@ export const reputationService = new ReputationService();
 
 /** Shared escrow service instance — exported for agent integration */
 export const escrowService = new EscrowService();
+
+/** Shared orchestrator service instance — exported for agent integration */
+export const orchestratorService = new OrchestratorService();
+
+/** Shared predictor service instance — exported for agent integration */
+export const predictorService = new PredictorService();
+
+/** Shared fee arbitrage service instance — exported for agent integration */
+export const feeArbitrageService = new FeeArbitrageService();
 
 /** Shared contacts service instance */
 const contacts = new ContactsService();
@@ -152,6 +164,9 @@ export function createApiRouter(
         bridge: { status: 'ready' },
         lending: { status: 'ready' },
         escrow: { status: 'ready', activeCount: escrowService.getActiveCount() },
+        orchestrator: { status: 'ready', agents: ['TipExecutor', 'Guardian', 'TreasuryOptimizer'] },
+        predictor: { status: 'ready', pendingPredictions: predictorService.getPendingPredictions().length },
+        feeArbitrage: { status: 'ready', chainsMonitored: feeArbitrageService.getCurrentFees().length },
         indexer: { status: 'ready' },
         telegram: { status: process.env.TELEGRAM_BOT_TOKEN ? 'active' : 'not configured' },
       },
@@ -188,6 +203,8 @@ export function createApiRouter(
         crossChainBridge: true,
         aaveYield: true,
         tipEscrow: true,
+        predictiveTipping: true,
+        feeArbitrage: true,
         rumbleIntegration: true,
         voiceCommands: true,
         multiLanguage: ['en', 'es', 'fr', 'ar', 'zh'],
@@ -3566,6 +3583,102 @@ export function createApiRouter(
     const escrow = escrowService.disputeEscrow(req.params.id, req.body.reason);
     if (!escrow) return res.status(404).json({ error: 'Cannot dispute escrow' });
     res.json(escrow);
+  });
+
+  // ── Multi-Agent Orchestration ────────────────────────────────
+  router.post('/orchestrator/propose', (req, res) => {
+    const { type, params } = req.body;
+    if (!type || !params) return res.status(400).json({ error: 'type and params required' });
+    const action = orchestratorService.propose(type, params);
+    res.status(201).json(action);
+  });
+
+  router.get('/orchestrator/history', (_req, res) => {
+    res.json(orchestratorService.getHistory());
+  });
+
+  router.get('/orchestrator/stats', (_req, res) => {
+    res.json(orchestratorService.getStats());
+  });
+
+  router.get('/orchestrator/:id', (req, res) => {
+    const action = orchestratorService.getAction(req.params.id);
+    if (!action) return res.status(404).json({ error: 'Action not found' });
+    res.json(action);
+  });
+
+  router.post('/orchestrator/:id/result', (req, res) => {
+    const action = orchestratorService.recordExecution(req.params.id, req.body);
+    if (!action) return res.status(404).json({ error: 'Action not found' });
+    res.json(action);
+  });
+
+  router.post('/orchestrator/config', (req, res) => {
+    if (req.body.dailyLimit) orchestratorService.setDailyLimit(req.body.dailyLimit);
+    if (req.body.knownRecipient) orchestratorService.addKnownRecipient(req.body.knownRecipient);
+    res.json({ success: true });
+  });
+
+  // ── Predictive Tipping Intelligence ──────────────────────────
+  router.post('/predictions/learn', (req, res) => {
+    const { tips } = req.body;
+    if (!Array.isArray(tips)) return res.status(400).json({ error: 'tips array required' });
+    predictorService.learnFromHistory(tips);
+    res.json({ success: true, message: 'Prediction models updated' });
+  });
+
+  router.post('/predictions/generate', (_req, res) => {
+    const predictions = predictorService.generatePredictions();
+    res.json(predictions);
+  });
+
+  router.get('/predictions', (_req, res) => {
+    res.json(predictorService.getPendingPredictions());
+  });
+
+  router.get('/predictions/all', (_req, res) => {
+    res.json(predictorService.getAllPredictions());
+  });
+
+  router.get('/predictions/stats', (_req, res) => {
+    res.json(predictorService.getStats());
+  });
+
+  router.post('/predictions/:id/accept', (req, res) => {
+    const pred = predictorService.acceptPrediction(req.params.id);
+    if (!pred) return res.status(404).json({ error: 'Prediction not found' });
+    res.json(pred);
+  });
+
+  router.post('/predictions/:id/dismiss', (req, res) => {
+    const pred = predictorService.dismissPrediction(req.params.id);
+    if (!pred) return res.status(404).json({ error: 'Prediction not found' });
+    res.json(pred);
+  });
+
+  // ── Cross-Chain Fee Arbitrage ────────────────────────────────
+  router.get('/fees/compare', (req, res) => {
+    const amount = (req.query.amount as string) ?? '0.001';
+    const token = (req.query.token as string) ?? 'usdt';
+    res.json(feeArbitrageService.compareFees(amount, token));
+  });
+
+  router.get('/fees/current', (_req, res) => {
+    res.json(feeArbitrageService.getCurrentFees());
+  });
+
+  router.get('/fees/history', (_req, res) => {
+    res.json(feeArbitrageService.getAllHistory());
+  });
+
+  router.get('/fees/history/:chainId', (req, res) => {
+    const history = feeArbitrageService.getChainHistory(req.params.chainId);
+    if (!history) return res.status(404).json({ error: 'Chain not found' });
+    res.json(history);
+  });
+
+  router.get('/fees/optimal-timing', (_req, res) => {
+    res.json(feeArbitrageService.getOptimalTiming());
   });
 
   return router;
