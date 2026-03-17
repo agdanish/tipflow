@@ -1,3 +1,6 @@
+// Copyright 2026 Danish A. Licensed under Apache-2.0.
+// TipFlow — AI-Powered Multi-Chain Tipping Agent
+
 import 'dotenv/config';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';

@@ -1,3 +1,6 @@
+// Copyright 2026 Danish A. Licensed under Apache-2.0.
+// TipFlow — AI-Powered Multi-Chain Tipping Agent
+
 import { v4 as uuidv4 } from 'uuid';
 import { WalletService } from '../services/wallet.service.js';
 import { AIService } from '../services/ai.service.js';

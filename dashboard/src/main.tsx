@@ -1,3 +1,6 @@
+// Copyright 2026 Danish A. Licensed under Apache-2.0.
+// TipFlow — AI-Powered Multi-Chain Tipping Agent
+
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'

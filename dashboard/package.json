@@ -1,7 +1,15 @@
 {
-  "name": "dashboard",
+  "name": "tipflow-dashboard",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "AI-powered multi-chain tipping agent built with Tether WDK",
+  "author": "Danish A",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/agdanish/tipflow"
+  },
+  "keywords": ["tether", "wdk", "tipping", "crypto", "ai-agent", "multi-chain"],
   "type": "module",
   "scripts": {
     "dev": "vite",

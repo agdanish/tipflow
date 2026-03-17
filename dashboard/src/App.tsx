@@ -1,3 +1,6 @@
+// Copyright 2026 Danish A. Licensed under Apache-2.0.
+// TipFlow — AI-Powered Multi-Chain Tipping Agent
+
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Header } from './components/Header';
 import { WalletCard } from './components/WalletCard';
@@ -53,6 +56,7 @@ import { TipGoals } from './components/TipGoals';
 import { SpendingLimits } from './components/SpendingLimits';
 import { BatchImport } from './components/BatchImport';
 import { TipReport } from './components/TipReport';
+import { DemoBanner } from './components/DemoBanner';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useSwipe } from './hooks/useTouchGestures';
@@ -357,6 +361,9 @@ function App() {
       <Header health={health} theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} onShowShortcuts={() => setShowShortcuts(true)} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onClearAll={clearAll} />
 
       <main id="main-content" role="main" className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {/* Demo Mode Banner */}
+        <DemoBanner />
+
         {/* Always-visible monitors row */}
         <section className="mb-4 sm:mb-6 dashboard-grid-monitors">
           <GasMonitor />
@@ -394,6 +401,11 @@ function App() {
         <DashboardTabs
           dashboardContent={
             <>
+              {/* Demo Scenarios — one-click demos for judges */}
+              <section className="mb-4 sm:mb-6">
+                <DemoScenarios onSetTipMode={setTipMode} onTipComplete={handleTipComplete} />
+              </section>
+
               {/* Wallets */}
               <section className="mb-4 sm:mb-6" data-onboarding="wallets">
                 <h2 className="text-sm font-medium text-text-secondary mb-3 flex items-center gap-2">

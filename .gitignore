@@ -7,3 +7,9 @@ dist/
 Thumbs.db
 .vscode/
 .idea/
+.contacts.json
+.templates.json
+.tags.json
+.goals.json
+.limits.json
+.audit.json
