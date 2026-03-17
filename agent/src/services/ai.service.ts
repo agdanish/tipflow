@@ -1,6 +1,6 @@
 import { Ollama } from 'ollama';
 import { logger } from '../utils/logger.js';
-import type { ChainAnalysis, ChainId } from '../types/index.js';
+import type { ChainAnalysis, ChainId, NLPTipParse } from '../types/index.js';
 
 /**
  * AI Service — provides LLM-powered reasoning for agent decisions.
@@ -118,6 +118,178 @@ Explain which chain you recommend and why, considering fees, balance, and networ
     }
 
     return parts.join(' ');
+  }
+
+  /**
+   * Parse a natural language tip command into structured data.
+   * Uses Ollama LLM when available, falls back to rule-based regex parsing.
+   */
+  async parseNaturalLanguageTip(input: string): Promise<NLPTipParse> {
+    const trimmed = input.trim();
+    if (!trimmed) {
+      return { recipient: '', amount: '', token: 'native', confidence: 0, rawInput: input };
+    }
+
+    // Try LLM parsing first
+    if (this.available) {
+      try {
+        const result = await this.llmParseTip(trimmed);
+        if (result.confidence > 0) return result;
+      } catch (err) {
+        logger.warn('LLM tip parsing failed, using fallback', { error: String(err) });
+      }
+    }
+
+    // Fallback to rule-based parsing
+    return this.regexParseTip(trimmed);
+  }
+
+  /** Parse tip using Ollama LLM */
+  private async llmParseTip(input: string): Promise<NLPTipParse> {
+    const prompt = `You are a tip command parser. Extract tip details from the user's natural language input.
+Return ONLY a JSON object with these fields (no markdown, no explanation):
+- recipient: the wallet address (0x... for EVM, UQ... or EQ... for TON), empty string if not found
+- amount: the numeric amount as a string, empty string if not found
+- token: "usdt" if USDT/Tether is mentioned, otherwise "native"
+- chain: "ethereum-sepolia" if ETH/Ethereum/Sepolia mentioned, "ton-testnet" if TON mentioned, null if not specified
+- message: any tip message or reason (e.g. "great work"), null if none
+
+Input: "${input}"
+
+JSON:`;
+
+    const response = await this.ollama.generate({
+      model: this.model,
+      prompt,
+      options: { temperature: 0.1, num_predict: 150 },
+      format: 'json',
+    });
+
+    const raw = response.response.trim();
+    let parsed: Record<string, unknown>;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      // Try extracting JSON from the response
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        logger.warn('LLM returned non-JSON response for tip parse');
+        return { recipient: '', amount: '', token: 'native', confidence: 0, rawInput: input };
+      }
+      parsed = JSON.parse(jsonMatch[0]);
+    }
+
+    const recipient = String(parsed.recipient ?? '').trim();
+    const amount = String(parsed.amount ?? '').trim();
+    const tokenRaw = String(parsed.token ?? 'native').toLowerCase();
+    const token: 'native' | 'usdt' = tokenRaw === 'usdt' ? 'usdt' : 'native';
+    const chain = parsed.chain ? String(parsed.chain) : undefined;
+    const message = parsed.message ? String(parsed.message) : undefined;
+
+    // Calculate confidence based on what was extracted
+    let confidence = 0;
+    if (recipient && this.isValidAddress(recipient)) confidence += 40;
+    if (amount && !isNaN(parseFloat(amount)) && parseFloat(amount) > 0) confidence += 40;
+    if (token) confidence += 10;
+    if (confidence > 0) confidence += 10; // bonus for LLM parse succeeding at all
+
+    return {
+      recipient,
+      amount,
+      token,
+      chain: chain && (chain === 'ethereum-sepolia' || chain === 'ton-testnet') ? chain : undefined,
+      message: message || undefined,
+      confidence: Math.min(confidence, 100),
+      rawInput: input,
+    };
+  }
+
+  /** Rule-based regex fallback parser for common tip patterns */
+  private regexParseTip(input: string): NLPTipParse {
+    const lower = input.toLowerCase();
+
+    // Extract recipient address: EVM (0x...) or TON (UQ.../EQ...)
+    const evmMatch = input.match(/\b(0x[a-fA-F0-9]{40})\b/);
+    const tonMatch = input.match(/\b([UE]Q[a-zA-Z0-9_-]{46})\b/);
+    const recipient = evmMatch?.[1] ?? tonMatch?.[1] ?? '';
+
+    // Extract amount: number potentially with decimals, before or after token name
+    // Patterns: "0.01 ETH", "send 5 USDT", "tip 0.001", "$10"
+    let amount = '';
+    let token: 'native' | 'usdt' = 'native';
+
+    // Pattern: "$X" or "X USDT" or "X usdt" or "X tether"
+    const usdtAmountMatch = input.match(/\$\s*(\d+(?:\.\d+)?)/);
+    const usdtNameMatch = input.match(/(\d+(?:\.\d+)?)\s*(?:usdt|tether)/i);
+    const usdtNameBeforeMatch = input.match(/(?:usdt|tether)\s*(\d+(?:\.\d+)?)/i);
+
+    if (usdtAmountMatch) {
+      amount = usdtAmountMatch[1];
+      token = 'usdt';
+    } else if (usdtNameMatch) {
+      amount = usdtNameMatch[1];
+      token = 'usdt';
+    } else if (usdtNameBeforeMatch) {
+      amount = usdtNameBeforeMatch[1];
+      token = 'usdt';
+    } else {
+      // Native token pattern: "X ETH", "X TON", "X eth", or just a number
+      const nativeMatch = input.match(/(\d+(?:\.\d+)?)\s*(?:eth|ton|ether|toncoin)?/i);
+      if (nativeMatch) {
+        amount = nativeMatch[1];
+      }
+    }
+
+    // Detect chain from token mentions or explicit chain names
+    let chain: string | undefined;
+    if (tonMatch || /\bton\b/i.test(lower)) {
+      chain = 'ton-testnet';
+    } else if (evmMatch || /\b(?:eth|ethereum|sepolia|evm)\b/i.test(lower)) {
+      chain = 'ethereum-sepolia';
+    }
+    // USDT forces ethereum-sepolia
+    if (token === 'usdt') {
+      chain = 'ethereum-sepolia';
+    }
+
+    // Extract optional message: text after "for", "because", "msg:", "message:"
+    let message: string | undefined;
+    const msgMatch = input.match(/(?:for|because|msg:|message:)\s*["']?(.+?)["']?\s*$/i);
+    if (msgMatch) {
+      // Clean the message — remove the recipient address if it leaked in
+      let msg = msgMatch[1].trim();
+      if (evmMatch) msg = msg.replace(evmMatch[1], '').trim();
+      if (tonMatch) msg = msg.replace(tonMatch[1], '').trim();
+      if (msg.length > 0 && msg.length < 200) {
+        message = msg;
+      }
+    }
+
+    // Calculate confidence
+    let confidence = 0;
+    if (recipient && this.isValidAddress(recipient)) confidence += 40;
+    if (amount && !isNaN(parseFloat(amount)) && parseFloat(amount) > 0) confidence += 40;
+    if (/\b(?:send|tip|transfer|pay)\b/i.test(lower)) confidence += 10;
+    if (token === 'usdt' || /\b(?:eth|ton)\b/i.test(lower)) confidence += 10;
+
+    return {
+      recipient,
+      amount,
+      token,
+      chain: chain as 'ethereum-sepolia' | 'ton-testnet' | undefined,
+      message,
+      confidence: Math.min(confidence, 100),
+      rawInput: input,
+    };
+  }
+
+  /** Validate an address format */
+  private isValidAddress(addr: string): boolean {
+    // EVM address
+    if (/^0x[a-fA-F0-9]{40}$/.test(addr)) return true;
+    // TON address (UQ or EQ + 46 chars)
+    if (/^[UE]Q[a-zA-Z0-9_-]{46}$/.test(addr)) return true;
+    return false;
   }
 
   /** Generate a summary of agent activity for the dashboard */

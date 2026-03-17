@@ -27,7 +27,7 @@ export function WalletCard({ balance }: WalletCardProps) {
   const hasUsdt = balance.usdtBalance !== '0.000000' && balance.usdtBalance !== '0';
 
   return (
-    <div className={`rounded-xl border border-border bg-surface-1 p-5 card-hover ${isEth ? 'chain-gradient-eth' : 'chain-gradient-ton'}`}>
+    <div className={`rounded-xl border border-border bg-surface-1 p-4 sm:p-5 card-hover ${isEth ? 'chain-gradient-eth' : 'chain-gradient-ton'}`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <div
@@ -59,7 +59,7 @@ export function WalletCard({ balance }: WalletCardProps) {
       <div className="space-y-3">
         <div>
           <p className="text-[11px] text-text-muted mb-1 uppercase tracking-wider">Native Balance</p>
-          <p className="text-2xl font-bold text-text-primary tracking-tight">
+          <p className="text-xl sm:text-2xl font-bold text-text-primary tracking-tight">
             {formatNumber(balance.nativeBalance)}{' '}
             <span className="text-sm font-medium text-text-secondary">{balance.nativeCurrency}</span>
           </p>
@@ -76,7 +76,7 @@ export function WalletCard({ balance }: WalletCardProps) {
         <div className="pt-3 border-t border-border">
           <button
             onClick={handleCopy}
-            className={`flex items-center gap-2 text-xs w-full py-1.5 px-2 rounded-md transition-all ${
+            className={`flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs w-full py-1.5 px-2 rounded-md transition-all ${
               copied
                 ? 'bg-accent/10 text-accent animate-copy-flash'
                 : 'text-text-secondary hover:text-text-primary hover:bg-surface-3'
@@ -90,7 +90,8 @@ export function WalletCard({ balance }: WalletCardProps) {
             ) : (
               <>
                 <Copy className="w-3.5 h-3.5" />
-                <span className="font-mono truncate">{shortenAddress(balance.address, 8)}</span>
+                <span className="font-mono truncate sm:hidden">{shortenAddress(balance.address, 4)}</span>
+                <span className="font-mono truncate hidden sm:inline">{shortenAddress(balance.address, 8)}</span>
               </>
             )}
           </button>

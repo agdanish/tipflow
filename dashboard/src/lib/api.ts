@@ -9,6 +9,7 @@ import type {
   ChainConfig,
   TokenType,
   BatchTipResult,
+  NLPTipParse,
 } from '../types';
 
 const BASE = '/api';
@@ -48,6 +49,12 @@ export const api = {
     fetchJson<{ result: BatchTipResult }>('/tip/batch', {
       method: 'POST',
       body: JSON.stringify({ recipients, token: token ?? 'native', preferredChain }),
+    }),
+
+  parseTipInput: (input: string) =>
+    fetchJson<{ parsed: NLPTipParse; source: 'llm' | 'regex' }>('/tip/parse', {
+      method: 'POST',
+      body: JSON.stringify({ input }),
     }),
 
   estimateFees: (recipient: string, amount: string) =>

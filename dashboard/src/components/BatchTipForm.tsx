@@ -73,14 +73,14 @@ export function BatchTipForm({ onBatchComplete, disabled }: BatchTipFormProps) {
   const validCount = recipients.filter((r) => r.address && r.amount).length;
 
   return (
-    <div className="rounded-xl border border-border bg-surface-1 p-5">
-      <h2 className="text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
+    <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+      <h2 className="text-base font-semibold text-text-primary mb-3 sm:mb-4 flex items-center gap-2">
         <Users className="w-4 h-4 text-accent" />
         Batch Tip
         <span className="text-xs text-text-muted font-normal ml-auto">{recipients.length} recipients</span>
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
         {/* Token + Chain */}
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -132,13 +132,13 @@ export function BatchTipForm({ onBatchComplete, disabled }: BatchTipFormProps) {
                   </button>
                 )}
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <input
                   type="text"
                   value={r.address}
                   onChange={(e) => updateRecipient(r.id, 'address', e.target.value)}
                   placeholder="0x... or UQ..."
-                  className="col-span-2 px-2.5 py-2 rounded-md bg-surface-3 border border-border text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border transition-colors font-mono"
+                  className="sm:col-span-2 px-2.5 py-2 rounded-md bg-surface-3 border border-border text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border transition-colors font-mono"
                   disabled={sending || disabled}
                 />
                 <input

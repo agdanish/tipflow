@@ -9,7 +9,7 @@ interface StatsPanelProps {
 export function StatsPanel({ stats }: StatsPanelProps) {
   if (!stats) {
     return (
-      <div className="rounded-xl border border-border bg-surface-1 p-5">
+      <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
         <h2 className="text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
           <BarChart3 className="w-4 h-4 text-accent" />
           Analytics
@@ -59,13 +59,13 @@ export function StatsPanel({ stats }: StatsPanelProps) {
   const totalChainTips = chainEntries.reduce((sum, [, count]) => sum + count, 0);
 
   return (
-    <div className="rounded-xl border border-border bg-surface-1 p-5">
+    <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
       <h2 className="text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
         <BarChart3 className="w-4 h-4 text-accent" />
         Analytics
       </h2>
 
-      <div className="grid grid-cols-2 gap-3 mb-5">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4 sm:mb-5">
         {statCards.map((card) => {
           const Icon = card.icon;
           return (
@@ -81,7 +81,7 @@ export function StatsPanel({ stats }: StatsPanelProps) {
                   {card.label}
                 </span>
               </div>
-              <p className="text-xl font-bold text-text-primary tracking-tight">{card.value}</p>
+              <p className="text-lg sm:text-xl font-bold text-text-primary tracking-tight">{card.value}</p>
             </div>
           );
         })}

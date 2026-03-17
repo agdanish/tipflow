@@ -83,6 +83,17 @@ export interface AgentStats {
   tipsByDay: Array<{ date: string; count: number; amount: number }>;
 }
 
+/** Natural language tip parse result */
+export interface NLPTipParse {
+  recipient: string;
+  amount: string;
+  token: 'native' | 'usdt';
+  chain?: string;
+  message?: string;
+  confidence: number;
+  rawInput: string;
+}
+
 export interface HealthResponse {
   status: string;
   agent: string;

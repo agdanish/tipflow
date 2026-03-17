@@ -49,9 +49,9 @@ function App() {
     <div className="min-h-screen bg-surface">
       <Header health={health} />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Wallets */}
-        <section className="mb-6">
+        <section className="mb-4 sm:mb-6">
           <h2 className="text-sm font-medium text-text-secondary mb-3 flex items-center gap-2">
             <Wallet className="w-4 h-4" />
             Wallets
@@ -72,9 +72,9 @@ function App() {
         </section>
 
         {/* Main grid: Tip Form + Agent | History + Stats */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left column: Tip Form + Agent */}
-          <div className="lg:col-span-1 space-y-6">
+          <div className="lg:col-span-1 space-y-4 sm:space-y-6">
             {/* Tip mode tabs */}
             <div className="flex gap-1 p-1 rounded-lg bg-surface-2 border border-border">
               <button
@@ -110,7 +110,7 @@ function App() {
           </div>
 
           {/* Right column: History + Stats */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             <TipHistory history={history} loading={historyLoading} />
             <StatsPanel stats={stats} />
           </div>

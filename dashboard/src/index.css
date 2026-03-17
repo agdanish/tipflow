@@ -101,14 +101,23 @@ body {
   animation: status-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
-/* Card hover effect */
+/* Card hover effect — only on devices with hover support (not touch) */
 .card-hover {
   transition: all 0.2s ease;
 }
-.card-hover:hover {
-  border-color: var(--color-border-light);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+@media (hover: hover) {
+  .card-hover:hover {
+    border-color: var(--color-border-light);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Prevent horizontal overflow on mobile */
+@media (max-width: 639px) {
+  html, body {
+    overflow-x: hidden;
+  }
 }
 
 /* --- NEW POLISH ANIMATIONS --- */

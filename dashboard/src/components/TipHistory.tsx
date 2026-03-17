@@ -13,7 +13,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-border bg-surface-1 p-5">
+      <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
         <h2 className="text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
           <History className="w-4 h-4 text-accent" />
           Transaction History
@@ -28,7 +28,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-surface-1 p-5">
+    <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
       <h2 className="text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
         <History className="w-4 h-4 text-accent" />
         Transaction History
@@ -67,7 +67,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
               >
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : entry.id)}
-                  className="w-full px-4 py-3.5 flex items-center gap-3 hover:bg-surface-3/50 transition-colors text-left"
+                  className="w-full px-3 sm:px-4 py-3 sm:py-3.5 flex items-center gap-2 sm:gap-3 hover:bg-surface-3/50 transition-colors text-left"
                 >
                   {entry.status === 'confirmed' ? (
                     <div className="w-7 h-7 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
@@ -80,28 +80,31 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                   )}
 
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-semibold text-text-primary">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                      <span className="text-xs sm:text-sm font-semibold text-text-primary">
                         {formatNumber(entry.amount)} {entry.token === 'usdt' ? 'USDT' : isEth ? 'ETH' : 'TON'}
                       </span>
-                      <span className="text-xs text-text-muted">to</span>
-                      <span className="text-xs text-text-secondary font-mono truncate">
+                      <span className="text-[11px] sm:text-xs text-text-muted">to</span>
+                      <span className="text-[11px] sm:text-xs text-text-secondary font-mono truncate sm:hidden">
+                        {shortenAddress(entry.recipient, 4)}
+                      </span>
+                      <span className="text-xs text-text-secondary font-mono truncate hidden sm:inline">
                         {shortenAddress(entry.recipient)}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-2 mt-0.5 sm:mt-1">
                       <div
                         className="w-1.5 h-1.5 rounded-full shrink-0"
                         style={{ backgroundColor: chainColor(entry.chainId) }}
                       />
-                      <span className="text-[11px] text-text-muted">
+                      <span className="text-[10px] sm:text-[11px] text-text-muted">
                         {isEth ? 'Ethereum Sepolia' : 'TON Testnet'}
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-xs text-text-muted">{timeAgo(entry.createdAt)}</span>
+                  <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                    <span className="text-[10px] sm:text-xs text-text-muted">{timeAgo(entry.createdAt)}</span>
                     {entry.txHash && (
                       <a
                         href={`${explorerBase}${entry.txHash}`}

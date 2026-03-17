@@ -88,6 +88,13 @@ export interface AgentDecision {
   confidence: number;
 }
 
+/** Result of polling for on-chain transaction confirmation */
+export interface ConfirmationResult {
+  confirmed: boolean;
+  blockNumber: number;
+  gasUsed: string;
+}
+
 /** Transaction result */
 export interface TipResult {
   id: string;
@@ -104,6 +111,8 @@ export interface TipResult {
   decision: AgentDecision;
   createdAt: string;
   confirmedAt?: string;
+  blockNumber?: number;
+  gasUsed?: string;
   error?: string;
 }
 
@@ -127,6 +136,17 @@ export interface TipHistoryEntry {
   fee: string;
   createdAt: string;
   reasoning: string;
+}
+
+/** Natural language tip parse result */
+export interface NLPTipParse {
+  recipient: string;
+  amount: string;
+  token: 'native' | 'usdt';
+  chain?: string;
+  message?: string;
+  confidence: number;
+  rawInput: string;
 }
 
 /** Agent stats for dashboard */

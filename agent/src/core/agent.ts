@@ -109,15 +109,26 @@ export class TipFlowAgent {
 
       // Step 5: VERIFY
       this.setState({ status: 'confirming' });
-      addStep('VERIFY', 'Transaction broadcast to network');
+      addStep('VERIFY', 'Transaction broadcast to network, awaiting confirmation...');
       const explorerUrl = this.wallet.getExplorerUrl(decision.selectedChain, txResult.hash);
       addStep('VERIFY', `Explorer: ${explorerUrl}`);
+
+      const confirmation = await this.wallet.waitForConfirmation(
+        decision.selectedChain,
+        txResult.hash,
+      );
+
+      if (confirmation.confirmed) {
+        addStep('VERIFY', `Confirmed in block #${confirmation.blockNumber} (gas used: ${confirmation.gasUsed})`);
+      } else {
+        addStep('VERIFY', 'Pending confirmation — transaction broadcast but receipt not yet available');
+      }
 
       // Step 6: REPORT
       const result: TipResult = {
         id: uuidv4(),
         tipId,
-        status: 'confirmed',
+        status: confirmation.confirmed ? 'confirmed' : 'pending',
         chainId: decision.selectedChain,
         txHash: txResult.hash,
         from: (await this.wallet.getAddress(decision.selectedChain)),
@@ -128,11 +139,13 @@ export class TipFlowAgent {
         explorerUrl,
         decision,
         createdAt: request.createdAt,
-        confirmedAt: new Date().toISOString(),
+        confirmedAt: confirmation.confirmed ? new Date().toISOString() : undefined,
+        blockNumber: confirmation.confirmed ? confirmation.blockNumber : undefined,
+        gasUsed: confirmation.confirmed ? confirmation.gasUsed : undefined,
       };
 
       this.recordHistory(result, decision.reasoning);
-      addStep('REPORT', 'Tip completed successfully');
+      addStep('REPORT', confirmation.confirmed ? 'Tip confirmed on-chain' : 'Tip sent, pending on-chain confirmation');
 
       this.setState({ status: 'idle', currentTip: undefined, currentDecision: undefined });
       return result;
@@ -398,7 +411,7 @@ export class TipFlowAgent {
       token: result.token,
       chainId: result.chainId,
       txHash: result.txHash,
-      status: result.status === 'confirmed' ? 'confirmed' : 'failed',
+      status: (result.status === 'confirmed' || result.status === 'pending') ? 'confirmed' : 'failed',
       fee: result.fee,
       createdAt: result.createdAt,
       reasoning,

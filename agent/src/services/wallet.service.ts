@@ -2,7 +2,8 @@ import WDK from '@tetherto/wdk';
 import WalletManagerEvm from '@tetherto/wdk-wallet-evm';
 import WalletManagerTon from '@tetherto/wdk-wallet-ton';
 import { logger } from '../utils/logger.js';
-import type { ChainId, ChainConfig, WalletBalance } from '../types/index.js';
+import { JsonRpcProvider } from 'ethers';
+import type { ChainId, ChainConfig, WalletBalance, ConfirmationResult } from '../types/index.js';
 
 /** USDT contract addresses on testnets */
 const USDT_CONTRACTS: Record<string, string> = {
@@ -252,6 +253,54 @@ export class WalletService {
       hash: result.hash,
       fee: this.formatBalance(result.fee, chainId),
     };
+  }
+
+  /**
+   * Poll the blockchain for a transaction receipt until confirmed or timeout.
+   * For EVM chains, uses ethers JsonRpcProvider to fetch the receipt.
+   * For TON, returns a best-effort result (TON lacks standard receipt polling).
+   */
+  async waitForConfirmation(
+    chainId: ChainId,
+    txHash: string,
+    timeoutMs: number = 30000,
+  ): Promise<ConfirmationResult> {
+    const config = CHAIN_CONFIGS[chainId];
+
+    // EVM chains: poll with ethers provider
+    if (config.blockchain === 'ethereum' && config.rpcUrl) {
+      const provider = new JsonRpcProvider(config.rpcUrl);
+      const pollInterval = 2000;
+      const deadline = Date.now() + timeoutMs;
+
+      while (Date.now() < deadline) {
+        try {
+          const receipt = await provider.getTransactionReceipt(txHash);
+          if (receipt && receipt.blockNumber) {
+            logger.info('Transaction confirmed on-chain', {
+              txHash,
+              blockNumber: receipt.blockNumber,
+              gasUsed: receipt.gasUsed.toString(),
+            });
+            return {
+              confirmed: true,
+              blockNumber: receipt.blockNumber,
+              gasUsed: receipt.gasUsed.toString(),
+            };
+          }
+        } catch (err) {
+          logger.warn('Receipt poll error', { txHash, error: String(err) });
+        }
+        await new Promise((resolve) => setTimeout(resolve, pollInterval));
+      }
+
+      logger.warn('Transaction confirmation timed out', { txHash, timeoutMs });
+      return { confirmed: false, blockNumber: 0, gasUsed: '0' };
+    }
+
+    // TON chains: no standard receipt polling available, return pending
+    logger.info('TON receipt polling not supported, marking as pending', { txHash });
+    return { confirmed: false, blockNumber: 0, gasUsed: '0' };
   }
 
   /** Format raw balance to human-readable string */

@@ -126,6 +126,23 @@ export function createApiRouter(
     }
   });
 
+  /** POST /api/tip/parse — Parse natural language tip command */
+  router.post('/tip/parse', async (req, res) => {
+    try {
+      const { input } = req.body as { input?: string };
+      if (!input || typeof input !== 'string') {
+        res.status(400).json({ error: 'input string is required' });
+        return;
+      }
+
+      const parsed = await ai.parseNaturalLanguageTip(input);
+      res.json({ parsed, source: ai.isAvailable() ? 'llm' : 'regex' });
+    } catch (err) {
+      logger.error('Tip parsing failed', { error: String(err) });
+      res.status(500).json({ error: 'Failed to parse tip input' });
+    }
+  });
+
   /** GET /api/tip/estimate — Estimate fees for a tip */
   router.get('/tip/estimate', async (req, res) => {
     try {
@@ -189,6 +206,38 @@ export function createApiRouter(
   /** GET /api/agent/stats — Get agent statistics */
   router.get('/agent/stats', (_req, res) => {
     res.json({ stats: agent.getStats() });
+  });
+
+  /** GET /api/tx/:hash/status — Check on-chain confirmation status of a transaction */
+  router.get('/tx/:hash/status', async (req, res) => {
+    try {
+      const { hash } = req.params;
+      const chainId = (req.query.chain as ChainId) ?? 'ethereum-sepolia';
+
+      if (!hash || hash.length === 0) {
+        res.status(400).json({ error: 'Transaction hash is required' });
+        return;
+      }
+
+      const registeredChains = wallet.getRegisteredChains();
+      if (!registeredChains.includes(chainId)) {
+        res.status(400).json({ error: `Unsupported chain: ${chainId}` });
+        return;
+      }
+
+      const confirmation = await wallet.waitForConfirmation(chainId, hash, 10000);
+      res.json({
+        txHash: hash,
+        chainId,
+        confirmed: confirmation.confirmed,
+        blockNumber: confirmation.blockNumber || undefined,
+        gasUsed: confirmation.gasUsed !== '0' ? confirmation.gasUsed : undefined,
+        explorerUrl: wallet.getExplorerUrl(chainId, hash),
+      });
+    } catch (err) {
+      logger.error('Transaction status check failed', { error: String(err) });
+      res.status(500).json({ error: 'Failed to check transaction status' });
+    }
   });
 
   /** GET /api/chains — Get supported chains info */
