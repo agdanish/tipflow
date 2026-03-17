@@ -11,7 +11,7 @@ import WDK from '@tetherto/wdk';
 import { WalletService } from './services/wallet.service.js';
 import { AIService } from './services/ai.service.js';
 import { TipFlowAgent } from './core/agent.js';
-import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService, treasuryService } from './routes/api.js';
+import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService, treasuryService, indexerService, bridgeService, lendingService } from './routes/api.js';
 import { logger } from './utils/logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -73,6 +73,21 @@ async function main(): Promise<void> {
   // Log Treasury service
   const treasuryAlloc = treasuryService.getAllocation();
   logger.info(`Treasury service loaded: ${treasuryAlloc.tippingReservePercent}% reserve, ${treasuryAlloc.yieldPercent}% yield, ${treasuryAlloc.gasBufferPercent}% gas`);
+
+  // Check WDK Indexer API availability (non-blocking)
+  indexerService.healthCheck().then((health) => {
+    if (health.isAvailable) {
+      logger.info(`WDK Indexer API reachable (${health.latencyMs}ms)`);
+    } else {
+      logger.warn('WDK Indexer API unreachable (non-fatal)', { error: health.error });
+    }
+  }).catch(() => {
+    logger.warn('WDK Indexer API health check failed (non-fatal)');
+  });
+
+  // Log DeFi protocol integrations
+  logger.info(`USDT0 Bridge service: ${bridgeService.isAvailable() ? 'available' : 'unavailable'} (${bridgeService.getRoutes().length} routes)`);
+  logger.info(`Aave V3 Lending service: ${lendingService.isAvailable() ? 'available' : 'unavailable'}`);
 
   // Start Telegram bot (optional — only if TELEGRAM_BOT_TOKEN is set)
   agent.startTelegramBot().catch((err) => {

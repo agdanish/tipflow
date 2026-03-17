@@ -61,6 +61,8 @@ import { DemoScenarios } from './components/DemoScenarios';
 import { RumbleIntegration } from './components/RumbleIntegration';
 import { AutonomyPanel } from './components/AutonomyPanel';
 import { TreasuryPanel } from './components/TreasuryPanel';
+import { BridgePanel } from './components/BridgePanel';
+import { LendingPanel } from './components/LendingPanel';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useSwipe } from './hooks/useTouchGestures';
@@ -658,6 +660,8 @@ function App() {
                 <WalletSwitcher onActiveChanged={() => refreshBalances()} />
               </div>
               <TreasuryPanel />
+              <BridgePanel />
+              <LendingPanel />
               <SpendingLimits />
               <WebhookManager />
               <AuditLog />

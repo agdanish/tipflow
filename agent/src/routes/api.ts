@@ -23,6 +23,9 @@ import { GoalsService } from '../services/goals.service.js';
 import { RumbleService } from '../services/rumble.service.js';
 import { AutonomyService, type AutonomyPolicy } from '../services/autonomy.service.js';
 import { TreasuryService } from '../services/treasury.service.js';
+import { IndexerService } from '../services/indexer.service.js';
+import { BridgeService } from '../services/bridge.service.js';
+import { LendingService } from '../services/lending.service.js';
 
 /** Shared challenges service instance — exported for agent integration */
 export const challenges = new ChallengesService();
@@ -41,6 +44,15 @@ export const autonomyService = new AutonomyService();
 
 /** Shared treasury service instance — exported for agent integration */
 export const treasuryService = new TreasuryService();
+
+/** Shared indexer service instance — exported for agent integration */
+export const indexerService = new IndexerService();
+
+/** Shared bridge service instance — exported for agent integration */
+export const bridgeService = new BridgeService();
+
+/** Shared lending service instance — exported for agent integration */
+export const lendingService = new LendingService();
 
 /** Shared contacts service instance */
 const contacts = new ContactsService();
@@ -3041,6 +3053,214 @@ export function createApiRouter(
     } catch (err) {
       logger.error('Failed to generate economic report', { error: String(err) });
       res.status(500).json({ error: 'Failed to generate economic report' });
+    }
+  });
+
+  // ==========================================================
+  // === WDK INDEXER (Unified Cross-Chain Data) ===
+  // ==========================================================
+
+  /** GET /api/indexer/health — Indexer API health check */
+  router.get('/indexer/health', async (_req, res) => {
+    try {
+      const result = await indexerService.healthCheck();
+      res.json(result);
+    } catch (err) {
+      logger.error('Indexer health check failed', { error: String(err) });
+      res.json({ isAvailable: false, latencyMs: 0, error: String(err) });
+    }
+  });
+
+  /** GET /api/indexer/chains — Supported chains & tokens */
+  router.get('/indexer/chains', async (_req, res) => {
+    try {
+      const result = await indexerService.getSupportedChains();
+      res.json(result);
+    } catch (err) {
+      logger.error('Indexer chains query failed', { error: String(err) });
+      res.json({ data: null, isAvailable: false });
+    }
+  });
+
+  /** GET /api/indexer/balances/:blockchain/:token/:address — Token balance */
+  router.get('/indexer/balances/:blockchain/:token/:address', async (req, res) => {
+    try {
+      const { blockchain, token, address } = req.params;
+      const result = await indexerService.getTokenBalance(blockchain, token, address);
+      res.json(result);
+    } catch (err) {
+      logger.error('Indexer balance query failed', { error: String(err) });
+      res.json({ data: null, isAvailable: false });
+    }
+  });
+
+  /** GET /api/indexer/transfers/:blockchain/:token/:address — Transfer history */
+  router.get('/indexer/transfers/:blockchain/:token/:address', async (req, res) => {
+    try {
+      const { blockchain, token, address } = req.params;
+      const result = await indexerService.getTokenTransfers(blockchain, token, address);
+      res.json(result);
+    } catch (err) {
+      logger.error('Indexer transfers query failed', { error: String(err) });
+      res.json({ data: null, isAvailable: false });
+    }
+  });
+
+  /** POST /api/indexer/batch/balances — Batch balance query */
+  router.post('/indexer/batch/balances', async (req, res) => {
+    try {
+      const queries = req.body;
+      if (!Array.isArray(queries)) {
+        res.status(400).json({ error: 'Body must be an array of { blockchain, token, address }' });
+        return;
+      }
+      const result = await indexerService.batchBalances(queries);
+      res.json(result);
+    } catch (err) {
+      logger.error('Indexer batch balances query failed', { error: String(err) });
+      res.json({ data: null, isAvailable: false });
+    }
+  });
+
+  // === CROSS-CHAIN BRIDGE (USDT0) ==========================================
+
+  /** GET /api/bridge/routes — Available bridge routes */
+  router.get('/bridge/routes', (_req, res) => {
+    try {
+      const routes = bridgeService.getRoutes();
+      res.json({ routes, available: bridgeService.isAvailable() });
+    } catch (err) {
+      logger.error('Failed to get bridge routes', { error: String(err) });
+      res.status(500).json({ error: 'Failed to get bridge routes' });
+    }
+  });
+
+  /** POST /api/bridge/quote — Get bridge fee quote */
+  router.post('/bridge/quote', (req, res) => {
+    try {
+      const { fromChain, toChain, amount } = req.body as {
+        fromChain: string;
+        toChain: string;
+        amount: string;
+      };
+
+      if (!fromChain || !toChain || !amount) {
+        res.status(400).json({ error: 'fromChain, toChain, and amount are required' });
+        return;
+      }
+
+      const quote = bridgeService.quoteBridge(fromChain, toChain, amount);
+      if (!quote) {
+        res.status(404).json({ error: `No bridge route found from ${fromChain} to ${toChain}` });
+        return;
+      }
+
+      res.json({ quote });
+    } catch (err) {
+      logger.error('Failed to get bridge quote', { error: String(err) });
+      res.status(500).json({ error: 'Failed to get bridge quote' });
+    }
+  });
+
+  /** POST /api/bridge/execute — Execute cross-chain bridge (testnet — logs intent) */
+  router.post('/bridge/execute', (req, res) => {
+    try {
+      const { fromChain, toChain, amount, recipient } = req.body as {
+        fromChain: string;
+        toChain: string;
+        amount: string;
+        recipient?: string;
+      };
+
+      if (!fromChain || !toChain || !amount) {
+        res.status(400).json({ error: 'fromChain, toChain, and amount are required' });
+        return;
+      }
+
+      const entry = bridgeService.executeBridge(fromChain, toChain, amount, recipient);
+      res.json({ bridge: entry, note: 'Testnet mode — bridge intent logged. Real execution requires USDT0 on mainnet.' });
+    } catch (err) {
+      logger.error('Failed to execute bridge', { error: String(err) });
+      res.status(500).json({ error: 'Failed to execute bridge' });
+    }
+  });
+
+  /** GET /api/bridge/history — Bridge transaction history */
+  router.get('/bridge/history', (_req, res) => {
+    try {
+      const history = bridgeService.getHistory();
+      res.json({ history });
+    } catch (err) {
+      logger.error('Failed to get bridge history', { error: String(err) });
+      res.status(500).json({ error: 'Failed to get bridge history' });
+    }
+  });
+
+  // === DEFI LENDING (AAVE V3) =============================================
+
+  /** GET /api/lending/rates — Current Aave V3 yield rates */
+  router.get('/lending/rates', async (_req, res) => {
+    try {
+      const rates = await lendingService.getYieldRates();
+      res.json({ rates, available: lendingService.isAvailable() });
+    } catch (err) {
+      logger.error('Failed to get lending rates', { error: String(err) });
+      res.status(500).json({ error: 'Failed to get lending rates' });
+    }
+  });
+
+  /** GET /api/lending/position — Current lending position */
+  router.get('/lending/position', (_req, res) => {
+    try {
+      const position = lendingService.getPosition();
+      res.json({ position, available: lendingService.isAvailable() });
+    } catch (err) {
+      logger.error('Failed to get lending position', { error: String(err) });
+      res.status(500).json({ error: 'Failed to get lending position' });
+    }
+  });
+
+  /** POST /api/lending/supply — Supply funds to Aave V3 */
+  router.post('/lending/supply', (req, res) => {
+    try {
+      const { chain, amount, asset } = req.body as {
+        chain: string;
+        amount: string;
+        asset?: string;
+      };
+
+      if (!chain || !amount) {
+        res.status(400).json({ error: 'chain and amount are required' });
+        return;
+      }
+
+      const action = lendingService.supply(chain, amount, asset);
+      res.json({ action, note: 'Testnet mode — supply intent logged. Real execution requires Aave V3 on mainnet.' });
+    } catch (err) {
+      logger.error('Failed to supply to lending', { error: String(err) });
+      res.status(500).json({ error: 'Failed to supply to lending protocol' });
+    }
+  });
+
+  /** POST /api/lending/withdraw — Withdraw from Aave V3 */
+  router.post('/lending/withdraw', (req, res) => {
+    try {
+      const { chain, amount, asset } = req.body as {
+        chain: string;
+        amount: string;
+        asset?: string;
+      };
+
+      if (!chain || !amount) {
+        res.status(400).json({ error: 'chain and amount are required' });
+        return;
+      }
+
+      const action = lendingService.withdraw(chain, amount, asset);
+      res.json({ action, note: 'Testnet mode — withdraw intent logged.' });
+    } catch (err) {
+      logger.error('Failed to withdraw from lending', { error: String(err) });
+      res.status(500).json({ error: 'Failed to withdraw from lending protocol' });
     }
   });
 

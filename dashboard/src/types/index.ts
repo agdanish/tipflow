@@ -864,3 +864,99 @@ export interface CSVImportResult {
     memo?: string;
   }>;
 }
+
+/** WDK Indexer health check result */
+export interface IndexerHealthResult {
+  isAvailable: boolean;
+  latencyMs: number;
+  status?: string;
+  error?: string;
+}
+
+/** Indexer chain/token info */
+export interface IndexerChainsResult {
+  data: { chains: Array<{ token: string; blockchain: string; [key: string]: unknown }> } | null;
+  isAvailable: boolean;
+}
+
+/** Indexer balance result */
+export interface IndexerBalanceResult {
+  data: { balance: string; blockchain: string; token: string; address: string; [key: string]: unknown } | null;
+  isAvailable: boolean;
+}
+
+/** Indexer transfers result */
+export interface IndexerTransfersResult {
+  data: Array<{ txHash: string; from: string; to: string; value: string; blockchain: string; token: string; [key: string]: unknown }> | null;
+  isAvailable: boolean;
+}
+
+// ── Cross-Chain Bridge (USDT0) Types ─────────────────────────────
+
+export interface BridgeRoute {
+  fromChain: string;
+  toChain: string;
+  asset: string;
+  estimatedFee: string;
+  estimatedTime: string;
+  available: boolean;
+}
+
+export interface BridgeQuote {
+  fromChain: string;
+  toChain: string;
+  amount: string;
+  fee: string;
+  estimatedTime: string;
+  exchangeRate: string;
+}
+
+export interface BridgeHistoryEntry {
+  id: string;
+  fromChain: string;
+  toChain: string;
+  amount: string;
+  fee: string;
+  status: 'pending' | 'completed' | 'failed';
+  txHash?: string;
+  createdAt: string;
+  completedAt?: string;
+  error?: string;
+}
+
+// ── DeFi Lending (Aave V3) Types ─────────────────────────────────
+
+export interface LendingRate {
+  asset: string;
+  chain: string;
+  protocol: string;
+  supplyApy: number;
+  borrowApy: number;
+  totalSupply: string;
+  totalBorrow: string;
+  utilizationRate: number;
+  lastUpdated: string;
+}
+
+export interface LendingPosition {
+  asset: string;
+  chain: string;
+  supplied: string;
+  earned: string;
+  apy: number;
+  healthFactor: string;
+  enteredAt: string;
+}
+
+export interface LendingAction {
+  id: string;
+  type: 'supply' | 'withdraw';
+  asset: string;
+  chain: string;
+  amount: string;
+  status: 'pending' | 'completed' | 'failed';
+  txHash?: string;
+  createdAt: string;
+  completedAt?: string;
+  error?: string;
+}

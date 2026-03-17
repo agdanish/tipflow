@@ -60,6 +60,16 @@ import type {
   TreasuryAllocation,
   TreasuryAnalytics,
   EconomicReport,
+  IndexerHealthResult,
+  IndexerChainsResult,
+  IndexerBalanceResult,
+  IndexerTransfersResult,
+  BridgeRoute,
+  BridgeQuote,
+  BridgeHistoryEntry,
+  LendingRate,
+  LendingPosition,
+  LendingAction,
 } from '../types';
 
 const BASE = '/api';
@@ -620,4 +630,65 @@ export const api = {
 
   getTreasuryReport: () =>
     fetchJson<{ report: EconomicReport }>('/treasury/report'),
+
+  // === WDK Indexer (Unified Cross-Chain Data) ===
+  getIndexerHealth: () =>
+    fetchJson<IndexerHealthResult>('/indexer/health'),
+
+  getIndexerChains: () =>
+    fetchJson<IndexerChainsResult>('/indexer/chains'),
+
+  getIndexerBalance: (blockchain: string, token: string, address: string) =>
+    fetchJson<IndexerBalanceResult>(
+      `/indexer/balances/${encodeURIComponent(blockchain)}/${encodeURIComponent(token)}/${encodeURIComponent(address)}`,
+    ),
+
+  getIndexerTransfers: (blockchain: string, token: string, address: string) =>
+    fetchJson<IndexerTransfersResult>(
+      `/indexer/transfers/${encodeURIComponent(blockchain)}/${encodeURIComponent(token)}/${encodeURIComponent(address)}`,
+    ),
+
+  batchIndexerBalances: (queries: Array<{ blockchain: string; token: string; address: string }>) =>
+    fetchJson<{ data: Array<{ balance: string; blockchain: string; token: string; address: string }> | null; isAvailable: boolean }>(
+      '/indexer/batch/balances',
+      { method: 'POST', body: JSON.stringify(queries) },
+    ),
+
+  // === Cross-Chain Bridge (USDT0) ===
+  getBridgeRoutes: () =>
+    fetchJson<{ routes: BridgeRoute[]; available: boolean }>('/bridge/routes'),
+
+  getBridgeQuote: (fromChain: string, toChain: string, amount: string) =>
+    fetchJson<{ quote: BridgeQuote }>('/bridge/quote', {
+      method: 'POST',
+      body: JSON.stringify({ fromChain, toChain, amount }),
+    }),
+
+  executeBridge: (fromChain: string, toChain: string, amount: string, recipient?: string) =>
+    fetchJson<{ bridge: BridgeHistoryEntry; note: string }>('/bridge/execute', {
+      method: 'POST',
+      body: JSON.stringify({ fromChain, toChain, amount, recipient }),
+    }),
+
+  getBridgeHistory: () =>
+    fetchJson<{ history: BridgeHistoryEntry[] }>('/bridge/history'),
+
+  // === DeFi Lending (Aave V3) ===
+  getLendingRates: () =>
+    fetchJson<{ rates: LendingRate[]; available: boolean }>('/lending/rates'),
+
+  getLendingPosition: () =>
+    fetchJson<{ position: LendingPosition | null; available: boolean }>('/lending/position'),
+
+  lendingSupply: (chain: string, amount: string, asset?: string) =>
+    fetchJson<{ action: LendingAction; note: string }>('/lending/supply', {
+      method: 'POST',
+      body: JSON.stringify({ chain, amount, asset }),
+    }),
+
+  lendingWithdraw: (chain: string, amount: string, asset?: string) =>
+    fetchJson<{ action: LendingAction; note: string }>('/lending/withdraw', {
+      method: 'POST',
+      body: JSON.stringify({ chain, amount, asset }),
+    }),
 };

@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Wifi } from 'lucide-react';
+import { Wifi, Database } from 'lucide-react';
 import { api } from '../lib/api';
-import type { NetworkHealthStatus } from '../types';
+import type { NetworkHealthStatus, IndexerHealthResult } from '../types';
 
 export function NetworkHealth() {
   const [chains, setChains] = useState<NetworkHealthStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastChecked, setLastChecked] = useState<string | null>(null);
+  const [indexer, setIndexer] = useState<IndexerHealthResult | null>(null);
+  const [indexerChainCount, setIndexerChainCount] = useState<number>(0);
 
   const refresh = useCallback(async () => {
     try {
@@ -15,9 +17,21 @@ export function NetworkHealth() {
       setLastChecked(new Date().toLocaleTimeString());
     } catch {
       // keep existing data
-    } finally {
-      setLoading(false);
     }
+    // Fetch indexer health in parallel (non-blocking)
+    try {
+      const health = await api.getIndexerHealth();
+      setIndexer(health);
+      if (health.isAvailable) {
+        const chainsResult = await api.getIndexerChains();
+        if (chainsResult.data?.chains) {
+          setIndexerChainCount(chainsResult.data.chains.length);
+        }
+      }
+    } catch {
+      setIndexer({ isAvailable: false, latencyMs: 0, error: 'Unreachable' });
+    }
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -116,6 +130,42 @@ export function NetworkHealth() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* WDK Indexer Status */}
+      {indexer && (
+        <div className="mt-3 pt-3 border-t border-border">
+          <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-surface-2 border border-border">
+            <span className="relative flex h-2.5 w-2.5 shrink-0">
+              {indexer.isAvailable && (
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-50" />
+              )}
+              <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${indexer.isAvailable ? 'bg-green-400' : 'bg-red-400'}`} />
+            </span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <Database className="w-3 h-3 text-text-muted" />
+                <span className="text-xs font-medium text-text-primary">WDK Indexer</span>
+                <span className={`text-[10px] font-semibold ${indexer.isAvailable ? 'text-green-400' : 'text-red-400'}`}>
+                  {indexer.isAvailable ? 'Connected' : 'Offline'}
+                </span>
+              </div>
+              <div className="flex items-center gap-3 mt-0.5">
+                {indexer.isAvailable && (
+                  <>
+                    <span className="text-[10px] text-text-muted">{indexer.latencyMs}ms</span>
+                    {indexerChainCount > 0 && (
+                      <span className="text-[10px] text-text-muted">{indexerChainCount} chains</span>
+                    )}
+                  </>
+                )}
+                {!indexer.isAvailable && (
+                  <span className="text-[10px] text-text-muted truncate">{indexer.error ?? 'Unavailable'}</span>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
