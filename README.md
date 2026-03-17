@@ -1,7 +1,8 @@
 <p align="center">
-  <h1 align="center">⚡ TipFlow</h1>
-  <p align="center"><strong>AI-Powered Multi-Chain Tipping Agent</strong></p>
-  <p align="center"><em>Built for <a href="https://dorahacks.io/hackathon/tether-wdk-hackathon">Tether Hackathon Galactica: WDK Edition 1</a></em></p>
+  <h1 align="center">TipFlow</h1>
+  <p align="center"><strong>AI-Powered Tipping Agent for Rumble Creators</strong></p>
+  <p align="center"><em>Built on <a href="https://wdk.tether.io">Tether WDK</a> — extending <a href="https://rumble.com">Rumble's</a> crypto tipping wallet with autonomous AI</em></p>
+  <p align="center"><em>Submitted to <a href="https://dorahacks.io/hackathon/tether-wdk-hackathon">Tether Hackathon Galactica: WDK Edition 1</a></em></p>
   <p align="center">
     <a href="./LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License" /></a>
     <img src="https://img.shields.io/badge/Node.js-22%2B-339933?logo=nodedotjs&logoColor=white" alt="Node.js 22+" />
@@ -11,9 +12,9 @@
     <img src="https://img.shields.io/badge/Track-Tipping%20Bot-ff6b6b" alt="Track: Tipping Bot" />
   </p>
   <p align="center">
-    <img src="https://img.shields.io/badge/Endpoints-86-blueviolet" alt="86 API Endpoints" />
-    <img src="https://img.shields.io/badge/Components-69-orange" alt="69 React Components" />
-    <img src="https://img.shields.io/badge/Services-15-green" alt="15 Agent Services" />
+    <img src="https://img.shields.io/badge/Endpoints-115-blueviolet" alt="115 API Endpoints" />
+    <img src="https://img.shields.io/badge/Components-71-orange" alt="71 React Components" />
+    <img src="https://img.shields.io/badge/Services-17-green" alt="17 Agent Services" />
     <img src="https://img.shields.io/badge/Budget-%240-red" alt="$0 Budget" />
   </p>
 </p>
@@ -22,21 +23,43 @@
 
 ## What is TipFlow?
 
-TipFlow is an **autonomous AI agent** that makes sending crypto tips across blockchains as simple as typing a sentence. Say **"send 0.01 ETH to 0xabc..."** — the agent parses your intent, analyzes chains, compares fees, executes the transaction via **Tether WDK**, verifies it on-chain, and reports back. All through a polished dashboard with 69 components.
+**Track: Tipping Bot — Building AI-powered tipping enhancement for Rumble's WDK-based creator tipping wallet**
+
+In January 2026, [Rumble](https://rumble.com) launched its crypto wallet powered by Tether WDK, enabling viewers to tip creators directly with USDT. TipFlow extends that foundation with an **autonomous AI agent** that makes tipping smarter, automatic, and community-driven.
+
+TipFlow watches your viewing habits, learns your preferences, and autonomously manages tips to your favorite Rumble creators. Say **"tip my top 3 creators this week"** — the agent identifies them, calculates fair amounts based on watch time, executes transactions via **Tether WDK**, verifies on-chain, and reports back. All through a polished dashboard with 71 components.
 
 **Key highlights:**
-- 🧠 **6-step AI pipeline** — INTAKE → ANALYZE → REASON → EXECUTE → VERIFY → REPORT
-- ⛓️ **Multi-chain** — Ethereum Sepolia + TON Testnet with intelligent chain selection
-- 🎤 **Voice commands** — Speak your tips via Web Speech API
-- 💬 **Chat interface** — Conversational AI that understands tip intents, balance queries, and fee comparisons
-- 📊 **86 API endpoints** — Full REST + SSE real-time streaming
-- 🎮 **Gamification** — Achievements, leaderboard, challenges, tip goals, streaks
-- 🤖 **Autonomous tipping** — Scheduled, recurring, conditional, batch, and split tips
-- 🌍 **5 languages** — EN/ES/FR/AR/ZH with RTL support
-- 🐳 **One-command startup** — `docker-compose up` and you're running
-- 💰 **$0 budget** — Zero paid APIs, everything runs locally
+- **Rumble-native** — Creator profiles, channel management, watch-time tracking, event-triggered tipping
+- **6-step AI pipeline** — INTAKE > ANALYZE > REASON > EXECUTE > VERIFY > REPORT
+- **Autonomous intelligence** — Pattern learning, smart recommendations, policy engine, decision logging
+- **Multi-chain** — Ethereum Sepolia + TON Testnet with intelligent chain selection
+- **Voice commands** — Speak your tips via Web Speech API
+- **Chat interface** — Conversational AI that understands tip intents, balance queries, and fee comparisons
+- **115 API endpoints** — Full REST + SSE real-time streaming
+- **Gamification** — Achievements, creator leaderboard, challenges, tip goals, streaks
+- **Community tipping pools** — Collaborative fundraising with goals for creators
+- **5 languages** — EN/ES/FR/AR/ZH with RTL support
+- **One-command startup** — `docker-compose up` and you're running
+- **$0 budget** — Zero paid APIs, everything runs locally
 
-[▶️ Watch Demo Video](https://youtube.com/watch?v=YOUR_DEMO_ID)
+[Watch Demo Video](https://youtube.com/watch?v=YOUR_DEMO_ID)
+
+---
+
+## Rumble Integration
+
+Rumble is one of the first major video platforms to integrate Tether WDK for native crypto tipping. TipFlow builds on top of this by adding an AI layer that enhances the tipping experience for both viewers and creators.
+
+**How it works:** Rumble's wallet handles the core USDT custody and transfer infrastructure via WDK. TipFlow connects to Rumble creator profiles and viewing data to provide intelligent tipping automation — watch-time analysis, community pools, event triggers, and autonomous recommendations. The agent operates the same WDK wallet primitives that Rumble uses, extending them with decision-making intelligence.
+
+**Rumble-specific capabilities:**
+- **Creator profiles** — Pull channel info, subscriber counts, content metadata
+- **Watch-time auto-tipping** — Watch 80%+ of a video and the agent auto-tips the creator
+- **Community tipping pools** — Viewers pool USDT toward a shared creator goal
+- **Event-triggered tips** — Automatically tip when a creator posts a new video, hits a milestone, or goes live
+- **Creator leaderboard** — Rank creators by tips received, engagement, and community support
+- **Collab splits** — Multi-creator videos automatically split tips by contribution percentage
 
 ---
 
@@ -91,9 +114,11 @@ Open **http://localhost:3001** — serves both the dashboard and API.
 
 ```
 +------------------------------------------------------------+
-|                    React Dashboard (69 Components)          |
+|                    React Dashboard (71 Components)          |
 |              React 19 + Vite 8 + Tailwind CSS 4            |
 |                                                            |
+|  Rumble: Creator Profiles · Watch-Time · Pools · Events    |
+|  Autonomy: Patterns · Recommendations · Policy · Logging   |
 |  Tipping: Single · Batch · Split · Scheduled · Conditional |
 |  AI Chat: NLP · Voice · Decision Tree · Personality        |
 |  Analytics: SVG Charts · Heatmap · Streaks · Leaderboard   |
@@ -101,9 +126,9 @@ Open **http://localhost:3001** — serves both the dashboard and API.
 |  UX: Onboarding · i18n (5 langs) · PWA · Keyboard · Touch  |
 |  Data: Export (CSV/JSON/MD) · Templates · Contacts · Tags  |
 +----------------------------+-------------------------------+
-                             | REST API (86 endpoints) + SSE
+                             | REST API (115 endpoints) + SSE
 +----------------------------+-------------------------------+
-|              Node.js Agent Server (15 Services)            |
+|              Node.js Agent Server (17 Services)            |
 |                                                            |
 |   +--------------------------------------------------+    |
 |   |           TipFlow Agent Pipeline                  |    |
@@ -116,9 +141,10 @@ Open **http://localhost:3001** — serves both the dashboard and API.
 |   |  6. REPORT   → Dashboard + Webhooks + Telegram    |    |
 |   +--------------------------------------------------+    |
 |                                                            |
-|  Services: Wallet · AI · ENS · Contacts · Templates       |
-|  Conditions · Challenges · Goals · Limits · Personality    |
-|  Export · Retry · Tags · Telegram · Webhooks               |
+|  Services: Wallet · AI · Rumble · Autonomy · ENS           |
+|  Contacts · Templates · Conditions · Challenges · Goals    |
+|  Limits · Personality · Export · Retry · Tags              |
+|  Telegram · Webhooks                                       |
 |                                                            |
 |  Middleware: Rate Limiting · Validation · Audit Logging    |
 +----------------------------+-------------------------------+
@@ -155,13 +181,39 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 
 ---
 
-## Features (70+)
+## Features (90+)
 
-### 🧠 Agent Intelligence
+### Rumble Creator Integration
 
 | Feature | Description |
 |---------|-------------|
-| **6-Step Decision Pipeline** | Autonomous: INTAKE → ANALYZE → REASON → EXECUTE → VERIFY → REPORT |
+| **Creator Profiles** | Channel info, subscriber counts, content catalog, tip history per creator |
+| **Channel Management** | Follow/unfollow creators, organize by category, set per-creator tip preferences |
+| **Watch-Time Auto-Tipping** | Watch 80%+ of a video and the agent auto-tips the creator based on your policy |
+| **Community Tipping Pools** | Viewers pool USDT toward a shared goal for a creator (e.g., equipment fund) |
+| **Event-Triggered Tips** | Auto-tip on new video upload, subscriber milestone, or live stream start |
+| **Creator Leaderboard** | Rank creators by tips received, engagement score, and community support |
+| **Collab Splits** | Multi-creator videos automatically split tips by contribution percentage |
+| **Live Stream Tipping** | Real-time tip integration during Rumble live streams |
+
+### Autonomous Intelligence
+
+| Feature | Description |
+|---------|-------------|
+| **Tip Pattern Analysis** | Learns your tipping habits — frequency, amounts, preferred creators, timing |
+| **Smart Recommendations** | Suggests creators to tip with confidence scores based on your viewing patterns |
+| **Policy Engine** | Configurable rules: budget limits, recipient allowlists, minimum watch-time thresholds |
+| **Decision Logging** | Full transparency — every autonomous decision logged with reasoning chain |
+| **Autonomous Evaluation** | Self-assessment pipeline that measures decision quality over time |
+| **Confidence Scoring** | Each recommendation includes a 0-100 confidence score with explanation |
+| **Budget Management** | AI tracks spending against daily/weekly/monthly budgets, adjusts recommendations |
+| **Learning Feedback Loop** | User approvals/rejections train the agent to make better future decisions |
+
+### Agent Intelligence
+
+| Feature | Description |
+|---------|-------------|
+| **6-Step Decision Pipeline** | Autonomous: INTAKE > ANALYZE > REASON > EXECUTE > VERIFY > REPORT |
 | **Natural Language Processing** | Type "send 0.01 ETH to 0x..." — the agent parses and executes |
 | **Conversational Chat** | Chat with the agent about balances, fees, history, or execute tips |
 | **Intent Detection** | Detects: tip, balance, fees, address, help, history intents |
@@ -170,7 +222,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 | **LLM + Fallback** | Ollama (phi3:mini) when available, regex NLP when not |
 | **Voice Commands** | Microphone input via Web Speech API with live transcript |
 
-### 💸 Tipping Capabilities
+### Tipping Capabilities
 
 | Feature | Description |
 |---------|-------------|
@@ -187,7 +239,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 | **Tip Receipts** | Structured receipts with receipt ID, block number, fees |
 | **Spending Limits** | Configurable daily/weekly/per-tip spending limits |
 
-### ⛓️ Multi-Chain & Wallet
+### Multi-Chain & Wallet
 
 | Feature | Description |
 |---------|-------------|
@@ -203,7 +255,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 | **Network Health** | Real-time RPC connectivity with latency |
 | **ENS Resolution** | Resolve .eth names to addresses with caching |
 
-### 🎮 Analytics & Gamification
+### Analytics & Gamification
 
 | Feature | Description |
 |---------|-------------|
@@ -219,7 +271,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 | **Chain Comparison** | Side-by-side chain analytics |
 | **Tip Reports** | Generated summary reports |
 
-### 🔔 Notifications & Integrations
+### Notifications & Integrations
 
 | Feature | Description |
 |---------|-------------|
@@ -231,7 +283,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 | **Telegram Bot** | 7 bot commands for tip notifications |
 | **SSE Activity Feed** | Real-time dual streams (pipeline + activity) |
 
-### 🔒 Security & Reliability
+### Security & Reliability
 
 | Feature | Description |
 |---------|-------------|
@@ -242,7 +294,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 | **Self-Custodial** | All keys stay local |
 | **Address Tags** | Color-coded address tagging |
 
-### 🎨 UX & UI
+### UX & UI
 
 | Feature | Description |
 |---------|-------------|
@@ -260,7 +312,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 | **QR Scanner** | Camera-based QR code scanning |
 | **Demo Banner** | Testnet info + faucet links for judges |
 
-### 📦 Export & Data
+### Export & Data
 
 | Feature | Description |
 |---------|-------------|
@@ -270,7 +322,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 | **Contacts Manager** | Address book with groups + import/export |
 | **Batch Import** | CSV batch import for contacts |
 
-### 🛠️ DevOps & API
+### DevOps & API
 
 | Feature | Description |
 |---------|-------------|
@@ -304,7 +356,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 
 ---
 
-## API Reference (86 Endpoints)
+## API Reference (115 Endpoints)
 
 <details>
 <summary><strong>System (8 endpoints)</strong></summary>
@@ -390,7 +442,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 </details>
 
 <details>
-<summary><strong>Activity, Contacts, Templates, Conditions, Webhooks, Tip Links, Gamification, Chat, Settings, Telegram, ENS, Tags, Calendar, Goals, Limits, Audit, Demo (51 endpoints)</strong></summary>
+<summary><strong>Rumble Integration, Autonomy, Activity, Contacts, Templates, Conditions, Webhooks, Tip Links, Gamification, Chat, Settings, Telegram, ENS, Tags, Calendar, Goals, Limits, Audit, Demo (80 endpoints)</strong></summary>
 
 See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the in-app API documentation component.
 
@@ -400,33 +452,12 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 
 ## Judging Criteria Alignment
 
-### 1. Agent Intelligence ⭐
-
-- 6-step autonomous decision pipeline
-- LLM reasoning with Ollama + robust regex fallback
-- Intent detection (tip, balance, fees, address, help, history)
-- Conversational chat that understands context
-- Voice commands via Web Speech API
-- 5-personality system with unique response styles
-- Decision tree visualization for transparent reasoning
-- NLP parsing with confidence scoring
-
-### 2. WDK Wallet Integration ⭐
-
-- 13+ WDK methods used across the full API surface
-- Seed generation, multi-chain management, HD derivation
-- Balance queries, fee estimation, native + USDT transfers
-- ERC-4337 Account Abstraction (gasless tipping)
-- TON gasless support
-- Real-time fee rate queries for gas monitoring
-- On-chain verification with block confirmation
-- Graceful `dispose()` on shutdown
-
-### 3. Technical Execution ⭐
+### 1. Technical Correctness
 
 - Full-stack TypeScript with 100+ typed interfaces
-- 86 REST/SSE API endpoints across 14 categories
-- 69 React components, 15 backend services, 5 custom hooks
+- 115 REST/SSE API endpoints across 16 categories
+- 71 React components, 17 backend services, 5 custom hooks
+- Clean WDK integration — 13+ methods, zero mocked calls
 - Real testnet transactions (Ethereum Sepolia + TON Testnet)
 - Dual SSE streams for real-time updates
 - OpenAPI 3.0 specification
@@ -435,55 +466,43 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 - PWA with service worker and offline support
 - 55 automated tests (validation, agent, API)
 
-### 4. Agentic Payment Design ⭐
+### 2. Agent Autonomy
 
-- Fully autonomous pipeline: analyze → reason → execute → verify
-- Scheduled tips run without human intervention
-- Conditional tips auto-trigger on gas/balance/time conditions
-- Batch orchestrates up to 10 transactions
-- Split divides amounts by percentage
-- Cross-chain fee optimizer selects cheapest route
-- Transaction retry with exponential backoff
-- Webhook notifications to external systems
-- Tip links for one-click pre-filled tipping
+- 6-step autonomous decision pipeline: INTAKE > ANALYZE > REASON > EXECUTE > VERIFY > REPORT
+- Tip pattern analysis and learning from user behavior
+- Smart recommendations with confidence scores (0-100)
+- Policy engine with configurable budget limits, recipient rules, watch-time thresholds
+- Full decision logging with reasoning transparency for every action
+- Autonomous evaluation pipeline that measures decision quality
+- Scheduled and conditional tips run without human intervention
+- Watch-time auto-tipping (80%+ threshold triggers autonomous tip)
+- Learning feedback loop — approvals/rejections improve future decisions
+- LLM reasoning with Ollama + robust regex fallback
+
+### 3. Economic Soundness
+
+- USDT-first design — stable value tipping, no volatile surprises
 - Spending limits with daily/weekly/per-tip enforcement
+- Cross-chain fee optimizer selects cheapest route
+- Gasless tipping via ERC-4337 reduces barrier to entry
+- Community tipping pools distribute costs across viewers
+- Budget management AI tracks spending against configurable limits
+- Creator collab splits ensure fair distribution
+- Transaction retry with exponential backoff prevents wasted gas
+- $0 infrastructure — no paid APIs, runs entirely locally
 
-### 5. Originality ⭐
+### 4. Real-World Applicability
 
-- Voice-to-tip via Web Speech API
-- Conditional tipping engine (gas_below, balance_above, time_of_day)
-- Split tipping with percentage allocation
-- Shareable tip links
-- Agent personality system (5 styles)
-- SVG analytics with hourly heatmap and tip streaks
-- Daily/weekly gamified challenges
-- Fundraising tip goals with progress bars
-- ENS resolution for human-readable addresses
-- Internationalization (5 languages, RTL)
-
-### 6. Polish & Ship-ability ⭐
-
-- Dark/light theme with custom accent colors
-- Mobile responsive with touch gestures
-- PWA installable to home screen
-- Audio notifications (Web Audio API oscillator)
-- Keyboard shortcuts for power users
-- Guided onboarding tour
-- Loading skeletons and empty states
-- Demo banner with faucet links for easy judge setup
-- One-command Docker startup
-- Multi-format export (CSV/JSON/MD/Summary)
-- QR codes for receiving funds
-- Network health monitoring
-
-### 7. Presentation & Demo ⭐
-
-- 69 polished React components
-- Transparent decision tree for every tip
-- Real-time SSE activity feed
-- Interactive API documentation built into dashboard
-- System info and tech stack panels
-- Comprehensive README with architecture diagram
+- Builds directly on Rumble's existing WDK-based tipping wallet
+- Creator profiles and channel management for real platform integration
+- Watch-time auto-tipping solves the "I forgot to tip" problem
+- Community pools enable collective creator support (equipment funds, milestones)
+- Event-triggered tips (new video, milestones, live streams) drive creator engagement
+- Creator leaderboard incentivizes quality content
+- One-command Docker startup for easy deployment
+- Mobile-responsive PWA installable to home screen
+- 5-language support (EN/ES/FR/AR/ZH) for global reach
+- Demo mode with testnet faucet links for easy evaluation
 
 ---
 
@@ -511,9 +530,11 @@ tipflow/
 ├── agent/                          # Node.js agent server
 │   └── src/
 │       ├── core/agent.ts           # 6-step pipeline + scheduler + conditions
-│       ├── services/               # 15 services
+│       ├── services/               # 17 services
 │       │   ├── wallet.service.ts   # WDK operations + HD derivation + gasless
 │       │   ├── ai.service.ts       # Ollama LLM + NLP + intent detection
+│       │   ├── rumble.service.ts   # Rumble creator profiles + watch-time + events
+│       │   ├── autonomy.service.ts # Pattern analysis + recommendations + policy engine
 │       │   ├── ens.service.ts      # ENS resolution with caching
 │       │   ├── telegram.service.ts # Telegram bot (7 commands)
 │       │   ├── conditions.service.ts # Conditional tip engine
@@ -531,13 +552,16 @@ tipflow/
 │       │   ├── rateLimit.ts        # Rate limiting
 │       │   └── validate.ts         # Input validation + audit
 │       ├── routes/
-│       │   ├── api.ts              # 86 REST + SSE endpoints
+│       │   ├── api.ts              # 115 REST + SSE endpoints
 │       │   └── openapi.ts          # OpenAPI 3.0 spec
 │       ├── __tests__/              # 51 automated tests
 │       └── index.ts                # Express 5 entry point
 ├── dashboard/                      # React frontend
 │   └── src/
-│       ├── components/             # 69 React components
+│       ├── components/             # 71 React components
+│       │   ├── RumbleIntegration.tsx # Rumble creator dashboard
+│       │   ├── AutonomyPanel.tsx   # Autonomous intelligence controls
+│       │   └── ...                 # 69 more components
 │       ├── hooks/                  # 5 custom hooks
 │       ├── lib/                    # API client, i18n, sounds, utils
 │       └── types/                  # 60+ TypeScript interfaces
@@ -585,5 +609,5 @@ cd agent && npm test
 ---
 
 <p align="center">
-  Built with ❤️ and <a href="https://wdk.tether.io">Tether WDK</a> for <a href="https://dorahacks.io/hackathon/tether-wdk-hackathon">Tether Hackathon Galactica: WDK Edition 1</a>
+  Built with Tether WDK for Rumble creators | <a href="https://dorahacks.io/hackathon/tether-wdk-hackathon">Tether Hackathon Galactica: WDK Edition 1</a>
 </p>

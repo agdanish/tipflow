@@ -721,6 +721,72 @@ export interface TelegramBotStatus {
   startedAt: string | null;
 }
 
+/** Tip profile built from historical tip analysis */
+export interface TipProfile {
+  userId: string;
+  frequentRecipients: {
+    address: string;
+    count: number;
+    avgAmount: number;
+    lastTip: string;
+  }[];
+  tipPatterns: {
+    dayOfWeek: number;
+    hour: number;
+    frequency: number;
+  }[];
+  totalTipped: number;
+  avgTipAmount: number;
+  preferredChain: string;
+  activeDays: number;
+  firstTipDate: string;
+  lastTipDate: string;
+}
+
+/** Autonomy policy — high-level rules the agent follows */
+export interface AutonomyPolicy {
+  id: string;
+  userId: string;
+  name: string;
+  type: 'recurring' | 'budget' | 'recipient_limit' | 'custom';
+  enabled: boolean;
+  rules: {
+    maxPerTip?: number;
+    maxDailyTotal?: number;
+    allowedRecipients?: string[];
+    blockedRecipients?: string[];
+    preferredChain?: string;
+    schedule?: {
+      dayOfWeek?: number[];
+      hour?: number;
+    };
+    requireConfirmationAbove?: number;
+  };
+  createdAt: string;
+}
+
+/** Autonomous decision with full reasoning chain */
+export interface AutonomousDecision {
+  id: string;
+  timestamp: string;
+  recipient: string;
+  amount: number;
+  chain: string;
+  reasoning: {
+    trigger: string;
+    recipientReason: string;
+    amountReason: string;
+    timingReason: string;
+    confidenceScore: number;
+  };
+  status: 'proposed' | 'approved' | 'executed' | 'rejected';
+  policyCompliance: {
+    withinDailyLimit: boolean;
+    withinPerTipLimit: boolean;
+    knownRecipient: boolean;
+  };
+}
+
 /** CSV import result from POST /api/tip/import */
 export interface CSVImportResult {
   total: number;

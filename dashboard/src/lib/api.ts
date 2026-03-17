@@ -51,6 +51,9 @@ import type {
   AuditEntry,
   CSVImportResult,
   TipGoal,
+  TipProfile,
+  AutonomyPolicy,
+  AutonomousDecision,
 } from '../types';
 
 const BASE = '/api';
@@ -464,6 +467,112 @@ export const api = {
   deleteGoal: (id: string) =>
     fetchJson<{ success: boolean }>(`/goals/${id}`, {
       method: 'DELETE',
+    }),
+
+  // === Rumble Integration ===
+  rumbleRegisterCreator: (name: string, channelUrl: string, walletAddress: string, categories: string[]) =>
+    fetchJson<{ creator: Record<string, unknown> }>('/rumble/creators', {
+      method: 'POST',
+      body: JSON.stringify({ name, channelUrl, walletAddress, categories }),
+    }),
+
+  rumbleGetCreators: () =>
+    fetchJson<{ creators: Array<Record<string, unknown>> }>('/rumble/creators'),
+
+  rumbleGetCreator: (id: string) =>
+    fetchJson<{ creator: Record<string, unknown> }>(`/rumble/creators/${encodeURIComponent(id)}`),
+
+  rumbleRecordWatch: (creatorId: string, videoId: string, watchPercent: number, userId: string) =>
+    fetchJson<{ session: Record<string, unknown> }>('/rumble/watch', {
+      method: 'POST',
+      body: JSON.stringify({ creatorId, videoId, watchPercent, userId }),
+    }),
+
+  rumbleGetAutoTipRecommendations: (userId: string) =>
+    fetchJson<{ recommendations: Array<Record<string, unknown>> }>(`/rumble/auto-tip/recommendations/${encodeURIComponent(userId)}`),
+
+  rumbleSetAutoTipRules: (userId: string, rules: Array<{ minWatchPercent: number; tipAmount: number; maxTipsPerDay: number; enabledCategories: string[]; enabled: boolean }>) =>
+    fetchJson<{ rules: Array<Record<string, unknown>> }>('/rumble/auto-tip/rules', {
+      method: 'POST',
+      body: JSON.stringify({ userId, rules }),
+    }),
+
+  rumbleGetAutoTipRules: (userId: string) =>
+    fetchJson<{ rules: Array<Record<string, unknown>> }>(`/rumble/auto-tip/rules/${encodeURIComponent(userId)}`),
+
+  rumbleCreatePool: (creatorId: string, goalAmount: number, title: string, deadline?: string) =>
+    fetchJson<{ pool: Record<string, unknown> }>('/rumble/pools', {
+      method: 'POST',
+      body: JSON.stringify({ creatorId, goalAmount, title, deadline }),
+    }),
+
+  rumbleContributeToPool: (poolId: string, amount: number, contributor: string) =>
+    fetchJson<{ success: boolean }>(`/rumble/pools/${encodeURIComponent(poolId)}/contribute`, {
+      method: 'POST',
+      body: JSON.stringify({ amount, contributor }),
+    }),
+
+  rumbleGetPools: () =>
+    fetchJson<{ pools: Array<Record<string, unknown>> }>('/rumble/pools'),
+
+  rumbleRegisterEventTrigger: (creatorId: string, event: string, tipAmount: number) =>
+    fetchJson<{ trigger: Record<string, unknown> }>('/rumble/events/triggers', {
+      method: 'POST',
+      body: JSON.stringify({ creatorId, event, tipAmount }),
+    }),
+
+  rumbleProcessEvent: (creatorId: string, event: string, metadata?: Record<string, unknown>) =>
+    fetchJson<{ triggered: boolean; trigger: Record<string, unknown> | null }>('/rumble/events/process', {
+      method: 'POST',
+      body: JSON.stringify({ creatorId, event, metadata }),
+    }),
+
+  rumbleGetLeaderboard: (timeframe?: string) =>
+    fetchJson<{ leaderboard: Array<Record<string, unknown>> }>(`/rumble/leaderboard${timeframe ? `?timeframe=${timeframe}` : ''}`),
+
+  rumbleCreateCollabSplit: (videoId: string, creators: Array<{ creatorId: string; percentage: number }>) =>
+    fetchJson<{ split: Record<string, unknown> }>('/rumble/collab-splits', {
+      method: 'POST',
+      body: JSON.stringify({ videoId, creators }),
+    }),
+
+  // Autonomy Intelligence
+  getAutonomyProfile: () =>
+    fetchJson<{ profile: TipProfile }>('/autonomy/profile'),
+
+  getAutonomyRecommendations: () =>
+    fetchJson<{ recommendations: AutonomousDecision[]; profile: TipProfile }>('/autonomy/recommendations'),
+
+  getAutonomyPolicies: () =>
+    fetchJson<{ policies: AutonomyPolicy[] }>('/autonomy/policies'),
+
+  createAutonomyPolicy: (policy: { name: string; type: string; enabled?: boolean; rules?: Record<string, unknown> }) =>
+    fetchJson<{ policy: AutonomyPolicy }>('/autonomy/policies', {
+      method: 'POST',
+      body: JSON.stringify(policy),
+    }),
+
+  deleteAutonomyPolicy: (id: string) =>
+    fetchJson<{ deleted: boolean; id: string }>(`/autonomy/policies/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    }),
+
+  getAutonomyDecisions: () =>
+    fetchJson<{ decisions: AutonomousDecision[] }>('/autonomy/decisions'),
+
+  approveAutonomyDecision: (id: string) =>
+    fetchJson<{ decision: AutonomousDecision }>(`/autonomy/decisions/${encodeURIComponent(id)}/approve`, {
+      method: 'POST',
+    }),
+
+  rejectAutonomyDecision: (id: string) =>
+    fetchJson<{ decision: AutonomousDecision }>(`/autonomy/decisions/${encodeURIComponent(id)}/reject`, {
+      method: 'POST',
+    }),
+
+  evaluateAutonomy: () =>
+    fetchJson<{ proposals: AutonomousDecision[]; count: number }>('/autonomy/evaluate', {
+      method: 'POST',
     }),
 
   // Demo Mode

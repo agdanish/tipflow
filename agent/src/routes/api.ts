@@ -20,6 +20,8 @@ import { TagsService } from '../services/tags.service.js';
 import { ChallengesService } from '../services/challenges.service.js';
 import { LimitsService } from '../services/limits.service.js';
 import { GoalsService } from '../services/goals.service.js';
+import { RumbleService } from '../services/rumble.service.js';
+import { AutonomyService, type AutonomyPolicy } from '../services/autonomy.service.js';
 
 /** Shared challenges service instance — exported for agent integration */
 export const challenges = new ChallengesService();
@@ -29,6 +31,12 @@ export const limitsService = new LimitsService();
 
 /** Shared goals service instance — exported for agent integration */
 export const goalsService = new GoalsService();
+
+/** Shared Rumble service instance — exported for agent integration */
+export const rumbleService = new RumbleService();
+
+/** Shared autonomy service instance — exported for agent integration */
+export const autonomyService = new AutonomyService();
 
 /** Shared contacts service instance */
 const contacts = new ContactsService();
@@ -2593,6 +2601,309 @@ export function createApiRouter(
     } catch (err) {
       logger.error('Demo self-tip failed', { error: String(err) });
       res.status(500).json({ error: String(err) });
+    }
+  });
+
+  // === RUMBLE INTEGRATION ===
+
+  /** POST /api/rumble/creators — Register a Rumble creator */
+  router.post('/rumble/creators', (req, res) => {
+    try {
+      const { name, channelUrl, walletAddress, categories } = req.body as {
+        name: string;
+        channelUrl: string;
+        walletAddress: string;
+        categories: string[];
+      };
+      if (!name || !channelUrl || !walletAddress) {
+        res.status(400).json({ error: 'name, channelUrl, and walletAddress are required' });
+        return;
+      }
+      const creator = rumbleService.registerCreator(name, channelUrl, walletAddress, categories ?? []);
+      res.json({ creator });
+    } catch (err) {
+      res.status(500).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/rumble/creators — List all creators */
+  router.get('/rumble/creators', (_req, res) => {
+    res.json({ creators: rumbleService.listCreators() });
+  });
+
+  /** GET /api/rumble/creators/:id — Get a specific creator */
+  router.get('/rumble/creators/:id', (req, res) => {
+    const creator = rumbleService.getCreator(req.params.id);
+    if (!creator) {
+      res.status(404).json({ error: 'Creator not found' });
+      return;
+    }
+    res.json({ creator });
+  });
+
+  /** POST /api/rumble/watch — Record watch time */
+  router.post('/rumble/watch', (req, res) => {
+    try {
+      const { creatorId, videoId, watchPercent, userId } = req.body as {
+        creatorId: string;
+        videoId: string;
+        watchPercent: number;
+        userId: string;
+      };
+      if (!creatorId || !videoId || watchPercent == null || !userId) {
+        res.status(400).json({ error: 'creatorId, videoId, watchPercent, and userId are required' });
+        return;
+      }
+      const session = rumbleService.recordWatchTime(creatorId, videoId, watchPercent, userId);
+      res.json({ session });
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/rumble/auto-tip/recommendations/:userId — Get auto-tip recommendations */
+  router.get('/rumble/auto-tip/recommendations/:userId', (req, res) => {
+    const recommendations = rumbleService.getAutoTipRecommendations(req.params.userId);
+    res.json({ recommendations });
+  });
+
+  /** POST /api/rumble/auto-tip/rules — Set auto-tip rules for a user */
+  router.post('/rumble/auto-tip/rules', (req, res) => {
+    try {
+      const { userId, rules } = req.body as {
+        userId: string;
+        rules: Array<{
+          minWatchPercent: number;
+          tipAmount: number;
+          maxTipsPerDay: number;
+          enabledCategories: string[];
+          enabled: boolean;
+        }>;
+      };
+      if (!userId || !rules) {
+        res.status(400).json({ error: 'userId and rules are required' });
+        return;
+      }
+      rumbleService.setAutoTipRules(userId, rules);
+      const savedRules = rumbleService.getAutoTipRules(userId);
+      res.json({ rules: savedRules });
+    } catch (err) {
+      res.status(500).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/rumble/auto-tip/rules/:userId — Get auto-tip rules for a user */
+  router.get('/rumble/auto-tip/rules/:userId', (req, res) => {
+    const rules = rumbleService.getAutoTipRules(req.params.userId);
+    res.json({ rules });
+  });
+
+  /** POST /api/rumble/pools — Create a community tip pool */
+  router.post('/rumble/pools', (req, res) => {
+    try {
+      const { creatorId, goalAmount, title, deadline } = req.body as {
+        creatorId: string;
+        goalAmount: number;
+        title: string;
+        deadline?: string;
+      };
+      if (!creatorId || !goalAmount || !title) {
+        res.status(400).json({ error: 'creatorId, goalAmount, and title are required' });
+        return;
+      }
+      const pool = rumbleService.createTipPool(creatorId, goalAmount, title, deadline);
+      res.json({ pool });
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  /** POST /api/rumble/pools/:id/contribute — Contribute to a pool */
+  router.post('/rumble/pools/:id/contribute', (req, res) => {
+    try {
+      const { amount, contributor } = req.body as { amount: number; contributor: string };
+      if (!amount || !contributor) {
+        res.status(400).json({ error: 'amount and contributor are required' });
+        return;
+      }
+      rumbleService.contributeToPool(req.params.id, amount, contributor);
+      res.json({ success: true });
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/rumble/pools — List active pools */
+  router.get('/rumble/pools', (_req, res) => {
+    res.json({ pools: rumbleService.getActivePools() });
+  });
+
+  /** POST /api/rumble/events/triggers — Register an event trigger */
+  router.post('/rumble/events/triggers', (req, res) => {
+    try {
+      const { creatorId, event, tipAmount } = req.body as {
+        creatorId: string;
+        event: 'new_video' | 'milestone' | 'live_start' | 'anniversary';
+        tipAmount: number;
+      };
+      if (!creatorId || !event || !tipAmount) {
+        res.status(400).json({ error: 'creatorId, event, and tipAmount are required' });
+        return;
+      }
+      const trigger = rumbleService.registerEventTrigger(creatorId, event, tipAmount);
+      res.json({ trigger });
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  /** POST /api/rumble/events/process — Process an event */
+  router.post('/rumble/events/process', (req, res) => {
+    try {
+      const { creatorId, event, metadata } = req.body as {
+        creatorId: string;
+        event: string;
+        metadata?: Record<string, unknown>;
+      };
+      if (!creatorId || !event) {
+        res.status(400).json({ error: 'creatorId and event are required' });
+        return;
+      }
+      const trigger = rumbleService.processEvent(creatorId, event, metadata);
+      res.json({ triggered: !!trigger, trigger: trigger ?? null });
+    } catch (err) {
+      res.status(500).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/rumble/leaderboard — Creator leaderboard */
+  router.get('/rumble/leaderboard', (req, res) => {
+    const timeframe = (req.query.timeframe as 'day' | 'week' | 'month' | 'all') || 'all';
+    res.json({ leaderboard: rumbleService.getCreatorLeaderboard(timeframe) });
+  });
+
+  /** POST /api/rumble/collab-splits — Create a collab split */
+  router.post('/rumble/collab-splits', (req, res) => {
+    try {
+      const { videoId, creators } = req.body as {
+        videoId: string;
+        creators: Array<{ creatorId: string; percentage: number }>;
+      };
+      if (!videoId || !creators || creators.length === 0) {
+        res.status(400).json({ error: 'videoId and creators array are required' });
+        return;
+      }
+      const split = rumbleService.createCollabSplit(videoId, creators);
+      res.json({ split });
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  // === AUTONOMOUS INTELLIGENCE ===
+
+  /** GET /api/autonomy/profile — Analyze tip history and return a tip profile */
+  router.get('/autonomy/profile', (_req, res) => {
+    try {
+      const tips = agent.getHistory();
+      const profile = autonomyService.analyzeTipHistory(tips);
+      res.json({ profile });
+    } catch (err) {
+      logger.error('Failed to build tip profile', { error: String(err) });
+      res.status(500).json({ error: 'Failed to analyze tip history' });
+    }
+  });
+
+  /** GET /api/autonomy/recommendations — Get smart tip recommendations */
+  router.get('/autonomy/recommendations', (_req, res) => {
+    try {
+      const tips = agent.getHistory();
+      const profile = autonomyService.analyzeTipHistory(tips);
+      const recommendations = autonomyService.generateRecommendations(profile);
+      res.json({ recommendations, profile });
+    } catch (err) {
+      logger.error('Failed to generate recommendations', { error: String(err) });
+      res.status(500).json({ error: 'Failed to generate recommendations' });
+    }
+  });
+
+  /** POST /api/autonomy/policies — Create a new autonomy policy */
+  router.post('/autonomy/policies', (req, res) => {
+    try {
+      const { name, type, enabled, rules } = req.body as {
+        name?: string;
+        type?: string;
+        enabled?: boolean;
+        rules?: Record<string, unknown>;
+      };
+      if (!name || !type) {
+        res.status(400).json({ error: 'name and type are required' });
+        return;
+      }
+      const policy = autonomyService.setPolicy('default', {
+        name,
+        type: type as 'recurring' | 'budget' | 'recipient_limit' | 'custom',
+        enabled: enabled !== false,
+        rules: (rules ?? {}) as AutonomyPolicy['rules'],
+      });
+      res.json({ policy });
+    } catch (err) {
+      logger.error('Failed to create policy', { error: String(err) });
+      res.status(500).json({ error: 'Failed to create policy' });
+    }
+  });
+
+  /** GET /api/autonomy/policies — List all autonomy policies */
+  router.get('/autonomy/policies', (_req, res) => {
+    const policies = autonomyService.getPolicies('default');
+    res.json({ policies });
+  });
+
+  /** DELETE /api/autonomy/policies/:id — Delete a policy */
+  router.delete('/autonomy/policies/:id', (req, res) => {
+    const deleted = autonomyService.deletePolicy(req.params.id);
+    if (!deleted) {
+      res.status(404).json({ error: 'Policy not found' });
+      return;
+    }
+    res.json({ deleted: true, id: req.params.id });
+  });
+
+  /** GET /api/autonomy/decisions — Get the full decision log */
+  router.get('/autonomy/decisions', (_req, res) => {
+    const decisions = autonomyService.getDecisionLog();
+    res.json({ decisions });
+  });
+
+  /** POST /api/autonomy/decisions/:id/approve — Approve a proposed decision */
+  router.post('/autonomy/decisions/:id/approve', (req, res) => {
+    const decision = autonomyService.approveDecision(req.params.id);
+    if (!decision) {
+      res.status(404).json({ error: 'Decision not found or not in proposed status' });
+      return;
+    }
+    res.json({ decision });
+  });
+
+  /** POST /api/autonomy/decisions/:id/reject — Reject a proposed decision */
+  router.post('/autonomy/decisions/:id/reject', (req, res) => {
+    const decision = autonomyService.rejectDecision(req.params.id);
+    if (!decision) {
+      res.status(404).json({ error: 'Decision not found or not in proposed status' });
+      return;
+    }
+    res.json({ decision });
+  });
+
+  /** POST /api/autonomy/evaluate — Run the autonomous evaluation pipeline */
+  router.post('/autonomy/evaluate', (_req, res) => {
+    try {
+      const tips = agent.getHistory();
+      const proposals = autonomyService.evaluateAndPropose(tips);
+      res.json({ proposals, count: proposals.length });
+    } catch (err) {
+      logger.error('Autonomous evaluation failed', { error: String(err) });
+      res.status(500).json({ error: 'Autonomous evaluation failed' });
     }
   });
 

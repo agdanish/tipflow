@@ -58,6 +58,8 @@ import { BatchImport } from './components/BatchImport';
 import { TipReport } from './components/TipReport';
 import { DemoBanner } from './components/DemoBanner';
 import { DemoScenarios } from './components/DemoScenarios';
+import { RumbleIntegration } from './components/RumbleIntegration';
+import { AutonomyPanel } from './components/AutonomyPanel';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useSwipe } from './hooks/useTouchGestures';
@@ -542,6 +544,7 @@ function App() {
                   {agentState.currentDecision && (
                     <DecisionTree decision={agentState.currentDecision} agentStatus={agentState.status} />
                   )}
+                  <AutonomyPanel />
                   <ActivityFeed />
                   <TipGoals />
                   {/* Scheduled Tips */}
@@ -642,6 +645,9 @@ function App() {
               <ExportPanel historyCount={history.length} />
               <TransactionTimeline history={history} loading={historyLoading} />
             </div>
+          }
+          rumbleContent={
+            <RumbleIntegration />
           }
           settingsContent={
             <div className="space-y-4 sm:space-y-6">

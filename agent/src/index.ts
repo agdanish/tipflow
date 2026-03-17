@@ -11,7 +11,7 @@ import WDK from '@tetherto/wdk';
 import { WalletService } from './services/wallet.service.js';
 import { AIService } from './services/ai.service.js';
 import { TipFlowAgent } from './core/agent.js';
-import { createApiRouter, webhooks, challenges, limitsService, goalsService } from './routes/api.js';
+import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService } from './routes/api.js';
 import { logger } from './utils/logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -67,6 +67,9 @@ async function main(): Promise<void> {
   agent.setLimitsService(limitsService);
   agent.setGoalsService(goalsService);
 
+  // Log Rumble integration
+  logger.info(`Rumble integration loaded: ${rumbleService.listCreators().length} creators registered`);
+
   // Start Telegram bot (optional — only if TELEGRAM_BOT_TOKEN is set)
   agent.startTelegramBot().catch((err) => {
     logger.warn('Telegram bot startup failed (non-fatal)', { error: String(err) });
@@ -110,6 +113,7 @@ async function main(): Promise<void> {
   app.listen(PORT, () => {
     logger.info(`TipFlow Agent running on http://localhost:${PORT}`);
     logger.info(`AI mode: ${aiService.isAvailable() ? 'LLM (Ollama)' : 'Rule-based'}`);
+    logger.info(`Autonomy engine: ${autonomyService.getPolicies('default').length} policies loaded`);
     logger.info('Ready to process tips');
   });
 
