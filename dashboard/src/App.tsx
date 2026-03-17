@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Header } from './components/Header';
 import { WalletCard } from './components/WalletCard';
 import { TipForm } from './components/TipForm';
@@ -7,8 +7,12 @@ import { AgentPanel } from './components/AgentPanel';
 import { TipHistory } from './components/TipHistory';
 import { StatsPanel } from './components/StatsPanel';
 import { ToastContainer, useToasts } from './components/Toast';
+import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
+import { OnboardingOverlay, isOnboardingComplete, resetOnboarding } from './components/OnboardingOverlay';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { api } from './lib/api';
+import { playSuccess, playError, isSoundEnabled, setSoundEnabled } from './lib/sounds';
 import type { TipResult, ScheduledTip } from './types';
 import { Wallet, Send, Users, CalendarClock, X, Clock, CheckCircle2, XCircle } from 'lucide-react';
 
@@ -21,6 +25,8 @@ function App() {
   const { toasts, addToast, dismissToast } = useToasts();
   const [tipMode, setTipMode] = useState<'single' | 'batch'>('single');
   const [scheduledTips, setScheduledTips] = useState<ScheduledTip[]>([]);
+  const [showOnboarding, setShowOnboarding] = useState(() => !isOnboardingComplete());
+  const [soundOn, setSoundOn] = useState(isSoundEnabled);
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     return (localStorage.getItem('tipflow-theme') as 'dark' | 'light') || 'dark';
   });
@@ -32,6 +38,44 @@ function App() {
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  }, []);
+
+  const toggleSound = useCallback(() => {
+    setSoundOn((prev) => {
+      const next = !prev;
+      setSoundEnabled(next);
+      return next;
+    });
+  }, []);
+
+  // Keyboard shortcuts
+  const [showShortcuts, setShowShortcuts] = useState(false);
+
+  const shortcutActions = useMemo(
+    () => ({
+      submitForm: () => {
+        const form = document.getElementById('tip-form') as HTMLFormElement | null;
+        if (form) form.requestSubmit();
+      },
+      focusNlpInput: () => {
+        const input = document.getElementById('nlp-input') as HTMLInputElement | null;
+        if (input) input.focus();
+      },
+      toggleTipMode: () => setTipMode((prev) => (prev === 'single' ? 'batch' : 'single')),
+      toggleTheme,
+      showShortcutsHelp: () => setShowShortcuts(true),
+      closeModal: () => setShowShortcuts(false),
+    }),
+    [toggleTheme],
+  );
+
+  useKeyboardShortcuts(shortcutActions);
+
+  // Request browser notification permission once on mount
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
   }, []);
 
   const refreshScheduledTips = useCallback(async () => {
@@ -67,9 +111,19 @@ function App() {
 
   const handleTipComplete = (result: TipResult) => {
     if (result.status === 'confirmed') {
-      addToast('success', 'Tip Sent!', `${result.amount} ${result.token === 'usdt' ? 'USDT' : ''} sent to ${result.to.slice(0, 10)}... on ${result.chainId}`);
+      const msg = `${result.amount} ${result.token === 'usdt' ? 'USDT' : ''} sent to ${result.to.slice(0, 10)}... on ${result.chainId}`;
+      addToast('success', 'Tip Sent!', msg);
+      playSuccess();
+      // Browser notification
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('TipFlow — Tip Sent!', {
+          body: msg,
+          icon: '/favicon.svg',
+        });
+      }
     } else {
       addToast('error', 'Tip Failed', result.error ?? 'Transaction failed');
+      playError();
     }
     refreshBalances();
     refreshHistory();
@@ -79,9 +133,18 @@ function App() {
   const handleBatchComplete = (results: TipResult[]) => {
     const succeeded = results.filter((r) => r.status === 'confirmed').length;
     if (succeeded > 0) {
-      addToast('success', 'Batch Complete', `${succeeded}/${results.length} tips sent successfully`);
+      const msg = `${succeeded}/${results.length} tips sent successfully`;
+      addToast('success', 'Batch Complete', msg);
+      playSuccess();
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('TipFlow — Batch Complete', {
+          body: msg,
+          icon: '/favicon.svg',
+        });
+      }
     } else {
       addToast('error', 'Batch Failed', 'All tips in the batch failed');
+      playError();
     }
     refreshBalances();
     refreshHistory();
@@ -92,11 +155,11 @@ function App() {
 
   return (
     <div className="min-h-screen bg-surface">
-      <Header health={health} theme={theme} onToggleTheme={toggleTheme} />
+      <Header health={health} theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} onShowShortcuts={() => setShowShortcuts(true)} />
 
       <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Wallets */}
-        <section className="mb-4 sm:mb-6">
+        <section className="mb-4 sm:mb-6" data-onboarding="wallets">
           <h2 className="text-sm font-medium text-text-secondary mb-3 flex items-center gap-2">
             <Wallet className="w-4 h-4" />
             Wallets
@@ -121,7 +184,7 @@ function App() {
           {/* Left column: Tip Form + Agent */}
           <div className="lg:col-span-1 space-y-4 sm:space-y-6">
             {/* Tip mode tabs */}
-            <div className="flex gap-1 p-1 rounded-lg bg-surface-2 border border-border">
+            <div className="flex gap-1 p-1 rounded-lg bg-surface-2 border border-border" data-onboarding="tip-form">
               <button
                 onClick={() => setTipMode('single')}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all ${
@@ -151,7 +214,9 @@ function App() {
             ) : (
               <BatchTipForm onBatchComplete={handleBatchComplete} disabled={isAgentBusy} />
             )}
-            <AgentPanel state={agentState} />
+            <div data-onboarding="agent-panel">
+              <AgentPanel state={agentState} />
+            </div>
           </div>
 
           {/* Right column: Scheduled Tips + History + Stats */}
@@ -241,6 +306,23 @@ function App() {
       </main>
 
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+      <KeyboardShortcutsModal open={showShortcuts} onClose={() => setShowShortcuts(false)} />
+
+      {/* Onboarding overlay — first visit only */}
+      {showOnboarding && (
+        <OnboardingOverlay onComplete={() => setShowOnboarding(false)} />
+      )}
+
+      {/* Tour restart button */}
+      {!showOnboarding && (
+        <button
+          onClick={() => { resetOnboarding(); setShowOnboarding(true); }}
+          className="fixed bottom-5 right-5 z-50 w-9 h-9 rounded-full bg-surface-2 border border-border text-text-muted hover:text-accent hover:border-accent-border flex items-center justify-center transition-all shadow-lg"
+          title="Replay onboarding tour"
+        >
+          <span className="text-sm font-bold">?</span>
+        </button>
+      )}
     </div>
   );
 }

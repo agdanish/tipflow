@@ -290,3 +290,58 @@ html.light .animate-shimmer {
 .stat-card-purple {
   background: linear-gradient(135deg, rgba(168, 85, 247, 0.08) 0%, var(--color-surface-2) 100%);
 }
+
+/* --- ONBOARDING OVERLAY --- */
+
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.onboarding-overlay.onboarding-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.onboarding-spotlight {
+  z-index: 9999;
+  border: 2px solid rgba(34, 197, 94, 0.3);
+  animation: spotlight-breathe 2s ease-in-out infinite;
+}
+
+@keyframes spotlight-breathe {
+  0%, 100% { border-color: rgba(34, 197, 94, 0.2); }
+  50% { border-color: rgba(34, 197, 94, 0.5); }
+}
+
+.onboarding-card {
+  position: fixed;
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+html.light .onboarding-card {
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.onboarding-card-enter {
+  animation: onboarding-card-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.onboarding-card-exit {
+  animation: onboarding-card-out 0.2s ease-in forwards;
+}
+
+@keyframes onboarding-card-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes onboarding-card-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-8px) scale(0.98); }
+}

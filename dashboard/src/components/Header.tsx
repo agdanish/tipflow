@@ -1,13 +1,16 @@
-import { Activity, Zap, Github, Sun, Moon } from 'lucide-react';
+import { Activity, Zap, Github, Sun, Moon, Volume2, VolumeX, Keyboard } from 'lucide-react';
 import type { HealthResponse } from '../types';
 
 interface HeaderProps {
   health: HealthResponse | null;
   theme: 'dark' | 'light';
   onToggleTheme: () => void;
+  soundOn: boolean;
+  onToggleSound: () => void;
+  onShowShortcuts: () => void;
 }
 
-export function Header({ health, theme, onToggleTheme }: HeaderProps) {
+export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, onShowShortcuts }: HeaderProps) {
   return (
     <header className="border-b border-border header-gradient backdrop-blur-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
@@ -45,6 +48,20 @@ export function Header({ health, theme, onToggleTheme }: HeaderProps) {
               <span className="text-[10px] sm:text-[11px] text-error font-semibold">Offline</span>
             </div>
           )}
+          <button
+            onClick={onShowShortcuts}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-secondary hover:bg-surface-3 transition-all"
+            title="Keyboard shortcuts (?)"
+          >
+            <Keyboard className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onToggleSound}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-secondary hover:bg-surface-3 transition-all"
+            title={soundOn ? 'Mute sounds' : 'Enable sounds'}
+          >
+            {soundOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+          </button>
           <button
             onClick={onToggleTheme}
             className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-secondary hover:bg-surface-3 transition-all"

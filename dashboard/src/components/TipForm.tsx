@@ -215,6 +215,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled }: TipFormProp
             value={nlpInput}
             onChange={(e) => { setNlpInput(e.target.value); clearNlpState(); }}
             onKeyDown={handleNlpKeyDown}
+            id="nlp-input"
             placeholder='e.g. "send 0.01 ETH to 0x..."'
             className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-colors"
             disabled={sending || disabled || nlpParsing}
@@ -245,7 +246,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled }: TipFormProp
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+      <form id="tip-form" onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
         {/* Token selector */}
         <div>
           <label className="block text-xs text-text-secondary mb-1.5">Token</label>
