@@ -86,6 +86,8 @@ export interface AgentDecision {
   analyses: ChainAnalysis[];
   steps: ReasoningStep[];
   confidence: number;
+  feeComparison?: FeeComparison[];
+  feeSavings?: string;
 }
 
 /** Result of polling for on-chain transaction confirmation */
@@ -172,6 +174,16 @@ export interface Contact {
   chain?: ChainId;
   tipCount: number;
   lastTipped?: string;
+}
+
+/** Fee comparison result for cross-chain cost optimization */
+export interface FeeComparison {
+  chainId: ChainId;
+  chainName: string;
+  estimatedFee: string;
+  estimatedFeeUsd: string;
+  savingsVsHighest: string;
+  rank: number;
 }
 
 /** Agent stats for dashboard */

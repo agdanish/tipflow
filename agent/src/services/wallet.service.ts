@@ -3,7 +3,7 @@ import WalletManagerEvm from '@tetherto/wdk-wallet-evm';
 import WalletManagerTon from '@tetherto/wdk-wallet-ton';
 import { logger } from '../utils/logger.js';
 import { JsonRpcProvider } from 'ethers';
-import type { ChainId, ChainConfig, WalletBalance, ConfirmationResult } from '../types/index.js';
+import type { ChainId, ChainConfig, WalletBalance, ConfirmationResult, FeeComparison } from '../types/index.js';
 
 /** USDT contract addresses on testnets */
 const USDT_CONTRACTS: Record<string, string> = {
@@ -195,6 +195,61 @@ export class WalletService {
         feeRaw: rates.normal,
       };
     }
+  }
+
+  /**
+   * Estimate fees across ALL registered chains simultaneously and return
+   * a ranked comparison sorted by lowest USD fee.
+   */
+  async estimateAllFees(recipient: string, amount: string): Promise<FeeComparison[]> {
+    this.ensureInitialized();
+    const chains = this.getRegisteredChains();
+
+    const results = await Promise.all(
+      chains.map(async (chainId) => {
+        const config = CHAIN_CONFIGS[chainId];
+        try {
+          const { fee } = await this.estimateFee(chainId, recipient, amount);
+          const feeUsd = this.estimateFeeUsd(chainId, fee);
+          return { chainId, chainName: config.name, fee, feeUsd, ok: true as const };
+        } catch {
+          return { chainId, chainName: config.name, fee: '0', feeUsd: 0, ok: false as const };
+        }
+      }),
+    );
+
+    const valid = results.filter((r) => r.ok);
+    if (valid.length === 0) {
+      return results.map((r, i) => ({
+        chainId: r.chainId,
+        chainName: r.chainName,
+        estimatedFee: r.fee,
+        estimatedFeeUsd: r.feeUsd.toFixed(4),
+        savingsVsHighest: '$0.0000',
+        rank: i + 1,
+      }));
+    }
+
+    // Sort by USD fee ascending (cheapest first)
+    valid.sort((a, b) => a.feeUsd - b.feeUsd);
+    const highestFeeUsd = valid[valid.length - 1].feeUsd;
+
+    return valid.map((r, i) => ({
+      chainId: r.chainId,
+      chainName: r.chainName,
+      estimatedFee: r.fee,
+      estimatedFeeUsd: `$${r.feeUsd.toFixed(4)}`,
+      savingsVsHighest: `$${(highestFeeUsd - r.feeUsd).toFixed(4)}`,
+      rank: i + 1,
+    }));
+  }
+
+  /** Estimate fee in USD (used internally) */
+  private estimateFeeUsd(chainId: ChainId, fee: string): number {
+    const feeVal = parseFloat(fee);
+    if (chainId.startsWith('ethereum')) return feeVal * 2500;
+    if (chainId.startsWith('ton')) return feeVal * 2.5;
+    return feeVal;
   }
 
   /** Send a native transaction on a specific chain */

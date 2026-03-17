@@ -34,6 +34,8 @@ export interface AgentDecision {
   analyses: ChainAnalysis[];
   steps: ReasoningStep[];
   confidence: number;
+  feeComparison?: FeeComparison[];
+  feeSavings?: string;
 }
 
 export interface TipResult {
@@ -72,6 +74,16 @@ export interface AgentState {
   currentTip?: { id: string; recipient: string; amount: string };
   currentDecision?: AgentDecision;
   lastError?: string;
+}
+
+/** Fee comparison result for cross-chain cost optimization */
+export interface FeeComparison {
+  chainId: ChainId;
+  chainName: string;
+  estimatedFee: string;
+  estimatedFeeUsd: string;
+  savingsVsHighest: string;
+  rank: number;
 }
 
 export interface AgentStats {

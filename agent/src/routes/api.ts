@@ -345,6 +345,40 @@ export function createApiRouter(
     res.json({ deleted: true, id });
   });
 
+  /** GET /api/fees/compare — Compare fees across all chains for a given transfer */
+  router.get('/fees/compare', async (req, res) => {
+    try {
+      const { recipient, amount } = req.query as { recipient?: string; amount?: string };
+      if (!recipient || !amount) {
+        res.status(400).json({ error: 'recipient and amount query params are required' });
+        return;
+      }
+
+      const comparison = await wallet.estimateAllFees(recipient, amount);
+      const cheapest = comparison[0];
+      const mostExpensive = comparison[comparison.length - 1];
+
+      res.json({
+        comparison,
+        recommendation: cheapest
+          ? {
+              cheapestChain: cheapest.chainId,
+              cheapestChainName: cheapest.chainName,
+              cheapestFeeUsd: cheapest.estimatedFeeUsd,
+              potentialSavings: cheapest.savingsVsHighest,
+            }
+          : null,
+        summary:
+          cheapest && mostExpensive && comparison.length > 1
+            ? `Use ${cheapest.chainName} to save ${cheapest.savingsVsHighest} vs ${mostExpensive.chainName}`
+            : 'Only one chain available',
+      });
+    } catch (err) {
+      logger.error('Fee comparison failed', { error: String(err) });
+      res.status(500).json({ error: 'Failed to compare fees across chains' });
+    }
+  });
+
   /** GET /api/chains — Get supported chains info */
   router.get('/chains', (_req, res) => {
     const chains = wallet.getRegisteredChains().map((id) => wallet.getChainConfig(id));

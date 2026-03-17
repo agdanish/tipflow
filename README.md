@@ -1,43 +1,38 @@
-# TipFlow — AI-Powered Multi-Chain Tipping Agent
-
-> Autonomous AI agent that manages multi-chain wallets and executes crypto tips with intelligent chain selection — powered by [Tether WDK](https://wdk.tether.io).
-
-**Hackathon:** Tether Hackathon Galactica: WDK Edition 1
-**Track:** Tipping Bot
-**Built by:** Danish A
+<p align="center">
+  <h1 align="center">⚡ TipFlow</h1>
+  <p align="center"><strong>AI-Powered Multi-Chain Tipping Agent</strong></p>
+  <p align="center">
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License" /></a>
+    <img src="https://img.shields.io/badge/Node.js-22%2B-339933?logo=nodedotjs&logoColor=white" alt="Node.js 22+" />
+    <img src="https://img.shields.io/badge/Tether-WDK-009393?logo=tether&logoColor=white" alt="Tether WDK" />
+    <img src="https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
+    <img src="https://img.shields.io/badge/Track-Tipping%20Bot-ff6b6b" alt="Track: Tipping Bot" />
+  </p>
+</p>
 
 ---
 
 ## What is TipFlow?
 
-TipFlow is an autonomous AI tipping agent that eliminates the complexity of sending crypto tips across multiple blockchains. Instead of manually selecting chains, calculating gas fees, and managing wallets — you simply specify a recipient and amount. The AI agent handles everything else.
-
-### The Problem
-
-Sending crypto tips across different blockchains is:
-- **Confusing** — users must understand gas fees, chain selection, and wallet management
-- **Expensive** — choosing the wrong chain can cost 10x more in fees
-- **Manual** — every step requires human decision-making
-
-### The Solution
-
-TipFlow's AI agent autonomously:
-1. **Analyzes** all available chains (fees, balances, network health)
-2. **Reasons** about the optimal chain using LLM intelligence (Ollama)
-3. **Executes** the transaction via Tether WDK
-4. **Reports** with full transparency — every decision is explained
+TipFlow is an **autonomous AI agent** that eliminates the complexity of sending crypto tips across multiple blockchains. Tell it what you want in plain English — "send 0.01 ETH to 0x..." — and the agent analyzes chains, selects the optimal route, executes the transaction via **Tether WDK**, and confirms it on-chain. All decisions are transparent, all transactions are real.
 
 ---
 
 ## Key Features
 
-- **AI-Powered Chain Selection** — LLM reasoning (Ollama) with rule-based fallback
-- **Multi-Chain Support** — Ethereum Sepolia + TON Testnet via WDK
-- **Native & USDT Transfers** — Send native tokens or USDT (ERC-20) via WDK `transfer()`
-- **Batch Tipping** — Tip up to 10 recipients in a single batch operation
-- **Real-Time Pipeline** — Watch the 6-step agent pipeline execute live via SSE
-- **Self-Custodial Wallets** — WDK seed phrase management, persistent across sessions
-- **Zero-Cost AI** — Local Ollama LLM, no API keys needed
+| | Feature | Description |
+|---|---------|-------------|
+| 🧠 | **AI Decision Pipeline** | 6-step autonomous pipeline: INTAKE → ANALYZE → REASON → EXECUTE → VERIFY → REPORT |
+| 💬 | **Natural Language Processing** | Type "send 0.01 ETH to 0x..." — the agent parses, fills the form, and executes |
+| 📦 | **Batch Tipping** | Tip up to 10 recipients in a single operation with per-recipient amounts |
+| ⏰ | **Scheduled Tips** | Schedule tips for future autonomous execution with a background scheduler |
+| 📒 | **Address Book** | Save contacts, auto-track tip counts, quick-select from dropdown |
+| 🔗 | **Multi-Chain Support** | Ethereum Sepolia + TON Testnet with intelligent chain selection |
+| 💰 | **USDT Transfers** | ERC-20 USDT token transfers via WDK `transfer()` method |
+| ✅ | **On-Chain Verification** | Polls for transaction receipts — confirms block number and gas used |
+| 📊 | **Real-Time Analytics** | Live stats dashboard with chain distribution, tip history, and charts |
+| 📡 | **Server-Sent Events** | Watch the agent think in real-time — every pipeline step streams to the UI |
+| 📱 | **Mobile Responsive** | Full functionality on any screen size |
 
 ---
 
@@ -46,17 +41,25 @@ TipFlow's AI agent autonomously:
 ```
 ┌─────────────────────────────────────┐
 │         React Dashboard             │
-│   (Vite + Tailwind CSS)             │
-│   Wallet View │ Tip Form │ History  │
-│   Batch Tips  │ Agent Panel         │
+│       (Vite + Tailwind CSS)         │
+│                                     │
+│  Wallet View  ·  Tip Form  ·  NLP  │
+│  Batch Tips  ·  Scheduler  ·  Stats │
+│  Address Book  ·  Agent Panel       │
 └──────────────┬──────────────────────┘
                │ REST API + SSE
 ┌──────────────┴──────────────────────┐
-│         Node.js Agent Server        │
+│       Node.js Agent Server          │
+│                                     │
 │   ┌─────────────────────────────┐   │
 │   │    TipFlow Agent Pipeline   │   │
-│   │  INTAKE → ANALYZE → REASON  │   │
-│   │  → EXECUTE → VERIFY → REPORT│   │
+│   │                             │   │
+│   │  1. INTAKE   ──→ Validate   │   │
+│   │  2. ANALYZE  ──→ Balances   │   │
+│   │  3. REASON   ──→ AI/Rules   │   │
+│   │  4. EXECUTE  ──→ WDK Send   │   │
+│   │  5. VERIFY   ──→ On-chain   │   │
+│   │  6. REPORT   ──→ Dashboard  │   │
 │   └─────────────────────────────┘   │
 │         │              │            │
 │    ┌────┴────┐    ┌────┴─────┐     │
@@ -75,34 +78,35 @@ TipFlow's AI agent autonomously:
 
 ---
 
+## WDK Integration
+
+TipFlow uses the Tether WDK as its core wallet infrastructure. Every transaction flows through WDK — no mocked calls.
+
+| WDK Feature | Package | Method(s) | Where Used |
+|-------------|---------|-----------|------------|
+| Seed phrase generation | `@tetherto/wdk` | `WDK.getRandomSeedPhrase()` | `wallet.service.ts` — first-run wallet creation |
+| Wallet orchestration | `@tetherto/wdk` | `new WDK(seed)`, `registerWallet()` | `wallet.service.ts` — multi-chain wallet setup |
+| EVM wallet | `@tetherto/wdk-wallet-evm` | `getAccount()`, `getAddress()` | `wallet.service.ts` — Ethereum operations |
+| TON wallet | `@tetherto/wdk-wallet-ton` | `getAccount()`, `getAddress()` | `wallet.service.ts` — TON operations |
+| Balance queries | Both wallet modules | `getBalance()`, `getTokenBalance()` | Chain analysis + dashboard display |
+| Fee estimation | Both wallet modules | `quoteSendTransaction()` | Agent ANALYZE step — cross-chain fee comparison |
+| Native transfers | Both wallet modules | `sendTransaction()` | Agent EXECUTE step — ETH/TON sends |
+| USDT transfers | `@tetherto/wdk-wallet-evm` | `transfer()` | Agent EXECUTE step — ERC-20 token sends |
+| Fee rate queries | `@tetherto/wdk` | `getFeeRates()` | Real-time gas price monitoring |
+| Resource cleanup | `@tetherto/wdk` | `dispose()` | Graceful shutdown |
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | React 19, Vite, Tailwind CSS, Lucide Icons, Recharts |
-| **Backend** | Node.js 22+, Express, TypeScript |
-| **Wallet SDK** | Tether WDK (`@tetherto/wdk`, `wdk-wallet-evm`, `wdk-wallet-ton`) |
-| **AI** | Ollama (local LLM — phi3:mini) with rule-based fallback |
-| **Chains** | Ethereum Sepolia, TON Testnet |
-
----
-
-## WDK Integration Points
-
-TipFlow uses Tether WDK extensively:
-
-| Feature | WDK Module | Method |
-|---------|-----------|--------|
-| Seed phrase generation | `@tetherto/wdk` | `WDK.getRandomSeedPhrase()` |
-| Wallet orchestration | `@tetherto/wdk` | `new WDK(seed).registerWallet()` |
-| EVM wallet management | `@tetherto/wdk-wallet-evm` | `getAccount()`, `getAddress()` |
-| TON wallet management | `@tetherto/wdk-wallet-ton` | `getAccount()`, `getAddress()` |
-| Balance queries | Both wallet modules | `getBalance()`, `getTokenBalance()` |
-| Fee estimation | Both wallet modules | `quoteSendTransaction()` |
-| Native transfers | Both wallet modules | `sendTransaction()` |
-| USDT token transfers | `@tetherto/wdk-wallet-evm` | `transfer()` |
-| Fee rate queries | `@tetherto/wdk` | `getFeeRates()` |
-| Resource cleanup | `@tetherto/wdk` | `dispose()` |
+| **Frontend** | React 19, Vite 8, Tailwind CSS 4, Lucide Icons, Recharts, Framer Motion |
+| **Backend** | Node.js 22+, Express 5, TypeScript 5.9 |
+| **Wallet SDK** | `@tetherto/wdk`, `@tetherto/wdk-wallet-evm`, `@tetherto/wdk-wallet-ton` |
+| **AI Engine** | Ollama (local LLM — phi3:mini) with rule-based fallback |
+| **Blockchains** | Ethereum Sepolia, TON Testnet |
+| **Real-Time** | Server-Sent Events (SSE) for live pipeline updates |
 
 ---
 
@@ -110,79 +114,63 @@ TipFlow uses Tether WDK extensively:
 
 ### Prerequisites
 
-- **Node.js 22+** ([download](https://nodejs.org/))
-- **Ollama** ([download](https://ollama.ai/)) — optional, for AI reasoning
+- **Node.js 22+** — [download](https://nodejs.org/)
+- **Ollama** (optional) — [download](https://ollama.ai/) for AI-powered chain reasoning
 
-### Setup
+### Install & Run
 
 ```bash
-# 1. Clone the repository
+# Clone
 git clone https://github.com/agdanish/tipflow.git
 cd tipflow
 
-# 2. Install dependencies
+# Install all dependencies
 cd agent && npm install && cd ../dashboard && npm install && cd ..
 
-# 3. Pull the AI model (optional but recommended)
+# (Optional) Pull AI model
 ollama pull phi3:mini
 
-# 4. Configure environment
+# Configure environment
 cp agent/.env.example agent/.env
-# Edit agent/.env if you want to use a specific seed phrase
 
-# 5. Start both services
+# Start everything
 npm run dev
 ```
 
-The dashboard opens at `http://localhost:5173` and the agent API runs on `http://localhost:3001`.
+Dashboard opens at **http://localhost:5173** | Agent API at **http://localhost:3001**
 
 ### Getting Testnet Funds
 
-To send real test transactions, you need testnet tokens:
-
-1. **Sepolia ETH**: Visit a Sepolia faucet (e.g. Google Cloud faucet, Alchemy faucet)
-2. **TON Testnet**: Visit [testnet.toncenter.com](https://testnet.toncenter.com) faucet
-3. Copy your wallet addresses from the TipFlow dashboard and request testnet tokens
-4. Once funded, you can send real tips through the dashboard
-
-### One-Command Start
-
-```bash
-npm run dev
-```
+1. Copy your wallet addresses from the TipFlow dashboard
+2. **Sepolia ETH** — Use a Sepolia faucet (Google Cloud, Alchemy, etc.)
+3. **TON Testnet** — Visit [testnet.toncenter.com](https://testnet.toncenter.com)
+4. Send real tips once funded
 
 ---
 
-## Agent Decision Pipeline
+## API Reference
 
-Every tip goes through a 6-step autonomous pipeline:
-
-1. **INTAKE** — Parse and validate the tip request (supports native & USDT)
-2. **ANALYZE** — Query balances and fees across all chains
-3. **REASON** — AI selects the optimal chain with natural language explanation
-4. **EXECUTE** — Build and send transaction via WDK (`sendTransaction` or `transfer`)
-5. **VERIFY** — Confirm transaction broadcast
-6. **REPORT** — Update dashboard with results and reasoning
-
-The entire pipeline is visible in real-time on the dashboard via Server-Sent Events.
-
----
-
-## API Endpoints
-
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/health` | Service health check |
-| GET | `/api/wallet/addresses` | All wallet addresses |
-| GET | `/api/wallet/balances` | All wallet balances (native + USDT) |
-| POST | `/api/tip` | Execute a single tip (native or USDT) |
-| POST | `/api/tip/batch` | Execute batch tips (up to 10 recipients) |
-| GET | `/api/tip/estimate` | Estimate fees |
-| GET | `/api/agent/state` | Current agent state |
-| GET | `/api/agent/events` | SSE stream for real-time updates |
-| GET | `/api/agent/history` | Tip history |
-| GET | `/api/agent/stats` | Agent statistics |
-| GET | `/api/chains` | Supported chains |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/health` | Service health check (agent status, AI mode, chains) |
+| `GET` | `/api/wallet/addresses` | All wallet addresses across chains |
+| `GET` | `/api/wallet/balances` | Native + USDT balances for all wallets |
+| `POST` | `/api/tip` | Execute a single tip (native or USDT) |
+| `POST` | `/api/tip/batch` | Batch tip up to 10 recipients |
+| `POST` | `/api/tip/parse` | Parse natural language into structured tip data |
+| `GET` | `/api/tip/estimate` | Estimate fees across all chains |
+| `POST` | `/api/tip/schedule` | Schedule a tip for future execution |
+| `GET` | `/api/tip/scheduled` | List all scheduled tips |
+| `DELETE` | `/api/tip/schedule/:id` | Cancel a scheduled tip |
+| `GET` | `/api/agent/state` | Current agent pipeline state |
+| `GET` | `/api/agent/events` | SSE stream — real-time agent updates |
+| `GET` | `/api/agent/history` | Full tip history with reasoning |
+| `GET` | `/api/agent/stats` | Analytics (totals, chain distribution, daily trends) |
+| `GET` | `/api/tx/:hash/status` | On-chain transaction confirmation status |
+| `GET` | `/api/contacts` | Address book — list contacts |
+| `POST` | `/api/contacts` | Add a contact |
+| `DELETE` | `/api/contacts/:id` | Delete a contact |
+| `GET` | `/api/chains` | Supported chain configurations |
 
 ---
 
@@ -190,50 +178,58 @@ The entire pipeline is visible in real-time on the dashboard via Server-Sent Eve
 
 ```
 tipflow/
-├── agent/                    # Node.js agent server
-│   ├── src/
-│   │   ├── core/agent.ts     # TipFlow agent pipeline (single + batch)
-│   │   ├── services/
-│   │   │   ├── wallet.service.ts  # WDK wallet operations
-│   │   │   └── ai.service.ts     # Ollama LLM integration
-│   │   ├── routes/api.ts     # REST API endpoints
-│   │   ├── types/index.ts    # Shared type definitions
-│   │   ├── utils/logger.ts   # Winston logger
-│   │   └── index.ts          # Entry point
-│   └── package.json
-├── dashboard/                # React frontend
-│   ├── src/
-│   │   ├── components/       # UI components
-│   │   │   ├── TipForm.tsx       # Single tip with token selection
-│   │   │   ├── BatchTipForm.tsx  # Batch tip form
-│   │   │   ├── AgentPanel.tsx    # Real-time pipeline display
-│   │   │   ├── WalletCard.tsx    # Wallet balance display
-│   │   │   ├── TipHistory.tsx    # Transaction history
-│   │   │   ├── StatsPanel.tsx    # Analytics dashboard
-│   │   │   ├── Header.tsx        # App header
-│   │   │   └── Toast.tsx         # Notifications
-│   │   ├── hooks/            # API polling hooks
-│   │   ├── lib/              # API client + utilities
-│   │   └── types/            # TypeScript types
-│   └── package.json
-├── research/                 # Hackathon research docs
-├── CLAUDE.md                 # AI assistant context
-├── LICENSE                   # Apache 2.0
-└── README.md                 # This file
+├── agent/                          # Node.js agent server
+│   └── src/
+│       ├── core/agent.ts           # 6-step agent pipeline + scheduler
+│       ├── services/
+│       │   ├── wallet.service.ts   # WDK wallet operations
+│       │   ├── ai.service.ts       # Ollama LLM + regex fallback
+│       │   └── contacts.service.ts # Address book persistence
+│       ├── routes/api.ts           # 19 REST + SSE endpoints
+│       ├── types/index.ts          # Shared TypeScript types
+│       ├── utils/logger.ts         # Winston structured logging
+│       └── index.ts                # Entry point
+├── dashboard/                      # React frontend
+│   └── src/
+│       ├── components/
+│       │   ├── TipForm.tsx         # NLP input + manual form + contacts
+│       │   ├── BatchTipForm.tsx    # Multi-recipient batch tips
+│       │   ├── AgentPanel.tsx      # Real-time pipeline visualization
+│       │   ├── WalletCard.tsx      # Balance display with copy
+│       │   ├── TipHistory.tsx      # Transaction log with explorer links
+│       │   ├── StatsPanel.tsx      # Analytics charts (Recharts)
+│       │   ├── Header.tsx          # Status bar with health indicator
+│       │   └── Toast.tsx           # Notification system
+│       ├── hooks/                  # API polling hooks
+│       ├── lib/                    # API client + utilities
+│       └── types/                  # Frontend TypeScript types
+├── package.json                    # Root orchestrator (concurrently)
+├── LICENSE                         # Apache 2.0
+└── README.md
 ```
 
 ---
 
-## Future Roadmap
+## Hackathon Track: Tipping Bot
 
-- **Gasless transactions** via ERC-4337 and TON Gasless modules
-- **Discord/Telegram bots** — tip from chat platforms
-- **Tip leaderboards** and streak tracking
-- **Scheduled tips** — recurring payments
-- **Mainnet deployment** with production-grade security
+TipFlow targets the **Tipping Bot** track with a focus on what makes a great autonomous agent:
+
+- **Agent Intelligence** — 6-step decision pipeline with LLM reasoning (Ollama) and transparent explanations for every chain selection
+- **WDK Integration** — Deep use of Tether WDK across 10+ methods: seed generation, multi-chain wallet management, balance queries, fee estimation, native transfers, and ERC-20 USDT transfers
+- **Technical Execution** — Full-stack TypeScript, real testnet transactions, on-chain verification with block confirmation, SSE streaming, structured logging
+- **Agentic Design** — Autonomous pipeline that analyzes, reasons, executes, and verifies without human intervention. Scheduled tips run in the background. Batch tipping orchestrates multiple transactions
+- **Originality** — Natural language parsing, address book with tip tracking, cross-chain fee comparison, real-time pipeline visualization
+- **Polish** — Dark theme UI, mobile responsive, toast notifications, loading states, error handling with friendly messages, one-command startup
+- **Zero Budget** — No paid APIs. Local Ollama LLM with rule-based fallback. Fully self-contained
 
 ---
 
 ## License
 
-Apache 2.0 — see [LICENSE](./LICENSE)
+[Apache 2.0](./LICENSE)
+
+---
+
+<p align="center">
+  Built with <a href="https://wdk.tether.io">Tether WDK</a> for Tether Hackathon Galactica: WDK Edition 1
+</p>

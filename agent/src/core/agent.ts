@@ -184,11 +184,30 @@ export class TipFlowAgent {
       const analyses = await this.analyzeChains(request);
       addStep('ANALYZE', `Analyzed ${analyses.length} chains: ${analyses.map((a) => `${a.chainName}(score:${a.score})`).join(', ')}`);
 
+      // Fee comparison across all chains
+      addStep('ANALYZE', 'Comparing fees across all chains for cost optimization...');
+      const feeComparison = await this.wallet.estimateAllFees(request.recipient, request.amount);
+      const cheapest = feeComparison[0];
+      const mostExpensive = feeComparison[feeComparison.length - 1];
+      if (cheapest && mostExpensive && feeComparison.length > 1) {
+        addStep('FEE_OPTIMIZE', `Cheapest: ${cheapest.chainName} (${cheapest.estimatedFeeUsd}) | Most expensive: ${mostExpensive.chainName} (${mostExpensive.estimatedFeeUsd}) | Potential savings: ${cheapest.savingsVsHighest}`);
+      } else if (cheapest) {
+        addStep('FEE_OPTIMIZE', `Fee estimate: ${cheapest.chainName} at ${cheapest.estimatedFeeUsd}`);
+      }
+
       // Step 3: REASON
       this.setState({ status: 'reasoning' });
       addStep('REASON', 'AI agent selecting optimal chain...');
       const decision = await this.makeDecision(analyses, request, steps);
-      addStep('REASON', `Selected ${decision.selectedChain} with ${decision.confidence}% confidence`);
+      const selectedFee = feeComparison.find((f) => f.chainId === decision.selectedChain);
+      const feeSavings = selectedFee?.savingsVsHighest !== '$0.0000' ? selectedFee?.savingsVsHighest : undefined;
+      decision.feeComparison = feeComparison;
+      decision.feeSavings = feeSavings;
+      if (feeSavings) {
+        addStep('REASON', `Selected ${decision.selectedChain} with ${decision.confidence}% confidence — saving ${feeSavings} vs most expensive chain`);
+      } else {
+        addStep('REASON', `Selected ${decision.selectedChain} with ${decision.confidence}% confidence`);
+      }
       this.setState({ currentDecision: decision });
 
       // Step 4: EXECUTE
@@ -235,6 +254,9 @@ export class TipFlowAgent {
       };
 
       this.recordHistory(result, decision.reasoning);
+      if (decision.feeSavings) {
+        addStep('REPORT', `Fee savings: you saved ${decision.feeSavings} by using ${decision.selectedChain}`);
+      }
       addStep('REPORT', confirmation.confirmed ? 'Tip confirmed on-chain' : 'Tip sent, pending on-chain confirmation');
 
       this.setState({ status: 'idle', currentTip: undefined, currentDecision: undefined });
