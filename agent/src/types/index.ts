@@ -149,6 +149,31 @@ export interface NLPTipParse {
   rawInput: string;
 }
 
+/** Scheduled tip — a tip that will be executed at a future time */
+export interface ScheduledTip {
+  id: string;
+  recipient: string;
+  amount: string;
+  token: TokenType;
+  chain?: ChainId;
+  message?: string;
+  scheduledAt: string;
+  status: 'scheduled' | 'executed' | 'failed';
+  createdAt: string;
+  executedAt?: string;
+  result?: TipResult;
+}
+
+/** Address book contact */
+export interface Contact {
+  id: string;
+  name: string;
+  address: string;
+  chain?: ChainId;
+  tipCount: number;
+  lastTipped?: string;
+}
+
 /** Agent stats for dashboard */
 export interface AgentStats {
   totalTips: number;

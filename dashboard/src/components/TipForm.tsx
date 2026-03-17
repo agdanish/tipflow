@@ -1,14 +1,15 @@
-import { useState } from 'react';
-import { Send, Loader2, AlertCircle, Coins, Sparkles, Wand2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Send, Loader2, AlertCircle, Coins, Sparkles, Wand2, Clock, CalendarClock, BookUser, UserPlus, X, Trash2 } from 'lucide-react';
 import { api } from '../lib/api';
-import type { ChainId, TokenType, TipResult } from '../types';
+import type { ChainId, TokenType, TipResult, Contact } from '../types';
 
 interface TipFormProps {
   onTipComplete: (result: TipResult) => void;
+  onTipScheduled?: () => void;
   disabled: boolean;
 }
 
-export function TipForm({ onTipComplete, disabled }: TipFormProps) {
+export function TipForm({ onTipComplete, onTipScheduled, disabled }: TipFormProps) {
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const [token, setToken] = useState<TokenType>('native');
@@ -16,6 +17,68 @@ export function TipForm({ onTipComplete, disabled }: TipFormProps) {
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Schedule state
+  const [scheduleMode, setScheduleMode] = useState(false);
+  const [scheduledAt, setScheduledAt] = useState('');
+
+  // Contacts / address book state
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [showContacts, setShowContacts] = useState(false);
+  const [savingContact, setSavingContact] = useState(false);
+  const [contactName, setContactName] = useState('');
+  const contactsRef = useRef<HTMLDivElement>(null);
+
+  // Load contacts on mount
+  useEffect(() => {
+    api.getContacts().then(({ contacts: c }) => setContacts(c)).catch(() => {});
+  }, []);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (contactsRef.current && !contactsRef.current.contains(e.target as Node)) {
+        setShowContacts(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const handleSelectContact = (c: Contact) => {
+    setRecipient(c.address);
+    if (c.chain) setChain(c.chain);
+    setShowContacts(false);
+  };
+
+  const handleSaveContact = async () => {
+    if (!contactName.trim() || !recipient.trim()) return;
+    try {
+      const { contact } = await api.addContact(contactName.trim(), recipient.trim(), chain || undefined);
+      setContacts((prev) => {
+        const exists = prev.some((c) => c.id === contact.id);
+        return exists ? prev.map((c) => (c.id === contact.id ? contact : c)) : [contact, ...prev];
+      });
+      setSavingContact(false);
+      setContactName('');
+    } catch {
+      // silently fail
+    }
+  };
+
+  const handleDeleteContact = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await api.deleteContact(id);
+      setContacts((prev) => prev.filter((c) => c.id !== id));
+    } catch {
+      // silently fail
+    }
+  };
+
+  const refreshContacts = () => {
+    api.getContacts().then(({ contacts: c }) => setContacts(c)).catch(() => {});
+  };
 
   // NLP parsing state
   const [nlpInput, setNlpInput] = useState('');
@@ -76,22 +139,48 @@ export function TipForm({ onTipComplete, disabled }: TipFormProps) {
     e.preventDefault();
     if (!recipient || !amount || sending || disabled) return;
 
+    if (scheduleMode) {
+      if (!scheduledAt) {
+        setError('Please select a date and time for the scheduled tip');
+        return;
+      }
+      const scheduledDate = new Date(scheduledAt);
+      if (scheduledDate.getTime() <= Date.now()) {
+        setError('Scheduled time must be in the future');
+        return;
+      }
+    }
+
     setSending(true);
     setError(null);
 
     try {
-      const { result } = await api.sendTip(
-        recipient,
-        amount,
-        token,
-        chain || undefined,
-        message || undefined,
-      );
-      onTipComplete(result);
+      if (scheduleMode) {
+        await api.scheduleTip(
+          recipient,
+          amount,
+          new Date(scheduledAt).toISOString(),
+          token,
+          chain || undefined,
+          message || undefined,
+        );
+        onTipScheduled?.();
+      } else {
+        const { result } = await api.sendTip(
+          recipient,
+          amount,
+          token,
+          chain || undefined,
+          message || undefined,
+        );
+        onTipComplete(result);
+        refreshContacts(); // Update tip counts
+      }
       setRecipient('');
       setAmount('');
       setMessage('');
       setChain('');
+      setScheduledAt('');
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -189,16 +278,104 @@ export function TipForm({ onTipComplete, disabled }: TipFormProps) {
           </div>
         </div>
 
-        <div>
-          <label className="block text-xs text-text-secondary mb-1.5">Recipient Address</label>
-          <input
-            type="text"
-            value={recipient}
-            onChange={(e) => setRecipient(e.target.value)}
-            placeholder={token === 'usdt' ? '0x...' : '0x... or UQ...'}
-            className="w-full px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border focus:ring-1 focus:ring-accent-border transition-colors font-mono"
-            disabled={sending || disabled}
-          />
+        <div ref={contactsRef} className="relative">
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs text-text-secondary">Recipient Address</label>
+            {contacts.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowContacts(!showContacts)}
+                className="inline-flex items-center gap-1 text-[10px] text-accent hover:text-accent-light transition-colors"
+              >
+                <BookUser className="w-3 h-3" />
+                Contacts ({contacts.length})
+              </button>
+            )}
+          </div>
+          <div className="flex gap-1.5">
+            <input
+              type="text"
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
+              onFocus={() => { if (contacts.length > 0 && !recipient) setShowContacts(true); }}
+              placeholder={token === 'usdt' ? '0x...' : '0x... or UQ...'}
+              className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border focus:ring-1 focus:ring-accent-border transition-colors font-mono"
+              disabled={sending || disabled}
+            />
+            {recipient.trim() && !savingContact && (
+              <button
+                type="button"
+                onClick={() => setSavingContact(true)}
+                title="Save to contacts"
+                className="px-2.5 py-2.5 rounded-lg bg-surface-2 border border-border text-text-secondary hover:text-accent hover:border-accent-border transition-colors shrink-0"
+              >
+                <UserPlus className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Save contact inline form */}
+          {savingContact && (
+            <div className="flex gap-1.5 mt-1.5">
+              <input
+                type="text"
+                value={contactName}
+                onChange={(e) => setContactName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSaveContact(); } }}
+                placeholder="Contact name..."
+                className="flex-1 min-w-0 px-2.5 py-1.5 rounded-md bg-surface-2 border border-accent-border text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent-border transition-colors"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={handleSaveContact}
+                disabled={!contactName.trim()}
+                className="px-2.5 py-1.5 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-light disabled:opacity-40 transition-colors"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                onClick={() => { setSavingContact(false); setContactName(''); }}
+                className="px-2 py-1.5 rounded-md bg-surface-2 border border-border text-text-secondary hover:text-text-primary transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
+          {/* Contacts dropdown */}
+          {showContacts && contacts.length > 0 && (
+            <div className="absolute z-20 left-0 right-0 mt-1 max-h-48 overflow-y-auto rounded-lg bg-surface-2 border border-border shadow-lg">
+              {contacts.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => handleSelectContact(c)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-surface-3 transition-colors group"
+                >
+                  <div className="w-6 h-6 rounded-full bg-accent/15 text-accent flex items-center justify-center text-[10px] font-bold shrink-0">
+                    {c.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-medium text-text-primary truncate">{c.name}</div>
+                    <div className="text-[10px] text-text-muted font-mono truncate">{c.address}</div>
+                  </div>
+                  {c.tipCount > 0 && (
+                    <span className="text-[10px] text-text-muted shrink-0">{c.tipCount} tips</span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={(e) => handleDeleteContact(c.id, e)}
+                    className="opacity-0 group-hover:opacity-100 p-1 rounded text-text-muted hover:text-error transition-all shrink-0"
+                    title="Remove contact"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div>
@@ -263,6 +440,42 @@ export function TipForm({ onTipComplete, disabled }: TipFormProps) {
           />
         </div>
 
+        {/* Schedule toggle */}
+        <div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => { setScheduleMode(!scheduleMode); setScheduledAt(''); }}
+              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                scheduleMode ? 'bg-amber-500' : 'bg-surface-3 border border-border'
+              }`}
+            >
+              <span
+                className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
+                  scheduleMode ? 'translate-x-[18px]' : 'translate-x-[3px]'
+                }`}
+              />
+            </button>
+            <label className="flex items-center gap-1.5 text-xs text-text-secondary cursor-pointer" onClick={() => { setScheduleMode(!scheduleMode); setScheduledAt(''); }}>
+              <Clock className="w-3.5 h-3.5" />
+              Schedule for later
+            </label>
+          </div>
+          {scheduleMode && (
+            <div className="mt-2">
+              <input
+                type="datetime-local"
+                value={scheduledAt}
+                onChange={(e) => setScheduledAt(e.target.value)}
+                min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
+                className="w-full px-3 py-2.5 rounded-lg bg-surface-2 border border-amber-500/30 text-sm text-text-primary focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors"
+                disabled={sending || disabled}
+              />
+              <p className="text-[10px] text-text-muted mt-1">The agent will autonomously execute this tip at the scheduled time.</p>
+            </div>
+          )}
+        </div>
+
         {error && (
           <div className="flex items-start gap-2 p-3 rounded-lg bg-error/10 border border-error/20">
             <AlertCircle className="w-4 h-4 text-error mt-0.5 shrink-0" />
@@ -272,13 +485,22 @@ export function TipForm({ onTipComplete, disabled }: TipFormProps) {
 
         <button
           type="submit"
-          disabled={!recipient || !amount || sending || disabled}
-          className="w-full py-3 rounded-lg bg-accent text-white font-medium text-sm hover:bg-accent-light disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+          disabled={!recipient || !amount || sending || disabled || (scheduleMode && !scheduledAt)}
+          className={`w-full py-3 rounded-lg font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 ${
+            scheduleMode
+              ? 'bg-amber-500 text-white hover:bg-amber-400'
+              : 'bg-accent text-white hover:bg-accent-light'
+          }`}
         >
           {sending ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              Agent Processing...
+              {scheduleMode ? 'Scheduling...' : 'Agent Processing...'}
+            </>
+          ) : scheduleMode ? (
+            <>
+              <CalendarClock className="w-4 h-4" />
+              Schedule {token === 'usdt' ? 'USDT' : ''} Tip
             </>
           ) : (
             <>

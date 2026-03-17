@@ -3,8 +3,12 @@ import { v4 as uuidv4 } from 'uuid';
 import type { TipFlowAgent } from '../core/agent.js';
 import type { WalletService } from '../services/wallet.service.js';
 import type { AIService } from '../services/ai.service.js';
+import { ContactsService } from '../services/contacts.service.js';
 import type { ChainId, TipRequest, TokenType, BatchTipRequest } from '../types/index.js';
 import { logger } from '../utils/logger.js';
+
+/** Shared contacts service instance */
+const contacts = new ContactsService();
 
 /** Create API router with injected dependencies */
 export function createApiRouter(
@@ -81,6 +85,9 @@ export function createApiRouter(
       logger.info('Processing tip request', { tipId: tipRequest.id, recipient, amount, token: tipRequest.token });
 
       const result = await agent.executeTip(tipRequest);
+      if (result.status === 'confirmed') {
+        contacts.incrementTipCount(recipient);
+      }
       res.json({ result });
     } catch (err) {
       logger.error('Tip execution failed', { error: String(err) });
@@ -238,6 +245,104 @@ export function createApiRouter(
       logger.error('Transaction status check failed', { error: String(err) });
       res.status(500).json({ error: 'Failed to check transaction status' });
     }
+  });
+
+  /** POST /api/tip/schedule — Schedule a future tip */
+  router.post('/tip/schedule', (req, res) => {
+    try {
+      const { recipient, amount, token, chain, message, scheduledAt } = req.body as {
+        recipient: string;
+        amount: string;
+        token?: TokenType;
+        chain?: ChainId;
+        message?: string;
+        scheduledAt: string;
+      };
+
+      if (!recipient || !amount || !scheduledAt) {
+        res.status(400).json({ error: 'recipient, amount, and scheduledAt are required' });
+        return;
+      }
+
+      const scheduledTime = new Date(scheduledAt);
+      if (isNaN(scheduledTime.getTime())) {
+        res.status(400).json({ error: 'scheduledAt must be a valid ISO date string' });
+        return;
+      }
+
+      if (scheduledTime.getTime() <= Date.now()) {
+        res.status(400).json({ error: 'scheduledAt must be in the future' });
+        return;
+      }
+
+      const tip = agent.scheduleTip(
+        { recipient, amount, token, chain, message },
+        scheduledAt,
+      );
+
+      logger.info('Tip scheduled via API', { id: tip.id, scheduledAt });
+      res.json({ tip });
+    } catch (err) {
+      logger.error('Failed to schedule tip', { error: String(err) });
+      res.status(500).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/tip/scheduled — List all scheduled tips */
+  router.get('/tip/scheduled', (_req, res) => {
+    const tips = agent.getScheduledTips();
+    res.json({ tips });
+  });
+
+  /** DELETE /api/tip/schedule/:id — Cancel a scheduled tip */
+  router.delete('/tip/schedule/:id', (req, res) => {
+    const { id } = req.params;
+    const cancelled = agent.cancelScheduledTip(id);
+    if (!cancelled) {
+      res.status(404).json({ error: 'Scheduled tip not found or already executed' });
+      return;
+    }
+    res.json({ cancelled: true, id });
+  });
+
+  // ── Address Book Contacts ──────────────────────────────────────
+
+  /** GET /api/contacts — List all contacts */
+  router.get('/contacts', (_req, res) => {
+    res.json({ contacts: contacts.getContacts() });
+  });
+
+  /** POST /api/contacts — Add a contact */
+  router.post('/contacts', (req, res) => {
+    try {
+      const { name, address, chain } = req.body as {
+        name: string;
+        address: string;
+        chain?: ChainId;
+      };
+
+      if (!name || !address) {
+        res.status(400).json({ error: 'name and address are required' });
+        return;
+      }
+
+      const contact = contacts.addContact(name, address, chain);
+      res.json({ contact });
+    } catch (err) {
+      logger.error('Failed to add contact', { error: String(err) });
+      res.status(500).json({ error: 'Failed to add contact' });
+    }
+  });
+
+  /** DELETE /api/contacts/:id — Delete a contact */
+  router.delete('/contacts/:id', (req, res) => {
+    const { id } = req.params;
+    const deleted = contacts.deleteContact(id);
+    if (!deleted) {
+      res.status(404).json({ error: 'Contact not found' });
+      return;
+    }
+    res.json({ deleted: true, id });
   });
 
   /** GET /api/chains — Get supported chains info */

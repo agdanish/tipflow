@@ -11,6 +11,7 @@ import type {
   ChainAnalysis,
   ChainId,
   ReasoningStep,
+  ScheduledTip,
   TipHistoryEntry,
   TipRequest,
   TipResult,
@@ -34,10 +35,99 @@ export class TipFlowAgent {
   private state: AgentState = { status: 'idle' };
   private history: TipHistoryEntry[] = [];
   private listeners: Array<(state: AgentState) => void> = [];
+  private scheduledTips: Map<string, ScheduledTip> = new Map();
+  private schedulerInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(wallet: WalletService, ai: AIService) {
     this.wallet = wallet;
     this.ai = ai;
+    this.startScheduler();
+  }
+
+  /** Start the background scheduler that checks for due tips every 10 seconds */
+  private startScheduler(): void {
+    this.schedulerInterval = setInterval(() => {
+      this.processDueTips().catch((err) => {
+        logger.error('Scheduler tick failed', { error: String(err) });
+      });
+    }, 10_000);
+    logger.info('Tip scheduler started (10s interval)');
+  }
+
+  /** Stop the background scheduler (for cleanup) */
+  stopScheduler(): void {
+    if (this.schedulerInterval) {
+      clearInterval(this.schedulerInterval);
+      this.schedulerInterval = null;
+      logger.info('Tip scheduler stopped');
+    }
+  }
+
+  /** Check for and execute any tips that are due */
+  private async processDueTips(): Promise<void> {
+    const now = Date.now();
+    for (const tip of this.scheduledTips.values()) {
+      if (tip.status !== 'scheduled') continue;
+      if (new Date(tip.scheduledAt).getTime() > now) continue;
+
+      logger.info('Executing scheduled tip', { id: tip.id, recipient: tip.recipient });
+      const request: TipRequest = {
+        id: uuidv4(),
+        recipient: tip.recipient,
+        amount: tip.amount,
+        token: tip.token,
+        preferredChain: tip.chain,
+        message: tip.message,
+        createdAt: tip.createdAt,
+      };
+
+      try {
+        const result = await this.executeTip(request);
+        tip.status = result.status === 'failed' ? 'failed' : 'executed';
+        tip.executedAt = new Date().toISOString();
+        tip.result = result;
+      } catch (err) {
+        tip.status = 'failed';
+        tip.executedAt = new Date().toISOString();
+        logger.error('Scheduled tip execution failed', { id: tip.id, error: String(err) });
+      }
+    }
+  }
+
+  /** Schedule a tip for future execution */
+  scheduleTip(
+    request: { recipient: string; amount: string; token?: TokenType; chain?: ChainId; message?: string },
+    scheduledAt: string,
+  ): ScheduledTip {
+    const id = uuidv4();
+    const tip: ScheduledTip = {
+      id,
+      recipient: request.recipient,
+      amount: request.amount,
+      token: request.token ?? 'native',
+      chain: request.chain,
+      message: request.message,
+      scheduledAt,
+      status: 'scheduled',
+      createdAt: new Date().toISOString(),
+    };
+    this.scheduledTips.set(id, tip);
+    logger.info('Tip scheduled', { id, recipient: tip.recipient, scheduledAt });
+    return tip;
+  }
+
+  /** Get all scheduled tips */
+  getScheduledTips(): ScheduledTip[] {
+    return Array.from(this.scheduledTips.values());
+  }
+
+  /** Cancel a scheduled tip (only if still scheduled) */
+  cancelScheduledTip(id: string): boolean {
+    const tip = this.scheduledTips.get(id);
+    if (!tip || tip.status !== 'scheduled') return false;
+    this.scheduledTips.delete(id);
+    logger.info('Scheduled tip cancelled', { id });
+    return true;
   }
 
   /** Get current agent state */

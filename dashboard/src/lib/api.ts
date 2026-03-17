@@ -10,6 +10,8 @@ import type {
   TokenType,
   BatchTipResult,
   NLPTipParse,
+  ScheduledTip,
+  Contact,
 } from '../types';
 
 const BASE = '/api';
@@ -73,4 +75,33 @@ export const api = {
 
   getChains: () =>
     fetchJson<{ chains: ChainConfig[] }>('/chains'),
+
+  scheduleTip: (recipient: string, amount: string, scheduledAt: string, token?: TokenType, chain?: ChainId, message?: string) =>
+    fetchJson<{ tip: ScheduledTip }>('/tip/schedule', {
+      method: 'POST',
+      body: JSON.stringify({ recipient, amount, scheduledAt, token: token ?? 'native', chain, message }),
+    }),
+
+  getScheduledTips: () =>
+    fetchJson<{ tips: ScheduledTip[] }>('/tip/scheduled'),
+
+  cancelScheduledTip: (id: string) =>
+    fetchJson<{ cancelled: boolean; id: string }>(`/tip/schedule/${id}`, {
+      method: 'DELETE',
+    }),
+
+  // Address Book
+  getContacts: () =>
+    fetchJson<{ contacts: Contact[] }>('/contacts'),
+
+  addContact: (name: string, address: string, chain?: ChainId) =>
+    fetchJson<{ contact: Contact }>('/contacts', {
+      method: 'POST',
+      body: JSON.stringify({ name, address, chain }),
+    }),
+
+  deleteContact: (id: string) =>
+    fetchJson<{ deleted: boolean; id: string }>(`/contacts/${id}`, {
+      method: 'DELETE',
+    }),
 };

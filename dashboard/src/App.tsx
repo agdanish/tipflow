@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
 import { WalletCard } from './components/WalletCard';
 import { TipForm } from './components/TipForm';
@@ -8,8 +8,9 @@ import { TipHistory } from './components/TipHistory';
 import { StatsPanel } from './components/StatsPanel';
 import { ToastContainer, useToasts } from './components/Toast';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
-import type { TipResult } from './types';
-import { Wallet, Send, Users } from 'lucide-react';
+import { api } from './lib/api';
+import type { TipResult, ScheduledTip } from './types';
+import { Wallet, Send, Users, CalendarClock, X, Clock, CheckCircle2, XCircle } from 'lucide-react';
 
 function App() {
   const { health } = useHealth();
@@ -19,6 +20,38 @@ function App() {
   const { stats, refresh: refreshStats } = useStats();
   const { toasts, addToast, dismissToast } = useToasts();
   const [tipMode, setTipMode] = useState<'single' | 'batch'>('single');
+  const [scheduledTips, setScheduledTips] = useState<ScheduledTip[]>([]);
+
+  const refreshScheduledTips = useCallback(async () => {
+    try {
+      const { tips } = await api.getScheduledTips();
+      setScheduledTips(tips);
+    } catch {
+      // Keep existing
+    }
+  }, []);
+
+  // Poll scheduled tips every 10 seconds
+  useEffect(() => {
+    refreshScheduledTips();
+    const id = setInterval(refreshScheduledTips, 10_000);
+    return () => clearInterval(id);
+  }, [refreshScheduledTips]);
+
+  const handleTipScheduled = () => {
+    addToast('success', 'Tip Scheduled', 'The agent will execute this tip at the scheduled time.');
+    refreshScheduledTips();
+  };
+
+  const handleCancelScheduled = async (id: string) => {
+    try {
+      await api.cancelScheduledTip(id);
+      addToast('success', 'Cancelled', 'Scheduled tip cancelled.');
+      refreshScheduledTips();
+    } catch {
+      addToast('error', 'Error', 'Failed to cancel scheduled tip.');
+    }
+  };
 
   const handleTipComplete = (result: TipResult) => {
     if (result.status === 'confirmed') {
@@ -102,15 +135,77 @@ function App() {
             </div>
 
             {tipMode === 'single' ? (
-              <TipForm onTipComplete={handleTipComplete} disabled={isAgentBusy} />
+              <TipForm onTipComplete={handleTipComplete} onTipScheduled={handleTipScheduled} disabled={isAgentBusy} />
             ) : (
               <BatchTipForm onBatchComplete={handleBatchComplete} disabled={isAgentBusy} />
             )}
             <AgentPanel state={agentState} />
           </div>
 
-          {/* Right column: History + Stats */}
+          {/* Right column: Scheduled Tips + History + Stats */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
+            {/* Scheduled Tips */}
+            {scheduledTips.length > 0 && (
+              <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                <h2 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
+                  <CalendarClock className="w-4 h-4 text-amber-400" />
+                  Scheduled Tips
+                  <span className="ml-auto text-xs font-normal text-text-muted">
+                    {scheduledTips.filter((t) => t.status === 'scheduled').length} pending
+                  </span>
+                </h2>
+                <div className="space-y-2">
+                  {scheduledTips.map((tip) => (
+                    <div
+                      key={tip.id}
+                      className={`flex items-center gap-3 p-3 rounded-lg border ${
+                        tip.status === 'scheduled'
+                          ? 'bg-amber-500/5 border-amber-500/20'
+                          : tip.status === 'executed'
+                          ? 'bg-green-500/5 border-green-500/20'
+                          : 'bg-red-500/5 border-red-500/20'
+                      }`}
+                    >
+                      <div className="shrink-0">
+                        {tip.status === 'scheduled' && <Clock className="w-4 h-4 text-amber-400" />}
+                        {tip.status === 'executed' && <CheckCircle2 className="w-4 h-4 text-green-400" />}
+                        {tip.status === 'failed' && <XCircle className="w-4 h-4 text-red-400" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="font-medium text-text-primary">
+                            {tip.amount} {tip.token === 'usdt' ? 'USDT' : tip.chain === 'ton-testnet' ? 'TON' : 'ETH'}
+                          </span>
+                          <span className="text-text-muted">to</span>
+                          <span className="font-mono text-xs text-text-secondary truncate">
+                            {tip.recipient.slice(0, 8)}...{tip.recipient.slice(-6)}
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-text-muted mt-0.5">
+                          {tip.status === 'scheduled' ? (
+                            <>Fires {new Date(tip.scheduledAt).toLocaleString()}</>
+                          ) : tip.status === 'executed' ? (
+                            <>Executed {new Date(tip.executedAt!).toLocaleString()}</>
+                          ) : (
+                            <>Failed {tip.executedAt ? new Date(tip.executedAt).toLocaleString() : ''}</>
+                          )}
+                          {tip.message && <> &middot; "{tip.message}"</>}
+                        </div>
+                      </div>
+                      {tip.status === 'scheduled' && (
+                        <button
+                          onClick={() => handleCancelScheduled(tip.id)}
+                          className="shrink-0 p-1.5 rounded-md text-text-muted hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                          title="Cancel scheduled tip"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             <TipHistory history={history} loading={historyLoading} />
             <StatsPanel stats={stats} />
           </div>
