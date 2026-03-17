@@ -7,21 +7,24 @@ import { AgentPanel } from './components/AgentPanel';
 import { TipHistory } from './components/TipHistory';
 import { StatsPanel } from './components/StatsPanel';
 import { GasMonitor } from './components/GasMonitor';
+import { CurrencyConverter } from './components/CurrencyConverter';
 import { Leaderboard } from './components/Leaderboard';
 import { Achievements } from './components/Achievements';
 import { ActivityFeed } from './components/ActivityFeed';
 import { QRReceive } from './components/QRReceive';
 import { DecisionTree } from './components/DecisionTree';
+import { TipTemplates } from './components/TipTemplates';
 import { WalletCardSkeleton } from './components/Skeleton';
 import { ToastContainer, useToasts } from './components/Toast';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { OnboardingOverlay, isOnboardingComplete, resetOnboarding } from './components/OnboardingOverlay';
+import { ChatInterface } from './components/ChatInterface';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { api } from './lib/api';
 import { playSuccess, playError, isSoundEnabled, setSoundEnabled } from './lib/sounds';
-import type { TipResult, ScheduledTip, LeaderboardEntry, Achievement } from './types';
-import { Wallet, Send, Users, CalendarClock, X, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import type { TipResult, ScheduledTip, LeaderboardEntry, Achievement, TipTemplate } from './types';
+import { Wallet, Send, Users, CalendarClock, X, Clock, CheckCircle2, XCircle, Repeat } from 'lucide-react';
 
 function App() {
   const { health } = useHealth();
@@ -36,6 +39,7 @@ function App() {
   const [leaderboardLoading, setLeaderboardLoading] = useState(true);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [achievementsLoading, setAchievementsLoading] = useState(true);
+  const [pendingTemplate, setPendingTemplate] = useState<TipTemplate | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(() => !isOnboardingComplete());
   const [soundOn, setSoundOn] = useState(isSoundEnabled);
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -194,6 +198,12 @@ function App() {
     refreshAchievements();
   };
 
+  const handleUseTemplate = useCallback((template: TipTemplate) => {
+    setTipMode('single');
+    setPendingTemplate(template);
+    addToast('success', 'Template Loaded', `"${template.name}" loaded into tip form.`);
+  }, [addToast]);
+
   const isAgentBusy = agentState.status !== 'idle';
 
   return (
@@ -222,9 +232,10 @@ function App() {
           )}
         </section>
 
-        {/* Gas Price Monitor */}
-        <section className="mb-4 sm:mb-6">
+        {/* Gas Price Monitor + Currency Converter */}
+        <section className="mb-4 sm:mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <GasMonitor />
+          <CurrencyConverter />
         </section>
 
         {/* Main grid: Tip Form + Agent | History + Stats */}
@@ -258,10 +269,17 @@ function App() {
             </div>
 
             {tipMode === 'single' ? (
-              <TipForm onTipComplete={handleTipComplete} onTipScheduled={handleTipScheduled} disabled={isAgentBusy} />
+              <TipForm
+                onTipComplete={handleTipComplete}
+                onTipScheduled={handleTipScheduled}
+                disabled={isAgentBusy}
+                prefillTemplate={pendingTemplate}
+                onTemplatePrefilled={() => setPendingTemplate(null)}
+              />
             ) : (
               <BatchTipForm onBatchComplete={handleBatchComplete} disabled={isAgentBusy} />
             )}
+            <TipTemplates onUseTemplate={handleUseTemplate} />
             <div data-onboarding="agent-panel">
               <AgentPanel state={agentState} />
             </div>
@@ -302,7 +320,7 @@ function App() {
                         {tip.status === 'failed' && <XCircle className="w-4 h-4 text-red-400" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 text-sm">
+                        <div className="flex items-center gap-2 text-sm flex-wrap">
                           <span className="font-medium text-text-primary">
                             {tip.amount} {tip.token === 'usdt' ? 'USDT' : tip.chain === 'ton-testnet' ? 'TON' : 'ETH'}
                           </span>
@@ -310,6 +328,12 @@ function App() {
                           <span className="font-mono text-xs text-text-secondary truncate">
                             {tip.recipient.slice(0, 8)}...{tip.recipient.slice(-6)}
                           </span>
+                          {tip.recurring && (
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-purple-500/15 border border-purple-500/20 text-[10px] font-medium text-purple-400">
+                              <Repeat className="w-2.5 h-2.5" />
+                              {tip.interval}
+                            </span>
+                          )}
                         </div>
                         <div className="text-[11px] text-text-muted mt-0.5">
                           {tip.status === 'scheduled' ? (
@@ -318,6 +342,9 @@ function App() {
                             <>Executed {new Date(tip.executedAt!).toLocaleString()}</>
                           ) : (
                             <>Failed {tip.executedAt ? new Date(tip.executedAt).toLocaleString() : ''}</>
+                          )}
+                          {tip.recurring && tip.lastExecuted && (
+                            <> &middot; Last: {new Date(tip.lastExecuted).toLocaleString()}</>
                           )}
                           {tip.message && <> &middot; "{tip.message}"</>}
                         </div>
@@ -360,6 +387,7 @@ function App() {
         </footer>
       </main>
 
+      <ChatInterface />
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       <KeyboardShortcutsModal open={showShortcuts} onClose={() => setShowShortcuts(false)} />
 

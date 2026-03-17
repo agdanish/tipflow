@@ -5,11 +5,15 @@ import type { TipFlowAgent } from '../core/agent.js';
 import type { WalletService } from '../services/wallet.service.js';
 import type { AIService } from '../services/ai.service.js';
 import { ContactsService } from '../services/contacts.service.js';
-import type { ActivityEvent, ChainId, TipRequest, TokenType, BatchTipRequest } from '../types/index.js';
+import { TemplatesService } from '../services/templates.service.js';
+import type { ActivityEvent, ChatMessage, ChainId, TipRequest, TokenType, BatchTipRequest } from '../types/index.js';
 import { logger } from '../utils/logger.js';
 
 /** Shared contacts service instance */
 const contacts = new ContactsService();
+
+/** Shared templates service instance */
+const templates = new TemplatesService();
 
 /** Create API router with injected dependencies */
 export function createApiRouter(
@@ -339,20 +343,27 @@ export function createApiRouter(
     }
   });
 
-  /** POST /api/tip/schedule — Schedule a future tip */
+  /** POST /api/tip/schedule — Schedule a future tip (optionally recurring) */
   router.post('/tip/schedule', (req, res) => {
     try {
-      const { recipient, amount, token, chain, message, scheduledAt } = req.body as {
+      const { recipient, amount, token, chain, message, scheduledAt, recurring, interval } = req.body as {
         recipient: string;
         amount: string;
         token?: TokenType;
         chain?: ChainId;
         message?: string;
         scheduledAt: string;
+        recurring?: boolean;
+        interval?: 'daily' | 'weekly' | 'monthly';
       };
 
       if (!recipient || !amount || !scheduledAt) {
         res.status(400).json({ error: 'recipient, amount, and scheduledAt are required' });
+        return;
+      }
+
+      if (recurring && !interval) {
+        res.status(400).json({ error: 'interval is required when recurring is true' });
         return;
       }
 
@@ -368,12 +379,12 @@ export function createApiRouter(
       }
 
       const tip = agent.scheduleTip(
-        { recipient, amount, token, chain, message },
+        { recipient, amount, token, chain, message, recurring, interval },
         scheduledAt,
       );
 
       agent.markScheduleUsed();
-      logger.info('Tip scheduled via API', { id: tip.id, scheduledAt });
+      logger.info('Tip scheduled via API', { id: tip.id, scheduledAt, recurring, interval });
       res.json({ tip });
     } catch (err) {
       logger.error('Failed to schedule tip', { error: String(err) });
@@ -542,6 +553,67 @@ export function createApiRouter(
     }
   });
 
+  /** GET /api/prices — Approximate crypto prices for currency conversion */
+  router.get('/prices', (_req, res) => {
+    res.json({
+      prices: {
+        ETH: 2500,
+        TON: 2.50,
+        USDT: 1.00,
+      },
+      lastUpdated: new Date().toISOString(),
+      note: 'Approximate prices for conversion estimates only. Not suitable for trading.',
+    });
+  });
+
+  // ── Tip Templates ──────────────────────────────────────────────
+
+  /** GET /api/templates — List all templates */
+  router.get('/templates', (_req, res) => {
+    res.json({ templates: templates.getTemplates() });
+  });
+
+  /** POST /api/templates — Create a template */
+  router.post('/templates', (req, res) => {
+    try {
+      const { name, recipient, amount, token, chainId } = req.body as {
+        name: string;
+        recipient: string;
+        amount: string;
+        token?: 'native' | 'usdt';
+        chainId?: string;
+      };
+
+      if (!name || !recipient || !amount) {
+        res.status(400).json({ error: 'name, recipient, and amount are required' });
+        return;
+      }
+
+      const template = templates.addTemplate({
+        name,
+        recipient,
+        amount,
+        token: token ?? 'native',
+        chainId,
+      });
+      res.json({ template });
+    } catch (err) {
+      logger.error('Failed to create template', { error: String(err) });
+      res.status(500).json({ error: 'Failed to create template' });
+    }
+  });
+
+  /** DELETE /api/templates/:id — Delete a template */
+  router.delete('/templates/:id', (req, res) => {
+    const { id } = req.params;
+    const deleted = templates.deleteTemplate(id);
+    if (!deleted) {
+      res.status(404).json({ error: 'Template not found' });
+      return;
+    }
+    res.json({ deleted: true, id });
+  });
+
   // ── Leaderboard & Achievements ──────────────────────────────────
 
   /** GET /api/leaderboard — Top tip recipients */
@@ -552,6 +624,218 @@ export function createApiRouter(
   /** GET /api/achievements — Achievement progress */
   router.get('/achievements', (_req, res) => {
     res.json({ achievements: agent.getAchievements() });
+  });
+
+  // ── Conversational Chat ──────────────────────────────────────
+
+  /** POST /api/chat — Conversational chat with the TipFlow agent */
+  router.post('/chat', async (req, res) => {
+    try {
+      const { message } = req.body as { message?: string };
+      if (!message || typeof message !== 'string' || message.trim().length === 0) {
+        res.status(400).json({ error: 'message string is required' });
+        return;
+      }
+
+      const trimmed = message.trim();
+      const { intent, params } = await ai.detectIntent(trimmed);
+
+      let content = '';
+      let action: ChatMessage['action'] | undefined;
+
+      switch (intent) {
+        case 'tip': {
+          // If we have enough info, parse and execute; otherwise guide the user
+          if (params.recipient && params.amount) {
+            const token = (params.token as TokenType) ?? 'native';
+            const tipRequest: TipRequest = {
+              id: uuidv4(),
+              recipient: params.recipient,
+              amount: params.amount,
+              token,
+              createdAt: new Date().toISOString(),
+            };
+            try {
+              const result = await agent.executeTip(tipRequest);
+              if (result.status === 'confirmed') {
+                content = `Tip sent successfully! I transferred ${result.amount} ${result.token === 'usdt' ? 'USDT' : result.chainId.startsWith('ethereum') ? 'ETH' : 'TON'} to ${result.to.slice(0, 8)}...${result.to.slice(-6)} on ${result.chainId.startsWith('ethereum') ? 'Ethereum Sepolia' : 'TON Testnet'}. Transaction: ${result.txHash.slice(0, 12)}...`;
+                action = {
+                  type: 'tip_executed',
+                  data: {
+                    txHash: result.txHash,
+                    amount: result.amount,
+                    token: result.token,
+                    chainId: result.chainId,
+                    to: result.to,
+                    fee: result.fee,
+                    explorerUrl: result.explorerUrl,
+                  },
+                };
+              } else {
+                content = `The tip transaction failed: ${result.error ?? 'Unknown error'}. Please check your balance and try again.`;
+              }
+            } catch (err) {
+              content = `I couldn't execute the tip: ${String(err)}. Make sure you have sufficient funds.`;
+            }
+          } else {
+            // Parse what we can and ask for missing info
+            const parsed = await ai.parseNaturalLanguageTip(trimmed);
+            if (parsed.recipient && parsed.amount) {
+              // We extracted enough from NLP, execute
+              const token = parsed.token ?? 'native';
+              const tipRequest: TipRequest = {
+                id: uuidv4(),
+                recipient: parsed.recipient,
+                amount: parsed.amount,
+                token,
+                preferredChain: parsed.chain as ChainId | undefined,
+                message: parsed.message,
+                createdAt: new Date().toISOString(),
+              };
+              try {
+                const result = await agent.executeTip(tipRequest);
+                if (result.status === 'confirmed') {
+                  content = `Done! Sent ${result.amount} ${result.token === 'usdt' ? 'USDT' : result.chainId.startsWith('ethereum') ? 'ETH' : 'TON'} to ${result.to.slice(0, 8)}...${result.to.slice(-6)}. TX: ${result.txHash.slice(0, 12)}...`;
+                  action = {
+                    type: 'tip_executed',
+                    data: {
+                      txHash: result.txHash,
+                      amount: result.amount,
+                      token: result.token,
+                      chainId: result.chainId,
+                      to: result.to,
+                      fee: result.fee,
+                      explorerUrl: result.explorerUrl,
+                    },
+                  };
+                } else {
+                  content = `Tip failed: ${result.error ?? 'Unknown error'}. Please check your balance.`;
+                }
+              } catch (err) {
+                content = `Couldn't complete the tip: ${String(err)}.`;
+              }
+            } else {
+              const missing: string[] = [];
+              if (!parsed.recipient) missing.push('a recipient address (0x... or UQ...)');
+              if (!parsed.amount) missing.push('an amount');
+              content = `I'd like to help you send a tip! I still need ${missing.join(' and ')}. Try something like: "send 0.01 ETH to 0x1234..."`;
+            }
+          }
+          break;
+        }
+
+        case 'balance': {
+          try {
+            const balances = await wallet.getAllBalances();
+            const lines = balances.map((b) => {
+              const chain = b.chainId.startsWith('ethereum') ? 'Ethereum Sepolia' : 'TON Testnet';
+              return `${chain}: ${b.nativeBalance} ${b.nativeCurrency}${parseFloat(b.usdtBalance) > 0 ? ` + ${b.usdtBalance} USDT` : ''}`;
+            });
+            content = `Here are your current balances:\n\n${lines.join('\n')}`;
+            action = {
+              type: 'balance_check',
+              data: { balances: balances.map((b) => ({ chainId: b.chainId, native: b.nativeBalance, usdt: b.usdtBalance, currency: b.nativeCurrency })) },
+            };
+          } catch (err) {
+            content = `I couldn't fetch your balances: ${String(err)}`;
+          }
+          break;
+        }
+
+        case 'fees': {
+          try {
+            // Use a dummy address for fee comparison
+            const dummyRecipient = '0x0000000000000000000000000000000000000001';
+            const comparison = await wallet.estimateAllFees(dummyRecipient, '0.01');
+            if (comparison.length === 0) {
+              content = 'No fee data available right now. Try again in a moment.';
+            } else {
+              const lines = comparison.map((c) =>
+                `${c.chainName}: ~$${c.estimatedFeeUsd} (${c.estimatedFee})`
+              );
+              const cheapest = comparison[0];
+              content = `Current fee estimates for a 0.01 transfer:\n\n${lines.join('\n')}\n\nCheapest: ${cheapest.chainName} at ~$${cheapest.estimatedFeeUsd}`;
+              action = {
+                type: 'fee_estimate',
+                data: { comparison },
+              };
+            }
+          } catch (err) {
+            content = `Couldn't fetch fee estimates: ${String(err)}`;
+          }
+          break;
+        }
+
+        case 'address': {
+          try {
+            const addresses = await wallet.getAllAddresses();
+            const lines = Object.entries(addresses).map(([chainId, addr]) => {
+              const chain = chainId.startsWith('ethereum') ? 'Ethereum Sepolia' : 'TON Testnet';
+              return `${chain}: ${addr}`;
+            });
+            content = `Your wallet addresses:\n\n${lines.join('\n')}\n\nYou can share these to receive funds.`;
+            action = {
+              type: 'address_lookup',
+              data: { addresses },
+            };
+          } catch (err) {
+            content = `Couldn't fetch addresses: ${String(err)}`;
+          }
+          break;
+        }
+
+        case 'history': {
+          const history = agent.getHistory();
+          if (history.length === 0) {
+            content = 'No tips sent yet. Try sending your first tip!';
+          } else {
+            const recent = history.slice(0, 5);
+            const lines = recent.map((h) => {
+              const chain = h.chainId.startsWith('ethereum') ? 'ETH' : 'TON';
+              const status = h.status === 'confirmed' ? 'Confirmed' : 'Failed';
+              return `${h.amount} ${h.token === 'usdt' ? 'USDT' : chain} to ${h.recipient.slice(0, 8)}... - ${status}`;
+            });
+            content = `Your recent tips (${history.length} total):\n\n${lines.join('\n')}${history.length > 5 ? `\n\n...and ${history.length - 5} more` : ''}`;
+          }
+          break;
+        }
+
+        case 'help': {
+          content = `I'm TipFlow, your AI-powered tipping assistant! Here's what I can do:\n\n` +
+            `- Send tips: "send 0.01 ETH to 0x1234..."\n` +
+            `- Check balances: "what's my balance?"\n` +
+            `- Compare fees: "which chain is cheapest?"\n` +
+            `- View addresses: "show my wallet address"\n` +
+            `- Tip history: "show my recent tips"\n` +
+            `- USDT tips: "tip 5 USDT to 0x1234..."\n\n` +
+            `I support Ethereum Sepolia and TON Testnet, and I'll automatically pick the best chain for your tip!`;
+          break;
+        }
+
+        default: {
+          content = `I'm not sure what you mean. I can help you with:\n\n` +
+            `- Sending tips (e.g. "send 0.01 ETH to 0x...")\n` +
+            `- Checking balances ("what's my balance?")\n` +
+            `- Comparing fees ("which chain is cheapest?")\n` +
+            `- Viewing wallet addresses ("show my address")\n\n` +
+            `Try one of these, or say "help" for more details!`;
+          break;
+        }
+      }
+
+      const response: ChatMessage = {
+        id: uuidv4(),
+        role: 'agent',
+        content,
+        timestamp: new Date().toISOString(),
+        action,
+      };
+
+      res.json({ message: response });
+    } catch (err) {
+      logger.error('Chat processing failed', { error: String(err) });
+      res.status(500).json({ error: 'Failed to process chat message' });
+    }
   });
 
   return router;

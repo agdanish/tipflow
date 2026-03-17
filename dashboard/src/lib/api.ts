@@ -17,6 +17,9 @@ import type {
   ActivityEvent,
   LeaderboardEntry,
   Achievement,
+  ChatMessage,
+  PriceData,
+  TipTemplate,
 } from '../types';
 
 const BASE = '/api';
@@ -101,10 +104,10 @@ export const api = {
   getChains: () =>
     fetchJson<{ chains: ChainConfig[] }>('/chains'),
 
-  scheduleTip: (recipient: string, amount: string, scheduledAt: string, token?: TokenType, chain?: ChainId, message?: string) =>
+  scheduleTip: (recipient: string, amount: string, scheduledAt: string, token?: TokenType, chain?: ChainId, message?: string, recurring?: boolean, interval?: 'daily' | 'weekly' | 'monthly') =>
     fetchJson<{ tip: ScheduledTip }>('/tip/schedule', {
       method: 'POST',
-      body: JSON.stringify({ recipient, amount, scheduledAt, token: token ?? 'native', chain, message }),
+      body: JSON.stringify({ recipient, amount, scheduledAt, token: token ?? 'native', chain, message, recurring, interval }),
     }),
 
   getScheduledTips: () =>
@@ -141,9 +144,35 @@ export const api = {
   getAchievements: () =>
     fetchJson<{ achievements: Achievement[] }>('/achievements'),
 
+  // Tip Templates
+  getTemplates: () =>
+    fetchJson<{ templates: TipTemplate[] }>('/templates'),
+
+  createTemplate: (template: { name: string; recipient: string; amount: string; token?: 'native' | 'usdt'; chainId?: string }) =>
+    fetchJson<{ template: TipTemplate }>('/templates', {
+      method: 'POST',
+      body: JSON.stringify(template),
+    }),
+
+  deleteTemplate: (id: string) =>
+    fetchJson<{ deleted: boolean; id: string }>(`/templates/${id}`, {
+      method: 'DELETE',
+    }),
+
+  // Prices
+  getPrices: () =>
+    fetchJson<PriceData>('/prices'),
+
   // Activity Feed
   getActivity: () =>
     fetchJson<{ activity: ActivityEvent[] }>('/activity'),
+
+  // Chat
+  sendChatMessage: (message: string) =>
+    fetchJson<{ message: ChatMessage }>('/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    }),
 
   // Export
   exportHistory: (format: 'csv' = 'csv') =>

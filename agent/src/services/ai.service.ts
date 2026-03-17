@@ -1,6 +1,6 @@
 import { Ollama } from 'ollama';
 import { logger } from '../utils/logger.js';
-import type { ChainAnalysis, ChainId, NLPTipParse } from '../types/index.js';
+import type { ChainAnalysis, ChainId, ChatIntent, NLPTipParse } from '../types/index.js';
 
 /**
  * AI Service — provides LLM-powered reasoning for agent decisions.
@@ -290,6 +290,125 @@ JSON:`;
     // TON address (UQ or EQ + 46 chars)
     if (/^[UE]Q[a-zA-Z0-9_-]{46}$/.test(addr)) return true;
     return false;
+  }
+
+  /**
+   * Detect the user's intent from a chat message.
+   * Uses Ollama LLM when available, falls back to regex pattern matching.
+   */
+  async detectIntent(message: string): Promise<ChatIntent> {
+    const trimmed = message.trim().toLowerCase();
+    if (!trimmed) {
+      return { intent: 'unknown', params: {} };
+    }
+
+    // Try LLM-based intent detection first
+    if (this.available) {
+      try {
+        return await this.llmDetectIntent(message.trim());
+      } catch (err) {
+        logger.warn('LLM intent detection failed, using regex fallback', { error: String(err) });
+      }
+    }
+
+    // Regex fallback
+    return this.regexDetectIntent(trimmed, message.trim());
+  }
+
+  /** LLM-powered intent detection */
+  private async llmDetectIntent(input: string): Promise<ChatIntent> {
+    const prompt = `You are a chat intent classifier for TipFlow, a crypto tipping bot. Classify the user's message into one of these intents:
+- tip: user wants to send/tip crypto (extract "recipient" address and "amount" if present)
+- balance: user wants to check wallet balances
+- fees: user wants to compare fees or know costs
+- address: user wants to see wallet addresses
+- help: user asks what you can do or needs help
+- history: user wants to see past tips/transactions
+- unknown: doesn't match any intent
+
+Return ONLY a JSON object: {"intent": "...", "params": {"key": "value"}}
+
+Message: "${input}"
+
+JSON:`;
+
+    const response = await this.ollama.generate({
+      model: this.model,
+      prompt,
+      options: { temperature: 0.1, num_predict: 100 },
+      format: 'json',
+    });
+
+    const raw = response.response.trim();
+    let parsed: Record<string, unknown>;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) return { intent: 'unknown', params: {} };
+      parsed = JSON.parse(jsonMatch[0]);
+    }
+
+    const intent = String(parsed.intent ?? 'unknown');
+    const validIntents = ['tip', 'balance', 'fees', 'address', 'help', 'history', 'unknown'] as const;
+    const validIntent = validIntents.includes(intent as typeof validIntents[number])
+      ? (intent as ChatIntent['intent'])
+      : 'unknown';
+
+    const params: Record<string, string> = {};
+    if (parsed.params && typeof parsed.params === 'object') {
+      for (const [k, v] of Object.entries(parsed.params as Record<string, unknown>)) {
+        if (typeof v === 'string') params[k] = v;
+      }
+    }
+
+    return { intent: validIntent, params };
+  }
+
+  /** Rule-based regex intent detection */
+  private regexDetectIntent(lower: string, original: string): ChatIntent {
+    // Help intent
+    if (/\b(?:help|what can you do|commands|how to|how do i|capabilities|guide)\b/.test(lower)) {
+      return { intent: 'help', params: {} };
+    }
+
+    // Tip intent
+    if (/\b(?:send|tip|transfer|pay|give)\b/.test(lower)) {
+      const params: Record<string, string> = {};
+      // Extract amount
+      const amountMatch = original.match(/(\d+(?:\.\d+)?)\s*(?:eth|ton|usdt|tether)?/i);
+      if (amountMatch) params.amount = amountMatch[1];
+      // Extract address
+      const evmMatch = original.match(/\b(0x[a-fA-F0-9]{40})\b/);
+      const tonMatch = original.match(/\b([UE]Q[a-zA-Z0-9_-]{46})\b/);
+      if (evmMatch) params.recipient = evmMatch[1];
+      else if (tonMatch) params.recipient = tonMatch[1];
+      // Token
+      if (/\busdt|tether|\$\s*\d/i.test(lower)) params.token = 'usdt';
+      return { intent: 'tip', params };
+    }
+
+    // Balance intent
+    if (/\b(?:balance|how much|funds|wallet balance|my wallet)\b/.test(lower)) {
+      return { intent: 'balance', params: {} };
+    }
+
+    // Fees intent
+    if (/\b(?:fee|fees|cost|gas|cheapest|compare|estimate)\b/.test(lower)) {
+      return { intent: 'fees', params: {} };
+    }
+
+    // Address intent
+    if (/\b(?:address|addresses|wallet address|my address|receive)\b/.test(lower)) {
+      return { intent: 'address', params: {} };
+    }
+
+    // History intent
+    if (/\b(?:history|past tips|transactions|recent tips|previous)\b/.test(lower)) {
+      return { intent: 'history', params: {} };
+    }
+
+    return { intent: 'unknown', params: {} };
   }
 
   /** Generate a summary of agent activity for the dashboard */

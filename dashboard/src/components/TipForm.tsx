@@ -1,15 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, Loader2, AlertCircle, Coins, Sparkles, Wand2, Clock, CalendarClock, BookUser, UserPlus, X, Trash2 } from 'lucide-react';
+import { Send, Loader2, AlertCircle, Coins, Sparkles, Wand2, Clock, CalendarClock, BookUser, UserPlus, X, Trash2, BookMarked, Repeat } from 'lucide-react';
 import { api } from '../lib/api';
-import type { ChainId, TokenType, TipResult, Contact } from '../types';
+import type { ChainId, TokenType, TipResult, Contact, TipTemplate } from '../types';
 
 interface TipFormProps {
   onTipComplete: (result: TipResult) => void;
   onTipScheduled?: () => void;
   disabled: boolean;
+  prefillTemplate?: TipTemplate | null;
+  onTemplatePrefilled?: () => void;
 }
 
-export function TipForm({ onTipComplete, onTipScheduled, disabled }: TipFormProps) {
+export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTemplate, onTemplatePrefilled }: TipFormProps) {
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const [token, setToken] = useState<TokenType>('native');
@@ -21,6 +23,23 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled }: TipFormProp
   // Schedule state
   const [scheduleMode, setScheduleMode] = useState(false);
   const [scheduledAt, setScheduledAt] = useState('');
+  const [recurring, setRecurring] = useState(false);
+  const [interval, setInterval] = useState<'daily' | 'weekly' | 'monthly'>('daily');
+
+  // Save as template state
+  const [savingTemplate, setSavingTemplate] = useState(false);
+  const [templateName, setTemplateName] = useState('');
+
+  // Prefill from template
+  useEffect(() => {
+    if (prefillTemplate) {
+      setRecipient(prefillTemplate.recipient);
+      setAmount(prefillTemplate.amount);
+      setToken(prefillTemplate.token);
+      setChain((prefillTemplate.chainId as ChainId) || '');
+      onTemplatePrefilled?.();
+    }
+  }, [prefillTemplate, onTemplatePrefilled]);
 
   // Contacts / address book state
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -163,6 +182,8 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled }: TipFormProp
           token,
           chain || undefined,
           message || undefined,
+          recurring || undefined,
+          recurring ? interval : undefined,
         );
         onTipScheduled?.();
       } else {
@@ -181,6 +202,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled }: TipFormProp
       setMessage('');
       setChain('');
       setScheduledAt('');
+      setRecurring(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -446,7 +468,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled }: TipFormProp
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => { setScheduleMode(!scheduleMode); setScheduledAt(''); }}
+              onClick={() => { setScheduleMode(!scheduleMode); setScheduledAt(''); setRecurring(false); }}
               className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
                 scheduleMode ? 'bg-amber-500' : 'bg-surface-3 border border-border'
               }`}
@@ -457,13 +479,13 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled }: TipFormProp
                 }`}
               />
             </button>
-            <label className="flex items-center gap-1.5 text-xs text-text-secondary cursor-pointer" onClick={() => { setScheduleMode(!scheduleMode); setScheduledAt(''); }}>
+            <label className="flex items-center gap-1.5 text-xs text-text-secondary cursor-pointer" onClick={() => { setScheduleMode(!scheduleMode); setScheduledAt(''); setRecurring(false); }}>
               <Clock className="w-3.5 h-3.5" />
               Schedule for later
             </label>
           </div>
           {scheduleMode && (
-            <div className="mt-2">
+            <div className="mt-2 space-y-2">
               <input
                 type="datetime-local"
                 value={scheduledAt}
@@ -472,10 +494,117 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled }: TipFormProp
                 className="w-full px-3 py-2.5 rounded-lg bg-surface-2 border border-amber-500/30 text-sm text-text-primary focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-colors"
                 disabled={sending || disabled}
               />
-              <p className="text-[10px] text-text-muted mt-1">The agent will autonomously execute this tip at the scheduled time.</p>
+              {/* Recurring toggle */}
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setRecurring(!recurring)}
+                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                    recurring ? 'bg-purple-500' : 'bg-surface-3 border border-border'
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
+                      recurring ? 'translate-x-[18px]' : 'translate-x-[3px]'
+                    }`}
+                  />
+                </button>
+                <label className="flex items-center gap-1.5 text-xs text-text-secondary cursor-pointer" onClick={() => setRecurring(!recurring)}>
+                  <Repeat className="w-3.5 h-3.5" />
+                  Recurring
+                </label>
+                {recurring && (
+                  <select
+                    value={interval}
+                    onChange={(e) => setInterval(e.target.value as 'daily' | 'weekly' | 'monthly')}
+                    className="ml-auto px-2 py-1 rounded-md bg-surface-2 border border-purple-500/30 text-xs text-text-primary focus:outline-none transition-colors"
+                    disabled={sending || disabled}
+                  >
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                )}
+              </div>
+              <p className="text-[10px] text-text-muted">
+                {recurring
+                  ? `The agent will execute this tip ${interval} starting at the scheduled time.`
+                  : 'The agent will autonomously execute this tip at the scheduled time.'}
+              </p>
             </div>
           )}
         </div>
+
+        {/* Save as Template */}
+        {recipient.trim() && amount.trim() && (
+          <div>
+            {savingTemplate ? (
+              <div className="flex gap-1.5">
+                <input
+                  type="text"
+                  value={templateName}
+                  onChange={(e) => setTemplateName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (templateName.trim()) {
+                        api.createTemplate({
+                          name: templateName.trim(),
+                          recipient,
+                          amount,
+                          token,
+                          chainId: chain || undefined,
+                        }).then(() => {
+                          setSavingTemplate(false);
+                          setTemplateName('');
+                        }).catch(() => {});
+                      }
+                    }
+                  }}
+                  placeholder="Template name..."
+                  className="flex-1 min-w-0 px-2.5 py-1.5 rounded-md bg-surface-2 border border-blue-500/30 text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-colors"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!templateName.trim()) return;
+                    api.createTemplate({
+                      name: templateName.trim(),
+                      recipient,
+                      amount,
+                      token,
+                      chainId: chain || undefined,
+                    }).then(() => {
+                      setSavingTemplate(false);
+                      setTemplateName('');
+                    }).catch(() => {});
+                  }}
+                  disabled={!templateName.trim()}
+                  className="px-2.5 py-1.5 rounded-md bg-blue-600 text-white text-xs font-medium hover:bg-blue-500 disabled:opacity-40 transition-colors"
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setSavingTemplate(false); setTemplateName(''); }}
+                  className="px-1.5 py-1.5 rounded-md bg-surface-2 border border-border text-text-secondary hover:text-text-primary transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setSavingTemplate(true)}
+                className="inline-flex items-center gap-1.5 text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                <BookMarked className="w-3.5 h-3.5" />
+                Save as Template
+              </button>
+            )}
+          </div>
+        )}
 
         {error && (
           <div className="flex items-start gap-2 p-3 rounded-lg bg-error/10 border border-error/20">

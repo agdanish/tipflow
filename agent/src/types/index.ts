@@ -164,6 +164,20 @@ export interface ScheduledTip {
   createdAt: string;
   executedAt?: string;
   result?: TipResult;
+  recurring?: boolean;
+  interval?: 'daily' | 'weekly' | 'monthly';
+  lastExecuted?: string;
+}
+
+/** Reusable tip template — saved tip configurations */
+export interface TipTemplate {
+  id: string;
+  name: string;
+  recipient: string;
+  amount: string;
+  token: 'native' | 'usdt';
+  chainId?: string;
+  createdAt: string;
 }
 
 /** Address book contact */
@@ -225,6 +239,24 @@ export interface Achievement {
   unlockedAt?: string;
   progress: number;
   target: number;
+}
+
+/** Chat message for conversational interface */
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'agent';
+  content: string;
+  timestamp: string;
+  action?: {
+    type: 'tip_executed' | 'balance_check' | 'fee_estimate' | 'address_lookup';
+    data?: Record<string, unknown>;
+  };
+}
+
+/** Detected intent from user chat message */
+export interface ChatIntent {
+  intent: 'tip' | 'balance' | 'fees' | 'address' | 'help' | 'history' | 'unknown';
+  params: Record<string, string>;
 }
 
 /** Agent stats for dashboard */

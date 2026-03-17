@@ -98,9 +98,20 @@ export class TipFlowAgent {
 
       try {
         const result = await this.executeTip(request);
-        tip.status = result.status === 'failed' ? 'failed' : 'executed';
-        tip.executedAt = new Date().toISOString();
+        tip.lastExecuted = new Date().toISOString();
+        tip.executedAt = tip.lastExecuted;
         tip.result = result;
+
+        if (tip.recurring && tip.interval && result.status !== 'failed') {
+          // Reschedule recurring tip for next interval
+          const nextTime = this.calculateNextExecution(tip.scheduledAt, tip.interval);
+          tip.scheduledAt = nextTime;
+          tip.status = 'scheduled';
+          logger.info('Recurring tip rescheduled', { id: tip.id, nextAt: nextTime, interval: tip.interval });
+          this.addActivity({ type: 'tip_scheduled', message: `Recurring tip rescheduled (${tip.interval})`, detail: `Next: ${new Date(nextTime).toLocaleString()}` });
+        } else {
+          tip.status = result.status === 'failed' ? 'failed' : 'executed';
+        }
       } catch (err) {
         tip.status = 'failed';
         tip.executedAt = new Date().toISOString();
@@ -109,9 +120,26 @@ export class TipFlowAgent {
     }
   }
 
+  /** Calculate next execution time for a recurring tip */
+  private calculateNextExecution(currentScheduledAt: string, interval: 'daily' | 'weekly' | 'monthly'): string {
+    const current = new Date(currentScheduledAt);
+    switch (interval) {
+      case 'daily':
+        current.setTime(current.getTime() + 24 * 60 * 60 * 1000);
+        break;
+      case 'weekly':
+        current.setTime(current.getTime() + 7 * 24 * 60 * 60 * 1000);
+        break;
+      case 'monthly':
+        current.setTime(current.getTime() + 30 * 24 * 60 * 60 * 1000);
+        break;
+    }
+    return current.toISOString();
+  }
+
   /** Schedule a tip for future execution */
   scheduleTip(
-    request: { recipient: string; amount: string; token?: TokenType; chain?: ChainId; message?: string },
+    request: { recipient: string; amount: string; token?: TokenType; chain?: ChainId; message?: string; recurring?: boolean; interval?: 'daily' | 'weekly' | 'monthly' },
     scheduledAt: string,
   ): ScheduledTip {
     const id = uuidv4();
@@ -125,10 +153,13 @@ export class TipFlowAgent {
       scheduledAt,
       status: 'scheduled',
       createdAt: new Date().toISOString(),
+      recurring: request.recurring,
+      interval: request.interval,
     };
     this.scheduledTips.set(id, tip);
-    logger.info('Tip scheduled', { id, recipient: tip.recipient, scheduledAt });
-    this.addActivity({ type: 'tip_scheduled', message: `Tip scheduled for ${new Date(scheduledAt).toLocaleString()}`, detail: `${request.amount} to ${request.recipient.slice(0, 10)}...` });
+    const recurLabel = tip.recurring ? ` (recurring ${tip.interval})` : '';
+    logger.info('Tip scheduled', { id, recipient: tip.recipient, scheduledAt, recurring: tip.recurring, interval: tip.interval });
+    this.addActivity({ type: 'tip_scheduled', message: `Tip scheduled for ${new Date(scheduledAt).toLocaleString()}${recurLabel}`, detail: `${request.amount} to ${request.recipient.slice(0, 10)}...` });
     return tip;
   }
 

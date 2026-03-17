@@ -125,6 +125,20 @@ export interface ScheduledTip {
   createdAt: string;
   executedAt?: string;
   result?: TipResult;
+  recurring?: boolean;
+  interval?: 'daily' | 'weekly' | 'monthly';
+  lastExecuted?: string;
+}
+
+/** Reusable tip template — saved tip configurations */
+export interface TipTemplate {
+  id: string;
+  name: string;
+  recipient: string;
+  amount: string;
+  token: 'native' | 'usdt';
+  chainId?: string;
+  createdAt: string;
 }
 
 /** Address book contact */
@@ -219,6 +233,25 @@ export interface BatchTipResult {
   totalAmount: string;
   totalFees: string;
   createdAt: string;
+}
+
+/** Price data for currency conversion */
+export interface PriceData {
+  prices: Record<string, number>;
+  lastUpdated: string;
+  note?: string;
+}
+
+/** Chat message for conversational interface */
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'agent';
+  content: string;
+  timestamp: string;
+  action?: {
+    type: 'tip_executed' | 'balance_check' | 'fee_estimate' | 'address_lookup';
+    data?: Record<string, unknown>;
+  };
 }
 
 /** Wallet receive info for QR code display */
