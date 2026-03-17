@@ -1,0 +1,24 @@
+{
+  "name": "TipFlow - AI Tipping Agent",
+  "short_name": "TipFlow",
+  "description": "AI-powered multi-chain tipping agent built with Tether WDK",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

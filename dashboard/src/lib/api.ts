@@ -2,6 +2,7 @@ import type {
   WalletBalance,
   WalletReceiveInfo,
   TipResult,
+  TipReceipt,
   TipHistoryEntry,
   GaslessStatus,
   GaslessTipResult,
@@ -26,6 +27,9 @@ import type {
   SplitTipResult,
   TipCondition,
   ConditionType,
+  WebhookConfig,
+  NetworkHealthResponse,
+  ChainGasSpeeds,
 } from '../types';
 
 const BASE = '/api';
@@ -107,8 +111,19 @@ export const api = {
   getAgentState: () =>
     fetchJson<{ state: AgentState }>('/agent/state'),
 
-  getHistory: () =>
-    fetchJson<{ history: TipHistoryEntry[] }>('/agent/history'),
+  getHistory: (filters?: { search?: string; chain?: string; status?: string; dateFrom?: string; dateTo?: string }) => {
+    const params = new URLSearchParams();
+    if (filters?.search) params.set('search', filters.search);
+    if (filters?.chain) params.set('chain', filters.chain);
+    if (filters?.status) params.set('status', filters.status);
+    if (filters?.dateFrom) params.set('dateFrom', filters.dateFrom);
+    if (filters?.dateTo) params.set('dateTo', filters.dateTo);
+    const qs = params.toString();
+    return fetchJson<{ history: TipHistoryEntry[]; total: number }>(`/agent/history${qs ? `?${qs}` : ''}`);
+  },
+
+  getGasSpeeds: () =>
+    fetchJson<{ speeds: ChainGasSpeeds[] }>('/gas/speeds'),
 
   getStats: () =>
     fetchJson<{ stats: AgentStats }>('/agent/stats'),
@@ -190,6 +205,10 @@ export const api = {
   exportHistory: (format: 'csv' = 'csv') =>
     downloadBlob(`${BASE}/agent/history/export?format=${format}`, `tipflow-history.${format}`),
 
+  // Receipt
+  getReceipt: (tipId: string) =>
+    fetchJson<{ receipt: TipReceipt }>(`/tip/${encodeURIComponent(tipId)}/receipt`),
+
   // Conditional Tips
   getConditions: () =>
     fetchJson<{ conditions: TipCondition[] }>('/conditions'),
@@ -214,4 +233,32 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ recipient, amount, token: token ?? 'native', message }),
     }),
+
+  // Webhooks
+  getWebhooks: () =>
+    fetchJson<{ webhooks: WebhookConfig[] }>('/webhooks'),
+
+  registerWebhook: (url: string, events: string[]) =>
+    fetchJson<{ webhook: WebhookConfig }>('/webhooks', {
+      method: 'POST',
+      body: JSON.stringify({ url, events }),
+    }),
+
+  deleteWebhook: (id: string) =>
+    fetchJson<{ deleted: boolean; id: string }>(`/webhooks/${id}`, {
+      method: 'DELETE',
+    }),
+
+  testWebhooks: () =>
+    fetchJson<{ sent: boolean; webhookCount: number }>('/webhooks/test', {
+      method: 'POST',
+    }),
+
+  // OpenAPI Docs
+  getOpenApiSpec: () =>
+    fetchJson<Record<string, unknown>>('/docs'),
+
+  // Network Health
+  getNetworkHealth: () =>
+    fetchJson<NetworkHealthResponse>('/network/health'),
 };

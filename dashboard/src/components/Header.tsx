@@ -1,4 +1,6 @@
 import { Activity, Zap, Github, Sun, Moon, Volume2, VolumeX, Keyboard } from 'lucide-react';
+import { NotificationCenter } from './NotificationCenter';
+import type { AppNotification } from './NotificationCenter';
 import type { HealthResponse } from '../types';
 
 interface HeaderProps {
@@ -8,9 +10,13 @@ interface HeaderProps {
   soundOn: boolean;
   onToggleSound: () => void;
   onShowShortcuts: () => void;
+  notifications: AppNotification[];
+  onMarkRead: (id: string) => void;
+  onMarkAllRead: () => void;
+  onClearAll: () => void;
 }
 
-export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, onShowShortcuts }: HeaderProps) {
+export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, onShowShortcuts, notifications, onMarkRead, onMarkAllRead, onClearAll }: HeaderProps) {
   return (
     <header className="border-b border-border header-gradient backdrop-blur-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
@@ -48,6 +54,12 @@ export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, o
               <span className="text-[10px] sm:text-[11px] text-error font-semibold">Offline</span>
             </div>
           )}
+          <NotificationCenter
+            notifications={notifications}
+            onMarkRead={onMarkRead}
+            onMarkAllRead={onMarkAllRead}
+            onClearAll={onClearAll}
+          />
           <button
             onClick={onShowShortcuts}
             className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-secondary hover:bg-surface-3 transition-all"

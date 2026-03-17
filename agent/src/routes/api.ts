@@ -6,16 +6,21 @@ import type { WalletService } from '../services/wallet.service.js';
 import type { AIService } from '../services/ai.service.js';
 import { ContactsService } from '../services/contacts.service.js';
 import { TemplatesService } from '../services/templates.service.js';
+import { WebhooksService } from '../services/webhooks.service.js';
 import type { ActivityEvent, ChatMessage, ChainId, ConditionType, TipRequest, TokenType, BatchTipRequest, SplitTipRequest } from '../types/index.js';
 import { logger } from '../utils/logger.js';
 import { transactionLimiter } from '../middleware/rateLimit.js';
 import { validateTipInput, validateBatchTipInput, validateChatInput, auditLog } from '../middleware/validate.js';
+import { getOpenApiSpec } from './openapi.js';
 
 /** Shared contacts service instance */
 const contacts = new ContactsService();
 
 /** Shared templates service instance */
 const templates = new TemplatesService();
+
+/** Shared webhooks service instance — exported for agent integration */
+export const webhooks = new WebhooksService();
 
 /** Create API router with injected dependencies */
 export function createApiRouter(
@@ -37,6 +42,63 @@ export function createApiRouter(
       chains: wallet.getRegisteredChains(),
       timestamp: new Date().toISOString(),
     });
+  });
+
+  /** GET /api/docs — OpenAPI 3.0 specification */
+  router.get('/docs', (_req, res) => {
+    res.json(getOpenApiSpec());
+  });
+
+  /** GET /api/network/health — Check connectivity to each registered chain */
+  router.get('/network/health', async (_req, res) => {
+    try {
+      const chainIds = wallet.getRegisteredChains();
+      const results = await Promise.all(
+        chainIds.map(async (chainId) => {
+          const config = wallet.getChainConfig(chainId);
+          const start = Date.now();
+
+          if (config.blockchain === 'ethereum') {
+            try {
+              const rpcUrl = config.rpcUrl
+                ?? process.env.ETH_SEPOLIA_RPC
+                ?? 'https://ethereum-sepolia-rpc.publicnode.com';
+              const provider = new JsonRpcProvider(rpcUrl);
+              const blockNumber = await provider.getBlockNumber();
+              const latencyMs = Date.now() - start;
+              const status = latencyMs > 2000 ? 'degraded' : 'healthy';
+              return { chainId, chainName: config.name, status, latencyMs, blockNumber };
+            } catch {
+              return { chainId, chainName: config.name, status: 'down' as const, latencyMs: Date.now() - start };
+            }
+          }
+
+          // TON: try a simple fetch to the TON API
+          try {
+            const tonApi = 'https://testnet.toncenter.com/api/v2/getMasterchainInfo';
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 5000);
+            const resp = await fetch(tonApi, { signal: controller.signal });
+            clearTimeout(timeout);
+            const latencyMs = Date.now() - start;
+            if (!resp.ok) {
+              return { chainId, chainName: config.name, status: 'down' as const, latencyMs };
+            }
+            const data = await resp.json() as { ok: boolean; result?: { last?: { seqno?: number } } };
+            const blockNumber = data?.result?.last?.seqno;
+            const status = latencyMs > 2000 ? 'degraded' : 'healthy';
+            return { chainId, chainName: config.name, status, latencyMs, blockNumber };
+          } catch {
+            return { chainId, chainName: config.name, status: 'down' as const, latencyMs: Date.now() - start };
+          }
+        }),
+      );
+
+      res.json({ chains: results });
+    } catch (err) {
+      logger.error('Network health check failed', { error: String(err) });
+      res.status(500).json({ error: 'Failed to check network health' });
+    }
   });
 
   /** GET /api/wallet/addresses — Get all wallet addresses */
@@ -281,6 +343,17 @@ export function createApiRouter(
     }
   });
 
+  /** GET /api/tip/:id/receipt — Generate a structured receipt for a completed tip */
+  router.get('/tip/:id/receipt', (req, res) => {
+    const { id } = req.params;
+    const receipt = agent.getReceipt(id);
+    if (!receipt) {
+      res.status(404).json({ error: 'Tip not found or receipt unavailable' });
+      return;
+    }
+    res.json({ receipt });
+  });
+
   /** GET /api/agent/state — Get current agent state */
   router.get('/agent/state', (_req, res) => {
     res.json({ state: agent.getState() });
@@ -327,9 +400,143 @@ export function createApiRouter(
     });
   });
 
-  /** GET /api/agent/history — Get tip history */
-  router.get('/agent/history', (_req, res) => {
-    res.json({ history: agent.getHistory() });
+  /** GET /api/gas/speeds — Get gas speed options (slow/normal/fast) with estimated fees */
+  router.get('/gas/speeds', async (_req, res) => {
+    try {
+      const chainIds = wallet.getRegisteredChains();
+      const speeds: Array<{
+        chainId: string;
+        chainName: string;
+        speeds: Array<{
+          level: 'slow' | 'normal' | 'fast';
+          label: string;
+          gasPriceGwei: string;
+          estimatedFee: string;
+          estimatedTime: string;
+        }>;
+      }> = [];
+
+      for (const chainId of chainIds) {
+        const config = wallet.getChainConfig(chainId);
+
+        if (config.blockchain === 'ethereum') {
+          try {
+            const rpcUrl = config.rpcUrl
+              ?? process.env.ETH_SEPOLIA_RPC
+              ?? 'https://ethereum-sepolia-rpc.publicnode.com';
+            const provider = new JsonRpcProvider(rpcUrl);
+            const feeData = await provider.getFeeData();
+            const baseFee = feeData.gasPrice ?? 0n;
+            const baseGwei = parseFloat(formatUnits(baseFee, 'gwei'));
+
+            // 21000 gas units for a simple transfer
+            const gasUnits = 21000n;
+
+            const slowPrice = baseFee * 80n / 100n;
+            const normalPrice = baseFee;
+            const fastPrice = baseFee * 150n / 100n;
+
+            const slowFee = slowPrice * gasUnits;
+            const normalFee = normalPrice * gasUnits;
+            const fastFee = fastPrice * gasUnits;
+
+            speeds.push({
+              chainId,
+              chainName: config.name,
+              speeds: [
+                {
+                  level: 'slow',
+                  label: 'Slow (save fees)',
+                  gasPriceGwei: (baseGwei * 0.8).toFixed(2),
+                  estimatedFee: `${parseFloat(formatUnits(slowFee, 'ether')).toFixed(6)} ETH`,
+                  estimatedTime: '~5-10 min',
+                },
+                {
+                  level: 'normal',
+                  label: 'Normal',
+                  gasPriceGwei: baseGwei.toFixed(2),
+                  estimatedFee: `${parseFloat(formatUnits(normalFee, 'ether')).toFixed(6)} ETH`,
+                  estimatedTime: '~1-3 min',
+                },
+                {
+                  level: 'fast',
+                  label: 'Fast (priority)',
+                  gasPriceGwei: (baseGwei * 1.5).toFixed(2),
+                  estimatedFee: `${parseFloat(formatUnits(fastFee, 'ether')).toFixed(6)} ETH`,
+                  estimatedTime: '~15-30 sec',
+                },
+              ],
+            });
+          } catch (err) {
+            logger.warn('Failed to fetch gas speeds for EVM chain', { chainId, error: String(err) });
+          }
+        } else {
+          // TON: fixed/low gas, speeds don't vary much
+          speeds.push({
+            chainId,
+            chainName: config.name,
+            speeds: [
+              { level: 'slow', label: 'Slow', gasPriceGwei: '0.005', estimatedFee: '~0.005 TON', estimatedTime: '~30 sec' },
+              { level: 'normal', label: 'Normal', gasPriceGwei: '0.01', estimatedFee: '~0.01 TON', estimatedTime: '~15 sec' },
+              { level: 'fast', label: 'Fast', gasPriceGwei: '0.02', estimatedFee: '~0.02 TON', estimatedTime: '~5 sec' },
+            ],
+          });
+        }
+      }
+
+      res.json({ speeds });
+    } catch (err) {
+      logger.error('Gas speed fetch failed', { error: String(err) });
+      res.status(500).json({ error: 'Failed to fetch gas speeds' });
+    }
+  });
+
+  /** GET /api/agent/history — Get tip history with optional filtering */
+  router.get('/agent/history', (req, res) => {
+    let history = agent.getHistory();
+
+    const search = (req.query.search as string)?.toLowerCase();
+    const chain = req.query.chain as string;
+    const status = req.query.status as string;
+    const dateFrom = req.query.dateFrom as string;
+    const dateTo = req.query.dateTo as string;
+
+    if (search) {
+      history = history.filter((h) =>
+        h.recipient.toLowerCase().includes(search) ||
+        h.txHash.toLowerCase().includes(search) ||
+        (h.chainId.startsWith('ethereum') ? 'ethereum' : 'ton').includes(search),
+      );
+    }
+
+    if (chain) {
+      history = history.filter((h) => {
+        if (chain === 'ethereum') return h.chainId.startsWith('ethereum');
+        if (chain === 'ton') return h.chainId.startsWith('ton');
+        return h.chainId === chain;
+      });
+    }
+
+    if (status && (status === 'confirmed' || status === 'failed')) {
+      history = history.filter((h) => h.status === status);
+    }
+
+    if (dateFrom) {
+      const from = new Date(dateFrom).getTime();
+      if (!isNaN(from)) {
+        history = history.filter((h) => new Date(h.createdAt).getTime() >= from);
+      }
+    }
+
+    if (dateTo) {
+      const to = new Date(dateTo).getTime();
+      if (!isNaN(to)) {
+        // Include the entire day for dateTo
+        history = history.filter((h) => new Date(h.createdAt).getTime() <= to + 86400000);
+      }
+    }
+
+    res.json({ history, total: agent.getHistory().length });
   });
 
   /** GET /api/agent/history/export — Export tip history as CSV */
@@ -1014,6 +1221,68 @@ export function createApiRouter(
       return;
     }
     res.json({ cancelled: true, id });
+  });
+
+  // ── Webhooks ──────────────────────────────────────────────────
+
+  /** GET /api/webhooks — List registered webhooks */
+  router.get('/webhooks', (_req, res) => {
+    res.json({ webhooks: webhooks.getWebhooks() });
+  });
+
+  /** POST /api/webhooks — Register a new webhook */
+  router.post('/webhooks', (req, res) => {
+    try {
+      const { url, events } = req.body as { url?: string; events?: string[] };
+
+      if (!url || typeof url !== 'string') {
+        res.status(400).json({ error: 'url is required and must be a string' });
+        return;
+      }
+
+      if (!events || !Array.isArray(events) || events.length === 0) {
+        res.status(400).json({ error: 'events array is required and must not be empty' });
+        return;
+      }
+
+      const validEvents = ['tip.sent', 'tip.failed', 'tip.scheduled', 'condition.triggered'];
+      const invalid = events.filter((e) => !validEvents.includes(e));
+      if (invalid.length > 0) {
+        res.status(400).json({ error: `Invalid events: ${invalid.join(', ')}. Valid: ${validEvents.join(', ')}` });
+        return;
+      }
+
+      const webhook = webhooks.registerWebhook(url, events);
+      res.json({ webhook });
+    } catch (err) {
+      logger.error('Failed to register webhook', { error: String(err) });
+      res.status(500).json({ error: 'Failed to register webhook' });
+    }
+  });
+
+  /** DELETE /api/webhooks/:id — Unregister a webhook */
+  router.delete('/webhooks/:id', (req, res) => {
+    const { id } = req.params;
+    const removed = webhooks.unregisterWebhook(id);
+    if (!removed) {
+      res.status(404).json({ error: 'Webhook not found' });
+      return;
+    }
+    res.json({ deleted: true, id });
+  });
+
+  /** POST /api/webhooks/test — Send a test event to all webhooks */
+  router.post('/webhooks/test', async (_req, res) => {
+    try {
+      await webhooks.fireWebhook('test', {
+        message: 'This is a test webhook event from TipFlow',
+        timestamp: new Date().toISOString(),
+      });
+      res.json({ sent: true, webhookCount: webhooks.getWebhooks().length });
+    } catch (err) {
+      logger.error('Webhook test failed', { error: String(err) });
+      res.status(500).json({ error: 'Failed to send test webhook' });
+    }
   });
 
   return router;

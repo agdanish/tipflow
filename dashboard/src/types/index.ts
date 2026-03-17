@@ -86,6 +86,7 @@ export interface TipResult {
   createdAt: string;
   confirmedAt?: string;
   error?: string;
+  retryCount?: number;
 }
 
 export interface TipHistoryEntry {
@@ -270,6 +271,7 @@ export type ActivityEventType =
   | 'batch_started'
   | 'condition_triggered'
   | 'condition_created'
+  | 'tip_retrying'
   | 'system';
 
 /** Activity event for real-time activity feed */
@@ -315,6 +317,16 @@ export interface SplitTipResult {
   failCount: number;
 }
 
+/** Webhook configuration for external notifications */
+export interface WebhookConfig {
+  id: string;
+  url: string;
+  events: string[];
+  createdAt: string;
+  lastTriggered?: string;
+  failCount: number;
+}
+
 /** Price data for currency conversion */
 export interface PriceData {
   prices: Record<string, number>;
@@ -334,6 +346,39 @@ export interface ChatMessage {
   };
 }
 
+/** Gas speed option for transaction speed selection */
+export interface GasSpeedOption {
+  level: 'slow' | 'normal' | 'fast';
+  label: string;
+  gasPriceGwei: string;
+  estimatedFee: string;
+  estimatedTime: string;
+}
+
+/** Gas speeds for a chain */
+export interface ChainGasSpeeds {
+  chainId: string;
+  chainName: string;
+  speeds: GasSpeedOption[];
+}
+
+/** Tip receipt for shareable/printable receipt */
+export interface TipReceipt {
+  receiptId: string;
+  timestamp: string;
+  from: string;
+  to: string;
+  amount: string;
+  token: string;
+  chain: string;
+  chainName: string;
+  txHash: string;
+  fee: string;
+  status: 'confirmed' | 'pending';
+  blockNumber?: number;
+  explorerUrl: string;
+}
+
 /** Wallet receive info for QR code display */
 export interface WalletReceiveInfo {
   chainId: ChainId;
@@ -342,4 +387,18 @@ export interface WalletReceiveInfo {
   qrCodeUrl: string;
   explorerUrl: string;
   nativeCurrency: string;
+}
+
+/** Network health status for a single chain */
+export interface NetworkHealthStatus {
+  chainId: string;
+  chainName: string;
+  status: 'healthy' | 'degraded' | 'down';
+  latencyMs: number;
+  blockNumber?: number;
+}
+
+/** Network health response from the API */
+export interface NetworkHealthResponse {
+  chains: NetworkHealthStatus[];
 }

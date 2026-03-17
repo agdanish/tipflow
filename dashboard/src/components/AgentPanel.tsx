@@ -1,8 +1,11 @@
-import { Brain, Cpu, Search, Rocket, CheckCircle2, Clock, Sparkles, TrendingDown, DollarSign } from 'lucide-react';
-import type { AgentState, FeeComparison } from '../types';
+import { Brain, Cpu, Search, Rocket, CheckCircle2, Clock, Sparkles, TrendingDown, DollarSign, RefreshCw, AlertTriangle } from 'lucide-react';
+import type { AgentState, FeeComparison, ActivityEvent } from '../types';
 
 interface AgentPanelProps {
   state: AgentState;
+  retryActivity?: ActivityEvent[];
+  onRetry?: () => void;
+  retrying?: boolean;
 }
 
 const PIPELINE_STEPS = [
@@ -26,7 +29,7 @@ function getStepState(
   return 'pending';
 }
 
-export function AgentPanel({ state }: AgentPanelProps) {
+export function AgentPanel({ state, retryActivity, onRetry, retrying }: AgentPanelProps) {
   const isActive = state.status !== 'idle';
 
   return (
@@ -262,9 +265,46 @@ export function AgentPanel({ state }: AgentPanelProps) {
         </div>
       )}
 
+      {/* Retry activity indicator */}
+      {retryActivity && retryActivity.length > 0 && (
+        <div className="mt-3 p-3 rounded-lg bg-warning/10 border border-warning/20 animate-fade-in">
+          <div className="flex items-center gap-2 mb-2">
+            <RefreshCw className={`w-3.5 h-3.5 text-warning ${retrying ? 'animate-spin' : ''}`} />
+            <span className="text-xs font-semibold text-warning uppercase tracking-wider">
+              Retrying Transaction
+            </span>
+          </div>
+          <div className="space-y-1">
+            {retryActivity.map((event) => (
+              <div key={event.id} className="flex items-start gap-2">
+                <AlertTriangle className="w-3 h-3 text-warning mt-0.5 shrink-0" />
+                <div>
+                  <span className="text-xs text-text-secondary">{event.message}</span>
+                  {event.detail && (
+                    <span className="text-[10px] text-text-muted ml-1.5">{event.detail}</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {state.lastError && (
         <div className="p-3 rounded-lg bg-error/10 border border-error/20 mt-3 animate-fade-in">
-          <p className="text-xs text-error font-medium">{state.lastError}</p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-xs text-error font-medium flex-1">{state.lastError}</p>
+            {onRetry && (
+              <button
+                onClick={onRetry}
+                disabled={retrying}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-error/20 text-error text-xs font-medium hover:bg-error/30 transition-colors disabled:opacity-50 shrink-0"
+              >
+                <RefreshCw className={`w-3 h-3 ${retrying ? 'animate-spin' : ''}`} />
+                {retrying ? 'Retrying...' : 'Retry'}
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>

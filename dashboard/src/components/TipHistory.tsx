@@ -1,20 +1,104 @@
-import { History, ExternalLink, CheckCircle2, XCircle, Brain, ChevronDown, Layers, Fuel, Download, Share2, Check } from 'lucide-react';
-import type { TipHistoryEntry } from '../types';
+import { History, ExternalLink, CheckCircle2, XCircle, Brain, ChevronDown, Layers, Fuel, Download, Share2, Check, Search, X, BarChart3, TrendingUp, Percent, Coins, Receipt } from 'lucide-react';
+import type { TipHistoryEntry, TipReceipt } from '../types';
 import { shortenAddress, timeAgo, chainColor, formatNumber } from '../lib/utils';
 import { api } from '../lib/api';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { EmptyState } from './EmptyState';
 import { TipHistorySkeleton } from './Skeleton';
+import { TipReceiptModal } from './TipReceipt';
 
 interface TipHistoryProps {
   history: TipHistoryEntry[];
   loading: boolean;
 }
 
+type ChainFilter = 'all' | 'ethereum' | 'ton';
+type StatusFilter = 'all' | 'confirmed' | 'failed';
+
 export function TipHistory({ history, loading }: TipHistoryProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [receiptData, setReceiptData] = useState<TipReceipt | null>(null);
+  const [loadingReceipt, setLoadingReceipt] = useState<string | null>(null);
+
+  // Search & filter state
+  const [search, setSearch] = useState('');
+  const [chainFilter, setChainFilter] = useState<ChainFilter>('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+
+  const hasActiveFilters = search || chainFilter !== 'all' || statusFilter !== 'all' || dateFrom || dateTo;
+
+  const clearFilters = () => {
+    setSearch('');
+    setChainFilter('all');
+    setStatusFilter('all');
+    setDateFrom('');
+    setDateTo('');
+  };
+
+  // Client-side filtering (real-time as user types)
+  const filtered = useMemo(() => {
+    let result = history;
+
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter((h) =>
+        h.recipient.toLowerCase().includes(q) ||
+        h.txHash.toLowerCase().includes(q) ||
+        (h.chainId.startsWith('ethereum') ? 'ethereum' : 'ton').includes(q),
+      );
+    }
+
+    if (chainFilter !== 'all') {
+      result = result.filter((h) => {
+        if (chainFilter === 'ethereum') return h.chainId.startsWith('ethereum');
+        return h.chainId.startsWith('ton');
+      });
+    }
+
+    if (statusFilter !== 'all') {
+      result = result.filter((h) => h.status === statusFilter);
+    }
+
+    if (dateFrom) {
+      const from = new Date(dateFrom).getTime();
+      if (!isNaN(from)) {
+        result = result.filter((h) => new Date(h.createdAt).getTime() >= from);
+      }
+    }
+
+    if (dateTo) {
+      const to = new Date(dateTo).getTime();
+      if (!isNaN(to)) {
+        result = result.filter((h) => new Date(h.createdAt).getTime() <= to + 86400000);
+      }
+    }
+
+    return result;
+  }, [history, search, chainFilter, statusFilter, dateFrom, dateTo]);
+
+  // Stats computed from full history
+  const stats = useMemo(() => {
+    if (history.length === 0) return null;
+    const confirmed = history.filter((h) => h.status === 'confirmed');
+    const totalVolume = confirmed.reduce((sum, h) => sum + parseFloat(h.amount || '0'), 0);
+    const totalFees = confirmed.reduce((sum, h) => {
+      const feeNum = parseFloat(h.fee?.replace(/[^0-9.]/g, '') || '0');
+      return sum + (isNaN(feeNum) ? 0 : feeNum);
+    }, 0);
+    const successRate = history.length > 0
+      ? Math.round((confirmed.length / history.length) * 100)
+      : 0;
+    return {
+      totalTips: history.length,
+      totalVolume,
+      successRate,
+      avgFee: confirmed.length > 0 ? totalFees / confirmed.length : 0,
+    };
+  }, [history]);
 
   const handleExport = async () => {
     setExporting(true);
@@ -57,6 +141,18 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
     }
   };
 
+  const handleReceipt = async (entry: TipHistoryEntry) => {
+    setLoadingReceipt(entry.id);
+    try {
+      const { receipt } = await api.getReceipt(entry.id);
+      setReceiptData(receipt);
+    } catch (err) {
+      console.error('Failed to load receipt:', err);
+    } finally {
+      setLoadingReceipt(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
@@ -71,7 +167,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
 
   return (
     <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
-      <h2 className="text-base font-semibold text-text-primary mb-4 flex items-center gap-2">
+      <h2 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
         <History className="w-4 h-4 text-accent" />
         Transaction History
         {history.length > 0 && (
@@ -92,11 +188,155 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
         )}
       </h2>
 
+      {/* Stats Summary Bar */}
+      {stats && stats.totalTips > 0 && (
+        <div className="grid grid-cols-4 gap-2 mb-3">
+          <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-surface-2 border border-border">
+            <BarChart3 className="w-3 h-3 text-accent shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[9px] text-text-muted uppercase tracking-wider leading-none">Tips</p>
+              <p className="text-xs font-semibold text-text-primary">{stats.totalTips}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-surface-2 border border-border">
+            <TrendingUp className="w-3 h-3 text-green-400 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[9px] text-text-muted uppercase tracking-wider leading-none">Volume</p>
+              <p className="text-xs font-semibold text-text-primary">{formatNumber(stats.totalVolume)}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-surface-2 border border-border">
+            <Percent className="w-3 h-3 text-blue-400 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[9px] text-text-muted uppercase tracking-wider leading-none">Success</p>
+              <p className="text-xs font-semibold text-text-primary">{stats.successRate}%</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-surface-2 border border-border">
+            <Coins className="w-3 h-3 text-amber-400 shrink-0" />
+            <div className="min-w-0">
+              <p className="text-[9px] text-text-muted uppercase tracking-wider leading-none">Avg Fee</p>
+              <p className="text-xs font-semibold text-text-primary">{stats.avgFee.toFixed(6)}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Search & Filters */}
+      {history.length > 0 && (
+        <div className="space-y-2 mb-3">
+          {/* Search bar */}
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by address, tx hash, or chain..."
+              className="w-full pl-8 pr-3 py-2 rounded-lg bg-surface-2 border border-border text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border focus:ring-1 focus:ring-accent-border transition-colors"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Filter chips row */}
+          <div className="flex flex-wrap items-center gap-1.5">
+            {/* Chain filters */}
+            {(['all', 'ethereum', 'ton'] as ChainFilter[]).map((f) => (
+              <button
+                key={f}
+                onClick={() => setChainFilter(f)}
+                className={`px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ${
+                  chainFilter === f
+                    ? 'border-accent bg-accent-dim text-accent'
+                    : 'border-border bg-surface-2 text-text-muted hover:text-text-secondary hover:border-border-light'
+                }`}
+              >
+                {f === 'all' ? 'All Chains' : f === 'ethereum' ? 'Ethereum' : 'TON'}
+              </button>
+            ))}
+
+            <span className="w-px h-4 bg-border mx-0.5" />
+
+            {/* Status filters */}
+            {(['all', 'confirmed', 'failed'] as StatusFilter[]).map((f) => (
+              <button
+                key={f}
+                onClick={() => setStatusFilter(f)}
+                className={`px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ${
+                  statusFilter === f
+                    ? f === 'confirmed'
+                      ? 'border-green-500/50 bg-green-500/10 text-green-400'
+                      : f === 'failed'
+                        ? 'border-red-500/50 bg-red-500/10 text-red-400'
+                        : 'border-accent bg-accent-dim text-accent'
+                    : 'border-border bg-surface-2 text-text-muted hover:text-text-secondary hover:border-border-light'
+                }`}
+              >
+                {f === 'all' ? 'All Status' : f === 'confirmed' ? 'Success' : 'Failed'}
+              </button>
+            ))}
+          </div>
+
+          {/* Date range */}
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="flex-1 px-2 py-1.5 rounded-md bg-surface-2 border border-border text-[11px] text-text-primary focus:outline-none focus:border-accent-border transition-colors"
+              placeholder="From"
+            />
+            <span className="text-[10px] text-text-muted">to</span>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="flex-1 px-2 py-1.5 rounded-md bg-surface-2 border border-border text-[11px] text-text-primary focus:outline-none focus:border-accent-border transition-colors"
+              placeholder="To"
+            />
+          </div>
+
+          {/* Result count + clear */}
+          {hasActiveFilters && (
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-text-muted">
+                {filtered.length} of {history.length} tip{history.length !== 1 ? 's' : ''}
+              </span>
+              <button
+                onClick={clearFilters}
+                className="flex items-center gap-1 text-[10px] text-accent hover:text-accent-light transition-colors"
+              >
+                <X className="w-3 h-3" />
+                Clear filters
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {history.length === 0 ? (
         <EmptyState variant="no-tips" />
+      ) : filtered.length === 0 ? (
+        <div className="py-8 text-center">
+          <Search className="w-8 h-8 text-text-muted mx-auto mb-2 opacity-50" />
+          <p className="text-sm text-text-muted">No tips match your filters</p>
+          <button
+            onClick={clearFilters}
+            className="mt-2 text-xs text-accent hover:text-accent-light transition-colors"
+          >
+            Clear filters
+          </button>
+        </div>
       ) : (
         <div className="space-y-2">
-          {history.map((entry) => {
+          {filtered.map((entry) => {
             const isExpanded = expandedId === entry.id;
             const explorerBase = entry.chainId.startsWith('ethereum')
               ? 'https://sepolia.etherscan.io/tx/'
@@ -213,6 +453,15 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                           <span className="text-text-muted">TX:</span>
                           <span className="text-text-secondary font-mono truncate flex-1">{entry.txHash}</span>
                           <button
+                            onClick={() => handleReceipt(entry)}
+                            disabled={loadingReceipt === entry.id}
+                            className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-text-muted hover:text-accent bg-surface-3 hover:bg-surface-3/80 rounded-md transition-colors shrink-0 disabled:opacity-50"
+                            title="View receipt"
+                          >
+                            <Receipt className={`w-3 h-3 ${loadingReceipt === entry.id ? 'animate-pulse' : ''}`} />
+                            Receipt
+                          </button>
+                          <button
                             onClick={() => handleShare(entry)}
                             className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-text-muted hover:text-accent bg-surface-3 hover:bg-surface-3/80 rounded-md transition-colors shrink-0"
                             title="Copy share text to clipboard"
@@ -238,6 +487,14 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
             );
           })}
         </div>
+      )}
+
+      {/* Receipt Modal */}
+      {receiptData && (
+        <TipReceiptModal
+          receipt={receiptData}
+          onClose={() => setReceiptData(null)}
+        />
       )}
     </div>
   );

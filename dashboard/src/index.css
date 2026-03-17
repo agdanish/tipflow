@@ -447,3 +447,54 @@ html.light .onboarding-card {
 .animate-voice-bar2 { animation: voice-bar-2 0.7s ease-in-out infinite; }
 .animate-voice-bar3 { animation: voice-bar-3 0.9s ease-in-out infinite; }
 .animate-voice-bar4 { animation: voice-bar-4 0.6s ease-in-out infinite; }
+
+/* --- NOTIFICATION CENTER --- */
+
+/* Badge bounce-in */
+@keyframes bounce-in {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.animate-bounce-in {
+  animation: bounce-in 0.3s ease-out both;
+}
+
+/* --- PRINT STYLES FOR RECEIPTS --- */
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* Hide everything except the receipt */
+  body > *:not(.fixed) {
+    display: none !important;
+  }
+
+  /* Show the receipt modal */
+  .fixed {
+    position: static !important;
+    background: transparent !important;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .print\:shadow-none {
+    box-shadow: none !important;
+  }
+
+  .print\:border-0 {
+    border: none !important;
+  }
+
+  .print\:rounded-none {
+    border-radius: 0 !important;
+  }
+
+  .print\:max-w-none {
+    max-width: none !important;
+  }
+}

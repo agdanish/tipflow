@@ -22,10 +22,16 @@ import { OnboardingOverlay, isOnboardingComplete, resetOnboarding } from './comp
 import { ChatInterface } from './components/ChatInterface';
 import { SecurityStatus } from './components/SecurityStatus';
 import { ConditionalTips } from './components/ConditionalTips';
+import { WebhookManager } from './components/WebhookManager';
+import { InstallPrompt } from './components/InstallPrompt';
+import { ApiDocs } from './components/ApiDocs';
+import { NetworkHealth } from './components/NetworkHealth';
+import { useNotifications } from './components/NotificationCenter';
+import { WalletBackup } from './components/WalletBackup';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { api } from './lib/api';
-import { playSuccess, playError, isSoundEnabled, setSoundEnabled } from './lib/sounds';
+import { playSuccess, playError, playNotification, isSoundEnabled, setSoundEnabled } from './lib/sounds';
 import type { TipResult, ScheduledTip, LeaderboardEntry, Achievement, TipTemplate, SplitTipResult } from './types';
 import { Wallet, Send, Users, Scissors, CalendarClock, X, Clock, CheckCircle2, XCircle, Repeat } from 'lucide-react';
 
@@ -36,6 +42,7 @@ function App() {
   const { history, loading: historyLoading, refresh: refreshHistory } = useHistory();
   const { stats, refresh: refreshStats } = useStats();
   const { toasts, addToast, dismissToast } = useToasts();
+  const { notifications, pushNotification, markRead, markAllRead, clearAll } = useNotifications();
   const [tipMode, setTipMode] = useState<'single' | 'batch' | 'split'>('single');
   const [scheduledTips, setScheduledTips] = useState<ScheduledTip[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -95,6 +102,49 @@ function App() {
       Notification.requestPermission();
     }
   }, []);
+
+  // SSE activity stream -> push to notification center
+  useEffect(() => {
+    let es: EventSource | null = null;
+
+    const connect = () => {
+      es = new EventSource('/api/activity/stream');
+
+      es.onmessage = (msg) => {
+        try {
+          const data = JSON.parse(msg.data);
+          if (data.type === 'activity' && data.event) {
+            const evt = data.event as { type: string; message: string; detail?: string };
+            if (evt.type === 'tip_sent') {
+              pushNotification('tip_sent', evt.message, evt.detail);
+              playNotification();
+            } else if (evt.type === 'tip_failed') {
+              pushNotification('tip_failed', evt.message, evt.detail);
+              playNotification();
+            } else if (evt.type === 'condition_triggered') {
+              pushNotification('condition_triggered', evt.message, evt.detail);
+              playNotification();
+            } else if (evt.type === 'tip_scheduled') {
+              pushNotification('scheduled_executed', evt.message, evt.detail);
+            }
+          }
+        } catch {
+          // Ignore parse errors
+        }
+      };
+
+      es.onerror = () => {
+        es?.close();
+        setTimeout(connect, 5000);
+      };
+    };
+
+    connect();
+
+    return () => {
+      es?.close();
+    };
+  }, [pushNotification]);
 
   const refreshScheduledTips = useCallback(async () => {
     try {
@@ -159,6 +209,7 @@ function App() {
     if (result.status === 'confirmed') {
       const msg = `${result.amount} ${result.token === 'usdt' ? 'USDT' : ''} sent to ${result.to.slice(0, 10)}... on ${result.chainId}`;
       addToast('success', 'Tip Sent!', msg);
+      pushNotification('tip_sent', msg, `TX: ${result.txHash.slice(0, 16)}...`);
       playSuccess();
       // Browser notification
       if ('Notification' in window && Notification.permission === 'granted') {
@@ -168,7 +219,9 @@ function App() {
         });
       }
     } else {
-      addToast('error', 'Tip Failed', result.error ?? 'Transaction failed');
+      const errMsg = result.error ?? 'Transaction failed';
+      addToast('error', 'Tip Failed', errMsg);
+      pushNotification('tip_failed', errMsg);
       playError();
     }
     refreshBalances();
@@ -183,6 +236,7 @@ function App() {
     if (succeeded > 0) {
       const msg = `${succeeded}/${results.length} tips sent successfully`;
       addToast('success', 'Batch Complete', msg);
+      pushNotification('tip_sent', `Batch: ${msg}`);
       playSuccess();
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification('TipFlow — Batch Complete', {
@@ -192,6 +246,7 @@ function App() {
       }
     } else {
       addToast('error', 'Batch Failed', 'All tips in the batch failed');
+      pushNotification('tip_failed', 'Batch failed: all tips failed');
       playError();
     }
     refreshBalances();
@@ -205,6 +260,7 @@ function App() {
     if (result.successCount > 0) {
       const msg = `${result.successCount}/${result.results.length} split tips sent (total: ${result.totalAmount})`;
       addToast('success', 'Split Complete', msg);
+      pushNotification('tip_sent', `Split: ${msg}`);
       playSuccess();
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification('TipFlow — Split Complete', {
@@ -214,6 +270,7 @@ function App() {
       }
     } else {
       addToast('error', 'Split Failed', 'All split tips failed');
+      pushNotification('tip_failed', 'Split failed: all tips failed');
       playError();
     }
     refreshBalances();
@@ -233,7 +290,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-surface">
-      <Header health={health} theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} onShowShortcuts={() => setShowShortcuts(true)} />
+      <Header health={health} theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} onShowShortcuts={() => setShowShortcuts(true)} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onClearAll={clearAll} />
 
       <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Wallets */}
@@ -255,13 +312,17 @@ function App() {
               ))}
             </div>
           )}
+          <div className="mt-4">
+            <WalletBackup totalTransactions={stats?.totalTips ?? 0} />
+          </div>
         </section>
 
-        {/* Gas Price Monitor + Currency Converter + Security */}
-        <section className="mb-4 sm:mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Gas Price Monitor + Currency Converter + Security + Network Health */}
+        <section className="mb-4 sm:mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <GasMonitor />
           <CurrencyConverter />
           <SecurityStatus />
+          <NetworkHealth />
         </section>
 
         {/* Main grid: Tip Form + Agent | History + Stats */}
@@ -328,6 +389,7 @@ function App() {
               <DecisionTree decision={agentState.currentDecision} agentStatus={agentState.status} />
             )}
             <ConditionalTips />
+            <WebhookManager />
             <ActivityFeed />
             <QRReceive />
           </div>
@@ -412,6 +474,11 @@ function App() {
           </div>
         </div>
 
+        {/* API Documentation (collapsible) */}
+        <section className="mt-6">
+          <ApiDocs />
+        </section>
+
         {/* Footer */}
         <footer className="mt-12 pb-6 text-center">
           <p className="text-xs text-text-muted">
@@ -430,6 +497,7 @@ function App() {
       </main>
 
       <ChatInterface />
+      <InstallPrompt />
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       <KeyboardShortcutsModal open={showShortcuts} onClose={() => setShowShortcuts(false)} />
 

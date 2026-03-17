@@ -116,6 +116,7 @@ export interface TipResult {
   blockNumber?: number;
   gasUsed?: string;
   error?: string;
+  retryCount?: number;
 }
 
 /** Dashboard state */
@@ -242,6 +243,7 @@ export type ActivityEventType =
   | 'batch_started'
   | 'condition_triggered'
   | 'condition_created'
+  | 'tip_retrying'
   | 'system';
 
 /** Activity event for real-time activity feed */
@@ -313,6 +315,41 @@ export interface ChatMessage {
 export interface ChatIntent {
   intent: 'tip' | 'balance' | 'fees' | 'address' | 'help' | 'history' | 'unknown';
   params: Record<string, string>;
+}
+
+/** Webhook configuration for external notifications */
+export interface WebhookConfig {
+  id: string;
+  url: string;
+  events: string[]; // 'tip.sent', 'tip.failed', 'tip.scheduled', 'condition.triggered'
+  createdAt: string;
+  lastTriggered?: string;
+  failCount: number;
+}
+
+/** Tip receipt for shareable/printable receipt */
+export interface TipReceipt {
+  receiptId: string;
+  timestamp: string;
+  from: string;
+  to: string;
+  amount: string;
+  token: string;
+  chain: string;
+  chainName: string;
+  txHash: string;
+  fee: string;
+  status: 'confirmed' | 'pending';
+  blockNumber?: number;
+  explorerUrl: string;
+}
+
+/** Retry information for failed transactions */
+export interface RetryInfo {
+  attempt: number;
+  maxRetries: number;
+  lastError: string;
+  nextRetryIn?: number;
 }
 
 /** Agent stats for dashboard */

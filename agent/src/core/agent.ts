@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { WalletService } from '../services/wallet.service.js';
 import { AIService } from '../services/ai.service.js';
 import { ConditionsService } from '../services/conditions.service.js';
+import { WebhooksService } from '../services/webhooks.service.js';
 import { logger } from '../utils/logger.js';
 import type {
   Achievement,
@@ -21,6 +22,7 @@ import type {
   SplitTipResult,
   TipCondition,
   TipHistoryEntry,
+  TipReceipt,
   TipRequest,
   TipResult,
   TokenType,
@@ -48,6 +50,8 @@ export class TipFlowAgent {
   private schedulerInterval: ReturnType<typeof setInterval> | null = null;
   private activityLog: ActivityEvent[] = [];
   private activityListeners: Array<(event: ActivityEvent) => void> = [];
+  private webhooksService: WebhooksService | null = null;
+  private tipResults: Map<string, TipResult> = new Map();
   private static readonly MAX_ACTIVITY = 100;
 
   // Achievement tracking state (in-memory)
@@ -63,6 +67,11 @@ export class TipFlowAgent {
     this.conditions = new ConditionsService(wallet);
     this.startScheduler();
     this.addActivity({ type: 'system', message: 'TipFlow agent initialized', detail: `Chains: ${wallet.getRegisteredChains().join(', ')}` });
+  }
+
+  /** Set the webhooks service for firing webhook events on tip completion */
+  setWebhooksService(service: WebhooksService): void {
+    this.webhooksService = service;
   }
 
   /** Start the background scheduler that checks for due tips and conditions every 10 seconds */
@@ -170,6 +179,18 @@ export class TipFlowAgent {
     const recurLabel = tip.recurring ? ` (recurring ${tip.interval})` : '';
     logger.info('Tip scheduled', { id, recipient: tip.recipient, scheduledAt, recurring: tip.recurring, interval: tip.interval });
     this.addActivity({ type: 'tip_scheduled', message: `Tip scheduled for ${new Date(scheduledAt).toLocaleString()}${recurLabel}`, detail: `${request.amount} to ${request.recipient.slice(0, 10)}...` });
+
+    // Fire webhook for scheduled tip
+    this.webhooksService?.fireWebhook('tip.scheduled', {
+      tipId: id,
+      recipient: tip.recipient,
+      amount: tip.amount,
+      token: tip.token,
+      scheduledAt,
+      recurring: tip.recurring ?? false,
+      interval: tip.interval,
+    }).catch((err) => logger.warn('Webhook fire failed', { error: String(err) }));
+
     return tip;
   }
 
@@ -230,6 +251,14 @@ export class TipFlowAgent {
         message: `Condition "${condition.type}" triggered — executing tip`,
         detail: `${condition.tip.amount} ${condition.tip.token} to ${condition.tip.recipient.slice(0, 10)}...`,
       });
+
+      // Fire webhook for condition triggered
+      this.webhooksService?.fireWebhook('condition.triggered', {
+        conditionId: condition.id,
+        type: condition.type,
+        params: condition.params,
+        tip: condition.tip,
+      }).catch((err) => logger.warn('Webhook fire failed', { error: String(err) }));
 
       const request: TipRequest = {
         id: uuidv4(),
@@ -374,11 +403,60 @@ export class TipFlowAgent {
       this.addActivity({ type: 'chain_selected', message: `Selected ${decision.selectedChain} (${decision.confidence}% confidence)`, chainId: decision.selectedChain });
       this.setState({ currentDecision: decision });
 
-      // Step 4: EXECUTE
+      // Step 4: EXECUTE (with auto-retry on failure)
       this.setState({ status: 'executing' });
       addStep('EXECUTE', `Sending ${request.amount} ${tokenLabel} on ${decision.selectedChain}...`);
-      const txResult = await this.executeTransaction(decision.selectedChain, request, token);
-      addStep('EXECUTE', `Transaction sent: ${txResult.hash}`);
+
+      let txResult: { hash: string; fee: string } = { hash: '', fee: '0' };
+      let retryCount = 0;
+      const maxAutoRetries = 2;
+
+      try {
+        txResult = await this.executeTransaction(decision.selectedChain, request, token);
+      } catch (execErr) {
+        // Auto-retry up to 2 times on transaction failure
+        const execError = execErr instanceof Error ? execErr.message : String(execErr);
+        addStep('EXECUTE', `Transaction failed: ${execError}. Retrying...`);
+        this.addActivity({ type: 'tip_retrying', message: `Transaction failed, retrying...`, detail: `Attempt 1 failed: ${execError}` });
+
+        let lastExecErr = execErr;
+        let succeeded = false;
+        for (let attempt = 1; attempt <= maxAutoRetries; attempt++) {
+          retryCount = attempt;
+          const backoffMs = Math.pow(2, attempt) * 1000;
+          addStep('EXECUTE', `Retry ${attempt}/${maxAutoRetries} — waiting ${backoffMs / 1000}s...`);
+          this.addActivity({
+            type: 'tip_retrying',
+            message: `Retry attempt ${attempt}/${maxAutoRetries}`,
+            detail: `Waiting ${backoffMs / 1000}s before retry`,
+            chainId: decision.selectedChain,
+          });
+          await new Promise((r) => setTimeout(r, backoffMs));
+
+          try {
+            txResult = await this.executeTransaction(decision.selectedChain, request, token);
+            addStep('EXECUTE', `Retry ${attempt} succeeded: ${txResult.hash}`);
+            succeeded = true;
+            break;
+          } catch (retryErr) {
+            lastExecErr = retryErr;
+            const retryError = retryErr instanceof Error ? retryErr.message : String(retryErr);
+            addStep('EXECUTE', `Retry ${attempt} failed: ${retryError}`);
+            this.addActivity({
+              type: 'tip_retrying',
+              message: `Retry ${attempt} failed`,
+              detail: retryError,
+              chainId: decision.selectedChain,
+            });
+          }
+        }
+
+        if (!succeeded) {
+          throw lastExecErr;
+        }
+      }
+
+      addStep('EXECUTE', `Transaction sent: ${txResult!.hash}${retryCount > 0 ? ` (after ${retryCount} retries)` : ''}`);
 
       // Step 5: VERIFY
       this.setState({ status: 'confirming' });
@@ -403,27 +481,45 @@ export class TipFlowAgent {
         tipId,
         status: confirmation.confirmed ? 'confirmed' : 'pending',
         chainId: decision.selectedChain,
-        txHash: txResult.hash,
+        txHash: txResult!.hash,
         from: (await this.wallet.getAddress(decision.selectedChain)),
         to: request.recipient,
         amount: request.amount,
         token,
-        fee: txResult.fee,
+        fee: txResult!.fee,
         explorerUrl,
         decision,
         createdAt: request.createdAt,
         confirmedAt: confirmation.confirmed ? new Date().toISOString() : undefined,
         blockNumber: confirmation.confirmed ? confirmation.blockNumber : undefined,
         gasUsed: confirmation.confirmed ? confirmation.gasUsed : undefined,
+        retryCount: retryCount > 0 ? retryCount : undefined,
       };
+
+      // Store result for receipt generation
+      this.tipResults.set(result.tipId, result);
 
       this.addActivity({
         type: 'tip_sent',
         message: `Tip ${confirmation.confirmed ? 'confirmed' : 'sent'}: ${request.amount} ${tokenLabel} to ${request.recipient.slice(0, 10)}...`,
-        detail: `tx: ${txResult.hash.slice(0, 14)}... | block #${confirmation.blockNumber ?? 'pending'}`,
+        detail: `tx: ${txResult!.hash.slice(0, 14)}... | block #${confirmation.blockNumber ?? 'pending'}`,
         chainId: decision.selectedChain,
       });
       this.recordHistory(result, decision.reasoning);
+
+      // Fire webhook for successful tip
+      this.webhooksService?.fireWebhook('tip.sent', {
+        tipId: result.tipId,
+        txHash: result.txHash,
+        from: result.from,
+        to: result.to,
+        amount: result.amount,
+        token: result.token,
+        chainId: result.chainId,
+        fee: result.fee,
+        explorerUrl: result.explorerUrl,
+        blockNumber: result.blockNumber,
+      }).catch((err) => logger.warn('Webhook fire failed', { error: String(err) }));
       if (decision.feeSavings) {
         addStep('REPORT', `Fee savings: you saved ${decision.feeSavings} by using ${decision.selectedChain}`);
       }
@@ -437,6 +533,15 @@ export class TipFlowAgent {
       const errorMsg = this.friendlyError(rawError);
       logger.error('Tip execution failed', { tipId, error: rawError });
       this.addActivity({ type: 'tip_failed', message: `Tip failed: ${errorMsg}`, detail: request.recipient.slice(0, 10) + '...' });
+
+      // Fire webhook for failed tip
+      this.webhooksService?.fireWebhook('tip.failed', {
+        tipId,
+        recipient: request.recipient,
+        amount: request.amount,
+        token,
+        error: errorMsg,
+      }).catch((wErr) => logger.warn('Webhook fire failed', { error: String(wErr) }));
 
       const result: TipResult = {
         id: uuidv4(),
@@ -791,6 +896,66 @@ export class TipFlowAgent {
       createdAt: result.createdAt,
       reasoning,
     });
+  }
+
+  /** Get a stored tip result by tipId */
+  getTipResult(tipId: string): TipResult | undefined {
+    return this.tipResults.get(tipId);
+  }
+
+  /** Generate a receipt for a completed tip */
+  getReceipt(tipId: string): TipReceipt | undefined {
+    // Check stored results first
+    const result = this.tipResults.get(tipId);
+    if (result) {
+      const chainNames: Record<string, string> = {
+        'ethereum-sepolia': 'Ethereum Sepolia',
+        'ton-testnet': 'TON Testnet',
+        'ethereum-sepolia-gasless': 'Ethereum Sepolia (Gasless)',
+        'ton-testnet-gasless': 'TON Testnet (Gasless)',
+      };
+      const tokenLabel = result.token === 'usdt' ? 'USDT' : result.chainId.startsWith('ethereum') ? 'ETH' : 'TON';
+      return {
+        receiptId: `RCP-${result.tipId.slice(0, 8).toUpperCase()}`,
+        timestamp: result.confirmedAt ?? result.createdAt,
+        from: result.from,
+        to: result.to,
+        amount: `${result.amount} ${tokenLabel}`,
+        token: tokenLabel,
+        chain: result.chainId,
+        chainName: chainNames[result.chainId] ?? result.chainId,
+        txHash: result.txHash,
+        fee: result.fee,
+        status: result.status === 'confirmed' ? 'confirmed' : 'pending',
+        blockNumber: result.blockNumber,
+        explorerUrl: result.explorerUrl,
+      };
+    }
+
+    // Fall back to history lookup
+    const entry = this.history.find((h) => h.id === tipId);
+    if (!entry) return undefined;
+
+    const isEth = entry.chainId.startsWith('ethereum');
+    const tokenLabel = entry.token === 'usdt' ? 'USDT' : isEth ? 'ETH' : 'TON';
+    const explorerBase = isEth
+      ? 'https://sepolia.etherscan.io/tx/'
+      : 'https://testnet.tonviewer.com/transaction/';
+
+    return {
+      receiptId: `RCP-${tipId.slice(0, 8).toUpperCase()}`,
+      timestamp: entry.createdAt,
+      from: '',
+      to: entry.recipient,
+      amount: `${entry.amount} ${tokenLabel}`,
+      token: tokenLabel,
+      chain: entry.chainId,
+      chainName: isEth ? 'Ethereum Sepolia' : 'TON Testnet',
+      txHash: entry.txHash,
+      fee: entry.fee,
+      status: entry.status === 'confirmed' ? 'confirmed' : 'pending',
+      explorerUrl: `${explorerBase}${entry.txHash}`,
+    };
   }
 
   /** Get tip history */

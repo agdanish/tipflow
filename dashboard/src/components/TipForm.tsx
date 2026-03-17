@@ -3,6 +3,8 @@ import { Send, Loader2, AlertCircle, Coins, Sparkles, Wand2, Clock, CalendarCloc
 import { api } from '../lib/api';
 import { VoiceButton } from './VoiceButton';
 import { GaslessToggle } from './GaslessToggle';
+import { SpeedSelector } from './SpeedSelector';
+import type { SpeedLevel } from './SpeedSelector';
 import type { ChainId, TokenType, TipResult, Contact, TipTemplate } from '../types';
 
 interface TipFormProps {
@@ -23,6 +25,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
   const [error, setError] = useState<string | null>(null);
   const [gaslessMode, setGaslessMode] = useState(false);
   const [gaslessResult, setGaslessResult] = useState<{ gasless: boolean; fee: string } | null>(null);
+  const [speed, setSpeed] = useState<SpeedLevel>('normal');
 
   // Schedule state
   const [scheduleMode, setScheduleMode] = useState(false);
@@ -468,6 +471,16 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
             ))}
           </div>
         </div>
+
+        {/* Transaction Speed Selector */}
+        {!gaslessMode && !scheduleMode && (
+          <SpeedSelector
+            selectedSpeed={speed}
+            onSpeedChange={setSpeed}
+            disabled={sending || disabled}
+            chainFilter={chain || undefined}
+          />
+        )}
 
         <div>
           <label className="block text-xs text-text-secondary mb-1.5">
