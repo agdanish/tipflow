@@ -1,4 +1,4 @@
-import { Brain, Cpu, Search, Rocket, CheckCircle2, Clock, Sparkles, TrendingDown, DollarSign, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Brain, Cpu, Search, Rocket, CheckCircle2, Sparkles, TrendingDown, DollarSign, RefreshCw, AlertTriangle } from 'lucide-react';
 import type { AgentState, FeeComparison, ActivityEvent } from '../types';
 
 interface AgentPanelProps {

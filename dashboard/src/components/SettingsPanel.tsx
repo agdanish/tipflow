@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Settings, ChevronDown, ChevronRight, RotateCcw, Save, Loader2, MessageSquare, Link2, Coins, Bell, Palette, Volume2, Globe } from 'lucide-react';
 import { api } from '../lib/api';
-import type { PersonalityType, PersonalityDefinition, AgentSettings, ChainId, TokenType } from '../types';
+import type { PersonalityType, AgentSettings, ChainId, TokenType } from '../types';
 import { LOCALES, getStoredLocale, storeLocale, type Locale } from '../lib/i18n';
 
 /** Personality preview messages for each type */

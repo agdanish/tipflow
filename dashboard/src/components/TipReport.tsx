@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import {
   FileBarChart,
-  Calendar,
   TrendingUp,
   Coins,
   Users,

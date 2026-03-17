@@ -35,7 +35,7 @@ export function BatchImport() {
   const [stage, setStage] = useState<ImportStage>('input');
   const [csvText, setCsvText] = useState('');
   const [parsedRows, setParsedRows] = useState<ParsedRow[]>([]);
-  const [executing, setExecuting] = useState(false);
+  const [, setExecuting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<CSVImportResult | null>(null);
   const [error, setError] = useState<string | null>(null);

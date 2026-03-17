@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Zap, Plus, X, Loader2, Trash2, Clock, CheckCircle2, XCircle, Activity } from 'lucide-react';
+import { Zap, Plus, X, Loader2, Trash2, CheckCircle2, XCircle, Activity } from 'lucide-react';
 import { api } from '../lib/api';
 import type { TipCondition, ConditionType } from '../types';
 
@@ -131,8 +131,6 @@ export function ConditionalTips() {
         return `${c.params.currency ?? 'ETH'} > ${c.params.threshold ?? '?'}`;
       case 'time_of_day':
         return `${c.params.timeStart ?? '?'} - ${c.params.timeEnd ?? '?'}`;
-      case 'price_change':
-        return 'Price movement';
       default:
         return c.type;
     }

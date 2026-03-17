@@ -1,3 +1,5 @@
+import type React from 'react';
+
 interface EmptyStateProps {
   variant: 'no-tips' | 'no-contacts' | 'welcome' | 'no-data';
   title?: string;
@@ -117,7 +119,7 @@ function NoDataIllustration() {
   );
 }
 
-const VARIANT_DEFAULTS: Record<EmptyStateProps['variant'], { title: string; description: string; Illustration: () => JSX.Element }> = {
+const VARIANT_DEFAULTS: Record<EmptyStateProps['variant'], { title: string; description: string; Illustration: () => React.ReactElement }> = {
   'no-tips': {
     title: 'No tips sent yet',
     description: 'Send your first tip and transaction history will appear here.',

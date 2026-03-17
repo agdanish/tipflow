@@ -22,6 +22,9 @@ const EVENT_ICONS: Record<ActivityEventType, typeof Send> = {
   nlp_parsed: Brain,
   contact_saved: UserPlus,
   batch_started: Users,
+  condition_triggered: Zap,
+  condition_created: Zap,
+  tip_retrying: Clock,
   system: Info,
 };
 
@@ -34,6 +37,9 @@ const EVENT_COLORS: Record<ActivityEventType, string> = {
   nlp_parsed: 'text-purple-400',
   contact_saved: 'text-cyan-400',
   batch_started: 'text-indigo-400',
+  condition_triggered: 'text-yellow-400',
+  condition_created: 'text-yellow-400',
+  tip_retrying: 'text-orange-400',
   system: 'text-text-muted',
 };
 
@@ -46,6 +52,9 @@ const EVENT_BG: Record<ActivityEventType, string> = {
   nlp_parsed: 'bg-purple-500/10',
   contact_saved: 'bg-cyan-500/10',
   batch_started: 'bg-indigo-500/10',
+  condition_triggered: 'bg-yellow-500/10',
+  condition_created: 'bg-yellow-500/10',
+  tip_retrying: 'bg-orange-500/10',
   system: 'bg-surface-2',
 };
 
@@ -56,6 +65,18 @@ const CHAIN_BADGES: Record<ChainId, { label: string; className: string }> = {
   },
   'ton-testnet': {
     label: 'TON',
+    className: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
+  },
+  'tron-nile': {
+    label: 'TRX',
+    className: 'bg-red-500/20 text-red-300 border-red-500/30',
+  },
+  'ethereum-sepolia-gasless': {
+    label: 'ETH-GL',
+    className: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+  },
+  'ton-testnet-gasless': {
+    label: 'TON-GL',
     className: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
   },
 };

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { BookMarked, Play, Trash2, Plus, X, Loader2 } from 'lucide-react';
 import { api } from '../lib/api';
-import type { TipTemplate, TokenType, ChainId } from '../types';
+import type { TipTemplate } from '../types';
 
 interface TipTemplatesProps {
   onUseTemplate: (template: TipTemplate) => void;

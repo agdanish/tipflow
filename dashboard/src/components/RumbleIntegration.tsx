@@ -15,11 +15,8 @@ import {
   Plus,
   RefreshCw,
   ExternalLink,
-  ChevronDown,
-  ChevronUp,
   Clock,
   CheckCircle2,
-  AlertCircle,
 } from 'lucide-react';
 
 // === Types ===
@@ -99,7 +96,7 @@ function CreatorsPanel() {
   const refresh = useCallback(async () => {
     try {
       const { creators: c } = await api.rumbleGetCreators();
-      setCreators(c);
+      setCreators(c as unknown as Creator[]);
     } catch {
       // keep existing
     } finally {
@@ -277,7 +274,7 @@ function AutoTipPanel() {
   const refresh = useCallback(async () => {
     try {
       const { rules: r } = await api.rumbleGetAutoTipRules(userId);
-      setRules(r);
+      setRules(r as unknown as AutoTipRule[]);
     } catch {
       // keep existing
     }
@@ -447,8 +444,8 @@ function PoolsPanel() {
         api.rumbleGetPools(),
         api.rumbleGetCreators(),
       ]);
-      setPools(poolRes.pools);
-      setCreators(creatorRes.creators);
+      setPools(poolRes.pools as unknown as TipPool[]);
+      setCreators(creatorRes.creators as unknown as Creator[]);
     } catch {
       // keep existing
     } finally {
@@ -680,7 +677,7 @@ function EventsPanel() {
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
-    api.rumbleGetCreators().then(({ creators: c }) => setCreators(c)).catch(() => {});
+    api.rumbleGetCreators().then(({ creators: c }) => setCreators(c as unknown as Creator[])).catch(() => {});
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -690,7 +687,7 @@ function EventsPanel() {
     setSuccess('');
     try {
       const { trigger } = await api.rumbleRegisterEventTrigger(creatorId, event, Number(tipAmount));
-      setSuccess(`Trigger created: tip ${tipAmount} ETH on ${event} (ID: ${trigger.id.slice(0, 8)}...)`);
+      setSuccess(`Trigger created: tip ${tipAmount} ETH on ${event} (ID: ${String(trigger.id).slice(0, 8)}...)`);
       setShowForm(false);
     } catch {
       // ignore
@@ -817,7 +814,7 @@ function LeaderboardPanel() {
   const refresh = useCallback(async () => {
     try {
       const { leaderboard: lb } = await api.rumbleGetLeaderboard(timeframe);
-      setLeaderboard(lb);
+      setLeaderboard(lb as unknown as LeaderboardEntry[]);
     } catch {
       // keep existing
     } finally {

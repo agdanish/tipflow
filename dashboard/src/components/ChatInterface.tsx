@@ -79,7 +79,7 @@ function ActionCard({ action }: { action: NonNullable<ChatMessage['action']> }) 
         <div className="text-text-muted">
           Fee: {String(data.fee)} &middot; Chain: {String(data.chainId).startsWith('ethereum') ? 'Ethereum Sepolia' : 'TON Testnet'}
         </div>
-        {data.explorerUrl && (
+        {!!data.explorerUrl && (
           <a
             href={String(data.explorerUrl)}
             target="_blank"

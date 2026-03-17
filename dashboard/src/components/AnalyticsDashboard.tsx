@@ -55,7 +55,6 @@ function BarChart({
 }) {
   const [hovered, setHovered] = useState<number | null>(null);
   const maxVolume = Math.max(...data.map((d) => d.volume), 0.001);
-  const barWidth = 100 / data.length;
 
   return (
     <div className="relative">

@@ -1,12 +1,11 @@
 // Copyright 2026 TipFlow. Licensed under Apache 2.0.
 import { useState, useRef, useEffect } from 'react';
 import { Globe } from 'lucide-react';
-import { LOCALES, setLocale, getLocaleInfo, t, type Locale } from '../lib/i18n';
+import { LOCALES, setLocale, t, type Locale } from '../lib/i18n';
 import { useLocale } from '../hooks/useLocale';
 
 export function LanguageSelector() {
   const locale = useLocale();
-  const info = getLocaleInfo(locale);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 

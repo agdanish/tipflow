@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Vault, TrendingUp, PieChart, Shield, AlertTriangle, RefreshCw, ChevronDown, ChevronUp, ExternalLink, Zap } from 'lucide-react';
 import { api } from '../lib/api';
-import type { TreasuryStatus, YieldOpportunity, YieldStrategy, TreasuryAllocation, TreasuryAnalytics, EconomicReport } from '../types';
+import type { TreasuryStatus, YieldOpportunity, YieldStrategy, TreasuryAllocation, EconomicReport } from '../types';
 
 // ── SVG Pie Chart ────────────────────────────────────────────────
 
