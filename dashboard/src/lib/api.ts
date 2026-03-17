@@ -54,6 +54,12 @@ import type {
   TipProfile,
   AutonomyPolicy,
   AutonomousDecision,
+  TreasuryStatus,
+  YieldOpportunity,
+  YieldStrategy,
+  TreasuryAllocation,
+  TreasuryAnalytics,
+  EconomicReport,
 } from '../types';
 
 const BASE = '/api';
@@ -583,4 +589,35 @@ export const api = {
     fetchJson<{ result: TipResult; demoInfo: { selfAddress: string; amount: string; purpose: string } }>('/demo/self-tip', {
       method: 'POST',
     }),
+
+  // === Treasury Management ===
+  getTreasuryStatus: () =>
+    fetchJson<{ status: TreasuryStatus }>('/treasury/status'),
+
+  getTreasuryYields: () =>
+    fetchJson<{ yields: YieldOpportunity[] }>('/treasury/yields'),
+
+  setTreasuryStrategy: (strategy: YieldStrategy) =>
+    fetchJson<{ strategy: YieldStrategy }>('/treasury/strategy', {
+      method: 'POST',
+      body: JSON.stringify(strategy),
+    }),
+
+  getTreasuryStrategy: () =>
+    fetchJson<{ strategy: YieldStrategy | null }>('/treasury/strategy'),
+
+  setTreasuryAllocation: (allocation: TreasuryAllocation) =>
+    fetchJson<{ allocation: TreasuryAllocation }>('/treasury/allocation', {
+      method: 'POST',
+      body: JSON.stringify(allocation),
+    }),
+
+  getTreasuryAllocation: () =>
+    fetchJson<{ allocation: TreasuryAllocation }>('/treasury/allocation'),
+
+  getTreasuryAnalytics: () =>
+    fetchJson<{ analytics: TreasuryAnalytics }>('/treasury/analytics'),
+
+  getTreasuryReport: () =>
+    fetchJson<{ report: EconomicReport }>('/treasury/report'),
 };

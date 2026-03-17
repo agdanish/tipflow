@@ -60,6 +60,7 @@ import { DemoBanner } from './components/DemoBanner';
 import { DemoScenarios } from './components/DemoScenarios';
 import { RumbleIntegration } from './components/RumbleIntegration';
 import { AutonomyPanel } from './components/AutonomyPanel';
+import { TreasuryPanel } from './components/TreasuryPanel';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useSwipe } from './hooks/useTouchGestures';
@@ -656,6 +657,7 @@ function App() {
                 <WalletBackup totalTransactions={stats?.totalTips ?? 0} />
                 <WalletSwitcher onActiveChanged={() => refreshBalances()} />
               </div>
+              <TreasuryPanel />
               <SpendingLimits />
               <WebhookManager />
               <AuditLog />

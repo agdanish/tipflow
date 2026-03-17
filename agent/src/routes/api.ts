@@ -22,6 +22,7 @@ import { LimitsService } from '../services/limits.service.js';
 import { GoalsService } from '../services/goals.service.js';
 import { RumbleService } from '../services/rumble.service.js';
 import { AutonomyService, type AutonomyPolicy } from '../services/autonomy.service.js';
+import { TreasuryService } from '../services/treasury.service.js';
 
 /** Shared challenges service instance — exported for agent integration */
 export const challenges = new ChallengesService();
@@ -37,6 +38,9 @@ export const rumbleService = new RumbleService();
 
 /** Shared autonomy service instance — exported for agent integration */
 export const autonomyService = new AutonomyService();
+
+/** Shared treasury service instance — exported for agent integration */
+export const treasuryService = new TreasuryService();
 
 /** Shared contacts service instance */
 const contacts = new ContactsService();
@@ -2904,6 +2908,130 @@ export function createApiRouter(
     } catch (err) {
       logger.error('Autonomous evaluation failed', { error: String(err) });
       res.status(500).json({ error: 'Autonomous evaluation failed' });
+    }
+  });
+
+  // === TREASURY MANAGEMENT ================================================
+
+  /** GET /api/treasury/status — Treasury overview with balance breakdown */
+  router.get('/treasury/status', async (_req, res) => {
+    try {
+      const balances = await wallet.getAllBalances();
+      const totalBalance = balances.reduce((sum, b) => {
+        return sum + parseFloat(b.nativeBalance || '0') + parseFloat(b.usdtBalance || '0');
+      }, 0);
+      treasuryService.updateTotalDeposited(totalBalance);
+      const status = treasuryService.getTreasuryStatus(totalBalance);
+      res.json({ status });
+    } catch (err) {
+      logger.error('Failed to get treasury status', { error: String(err) });
+      res.status(500).json({ error: 'Failed to get treasury status' });
+    }
+  });
+
+  /** GET /api/treasury/yields — Available DeFi yield opportunities (live from DeFi Llama) */
+  router.get('/treasury/yields', async (_req, res) => {
+    try {
+      const yields = await treasuryService.getYieldOpportunities();
+      res.json({ yields });
+    } catch (err) {
+      logger.error('Failed to fetch yield opportunities', { error: String(err) });
+      res.status(500).json({ error: 'Failed to fetch yield opportunities' });
+    }
+  });
+
+  /** POST /api/treasury/strategy — Set yield strategy configuration */
+  router.post('/treasury/strategy', (req, res) => {
+    try {
+      const strategy = req.body as {
+        enabled: boolean;
+        minIdleThreshold: number;
+        targetProtocol: string;
+        maxAllocationPercent: number;
+        autoRebalance: boolean;
+        rebalanceIntervalHours: number;
+      };
+
+      if (typeof strategy.enabled !== 'boolean') {
+        res.status(400).json({ error: 'enabled (boolean) is required' });
+        return;
+      }
+
+      treasuryService.setYieldStrategy({
+        enabled: strategy.enabled,
+        minIdleThreshold: strategy.minIdleThreshold ?? 10,
+        targetProtocol: strategy.targetProtocol ?? 'Aave V3',
+        maxAllocationPercent: strategy.maxAllocationPercent ?? 20,
+        autoRebalance: strategy.autoRebalance ?? false,
+        rebalanceIntervalHours: strategy.rebalanceIntervalHours ?? 24,
+      });
+
+      res.json({ strategy: treasuryService.getYieldStrategy() });
+    } catch (err) {
+      logger.error('Failed to set yield strategy', { error: String(err) });
+      res.status(500).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/treasury/strategy — Get current yield strategy */
+  router.get('/treasury/strategy', (_req, res) => {
+    const strategy = treasuryService.getYieldStrategy();
+    res.json({ strategy });
+  });
+
+  /** POST /api/treasury/allocation — Set fund allocation percentages */
+  router.post('/treasury/allocation', (req, res) => {
+    try {
+      const alloc = req.body as {
+        tippingReservePercent: number;
+        yieldPercent: number;
+        gasBufferPercent: number;
+      };
+
+      if (
+        typeof alloc.tippingReservePercent !== 'number' ||
+        typeof alloc.yieldPercent !== 'number' ||
+        typeof alloc.gasBufferPercent !== 'number'
+      ) {
+        res.status(400).json({ error: 'tippingReservePercent, yieldPercent, and gasBufferPercent are required numbers' });
+        return;
+      }
+
+      treasuryService.setAllocation(alloc);
+      res.json({ allocation: treasuryService.getAllocation() });
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/treasury/allocation — Get current fund allocation */
+  router.get('/treasury/allocation', (_req, res) => {
+    res.json({ allocation: treasuryService.getAllocation() });
+  });
+
+  /** GET /api/treasury/analytics — Treasury analytics and efficiency metrics */
+  router.get('/treasury/analytics', async (_req, res) => {
+    try {
+      const analytics = await treasuryService.getTreasuryAnalytics();
+      res.json({ analytics });
+    } catch (err) {
+      logger.error('Failed to get treasury analytics', { error: String(err) });
+      res.status(500).json({ error: 'Failed to get treasury analytics' });
+    }
+  });
+
+  /** GET /api/treasury/report — Comprehensive economic sustainability report */
+  router.get('/treasury/report', async (_req, res) => {
+    try {
+      const balances = await wallet.getAllBalances();
+      const totalBalance = balances.reduce((sum, b) => {
+        return sum + parseFloat(b.nativeBalance || '0') + parseFloat(b.usdtBalance || '0');
+      }, 0);
+      const report = await treasuryService.getEconomicReport(totalBalance);
+      res.json({ report });
+    } catch (err) {
+      logger.error('Failed to generate economic report', { error: String(err) });
+      res.status(500).json({ error: 'Failed to generate economic report' });
     }
   });
 

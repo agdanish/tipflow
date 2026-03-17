@@ -11,7 +11,7 @@ import WDK from '@tetherto/wdk';
 import { WalletService } from './services/wallet.service.js';
 import { AIService } from './services/ai.service.js';
 import { TipFlowAgent } from './core/agent.js';
-import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService } from './routes/api.js';
+import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService, treasuryService } from './routes/api.js';
 import { logger } from './utils/logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -69,6 +69,10 @@ async function main(): Promise<void> {
 
   // Log Rumble integration
   logger.info(`Rumble integration loaded: ${rumbleService.listCreators().length} creators registered`);
+
+  // Log Treasury service
+  const treasuryAlloc = treasuryService.getAllocation();
+  logger.info(`Treasury service loaded: ${treasuryAlloc.tippingReservePercent}% reserve, ${treasuryAlloc.yieldPercent}% yield, ${treasuryAlloc.gasBufferPercent}% gas`);
 
   // Start Telegram bot (optional — only if TELEGRAM_BOT_TOKEN is set)
   agent.startTelegramBot().catch((err) => {

@@ -787,6 +787,68 @@ export interface AutonomousDecision {
   };
 }
 
+// ── Treasury Management Types ────────────────────────────────────
+
+export interface TreasuryStatus {
+  totalBalance: number;
+  tippingReserve: number;
+  yieldDeployed: number;
+  gasBuffer: number;
+  idleFunds: number;
+  lastRebalance: string;
+}
+
+export interface YieldOpportunity {
+  protocol: string;
+  asset: string;
+  apy: number;
+  chain: string;
+  risk: 'low' | 'medium' | 'high';
+  minDeposit: number;
+  tvl: number;
+  isLive: boolean;
+}
+
+export interface YieldStrategy {
+  enabled: boolean;
+  minIdleThreshold: number;
+  targetProtocol: string;
+  maxAllocationPercent: number;
+  autoRebalance: boolean;
+  rebalanceIntervalHours: number;
+}
+
+export interface TreasuryAllocation {
+  tippingReservePercent: number;
+  yieldPercent: number;
+  gasBufferPercent: number;
+}
+
+export interface TreasuryAnalytics {
+  projectedMonthlyYield: number;
+  avgCostPerTip: number;
+  gasEfficiency: number;
+  totalGasSpent: number;
+  totalTipped: number;
+  yieldEarned: number;
+  netCost: number;
+}
+
+export interface EconomicReport {
+  period: string;
+  totalBalance: number;
+  allocation: TreasuryAllocation;
+  analytics: TreasuryAnalytics;
+  topYieldOpportunities: YieldOpportunity[];
+  strategy: YieldStrategy | null;
+  sustainability: {
+    score: number;
+    label: string;
+    details: string;
+  };
+  recommendations: string[];
+}
+
 /** CSV import result from POST /api/tip/import */
 export interface CSVImportResult {
   total: number;
