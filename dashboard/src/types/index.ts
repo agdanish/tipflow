@@ -403,6 +403,15 @@ export interface NetworkHealthResponse {
   chains: NetworkHealthStatus[];
 }
 
+/** Derived wallet from HD path */
+export interface DerivedWallet {
+  index: number;
+  address: string;
+  chainId: ChainId;
+  chainName: string;
+  isActive: boolean;
+}
+
 /** Analytics daily volume entry */
 export interface AnalyticsDailyVolume {
   date: string;
@@ -429,14 +438,125 @@ export interface AnalyticsTrends {
   mostActiveChain: string;
 }
 
+/** Analytics overview KPIs */
+export interface AnalyticsOverview {
+  totalTips: number;
+  totalVolume: number;
+  successRate: number;
+  avgFee: number;
+  totalFees: number;
+  uniqueRecipients: number;
+}
+
+/** Chain distribution entry with percentage */
+export interface ChainDistEntry {
+  chain: string;
+  count: number;
+  percentage: number;
+}
+
+/** Token distribution entry with percentage */
+export interface TokenDistEntry {
+  token: string;
+  count: number;
+  percentage: number;
+}
+
+/** Hourly heatmap entry */
+export interface HourlyHeatmapEntry {
+  hour: number;
+  count: number;
+}
+
+/** Top recipient entry */
+export interface TopRecipientEntry {
+  address: string;
+  count: number;
+  volume: number;
+}
+
+/** Tip streaks */
+export interface TipStreaks {
+  current: number;
+  longest: number;
+}
+
 /** Full analytics response from GET /api/agent/analytics */
 export interface AnalyticsData {
+  overview: AnalyticsOverview;
   dailyVolume: AnalyticsDailyVolume[];
   hourlyDistribution: number[];
+  hourlyHeatmap: HourlyHeatmapEntry[];
   tokenDistribution: { native: number; usdt: number };
   chainDistribution: Record<string, number>;
+  chainDist: ChainDistEntry[];
+  tokenDist: TokenDistEntry[];
+  topRecipients: TopRecipientEntry[];
+  recentTrend: 'up' | 'down' | 'stable';
+  streaks: TipStreaks;
   trends: AnalyticsTrends;
   cumulativeData: AnalyticsCumulativePoint[];
   successRate: number;
   totalTips: number;
+}
+
+/** System info returned by GET /api/system/info */
+export interface SystemInfoData {
+  uptime: number;
+  nodeVersion: string;
+  wdkVersion: string;
+  apiEndpoints: number;
+  startTime: string;
+  memoryUsage: { heapUsed: number; heapTotal: number };
+  platform: string;
+  environment: string;
+}
+
+/** Shareable tip link — pre-filled tip request URL */
+export interface TipLink {
+  id: string;
+  recipient: string;
+  amount: string;
+  token: TokenType;
+  message?: string;
+  chainId?: ChainId;
+  url: string;
+  createdAt: string;
+}
+
+/** Agent personality types */
+export type PersonalityType = 'professional' | 'friendly' | 'pirate' | 'emoji' | 'minimal';
+
+/** Message types the personality system can format */
+export type MessageType = 'greeting' | 'tip_confirmed' | 'tip_failed' | 'balance_report' | 'fee_comparison' | 'help' | 'unknown_intent';
+
+/** A single personality definition */
+export interface PersonalityDefinition {
+  id: PersonalityType;
+  name: string;
+  description: string;
+  templates: Record<MessageType, string>;
+}
+
+/** Agent settings */
+export interface AgentSettings {
+  personality: PersonalityType;
+  defaultChain: ChainId | '';
+  defaultToken: TokenType;
+  autoConfirmThreshold: string;
+  autoConfirmEnabled: boolean;
+  notifications: {
+    tipSent: boolean;
+    tipFailed: boolean;
+    conditionTriggered: boolean;
+    scheduledExecuted: boolean;
+  };
+}
+
+/** Telegram bot status */
+export interface TelegramBotStatus {
+  connected: boolean;
+  username: string | null;
+  messageCount: number;
+  startedAt: string | null;
 }

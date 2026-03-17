@@ -520,6 +520,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Great work on the PR!"
+            aria-label="Tip message (optional)"
             className="w-full px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border focus:ring-1 focus:ring-accent-border transition-colors"
             disabled={sending || disabled}
           />
@@ -531,6 +532,9 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
             <button
               type="button"
               onClick={() => { setScheduleMode(!scheduleMode); setScheduledAt(''); setRecurring(false); }}
+              role="switch"
+              aria-checked={scheduleMode}
+              aria-label="Schedule tip for later"
               className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
                 scheduleMode ? 'bg-amber-500' : 'bg-surface-3 border border-border'
               }`}
@@ -561,6 +565,9 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
                 <button
                   type="button"
                   onClick={() => setRecurring(!recurring)}
+                  role="switch"
+                  aria-checked={recurring}
+                  aria-label="Enable recurring tip"
                   className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
                     recurring ? 'bg-purple-500' : 'bg-surface-3 border border-border'
                   }`}
@@ -691,12 +698,14 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
           </div>
         )}
 
-        {error && (
-          <div className="flex items-start gap-2 p-3 rounded-lg bg-error/10 border border-error/20">
-            <AlertCircle className="w-4 h-4 text-error mt-0.5 shrink-0" />
-            <p className="text-xs text-error">{error}</p>
-          </div>
-        )}
+        <div aria-live="polite" aria-atomic="true">
+          {error && (
+            <div role="alert" className="flex items-start gap-2 p-3 rounded-lg bg-error/10 border border-error/20">
+              <AlertCircle className="w-4 h-4 text-error mt-0.5 shrink-0" />
+              <p className="text-xs text-error">{error}</p>
+            </div>
+          )}
+        </div>
 
         <button
           type="submit"

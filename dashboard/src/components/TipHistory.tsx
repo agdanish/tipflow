@@ -335,7 +335,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
           </button>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2" role="list" aria-label="Transaction history list">
           {filtered.map((entry) => {
             const isExpanded = expandedId === entry.id;
             const explorerBase = entry.chainId.startsWith('ethereum')
@@ -346,6 +346,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
             return (
               <div
                 key={entry.id}
+                role="listitem"
                 className={`rounded-lg border overflow-hidden transition-colors ${
                   isExpanded
                     ? 'border-border-light bg-surface-2'
@@ -354,6 +355,8 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
               >
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : entry.id)}
+                  aria-expanded={isExpanded}
+                  aria-label={`${entry.status === 'confirmed' ? 'Confirmed' : 'Failed'} tip of ${entry.amount} — click to ${isExpanded ? 'collapse' : 'expand'} details`}
                   className="w-full px-3 sm:px-4 py-3 sm:py-3.5 flex items-center gap-2 sm:gap-3 hover:bg-surface-3/50 transition-colors text-left"
                 >
                   {entry.status === 'confirmed' ? (
@@ -398,6 +401,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
+                        aria-label="View transaction on block explorer"
                         className="text-text-muted hover:text-accent transition-colors"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />

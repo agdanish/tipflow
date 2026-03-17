@@ -352,6 +352,48 @@ export interface RetryInfo {
   nextRetryIn?: number;
 }
 
+/** Derived wallet from HD path */
+export interface DerivedWallet {
+  index: number;
+  address: string;
+  chainId: ChainId;
+  chainName: string;
+  isActive: boolean;
+}
+
+/** Shareable tip link — pre-filled tip request URL */
+export interface TipLink {
+  id: string;
+  recipient: string;
+  amount: string;
+  token: TokenType;
+  message?: string;
+  chainId?: ChainId;
+  url: string;
+  createdAt: string;
+}
+
+/** Agent personality types */
+export type PersonalityType = 'professional' | 'friendly' | 'pirate' | 'emoji' | 'minimal';
+
+/** Message types the personality system can format */
+export type MessageType = 'greeting' | 'tip_confirmed' | 'tip_failed' | 'balance_report' | 'fee_comparison' | 'help' | 'unknown_intent';
+
+/** Agent settings stored on the backend */
+export interface AgentSettings {
+  personality: PersonalityType;
+  defaultChain: ChainId | '';
+  defaultToken: TokenType;
+  autoConfirmThreshold: string;
+  autoConfirmEnabled: boolean;
+  notifications: {
+    tipSent: boolean;
+    tipFailed: boolean;
+    conditionTriggered: boolean;
+    scheduledExecuted: boolean;
+  };
+}
+
 /** Agent stats for dashboard */
 export interface AgentStats {
   totalTips: number;

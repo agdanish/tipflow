@@ -5,7 +5,7 @@ import WalletManagerEvmErc4337 from '@tetherto/wdk-wallet-evm-erc-4337';
 import WalletManagerTonGasless from '@tetherto/wdk-wallet-ton-gasless';
 import { logger } from '../utils/logger.js';
 import { JsonRpcProvider } from 'ethers';
-import type { ChainId, ChainConfig, WalletBalance, ConfirmationResult, FeeComparison } from '../types/index.js';
+import type { ChainId, ChainConfig, WalletBalance, ConfirmationResult, FeeComparison, DerivedWallet } from '../types/index.js';
 
 /** USDT contract addresses on testnets */
 const USDT_CONTRACTS: Record<string, string> = {
@@ -81,6 +81,7 @@ export class WalletService {
   private gaslessTonAvailable = false;
   private gaslessEvmError?: string;
   private gaslessTonError?: string;
+  private activeWalletIndex = 0;
 
   /** Initialize WDK with a seed phrase, registering all supported chains */
   async initialize(seed?: string): Promise<void> {
@@ -585,6 +586,50 @@ export class WalletService {
       const result = await this.sendTransaction(fallbackChainId, recipient, amount);
       return { ...result, gasless: false, chainId: fallbackChainId };
     }
+  }
+
+  /** Get the active wallet index used for sending */
+  getActiveWalletIndex(): number {
+    return this.activeWalletIndex;
+  }
+
+  /** Set the active wallet index used for sending */
+  setActiveWalletIndex(index: number): void {
+    if (index < 0 || !Number.isInteger(index)) {
+      throw new Error('Wallet index must be a non-negative integer');
+    }
+    this.activeWalletIndex = index;
+    logger.info('Active wallet index set', { index });
+  }
+
+  /** Get wallet address at a specific derivation index for a chain */
+  async getWalletByIndex(chainId: ChainId, index: number): Promise<DerivedWallet> {
+    this.ensureInitialized();
+    const blockchain = this.getBlockchain(chainId);
+    const config = CHAIN_CONFIGS[chainId];
+    const account = await this.wdk!.getAccount(blockchain, index);
+    const address = await account.getAddress();
+    return {
+      index,
+      address,
+      chainId,
+      chainName: config.name,
+      isActive: index === this.activeWalletIndex,
+    };
+  }
+
+  /** List the first N derived wallet addresses for a chain */
+  async listWallets(chainId: ChainId, count: number = 5): Promise<DerivedWallet[]> {
+    this.ensureInitialized();
+    const wallets: DerivedWallet[] = [];
+    for (let i = 0; i < count; i++) {
+      try {
+        wallets.push(await this.getWalletByIndex(chainId, i));
+      } catch (err) {
+        logger.error(`Failed to derive wallet at index ${i} for ${chainId}`, { error: String(err) });
+      }
+    }
+    return wallets;
   }
 
   /** Get explorer URL for a transaction */

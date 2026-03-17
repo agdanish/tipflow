@@ -3,6 +3,8 @@ import { WalletService } from '../services/wallet.service.js';
 import { AIService } from '../services/ai.service.js';
 import { ConditionsService } from '../services/conditions.service.js';
 import { WebhooksService } from '../services/webhooks.service.js';
+import { TelegramService } from '../services/telegram.service.js';
+import type { TelegramBotStatus } from '../services/telegram.service.js';
 import { logger } from '../utils/logger.js';
 import type {
   Achievement,
@@ -51,6 +53,7 @@ export class TipFlowAgent {
   private activityLog: ActivityEvent[] = [];
   private activityListeners: Array<(event: ActivityEvent) => void> = [];
   private webhooksService: WebhooksService | null = null;
+  private telegramService: TelegramService | null = null;
   private tipResults: Map<string, TipResult> = new Map();
   private static readonly MAX_ACTIVITY = 100;
 
@@ -72,6 +75,30 @@ export class TipFlowAgent {
   /** Set the webhooks service for firing webhook events on tip completion */
   setWebhooksService(service: WebhooksService): void {
     this.webhooksService = service;
+  }
+
+  /** Start Telegram bot if TELEGRAM_BOT_TOKEN is set. Optional — everything works without it. */
+  async startTelegramBot(): Promise<void> {
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+    if (!token) {
+      logger.info('TELEGRAM_BOT_TOKEN not set — Telegram bot disabled');
+      return;
+    }
+    try {
+      this.telegramService = new TelegramService(token, this, this.wallet);
+      await this.telegramService.start();
+    } catch (err) {
+      logger.error('Telegram bot failed to start', { error: String(err) });
+      this.telegramService = null;
+    }
+  }
+
+  /** Get Telegram bot status */
+  getTelegramStatus(): TelegramBotStatus {
+    if (!this.telegramService) {
+      return { connected: false, username: null, messageCount: 0, startedAt: null };
+    }
+    return this.telegramService.getStatus();
   }
 
   /** Start the background scheduler that checks for due tips and conditions every 10 seconds */

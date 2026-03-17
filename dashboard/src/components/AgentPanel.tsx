@@ -41,7 +41,7 @@ export function AgentPanel({ state, retryActivity, onRetry, retrying }: AgentPan
 
       {/* Idle state with breathing animation */}
       {!isActive && !state.currentDecision && !state.lastError && (
-        <div className="flex flex-col items-center py-6 animate-fade-in">
+        <div className="flex flex-col items-center py-6 animate-fade-in" role="status" aria-live="polite">
           <div className="relative mb-3">
             <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center animate-idle-breathe">
               <Sparkles className="w-6 h-6 text-accent" />
@@ -56,7 +56,7 @@ export function AgentPanel({ state, retryActivity, onRetry, retrying }: AgentPan
 
       {/* Pipeline progress steps */}
       {isActive && (
-        <div className="mb-4 animate-fade-in">
+        <div className="mb-4 animate-fade-in" aria-live="polite" role="status" aria-label={`Agent pipeline: ${state.status}`}>
           {state.currentTip && (
             <div className="mb-4 px-3 py-2 rounded-lg bg-surface-2 border border-border">
               <p className="text-xs text-text-muted">Processing tip</p>

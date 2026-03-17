@@ -8,6 +8,7 @@ import type {
   GaslessTipResult,
   AgentState,
   AgentStats,
+  AnalyticsData,
   HealthResponse,
   ChainId,
   ChainConfig,
@@ -30,6 +31,13 @@ import type {
   WebhookConfig,
   NetworkHealthResponse,
   ChainGasSpeeds,
+  DerivedWallet,
+  TelegramBotStatus,
+  SystemInfoData,
+  AgentSettings,
+  PersonalityDefinition,
+  PersonalityType,
+  TipLink,
 } from '../types';
 
 const BASE = '/api';
@@ -202,8 +210,10 @@ export const api = {
     }),
 
   // Export
-  exportHistory: (format: 'csv' = 'csv') =>
-    downloadBlob(`${BASE}/agent/history/export?format=${format}`, `tipflow-history.${format}`),
+  exportHistory: (format: 'csv' | 'json' | 'markdown' | 'summary' = 'csv') => {
+    const extMap: Record<string, string> = { csv: 'csv', json: 'json', markdown: 'md', summary: 'txt' };
+    return downloadBlob(`${BASE}/agent/history/export?format=${format}`, `tipflow-history.${extMap[format] ?? format}`);
+  },
 
   // Receipt
   getReceipt: (tipId: string) =>
@@ -258,7 +268,77 @@ export const api = {
   getOpenApiSpec: () =>
     fetchJson<Record<string, unknown>>('/docs'),
 
+  // Multi-Wallet (HD Derivation)
+  listWallets: (chain?: string, count?: number) => {
+    const params = new URLSearchParams();
+    if (chain) params.set('chain', chain);
+    if (count) params.set('count', String(count));
+    const qs = params.toString();
+    return fetchJson<{ wallets: DerivedWallet[]; activeIndex: number }>(`/wallets${qs ? `?${qs}` : ''}`);
+  },
+
+  getWalletByIndex: (index: number, chain?: string) => {
+    const params = chain ? `?chain=${encodeURIComponent(chain)}` : '';
+    return fetchJson<{ wallet: DerivedWallet }>(`/wallets/${index}${params}`);
+  },
+
+  setActiveWallet: (index: number) =>
+    fetchJson<{ activeIndex: number }>('/wallets/active', {
+      method: 'POST',
+      body: JSON.stringify({ index }),
+    }),
+
   // Network Health
   getNetworkHealth: () =>
     fetchJson<NetworkHealthResponse>('/network/health'),
+
+  // Analytics
+  getAnalytics: () =>
+    fetchJson<AnalyticsData>('/agent/analytics'),
+
+  // Telegram Bot
+  getTelegramStatus: () =>
+    fetchJson<TelegramBotStatus>('/telegram/status'),
+
+  // System Info
+  getSystemInfo: () =>
+    fetchJson<SystemInfoData>('/system/info'),
+
+  // Settings
+  getSettings: () =>
+    fetchJson<{ settings: AgentSettings }>('/settings'),
+
+  updateSettings: (settings: Partial<AgentSettings>) =>
+    fetchJson<{ settings: AgentSettings }>('/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    }),
+
+  // Personality
+  getPersonalities: () =>
+    fetchJson<{ active: PersonalityType; personalities: PersonalityDefinition[] }>('/personality'),
+
+  setPersonality: (type: PersonalityType) =>
+    fetchJson<{ active: PersonalityType; definition: PersonalityDefinition }>('/personality', {
+      method: 'PUT',
+      body: JSON.stringify({ type }),
+    }),
+
+  // Tip Links
+  createTipLink: (recipient: string, amount: string, token?: TokenType, message?: string, chainId?: ChainId) =>
+    fetchJson<{ tipLink: TipLink }>('/tiplinks', {
+      method: 'POST',
+      body: JSON.stringify({ recipient, amount, token: token ?? 'native', message, chainId }),
+    }),
+
+  getTipLinks: () =>
+    fetchJson<{ tipLinks: TipLink[] }>('/tiplinks'),
+
+  getTipLink: (id: string) =>
+    fetchJson<{ tipLink: TipLink }>(`/tiplinks/${encodeURIComponent(id)}`),
+
+  deleteTipLink: (id: string) =>
+    fetchJson<{ deleted: boolean; id: string }>(`/tiplinks/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    }),
 };

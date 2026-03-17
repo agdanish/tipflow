@@ -61,6 +61,11 @@ async function main(): Promise<void> {
   const agent = new TipFlowAgent(walletService, aiService);
   agent.setWebhooksService(webhooks);
 
+  // Start Telegram bot (optional — only if TELEGRAM_BOT_TOKEN is set)
+  agent.startTelegramBot().catch((err) => {
+    logger.warn('Telegram bot startup failed (non-fatal)', { error: String(err) });
+  });
+
   // Subscribe to state changes for logging
   agent.onStateChange((state) => {
     logger.info('Agent state changed', { status: state.status });

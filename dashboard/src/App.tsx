@@ -26,8 +26,17 @@ import { WebhookManager } from './components/WebhookManager';
 import { InstallPrompt } from './components/InstallPrompt';
 import { ApiDocs } from './components/ApiDocs';
 import { NetworkHealth } from './components/NetworkHealth';
+import { TelegramStatus } from './components/TelegramStatus';
 import { useNotifications } from './components/NotificationCenter';
 import { WalletBackup } from './components/WalletBackup';
+import { WalletSwitcher } from './components/WalletSwitcher';
+import { AnalyticsDashboard } from './components/AnalyticsDashboard';
+import { SettingsPanel } from './components/SettingsPanel';
+import { TransactionTimeline } from './components/TransactionTimeline';
+import { ExportPanel } from './components/ExportPanel';
+import { Footer } from './components/Footer';
+import { SystemInfo } from './components/SystemInfo';
+import { TechStack } from './components/TechStack';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { api } from './lib/api';
@@ -290,9 +299,12 @@ function App() {
 
   return (
     <div className="min-h-screen bg-surface">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:rounded-lg focus:text-sm focus:font-medium">
+        Skip to main content
+      </a>
       <Header health={health} theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} onShowShortcuts={() => setShowShortcuts(true)} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onClearAll={clearAll} />
 
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <main id="main-content" role="main" className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Wallets */}
         <section className="mb-4 sm:mb-6" data-onboarding="wallets">
           <h2 className="text-sm font-medium text-text-secondary mb-3 flex items-center gap-2">
@@ -313,16 +325,21 @@ function App() {
             </div>
           )}
           <div className="mt-4">
+            <WalletSwitcher onActiveChanged={() => refreshBalances()} />
+          </div>
+          <div className="mt-4">
             <WalletBackup totalTransactions={stats?.totalTips ?? 0} />
           </div>
         </section>
 
-        {/* Gas Price Monitor + Currency Converter + Security + Network Health */}
-        <section className="mb-4 sm:mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Gas Price Monitor + Currency Converter + Security + Network Health + Telegram + System Info */}
+        <section className="mb-4 sm:mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <GasMonitor />
           <CurrencyConverter />
           <SecurityStatus />
           <NetworkHealth />
+          <TelegramStatus />
+          <SystemInfo />
         </section>
 
         {/* Main grid: Tip Form + Agent | History + Stats */}
@@ -468,33 +485,37 @@ function App() {
               </div>
             )}
             <TipHistory history={history} loading={historyLoading} />
+            <ExportPanel historyCount={history.length} />
+            <TransactionTimeline history={history} loading={historyLoading} />
             <StatsPanel stats={stats} />
             <Leaderboard entries={leaderboard} loading={leaderboardLoading} />
             <Achievements achievements={achievements} loading={achievementsLoading} />
           </div>
         </div>
 
+        {/* Advanced Analytics (collapsible) */}
+        <section className="mt-6">
+          <AnalyticsDashboard />
+        </section>
+
+        {/* Settings (collapsible) */}
+        <section className="mt-6">
+          <SettingsPanel theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} />
+        </section>
+
         {/* API Documentation (collapsible) */}
         <section className="mt-6">
           <ApiDocs />
         </section>
 
-        {/* Footer */}
-        <footer className="mt-12 pb-6 text-center">
-          <p className="text-xs text-text-muted">
-            Built with{' '}
-            <a
-              href="https://wdk.tether.io"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-accent hover:underline"
-            >
-              Tether WDK
-            </a>
-            {' '}&middot; TipFlow &middot; Tether Hackathon Galactica 2026
-          </p>
-        </footer>
+        {/* Tech Stack */}
+        <section className="mt-6">
+          <TechStack />
+        </section>
       </main>
+
+      {/* Footer */}
+      <Footer />
 
       <ChatInterface />
       <InstallPrompt />

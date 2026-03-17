@@ -7,11 +7,14 @@ import type { AIService } from '../services/ai.service.js';
 import { ContactsService } from '../services/contacts.service.js';
 import { TemplatesService } from '../services/templates.service.js';
 import { WebhooksService } from '../services/webhooks.service.js';
-import type { ActivityEvent, ChatMessage, ChainId, ConditionType, TipRequest, TokenType, BatchTipRequest, SplitTipRequest } from '../types/index.js';
+import { PersonalityService } from '../services/personality.service.js';
+import type { PersonalityType, AgentSettings } from '../types/index.js';
+import type { ActivityEvent, ChatMessage, ChainId, ConditionType, TipRequest, TokenType, BatchTipRequest, SplitTipRequest, TipLink } from '../types/index.js';
 import { logger } from '../utils/logger.js';
 import { transactionLimiter } from '../middleware/rateLimit.js';
 import { validateTipInput, validateBatchTipInput, validateChatInput, auditLog } from '../middleware/validate.js';
 import { getOpenApiSpec } from './openapi.js';
+import { ExportService } from '../services/export.service.js';
 
 /** Shared contacts service instance */
 const contacts = new ContactsService();
@@ -21,6 +24,30 @@ const templates = new TemplatesService();
 
 /** Shared webhooks service instance — exported for agent integration */
 export const webhooks = new WebhooksService();
+
+/** Shared personality service instance — exported for agent integration */
+export const personality = new PersonalityService();
+
+/** In-memory agent settings */
+let agentSettings: AgentSettings = {
+  personality: 'friendly',
+  defaultChain: '',
+  defaultToken: 'native',
+  autoConfirmThreshold: '0.01',
+  autoConfirmEnabled: false,
+  notifications: {
+    tipSent: true,
+    tipFailed: true,
+    conditionTriggered: true,
+    scheduledExecuted: true,
+  },
+};
+
+/** Shared export service instance */
+const exportService = new ExportService();
+
+/** In-memory tip link store */
+const tipLinks: TipLink[] = [];
 
 /** Create API router with injected dependencies */
 export function createApiRouter(
@@ -156,6 +183,52 @@ export function createApiRouter(
   /** GET /api/wallet/seed — Get the seed phrase (for demo/setup display only) */
   router.get('/wallet/seed', (_req, res) => {
     res.json({ seed: wallet.getSeedPhrase() });
+  });
+
+  /** GET /api/wallets — List multiple derived wallets for a chain */
+  router.get('/wallets', async (req, res) => {
+    try {
+      const chain = (req.query.chain as string) || 'ethereum-sepolia';
+      const count = Math.min(Math.max(parseInt(req.query.count as string, 10) || 5, 1), 20);
+      const wallets = await wallet.listWallets(chain as ChainId, count);
+      res.json({ wallets, activeIndex: wallet.getActiveWalletIndex() });
+    } catch (err) {
+      logger.error('Failed to list wallets', { error: String(err) });
+      res.status(500).json({ error: 'Failed to list derived wallets' });
+    }
+  });
+
+  /** GET /api/wallets/:index — Get wallet at a specific derivation index */
+  router.get('/wallets/:index', async (req, res) => {
+    try {
+      const index = parseInt(req.params.index, 10);
+      if (isNaN(index) || index < 0) {
+        res.status(400).json({ error: 'Index must be a non-negative integer' });
+        return;
+      }
+      const chain = (req.query.chain as string) || 'ethereum-sepolia';
+      const derived = await wallet.getWalletByIndex(chain as ChainId, index);
+      res.json({ wallet: derived });
+    } catch (err) {
+      logger.error('Failed to get wallet by index', { error: String(err) });
+      res.status(500).json({ error: 'Failed to get wallet at index' });
+    }
+  });
+
+  /** POST /api/wallets/active — Set the active wallet index for sending */
+  router.post('/wallets/active', (req, res) => {
+    try {
+      const { index } = req.body as { index: number };
+      if (typeof index !== 'number' || index < 0 || !Number.isInteger(index)) {
+        res.status(400).json({ error: 'index must be a non-negative integer' });
+        return;
+      }
+      wallet.setActiveWalletIndex(index);
+      res.json({ activeIndex: index });
+    } catch (err) {
+      logger.error('Failed to set active wallet', { error: String(err) });
+      res.status(500).json({ error: 'Failed to set active wallet index' });
+    }
   });
 
   /** POST /api/tip — Execute a tip */
@@ -539,37 +612,43 @@ export function createApiRouter(
     res.json({ history, total: agent.getHistory().length });
   });
 
-  /** GET /api/agent/history/export — Export tip history as CSV */
+  /** GET /api/agent/history/export — Export tip history in multiple formats */
   router.get('/agent/history/export', (_req, res) => {
     const format = (_req.query.format as string) ?? 'csv';
-    if (format !== 'csv') {
-      res.status(400).json({ error: 'Only csv format is supported' });
-      return;
-    }
-
     const history = agent.getHistory();
-    const headers = ['Date', 'Recipient', 'Amount', 'Token', 'Chain', 'Status', 'TxHash', 'Fee', 'Message'];
-    const rows = history.map((entry) => {
-      const token = entry.token === 'usdt' ? 'USDT' : entry.chainId.startsWith('ethereum') ? 'ETH' : 'TON';
-      const chain = entry.chainId.startsWith('ethereum') ? 'Ethereum Sepolia' : 'TON Testnet';
-      return [
-        entry.createdAt,
-        entry.recipient,
-        entry.amount,
-        token,
-        chain,
-        entry.status,
-        entry.txHash,
-        entry.fee,
-        entry.reasoning.replace(/"/g, '""'), // escape quotes for CSV
-      ].map((v) => `"${v}"`).join(',');
-    });
 
-    const csv = [headers.join(','), ...rows].join('\n');
-
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', 'attachment; filename="tipflow-history.csv"');
-    res.send(csv);
+    switch (format) {
+      case 'csv': {
+        const csv = exportService.exportCSV(history);
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename="tipflow-history.csv"');
+        res.send(csv);
+        break;
+      }
+      case 'json': {
+        const json = exportService.exportJSON(history);
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', 'attachment; filename="tipflow-history.json"');
+        res.send(json);
+        break;
+      }
+      case 'markdown': {
+        const md = exportService.exportMarkdown(history);
+        res.setHeader('Content-Type', 'text/markdown');
+        res.setHeader('Content-Disposition', 'attachment; filename="tipflow-history.md"');
+        res.send(md);
+        break;
+      }
+      case 'summary': {
+        const summary = exportService.exportSummary(history);
+        res.setHeader('Content-Type', 'text/plain');
+        res.setHeader('Content-Disposition', 'attachment; filename="tipflow-summary.txt"');
+        res.send(summary);
+        break;
+      }
+      default:
+        res.status(400).json({ error: 'Unsupported format. Use: csv, json, markdown, summary' });
+    }
   });
 
   /** GET /api/agent/stats — Get agent statistics */
@@ -690,11 +769,92 @@ export function createApiRouter(
         ? Math.round((confirmed.length / allTips.length) * 100)
         : 100;
 
+      // Total volume & fees
+      const totalVolume = confirmed.reduce((s, h) => s + parseFloat(h.amount), 0);
+      const totalFees = confirmed.reduce((s, h) => s + parseFloat(h.fee || '0'), 0);
+      const avgFee = confirmed.length > 0 ? totalFees / confirmed.length : 0;
+
+      // Unique recipients
+      const uniqueRecipients = new Set(confirmed.map((h) => h.recipient)).size;
+
+      // Overview
+      const overview = {
+        totalTips: confirmed.length,
+        totalVolume: Math.round(totalVolume * 1e6) / 1e6,
+        successRate,
+        avgFee: Math.round(avgFee * 1e8) / 1e8,
+        totalFees: Math.round(totalFees * 1e8) / 1e8,
+        uniqueRecipients,
+      };
+
+      // Chain distribution with percentages
+      const chainDist = Object.entries(chainDistribution).map(([chain, count]) => ({
+        chain,
+        count,
+        percentage: confirmed.length > 0 ? Math.round((count / confirmed.length) * 100) : 0,
+      }));
+
+      // Token distribution with percentages
+      const tokenDist = [
+        { token: 'native', count: nativeCount, percentage: confirmed.length > 0 ? Math.round((nativeCount / confirmed.length) * 100) : 0 },
+        { token: 'usdt', count: usdtCount, percentage: confirmed.length > 0 ? Math.round((usdtCount / confirmed.length) * 100) : 0 },
+      ];
+
+      // Hourly heatmap
+      const hourlyHeatmap = hourlyDistribution.map((count, hour) => ({ hour, count }));
+
+      // Top recipients by volume
+      const recipientMap = new Map<string, { count: number; volume: number }>();
+      for (const h of confirmed) {
+        const existing = recipientMap.get(h.recipient) ?? { count: 0, volume: 0 };
+        existing.count++;
+        existing.volume += parseFloat(h.amount);
+        recipientMap.set(h.recipient, existing);
+      }
+      const topRecipients = [...recipientMap.entries()]
+        .map(([address, data]) => ({ address, count: data.count, volume: Math.round(data.volume * 1e6) / 1e6 }))
+        .sort((a, b) => b.volume - a.volume)
+        .slice(0, 5);
+
+      // Recent trend
+      let recentTrend: 'up' | 'down' | 'stable' = 'stable';
+      if (tipsThisWeek > tipsLastWeek) recentTrend = 'up';
+      else if (tipsThisWeek < tipsLastWeek) recentTrend = 'down';
+
+      // Streaks (consecutive days with at least 1 tip)
+      const tipDays = new Set(confirmed.map((h) => h.createdAt.split('T')[0]));
+      let currentStreak = 0;
+      let longestStreak = 0;
+      let streak = 0;
+      for (let i = 0; i < 90; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+        if (tipDays.has(dateStr)) {
+          streak++;
+          if (i <= currentStreak + 1) currentStreak = streak;
+          longestStreak = Math.max(longestStreak, streak);
+        } else {
+          if (i === 0) {
+            // Today has no tips yet, don't break streak for "current"
+          } else {
+            streak = 0;
+          }
+        }
+      }
+
       res.json({
+        overview,
         dailyVolume,
         hourlyDistribution,
+        hourlyHeatmap,
         tokenDistribution: { native: nativeCount, usdt: usdtCount },
         chainDistribution,
+        chainDist,
+        tokenDist,
+        topRecipients,
+        recentTrend,
+        streaks: { current: currentStreak, longest: longestStreak },
         trends: {
           tipsToday,
           tipsYesterday,
@@ -1124,7 +1284,15 @@ export function createApiRouter(
             try {
               const result = await agent.executeTip(tipRequest);
               if (result.status === 'confirmed') {
-                content = `Tip sent successfully! I transferred ${result.amount} ${result.token === 'usdt' ? 'USDT' : result.chainId.startsWith('ethereum') ? 'ETH' : 'TON'} to ${result.to.slice(0, 8)}...${result.to.slice(-6)} on ${result.chainId.startsWith('ethereum') ? 'Ethereum Sepolia' : 'TON Testnet'}. Transaction: ${result.txHash.slice(0, 12)}...`;
+                const currency = result.token === 'usdt' ? 'USDT' : result.chainId.startsWith('ethereum') ? 'ETH' : 'TON';
+                const chain = result.chainId.startsWith('ethereum') ? 'Ethereum Sepolia' : 'TON Testnet';
+                content = personality.formatMessage('tip_confirmed', {
+                  amount: result.amount,
+                  currency,
+                  recipient: `${result.to.slice(0, 8)}...${result.to.slice(-6)}`,
+                  chain,
+                  txHash: `${result.txHash.slice(0, 12)}...`,
+                });
                 action = {
                   type: 'tip_executed',
                   data: {
@@ -1138,10 +1306,14 @@ export function createApiRouter(
                   },
                 };
               } else {
-                content = `The tip transaction failed: ${result.error ?? 'Unknown error'}. Please check your balance and try again.`;
+                content = personality.formatMessage('tip_failed', {
+                  error: result.error ?? 'Unknown error',
+                });
               }
             } catch (err) {
-              content = `I couldn't execute the tip: ${String(err)}. Make sure you have sufficient funds.`;
+              content = personality.formatMessage('tip_failed', {
+                error: String(err),
+              });
             }
           } else {
             // Parse what we can and ask for missing info
@@ -1161,7 +1333,15 @@ export function createApiRouter(
               try {
                 const result = await agent.executeTip(tipRequest);
                 if (result.status === 'confirmed') {
-                  content = `Done! Sent ${result.amount} ${result.token === 'usdt' ? 'USDT' : result.chainId.startsWith('ethereum') ? 'ETH' : 'TON'} to ${result.to.slice(0, 8)}...${result.to.slice(-6)}. TX: ${result.txHash.slice(0, 12)}...`;
+                  const currency = result.token === 'usdt' ? 'USDT' : result.chainId.startsWith('ethereum') ? 'ETH' : 'TON';
+                  const chain = result.chainId.startsWith('ethereum') ? 'Ethereum Sepolia' : 'TON Testnet';
+                  content = personality.formatMessage('tip_confirmed', {
+                    amount: result.amount,
+                    currency,
+                    recipient: `${result.to.slice(0, 8)}...${result.to.slice(-6)}`,
+                    chain,
+                    txHash: `${result.txHash.slice(0, 12)}...`,
+                  });
                   action = {
                     type: 'tip_executed',
                     data: {
@@ -1175,10 +1355,10 @@ export function createApiRouter(
                     },
                   };
                 } else {
-                  content = `Tip failed: ${result.error ?? 'Unknown error'}. Please check your balance.`;
+                  content = personality.formatMessage('tip_failed', { error: result.error ?? 'Unknown error' });
                 }
               } catch (err) {
-                content = `Couldn't complete the tip: ${String(err)}.`;
+                content = personality.formatMessage('tip_failed', { error: String(err) });
               }
             } else {
               const missing: string[] = [];
@@ -1197,7 +1377,7 @@ export function createApiRouter(
               const chain = b.chainId.startsWith('ethereum') ? 'Ethereum Sepolia' : 'TON Testnet';
               return `${chain}: ${b.nativeBalance} ${b.nativeCurrency}${parseFloat(b.usdtBalance) > 0 ? ` + ${b.usdtBalance} USDT` : ''}`;
             });
-            content = `Here are your current balances:\n\n${lines.join('\n')}`;
+            content = personality.formatMessage('balance_report', { balances: lines.join('\n') });
             action = {
               type: 'balance_check',
               data: { balances: balances.map((b) => ({ chainId: b.chainId, native: b.nativeBalance, usdt: b.usdtBalance, currency: b.nativeCurrency })) },
@@ -1220,7 +1400,12 @@ export function createApiRouter(
                 `${c.chainName}: ~$${c.estimatedFeeUsd} (${c.estimatedFee})`
               );
               const cheapest = comparison[0];
-              content = `Current fee estimates for a 0.01 transfer:\n\n${lines.join('\n')}\n\nCheapest: ${cheapest.chainName} at ~$${cheapest.estimatedFeeUsd}`;
+              content = personality.formatMessage('fee_comparison', {
+                amount: '0.01',
+                fees: lines.join('\n'),
+                cheapest: cheapest.chainName,
+                cheapestFee: cheapest.estimatedFeeUsd,
+              });
               action = {
                 type: 'fee_estimate',
                 data: { comparison },
@@ -1267,24 +1452,12 @@ export function createApiRouter(
         }
 
         case 'help': {
-          content = `I'm TipFlow, your AI-powered tipping assistant! Here's what I can do:\n\n` +
-            `- Send tips: "send 0.01 ETH to 0x1234..."\n` +
-            `- Check balances: "what's my balance?"\n` +
-            `- Compare fees: "which chain is cheapest?"\n` +
-            `- View addresses: "show my wallet address"\n` +
-            `- Tip history: "show my recent tips"\n` +
-            `- USDT tips: "tip 5 USDT to 0x1234..."\n\n` +
-            `I support Ethereum Sepolia and TON Testnet, and I'll automatically pick the best chain for your tip!`;
+          content = personality.formatMessage('help');
           break;
         }
 
         default: {
-          content = `I'm not sure what you mean. I can help you with:\n\n` +
-            `- Sending tips (e.g. "send 0.01 ETH to 0x...")\n` +
-            `- Checking balances ("what's my balance?")\n` +
-            `- Comparing fees ("which chain is cheapest?")\n` +
-            `- Viewing wallet addresses ("show my address")\n\n` +
-            `Try one of these, or say "help" for more details!`;
+          content = personality.formatMessage('unknown_intent');
           break;
         }
       }
@@ -1423,5 +1596,195 @@ export function createApiRouter(
     }
   });
 
+  // ── System Info ──────────────────────────────────────────────
+
+  /** GET /api/system/info — System and runtime information */
+  router.get('/system/info', (_req, res) => {
+    const mem = process.memoryUsage();
+    res.json({
+      uptime: Math.floor(process.uptime()),
+      nodeVersion: process.version,
+      wdkVersion: '1.0.0-beta.6',
+      apiEndpoints: 42,
+      startTime: new Date(Date.now() - process.uptime() * 1000).toISOString(),
+      memoryUsage: {
+        heapUsed: Math.round(mem.heapUsed / 1024 / 1024),
+        heapTotal: Math.round(mem.heapTotal / 1024 / 1024),
+      },
+      platform: process.platform,
+      environment: process.env.NODE_ENV || 'development',
+    });
+  });
+
+  // ── Telegram Bot ─────────────────────────────────────────────
+
+  /** GET /api/telegram/status — Telegram bot status */
+  router.get('/telegram/status', (_req, res) => {
+    try {
+      const status = agent.getTelegramStatus();
+      res.json(status);
+    } catch (err) {
+      logger.error('Failed to get Telegram status', { error: String(err) });
+      res.status(500).json({ error: 'Failed to get Telegram status' });
+    }
+  });
+
+  // ── Settings & Personality ──────────────────────────────────
+
+  /** GET /api/settings — Get current agent settings */
+  router.get('/settings', (_req, res) => {
+    res.json({ settings: agentSettings });
+  });
+
+  /** PUT /api/settings — Update agent settings */
+  router.put('/settings', (req, res) => {
+    try {
+      const body = req.body as Partial<AgentSettings>;
+
+      if (body.personality !== undefined) {
+        const validPersonalities: PersonalityType[] = ['professional', 'friendly', 'pirate', 'emoji', 'minimal'];
+        if (!validPersonalities.includes(body.personality)) {
+          res.status(400).json({ error: `Invalid personality. Must be one of: ${validPersonalities.join(', ')}` });
+          return;
+        }
+        agentSettings.personality = body.personality;
+        personality.setPersonality(body.personality);
+      }
+
+      if (body.defaultChain !== undefined) {
+        agentSettings.defaultChain = body.defaultChain;
+      }
+
+      if (body.defaultToken !== undefined) {
+        if (body.defaultToken !== 'native' && body.defaultToken !== 'usdt') {
+          res.status(400).json({ error: 'defaultToken must be "native" or "usdt"' });
+          return;
+        }
+        agentSettings.defaultToken = body.defaultToken;
+      }
+
+      if (body.autoConfirmThreshold !== undefined) {
+        agentSettings.autoConfirmThreshold = body.autoConfirmThreshold;
+      }
+
+      if (body.autoConfirmEnabled !== undefined) {
+        agentSettings.autoConfirmEnabled = body.autoConfirmEnabled;
+      }
+
+      if (body.notifications !== undefined) {
+        agentSettings.notifications = {
+          ...agentSettings.notifications,
+          ...body.notifications,
+        };
+      }
+
+      logger.info('Agent settings updated', { settings: agentSettings });
+      res.json({ settings: agentSettings });
+    } catch (err) {
+      logger.error('Failed to update settings', { error: String(err) });
+      res.status(500).json({ error: 'Failed to update settings' });
+    }
+  });
+
+  /** GET /api/personality — Get available personalities and active one */
+  router.get('/personality', (_req, res) => {
+    res.json({
+      active: personality.getActivePersonality(),
+      personalities: personality.getPersonalities(),
+    });
+  });
+
+  /** PUT /api/personality — Set the active personality */
+  router.put('/personality', (req, res) => {
+    try {
+      const { type } = req.body as { type?: PersonalityType };
+      if (!type) {
+        res.status(400).json({ error: 'type is required' });
+        return;
+      }
+
+      const success = personality.setPersonality(type);
+      if (!success) {
+        res.status(400).json({ error: `Invalid personality type: ${type}` });
+        return;
+      }
+
+      agentSettings.personality = type;
+      res.json({
+        active: personality.getActivePersonality(),
+        definition: personality.getActiveDefinition(),
+      });
+    } catch (err) {
+      logger.error('Failed to set personality', { error: String(err) });
+      res.status(500).json({ error: 'Failed to set personality' });
+    }
+  });
+
+
+  // -- Tip Links ----------------------------------------------------------
+
+  /** POST /api/tiplinks - Create a shareable tip link */
+  router.post('/tiplinks', (req, res) => {
+    try {
+      const { recipient, amount, token, message, chainId } = req.body as {
+        recipient?: string;
+        amount?: string;
+        token?: string;
+        message?: string;
+        chainId?: string;
+      };
+
+      if (!recipient || !amount) {
+        res.status(400).json({ error: 'recipient and amount are required' });
+        return;
+      }
+
+      const id = uuidv4().slice(0, 8);
+      const tipLink: TipLink = {
+        id,
+        recipient,
+        amount,
+        token: (token as TokenType) || 'native',
+        message: message || undefined,
+        chainId: (chainId as ChainId) || undefined,
+        url: `?tiplink=${id}`,
+        createdAt: new Date().toISOString(),
+      };
+
+      tipLinks.push(tipLink);
+      logger.info('Tip link created', { id, recipient, amount });
+      res.json({ tipLink });
+    } catch (err) {
+      logger.error('Failed to create tip link', { error: String(err) });
+      res.status(500).json({ error: 'Failed to create tip link' });
+    }
+  });
+
+  /** GET /api/tiplinks - List all tip links */
+  router.get('/tiplinks', (_req, res) => {
+    res.json({ tipLinks: [...tipLinks].reverse() });
+  });
+
+  /** GET /api/tiplinks/:id - Get a single tip link */
+  router.get('/tiplinks/:id', (req, res) => {
+    const link = tipLinks.find((l) => l.id === req.params.id);
+    if (!link) {
+      res.status(404).json({ error: 'Tip link not found' });
+      return;
+    }
+    res.json({ tipLink: link });
+  });
+
+  /** DELETE /api/tiplinks/:id - Delete a tip link */
+  router.delete('/tiplinks/:id', (req, res) => {
+    const idx = tipLinks.findIndex((l) => l.id === req.params.id);
+    if (idx === -1) {
+      res.status(404).json({ error: 'Tip link not found' });
+      return;
+    }
+    tipLinks.splice(idx, 1);
+    logger.info('Tip link deleted', { id: req.params.id });
+    res.json({ deleted: true, id: req.params.id });
+  });
   return router;
 }
