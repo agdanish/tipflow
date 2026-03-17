@@ -117,6 +117,7 @@ export interface TipResult {
   gasUsed?: string;
   error?: string;
   retryCount?: number;
+  memo?: string;
 }
 
 /** Dashboard state */
@@ -139,6 +140,7 @@ export interface TipHistoryEntry {
   fee: string;
   createdAt: string;
   reasoning: string;
+  memo?: string;
 }
 
 /** Natural language tip parse result */
@@ -187,6 +189,7 @@ export interface Contact {
   name: string;
   address: string;
   chain?: ChainId;
+  group?: string;
   tipCount: number;
   lastTipped?: string;
 }
@@ -342,6 +345,7 @@ export interface TipReceipt {
   status: 'confirmed' | 'pending';
   blockNumber?: number;
   explorerUrl: string;
+  memo?: string;
 }
 
 /** Retry information for failed transactions */
@@ -440,6 +444,31 @@ export interface StreakData {
     icon: string;
     label: string;
     reached: boolean;
+  }>;
+}
+
+/** CSV import row parsed from tip import */
+export interface CSVImportRow {
+  recipient: string;
+  amount: string;
+  token: TokenType;
+  chain: ChainId | '';
+  memo: string;
+}
+
+/** CSV import result */
+export interface CSVImportResult {
+  total: number;
+  success: number;
+  failed: number;
+  results: Array<{
+    row: number;
+    recipient: string;
+    amount: string;
+    status: 'success' | 'failed';
+    txHash?: string;
+    error?: string;
+    memo?: string;
   }>;
 }
 

@@ -43,6 +43,8 @@ import type {
   AddressTag,
   Challenge,
   StreakData,
+  CalendarResponse,
+  ContactImportResult,
 } from '../types';
 
 const BASE = '/api';
@@ -159,18 +161,38 @@ export const api = {
     }),
 
   // Address Book
-  getContacts: () =>
-    fetchJson<{ contacts: Contact[] }>('/contacts'),
+  getContacts: (group?: string) => {
+    const qs = group ? `?group=${encodeURIComponent(group)}` : '';
+    return fetchJson<{ contacts: Contact[] }>(`/contacts${qs}`);
+  },
 
-  addContact: (name: string, address: string, chain?: ChainId) =>
+  addContact: (name: string, address: string, chain?: ChainId, group?: string) =>
     fetchJson<{ contact: Contact }>('/contacts', {
       method: 'POST',
-      body: JSON.stringify({ name, address, chain }),
+      body: JSON.stringify({ name, address, chain, group }),
+    }),
+
+  updateContact: (id: string, updates: { name?: string; group?: string }) =>
+    fetchJson<{ contact: Contact }>(`/contacts/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
     }),
 
   deleteContact: (id: string) =>
     fetchJson<{ deleted: boolean; id: string }>(`/contacts/${id}`, {
       method: 'DELETE',
+    }),
+
+  getContactGroups: () =>
+    fetchJson<{ groups: string[] }>('/contacts/groups'),
+
+  exportContacts: () =>
+    fetchJson<Contact[]>('/contacts/export'),
+
+  importContacts: (contactsData: Array<{ name: string; address: string; chain?: ChainId; group?: string }>) =>
+    fetchJson<ContactImportResult>('/contacts/import', {
+      method: 'POST',
+      body: JSON.stringify(contactsData),
     }),
 
   // Gas Prices
@@ -380,4 +402,8 @@ export const api = {
     fetchJson<{ daily: Challenge[]; weekly: Challenge[]; streak: StreakData }>('/challenges/refresh', {
       method: 'POST',
     }),
+
+  // Calendar
+  getCalendar: (month: number, year: number) =>
+    fetchJson<CalendarResponse>(`/calendar?month=${month}&year=${year}`),
 };

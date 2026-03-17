@@ -515,3 +515,63 @@ html.light .onboarding-card {
     max-width: none !important;
   }
 }
+
+/* --- DASHBOARD RESPONSIVE GRIDS --- */
+
+/* Monitors row */
+.dashboard-grid-monitors {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+/* Cards grid (wallets, side-by-side panels) */
+.dashboard-grid-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+/* Main 2-column layout (tip form | agent/activity) */
+.dashboard-grid-main {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+/* Tablet: 768px+ */
+@media (min-width: 768px) {
+  .dashboard-grid-monitors {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard-grid-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard-grid-main {
+    gap: 1.5rem;
+  }
+}
+
+/* Desktop: 1024px+ */
+@media (min-width: 1024px) {
+  .dashboard-grid-monitors {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .dashboard-grid-main {
+    grid-template-columns: 1fr 2fr;
+    gap: 1.5rem;
+  }
+}
+
+/* Prevent horizontal overflow everywhere */
+html, body {
+  max-width: 100vw;
+}
+
+@media (max-width: 767px) {
+  .dashboard-grid-monitors,
+  .dashboard-grid-cards,
+  .dashboard-grid-main {
+    grid-template-columns: 1fr;
+  }
+}

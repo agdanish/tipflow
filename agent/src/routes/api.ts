@@ -1049,18 +1049,53 @@ export function createApiRouter(
 
   // ── Address Book Contacts ──────────────────────────────────────
 
-  /** GET /api/contacts — List all contacts */
-  router.get('/contacts', (_req, res) => {
-    res.json({ contacts: contacts.getContacts() });
+  /** GET /api/contacts/groups — List all unique group names */
+  router.get('/contacts/groups', (_req, res) => {
+    res.json({ groups: contacts.getGroups() });
+  });
+
+  /** GET /api/contacts/export — Export all contacts as JSON */
+  router.get('/contacts/export', (_req, res) => {
+    const data = contacts.exportContacts();
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename="tipflow-contacts.json"');
+    res.json(data);
+  });
+
+  /** POST /api/contacts/import — Import contacts from JSON array */
+  router.post('/contacts/import', (req, res) => {
+    try {
+      const body = req.body;
+      if (!Array.isArray(body)) {
+        res.status(400).json({ error: 'Request body must be a JSON array of contacts' });
+        return;
+      }
+      const result = contacts.importContacts(body);
+      res.json(result);
+    } catch (err) {
+      logger.error('Failed to import contacts', { error: String(err) });
+      res.status(500).json({ error: 'Failed to import contacts' });
+    }
+  });
+
+  /** GET /api/contacts — List all contacts, optionally filtered by group */
+  router.get('/contacts', (req, res) => {
+    const group = req.query.group as string | undefined;
+    if (group) {
+      res.json({ contacts: contacts.getContactsByGroup(group) });
+    } else {
+      res.json({ contacts: contacts.getContacts() });
+    }
   });
 
   /** POST /api/contacts — Add a contact */
   router.post('/contacts', (req, res) => {
     try {
-      const { name, address, chain } = req.body as {
+      const { name, address, chain, group } = req.body as {
         name: string;
         address: string;
         chain?: ChainId;
+        group?: string;
       };
 
       if (!name || !address) {
@@ -1068,13 +1103,25 @@ export function createApiRouter(
         return;
       }
 
-      const contact = contacts.addContact(name, address, chain);
+      const contact = contacts.addContact(name, address, chain, group);
       agent.addActivity({ type: 'contact_saved', message: `Contact saved: ${name}`, detail: address.slice(0, 10) + '...' });
       res.json({ contact });
     } catch (err) {
       logger.error('Failed to add contact', { error: String(err) });
       res.status(500).json({ error: 'Failed to add contact' });
     }
+  });
+
+  /** PUT /api/contacts/:id — Update a contact */
+  router.put('/contacts/:id', (req, res) => {
+    const { id } = req.params;
+    const { name, group } = req.body as { name?: string; group?: string };
+    const updated = contacts.updateContact(id, { name, group });
+    if (!updated) {
+      res.status(404).json({ error: 'Contact not found' });
+      return;
+    }
+    res.json({ contact: updated });
   });
 
   /** DELETE /api/contacts/:id — Delete a contact */
@@ -1903,6 +1950,179 @@ export function createApiRouter(
     } catch (err) {
       logger.error('Failed to refresh challenges', { error: String(err) });
       res.status(500).json({ error: 'Failed to refresh challenges' });
+    }
+  });
+
+  // ── Calendar View ─────────────────────────────────────────────
+
+  /** GET /api/calendar — Get scheduled/recurring tips projected onto a month grid */
+  router.get('/calendar', (req, res) => {
+    try {
+      const now = new Date();
+      const month = parseInt(req.query.month as string, 10) || (now.getMonth() + 1);
+      const year = parseInt(req.query.year as string, 10) || now.getFullYear();
+
+      if (month < 1 || month > 12 || year < 2000 || year > 2100) {
+        res.status(400).json({ error: 'Invalid month or year' });
+        return;
+      }
+
+      const tips = agent.getScheduledTips();
+      const firstDay = new Date(year, month - 1, 1);
+      const lastDay = new Date(year, month, 0);
+      const daysInMonth = lastDay.getDate();
+
+      // Build a map: date string -> tips[]
+      const dayMap = new Map<string, Array<{
+        id: string;
+        recipient: string;
+        amount: string;
+        token: string;
+        chain?: string;
+        message?: string;
+        recurring: boolean;
+        interval?: string;
+        scheduledAt: string;
+        status: string;
+      }>>();
+
+      for (const tip of tips) {
+        const tipDate = new Date(tip.scheduledAt);
+
+        if (tip.recurring && tip.status === 'scheduled') {
+          // Project recurring tips across the month
+          for (let day = 1; day <= daysInMonth; day++) {
+            const checkDate = new Date(year, month - 1, day);
+            if (checkDate < tipDate && !tip.lastExecuted) continue; // hasn't started yet before this day
+
+            let shouldShow = false;
+            if (tip.interval === 'daily') {
+              shouldShow = checkDate >= firstDay;
+            } else if (tip.interval === 'weekly') {
+              shouldShow = checkDate.getDay() === tipDate.getDay();
+            } else if (tip.interval === 'monthly') {
+              shouldShow = checkDate.getDate() === tipDate.getDate();
+            }
+
+            if (shouldShow && checkDate >= tipDate) {
+              const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+              if (!dayMap.has(dateStr)) dayMap.set(dateStr, []);
+              dayMap.get(dateStr)!.push({
+                id: tip.id,
+                recipient: tip.recipient,
+                amount: tip.amount,
+                token: tip.token || 'native',
+                chain: tip.chain,
+                message: tip.message,
+                recurring: true,
+                interval: tip.interval,
+                scheduledAt: tip.scheduledAt,
+                status: tip.status,
+              });
+            }
+          }
+        } else {
+          // One-time tip — show on its exact date
+          if (tipDate.getMonth() + 1 === month && tipDate.getFullYear() === year) {
+            const day = tipDate.getDate();
+            const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            if (!dayMap.has(dateStr)) dayMap.set(dateStr, []);
+            dayMap.get(dateStr)!.push({
+              id: tip.id,
+              recipient: tip.recipient,
+              amount: tip.amount,
+              token: tip.token || 'native',
+              chain: tip.chain,
+              message: tip.message,
+              recurring: !!tip.recurring,
+              interval: tip.interval,
+              scheduledAt: tip.scheduledAt,
+              status: tip.status,
+            });
+          }
+        }
+      }
+
+      const events = Array.from(dayMap.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([date, dateTips]) => ({ date, tips: dateTips }));
+
+      res.json({ month, year, events });
+    } catch (err) {
+      logger.error('Failed to get calendar data', { error: String(err) });
+      res.status(500).json({ error: 'Failed to get calendar data' });
+    }
+  });
+
+  // ── Chain Analytics (Cross-Chain Comparison) ────────────────────────
+
+  /** GET /api/analytics/chains — Per-chain analytics for side-by-side comparison */
+  router.get('/analytics/chains', async (_req, res) => {
+    try {
+      const history = agent.getHistory();
+      const chainIds = wallet.getRegisteredChains();
+      const balances = await wallet.getAllBalances();
+
+      // Gather per-chain stats
+      const chainStats = chainIds.map((chainId) => {
+        const chainHistory = history.filter((h) => h.chainId === chainId);
+        const succeeded = chainHistory.filter((h) => h.status === 'confirmed');
+        const totalTips = chainHistory.length;
+        const totalVolume = succeeded.reduce((sum, h) => sum + parseFloat(h.amount || '0'), 0);
+        const fees = succeeded.map((h) => parseFloat(h.fee || '0')).filter((f) => !isNaN(f));
+        const avgFee = fees.length > 0 ? fees.reduce((a, b) => a + b, 0) / fees.length : 0;
+        const successRate = totalTips > 0 ? Math.round((succeeded.length / totalTips) * 100) : 100;
+        const bal = balances.find((b) => b.chainId === chainId);
+
+        // Estimate average confirmation time (use 15s for ETH, 5s for TON as defaults)
+        const config = wallet.getChainConfig(chainId);
+        const avgConfirmationTime = config.blockchain === 'ethereum' ? 15 : 5;
+
+        return {
+          chainId,
+          name: config.name,
+          totalTips,
+          totalVolume: totalVolume.toFixed(6),
+          avgFee: avgFee.toFixed(6),
+          successRate,
+          balance: bal?.nativeBalance ?? '0',
+          avgConfirmationTime,
+          gasPrice: '0',
+        };
+      });
+
+      // Try to fetch gas prices for each chain
+      for (const stat of chainStats) {
+        try {
+          const config = wallet.getChainConfig(stat.chainId as ChainId);
+          if (config.blockchain === 'ethereum') {
+            const provider = new JsonRpcProvider('https://rpc.sepolia.org');
+            const feeData = await provider.getFeeData();
+            if (feeData.gasPrice) {
+              stat.gasPrice = parseFloat(formatUnits(feeData.gasPrice, 'gwei')).toFixed(2) + ' gwei';
+            }
+          } else {
+            stat.gasPrice = 'N/A';
+          }
+        } catch {
+          stat.gasPrice = 'N/A';
+        }
+      }
+
+      // Determine recommendations
+      const withFees = chainStats.filter((c) => parseFloat(c.avgFee) > 0);
+      const lowestFee = withFees.length > 0
+        ? withFees.reduce((a, b) => parseFloat(a.avgFee) < parseFloat(b.avgFee) ? a : b).chainId
+        : chainIds[chainIds.length - 1] || '';
+      const fastest = chainStats.reduce((a, b) => a.avgConfirmationTime < b.avgConfirmationTime ? a : b).chainId;
+
+      res.json({
+        chains: chainStats,
+        recommendation: { lowestFee, fastest },
+      });
+    } catch (err) {
+      logger.error('Failed to get chain analytics', { error: String(err) });
+      res.status(500).json({ error: 'Failed to get chain analytics' });
     }
   });
 

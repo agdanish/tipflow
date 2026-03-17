@@ -180,8 +180,16 @@ export interface Contact {
   name: string;
   address: string;
   chain?: ChainId;
+  group?: string;
   tipCount: number;
   lastTipped?: string;
+}
+
+/** Contact import result summary */
+export interface ContactImportResult {
+  added: number;
+  skipped: number;
+  errors: string[];
 }
 
 /** Leaderboard entry — top tip recipients */
@@ -600,6 +608,62 @@ export interface StreakData {
     label: string;
     reached: boolean;
   }>;
+}
+
+/** Calendar event — a day's worth of scheduled/recurring tips */
+export interface CalendarEvent {
+  date: string;
+  tips: Array<{
+    id: string;
+    recipient: string;
+    amount: string;
+    token: TokenType;
+    chain?: ChainId;
+    message?: string;
+    recurring: boolean;
+    interval?: 'daily' | 'weekly' | 'monthly';
+    scheduledAt: string;
+    status: 'scheduled' | 'executed' | 'failed';
+  }>;
+}
+
+/** Calendar response from GET /api/calendar */
+export interface CalendarResponse {
+  month: number;
+  year: number;
+  events: CalendarEvent[];
+}
+
+/** Per-chain analytics for cross-chain comparison */
+export interface ChainAnalyticsEntry {
+  chainId: string;
+  name: string;
+  totalTips: number;
+  totalVolume: string;
+  avgFee: string;
+  successRate: number;
+  balance: string;
+  avgConfirmationTime: number;
+  gasPrice: string;
+}
+
+/** Chain analytics response from GET /api/analytics/chains */
+export interface ChainAnalyticsResponse {
+  chains: ChainAnalyticsEntry[];
+  recommendation: {
+    lowestFee: string;
+    fastest: string;
+  };
+}
+
+/** Favorite recipient stored in localStorage */
+export interface FavoriteRecipient {
+  address: string;
+  name?: string;
+  tipCount: number;
+  lastTipped?: string;
+  starred: boolean;
+  order: number;
 }
 
 /** Telegram bot status */
