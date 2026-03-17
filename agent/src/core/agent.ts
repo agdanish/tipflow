@@ -998,7 +998,7 @@ export class TipFlowAgent {
     request: TipRequest,
     token: TokenType,
   ): Promise<{ hash: string; fee: string }> {
-    if (token === 'usdt') {
+    if (token === 'usdt' || token === 'usat') {
       return this.wallet.sendUsdtTransfer(chainId, request.recipient, request.amount);
     }
     return this.wallet.sendTransaction(chainId, request.recipient, request.amount);

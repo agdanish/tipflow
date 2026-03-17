@@ -235,7 +235,7 @@ export const api = {
   getTemplates: () =>
     fetchJson<{ templates: TipTemplate[] }>('/templates'),
 
-  createTemplate: (template: { name: string; recipient: string; amount: string; token?: 'native' | 'usdt'; chainId?: string }) =>
+  createTemplate: (template: { name: string; recipient: string; amount: string; token?: 'native' | 'usdt' | 'usat'; chainId?: string }) =>
     fetchJson<{ template: TipTemplate }>('/templates', {
       method: 'POST',
       body: JSON.stringify(template),

@@ -8,6 +8,7 @@ tags:
   - tipping
   - crypto
   - usdt
+  - usat
   - rumble
   - wdk
   - wallet
@@ -17,7 +18,7 @@ tags:
 
 # TipFlow Agent Skill
 
-TipFlow is an AI-powered tipping agent for Rumble video creators. It uses Tether WDK to manage multi-chain wallets (Ethereum Sepolia + TON Testnet) and lets you send USDT and native crypto tips through natural language. TipFlow learns your tipping patterns, makes autonomous recommendations, and supports community tipping pools, watch-time auto-tipping, and event-triggered tips.
+TipFlow is an AI-powered tipping agent that extends Rumble's existing WDK-based tipping wallet. It uses Tether WDK to manage multi-chain wallets (Ethereum Sepolia + TON Testnet) and lets you send USDT, USAT (USA₮), and native crypto tips through natural language. TipFlow uses the same WDK wallet primitives as Rumble's native wallet — same seed, same keys, same addresses. It learns your tipping patterns, makes autonomous recommendations, and supports community tipping pools, watch-time auto-tipping, and event-triggered tips.
 
 **API Base URL:** `http://localhost:3001/api`
 
@@ -38,7 +39,7 @@ Send crypto to a recipient address.
 |-------|------|----------|-------------|
 | `recipient` | string | yes | Wallet address (0x... for Ethereum, UQ/EQ... for TON) |
 | `amount` | string | yes | Amount to send (e.g. "0.01") |
-| `token` | string | no | `"native"` (ETH/TON) or `"usdt"` (ERC-20). Default: `"native"` |
+| `token` | string | no | `"native"` (ETH/TON), `"usdt"` (ERC-20), or `"usat"` (USA₮ ERC-20). Default: `"native"` |
 | `preferredChain` | string | no | `"ethereum-sepolia"` or `"ton-testnet"`. Auto-detected from address if omitted |
 | `message` | string | no | Optional tip message/memo |
 
@@ -67,7 +68,7 @@ Tip up to 10 recipients in one operation.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `recipients` | array | yes | Array of `{ address, amount }` objects (max 10) |
-| `token` | string | no | `"native"` or `"usdt"`. Default: `"native"` |
+| `token` | string | no | `"native"`, `"usdt"`, or `"usat"`. Default: `"native"` |
 | `preferredChain` | string | no | Chain to use |
 
 **Example:**
@@ -95,7 +96,7 @@ Divide a total amount among up to 5 recipients by percentage.
 |-------|------|----------|-------------|
 | `recipients` | array | yes | Array of `{ address, percentage }` objects (max 5) |
 | `totalAmount` | string | yes | Total amount to split |
-| `token` | string | no | `"native"` or `"usdt"`. Default: `"native"` |
+| `token` | string | no | `"native"`, `"usdt"`, or `"usat"`. Default: `"native"` |
 | `chainId` | string | no | Chain to use |
 
 **Example:**
@@ -810,6 +811,7 @@ This endpoint handles the full conversation loop internally, including intent de
 |-------|-------------|
 | `native` | Chain's native currency (ETH or TON) |
 | `usdt` | Tether USDT (ERC-20 on Ethereum) |
+| `usat` | Tether USAT / USA₮ (ERC-20 on Ethereum) — Rumble-supported tipping token |
 
 ## Error Handling
 

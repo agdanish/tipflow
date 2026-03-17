@@ -25,7 +25,7 @@
 
 **Track: Tipping Bot — Building AI-powered tipping enhancement for Rumble's WDK-based creator tipping wallet**
 
-In January 2026, [Rumble](https://rumble.com) launched its crypto wallet powered by Tether WDK, enabling viewers to tip creators directly with USDT. TipFlow extends that foundation with an **autonomous AI agent** that makes tipping smarter, automatic, and community-driven.
+In January 2026, [Rumble](https://rumble.com) launched its crypto wallet powered by Tether WDK, enabling viewers to tip creators directly with USDT, USAT (USA₮), XAU₮, and BTC. TipFlow extends that foundation with an **autonomous AI agent** that makes tipping smarter, automatic, and community-driven.
 
 TipFlow watches your viewing habits, learns your preferences, and autonomously manages tips to your favorite Rumble creators. Say **"tip my top 3 creators this week"** — the agent identifies them, calculates fair amounts based on watch time, executes transactions via **Tether WDK**, verifies on-chain, and reports back. All through a polished dashboard with 74 components.
 
@@ -49,14 +49,16 @@ TipFlow watches your viewing habits, learns your preferences, and autonomously m
 
 ## Rumble Integration
 
-Rumble is one of the first major video platforms to integrate Tether WDK for native crypto tipping. TipFlow builds on top of this by adding an AI layer that enhances the tipping experience for both viewers and creators.
+Rumble is one of the first major video platforms to integrate Tether WDK for native crypto tipping. TipFlow is **not a standalone payments app** — it is an extension layer that builds on top of Rumble's existing WDK-based tipping wallet, enhancing it with autonomous AI intelligence.
 
-**How it works:** Rumble's wallet handles the core USDT custody and transfer infrastructure via WDK. TipFlow connects to Rumble creator profiles and viewing data to provide intelligent tipping automation — watch-time analysis, community pools, event triggers, and autonomous recommendations. The agent operates the same WDK wallet primitives that Rumble uses, extending them with decision-making intelligence.
+**Same wallet, same keys, same funds.** TipFlow uses the same WDK wallet primitives as Rumble's native wallet. A creator's Rumble wallet address IS their TipFlow address — same seed phrase, same HD derivation paths, same keys, same on-chain funds. If a creator already has a Rumble wallet, TipFlow connects to it seamlessly. There is no separate wallet to manage.
+
+**How it works:** Rumble's wallet handles core USDT/USAT custody and transfer infrastructure via WDK. TipFlow connects to Rumble creator profiles and viewing data to provide intelligent tipping automation — watch-time analysis, community pools, event triggers, and autonomous recommendations. The agent operates the same WDK wallet primitives that Rumble uses, extending them with decision-making intelligence. Because both Rumble and TipFlow derive wallets from the same WDK seed phrase using identical HD paths, any tip sent through TipFlow arrives at the same address the creator uses on Rumble.
 
 **Rumble-specific capabilities:**
 - **Creator profiles** — Pull channel info, subscriber counts, content metadata
 - **Watch-time auto-tipping** — Watch 80%+ of a video and the agent auto-tips the creator
-- **Community tipping pools** — Viewers pool USDT toward a shared creator goal
+- **Community tipping pools** — Viewers pool USDT/USAT toward a shared creator goal
 - **Event-triggered tips** — Automatically tip when a creator posts a new video, hits a milestone, or goes live
 - **Creator leaderboard** — Rank creators by tips received, engagement, and community support
 - **Collab splits** — Multi-creator videos automatically split tips by contribution percentage
@@ -173,7 +175,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 | Balance queries | All wallet modules | `getBalance()`, `getTokenBalance()` | Chain analysis + dashboard |
 | Fee estimation | All wallet modules | `quoteSendTransaction()` | Cross-chain fee comparison |
 | Native transfers | All wallet modules | `sendTransaction()` | ETH/TON/TRX tip execution |
-| USDT transfers | `@tetherto/wdk-wallet-evm` | `transfer()` | ERC-20 token sends |
+| USDT/USAT transfers | `@tetherto/wdk-wallet-evm` | `transfer()` | ERC-20 token sends |
 | Fee rate queries | `@tetherto/wdk` | `getFeeRates()` | Real-time gas monitoring |
 | HD derivation | `@tetherto/wdk-wallet-evm` | Derivation path indexing | Multi-wallet support |
 | Gasless (ERC-4337) | `@tetherto/wdk-wallet-evm-erc-4337` | Account abstraction | Zero-fee tipping |
@@ -194,7 +196,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 | **Creator Profiles** | Channel info, subscriber counts, content catalog, tip history per creator |
 | **Channel Management** | Follow/unfollow creators, organize by category, set per-creator tip preferences |
 | **Watch-Time Auto-Tipping** | Watch 80%+ of a video and the agent auto-tips the creator based on your policy |
-| **Community Tipping Pools** | Viewers pool USDT toward a shared goal for a creator (e.g., equipment fund) |
+| **Community Tipping Pools** | Viewers pool USDT/USAT toward a shared goal for a creator (e.g., equipment fund) |
 | **Event-Triggered Tips** | Auto-tip on new video upload, subscriber milestone, or live stream start |
 | **Creator Leaderboard** | Rank creators by tips received, engagement score, and community support |
 | **Collab Splits** | Multi-creator videos automatically split tips by contribution percentage |
@@ -230,14 +232,14 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 
 | Feature | Description |
 |---------|-------------|
-| **Single Tips** | Send ETH/TON or USDT to any address |
+| **Single Tips** | Send ETH/TON or USDT/USAT to any address |
 | **Batch Tipping** | Tip up to 10 recipients in one operation |
 | **Split Tipping** | Divide amount among up to 5 recipients by percentage |
 | **Scheduled Tips** | Schedule one-time or recurring (daily/weekly/monthly) tips |
 | **Conditional Tips** | Auto-tip when gas_below, balance_above, or time_of_day conditions are met |
 | **Tip Templates** | Save and reuse frequently-sent configurations |
 | **Gasless Tips (ERC-4337)** | Zero gas fees via Account Abstraction |
-| **USDT ERC-20 Transfers** | Token transfers via WDK `transfer()` |
+| **USDT/USAT ERC-20 Transfers** | Token transfers via WDK `transfer()` |
 | **Tip Links** | Shareable pre-filled tip URLs |
 | **Transaction Retry** | Automatic retry with exponential backoff |
 | **Tip Receipts** | Structured receipts with receipt ID, block number, fees |
@@ -259,7 +261,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 | **Network Health** | Real-time RPC connectivity with latency |
 | **ENS Resolution** | Resolve .eth names to addresses with caching |
 
-**Token Support:** TipFlow's multi-chain architecture supports tipping with USDT (ERC-20 on Ethereum, TRC-20 on TRON). The USDT0 bridge (via `wdk-protocol-bridge-usdt0-evm` and LayerZero) enables cross-chain USDT transfers. XAU₮ and BTC support is architecturally ready via WDK's modular wallet system (`wdk-wallet-btc` package exists in the WDK ecosystem).
+**Token Support:** TipFlow supports all Rumble-supported tipping tokens: USDT (ERC-20 on Ethereum, TRC-20 on TRON), USAT/USA₮ (Tether's US dollar-backed stablecoin), and native chain currencies (ETH, TON, TRX). The USDT0 bridge (via `wdk-protocol-bridge-usdt0-evm` and LayerZero) enables cross-chain USDT transfers. XAU₮ and BTC support is architecturally ready via WDK's modular wallet system (`wdk-wallet-btc` package exists in the WDK ecosystem).
 
 ### Analytics & Gamification
 
@@ -407,7 +409,7 @@ All external services used in TipFlow are free and require no paid subscriptions
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/api/wallet/addresses` | All wallet addresses |
-| `GET` | `/api/wallet/balances` | Native + USDT balances |
+| `GET` | `/api/wallet/balances` | Native + USDT/USAT balances |
 | `GET` | `/api/wallet/receive` | Wallet QR codes + explorer links |
 | `GET` | `/api/wallet/seed` | Seed phrase display |
 | `GET` | `/api/wallets` | List derived HD wallets |
@@ -514,7 +516,7 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 
 ### 4. Agentic Payment Design
 
-- USDT-first design — stable value tipping, no volatile surprises
+- Stablecoin-first design (USDT/USAT) — stable value tipping, no volatile surprises
 - Spending limits with daily/weekly/per-tip enforcement
 - Cross-chain fee optimizer selects cheapest route
 - Gasless tipping via ERC-4337 reduces barrier to entry
@@ -527,7 +529,7 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 
 ### 5. Originality
 
-- Builds directly on Rumble's existing WDK-based tipping wallet
+- Extends (not replaces) Rumble's existing WDK-based tipping wallet — same seed, same keys, same addresses
 - Community tipping pools — collaborative fundraising with goals for creators
 - Creator collab splits — multi-creator videos automatically split tips
 - Event-triggered tips (new video, milestones, live streams) drive creator engagement

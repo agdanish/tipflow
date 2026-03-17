@@ -1969,8 +1969,8 @@ export function createApiRouter(
       }
 
       if (body.defaultToken !== undefined) {
-        if (body.defaultToken !== 'native' && body.defaultToken !== 'usdt') {
-          res.status(400).json({ error: 'defaultToken must be "native" or "usdt"' });
+        if (body.defaultToken !== 'native' && body.defaultToken !== 'usdt' && body.defaultToken !== 'usat') {
+          res.status(400).json({ error: 'defaultToken must be "native", "usdt", or "usat"' });
           return;
         }
         agentSettings.defaultToken = body.defaultToken;

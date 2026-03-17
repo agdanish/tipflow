@@ -182,7 +182,7 @@ JSON:`;
     const recipient = String(parsed.recipient ?? '').trim();
     const amount = String(parsed.amount ?? '').trim();
     const tokenRaw = String(parsed.token ?? 'native').toLowerCase();
-    const token: 'native' | 'usdt' = tokenRaw === 'usdt' ? 'usdt' : 'native';
+    const token: 'native' | 'usdt' | 'usat' = tokenRaw === 'usdt' ? 'usdt' : tokenRaw === 'usat' ? 'usat' : 'native';
     const chain = parsed.chain ? String(parsed.chain) : undefined;
     const message = parsed.message ? String(parsed.message) : undefined;
 
@@ -217,14 +217,24 @@ JSON:`;
     // Extract amount: number potentially with decimals, before or after token name
     // Patterns: "0.01 ETH", "send 5 USDT", "tip 0.001", "$10"
     let amount = '';
-    let token: 'native' | 'usdt' = 'native';
+    let token: 'native' | 'usdt' | 'usat' = 'native';
+
+    // Pattern: "X USAT" or "X usa₮" — Tether's US dollar-backed stablecoin
+    const usatNameMatch = input.match(/(\d+(?:\.\d+)?)\s*(?:usat|usa₮)/i);
+    const usatNameBeforeMatch = input.match(/(?:usat|usa₮)\s*(\d+(?:\.\d+)?)/i);
 
     // Pattern: "$X" or "X USDT" or "X usdt" or "X tether"
     const usdtAmountMatch = input.match(/\$\s*(\d+(?:\.\d+)?)/);
     const usdtNameMatch = input.match(/(\d+(?:\.\d+)?)\s*(?:usdt|tether)/i);
     const usdtNameBeforeMatch = input.match(/(?:usdt|tether)\s*(\d+(?:\.\d+)?)/i);
 
-    if (usdtAmountMatch) {
+    if (usatNameMatch) {
+      amount = usatNameMatch[1];
+      token = 'usat';
+    } else if (usatNameBeforeMatch) {
+      amount = usatNameBeforeMatch[1];
+      token = 'usat';
+    } else if (usdtAmountMatch) {
       amount = usdtAmountMatch[1];
       token = 'usdt';
     } else if (usdtNameMatch) {
@@ -250,8 +260,8 @@ JSON:`;
     } else if (evmMatch || /\b(?:eth|ethereum|sepolia|evm)\b/i.test(lower)) {
       chain = 'ethereum-sepolia';
     }
-    // USDT forces ethereum-sepolia
-    if (token === 'usdt') {
+    // USDT/USAT forces ethereum-sepolia (ERC-20 tokens)
+    if (token === 'usdt' || token === 'usat') {
       chain = 'ethereum-sepolia';
     }
 
@@ -273,7 +283,7 @@ JSON:`;
     if (recipient && this.isValidAddress(recipient)) confidence += 40;
     if (amount && !isNaN(parseFloat(amount)) && parseFloat(amount) > 0) confidence += 40;
     if (/\b(?:send|tip|transfer|pay)\b/i.test(lower)) confidence += 10;
-    if (token === 'usdt' || /\b(?:eth|ton)\b/i.test(lower)) confidence += 10;
+    if (token === 'usdt' || token === 'usat' || /\b(?:eth|ton)\b/i.test(lower)) confidence += 10;
 
     return {
       recipient,

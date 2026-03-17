@@ -13,6 +13,14 @@ const USDT_CONTRACTS: Record<string, string> = {
   'ethereum-sepolia': '0x7169D38820dfd117C3FA1f22a697dBA58d90BA06', // Sepolia USDT
 };
 
+/** USAT (USA₮) contract addresses on testnets.
+ *  USAT is Tether's US dollar-backed stablecoin — a Rumble-supported tipping token.
+ *  Same WDK transfer() flow as USDT; the contract address is the only difference.
+ *  When a real USAT testnet contract is deployed, replace the placeholder below. */
+export const USAT_CONTRACTS: Record<string, string> = {
+  'ethereum-sepolia': '0x0000000000000000000000000000000000000000', // Placeholder — replace with real USAT testnet contract when available
+};
+
 /** Chain configurations */
 const CHAIN_CONFIGS: Record<ChainId, ChainConfig> = {
   'ethereum-sepolia': {
@@ -548,7 +556,7 @@ export class WalletService {
   async sendGaslessTransaction(
     recipient: string,
     amount: string,
-    token: 'native' | 'usdt' = 'native',
+    token: 'native' | 'usdt' | 'usat' = 'native',
   ): Promise<{ hash: string; fee: string; gasless: boolean; chainId: ChainId }> {
     this.ensureInitialized();
 
@@ -558,9 +566,9 @@ export class WalletService {
         const account = await this.wdk!.getAccount('ethereum-erc4337', 0);
         const gaslessChainId: ChainId = 'ethereum-sepolia-gasless';
 
-        if (token === 'usdt') {
+        if (token === 'usdt' || token === 'usat') {
           const usdtContract = USDT_CONTRACTS['ethereum-sepolia'];
-          if (!usdtContract) throw new Error('USDT contract not configured for gasless chain');
+          if (!usdtContract) throw new Error('USDT/USAT contract not configured for gasless chain');
 
           const amountRaw = BigInt(Math.floor(parseFloat(amount) * 1e6));
           logger.info('Sending gasless USDT transfer via ERC-4337', { recipient, amount, amountRaw: amountRaw.toString() });
@@ -612,7 +620,7 @@ export class WalletService {
     // Fallback: regular EVM transaction
     logger.info('Gasless not available, falling back to regular transaction');
     const fallbackChainId: ChainId = 'ethereum-sepolia';
-    if (token === 'usdt') {
+    if (token === 'usdt' || token === 'usat') {
       const result = await this.sendUsdtTransfer(fallbackChainId, recipient, amount);
       return { ...result, gasless: false, chainId: fallbackChainId };
     } else {
