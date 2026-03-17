@@ -685,6 +685,24 @@ export class WalletService {
     return `${config.explorerUrl}/tx/${txHash}`;
   }
 
+  /** Sign a message using the WDK wallet key for a specific chain */
+  async signMessage(chainId: ChainId, message: string): Promise<{ signature: string; publicKey: string }> {
+    this.ensureInitialized();
+    const blockchain = this.getBlockchain(chainId);
+    const account = await this.wdk!.getAccount(blockchain, 0);
+    const signature = await account.sign(message);
+    const publicKey = Buffer.from(account.keyPair.publicKey).toString('hex');
+    return { signature, publicKey };
+  }
+
+  /** Verify a signed message using the WDK wallet */
+  async verifyMessage(chainId: ChainId, message: string, signature: string): Promise<boolean> {
+    this.ensureInitialized();
+    const blockchain = this.getBlockchain(chainId);
+    const account = await this.wdk!.getAccount(blockchain, 0);
+    return account.verify(message, signature);
+  }
+
   /** Cleanup resources */
   dispose(): void {
     if (this.wdk) {

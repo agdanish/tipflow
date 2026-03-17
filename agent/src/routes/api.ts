@@ -26,6 +26,9 @@ import { TreasuryService } from '../services/treasury.service.js';
 import { IndexerService } from '../services/indexer.service.js';
 import { BridgeService } from '../services/bridge.service.js';
 import { LendingService } from '../services/lending.service.js';
+import { ReceiptService } from '../services/receipt.service.js';
+import { StreamingService } from '../services/streaming.service.js';
+import { ReputationService } from '../services/reputation.service.js';
 
 /** Shared challenges service instance — exported for agent integration */
 export const challenges = new ChallengesService();
@@ -53,6 +56,9 @@ export const bridgeService = new BridgeService();
 
 /** Shared lending service instance — exported for agent integration */
 export const lendingService = new LendingService();
+
+/** Shared reputation service instance — exported for agent integration */
+export const reputationService = new ReputationService();
 
 /** Shared contacts service instance */
 const contacts = new ContactsService();
@@ -100,6 +106,14 @@ export function createApiRouter(
   ai: AIService,
 ): Router {
   const router = Router();
+
+  // Receipt & Streaming services (need walletService reference)
+  const receiptService = new ReceiptService(wallet);
+  const streamingService = new StreamingService(wallet);
+
+  // Wire receipt and reputation services to agent
+  agent.setReceiptService(receiptService);
+  agent.setReputationService(reputationService);
 
   // Apply audit logging to all API routes
   router.use(auditLog());
@@ -3262,6 +3276,149 @@ export function createApiRouter(
       logger.error('Failed to withdraw from lending', { error: String(err) });
       res.status(500).json({ error: 'Failed to withdraw from lending protocol' });
     }
+  });
+
+  // ══════════════════════════════════════════════
+  //  CRYPTOGRAPHIC TIP RECEIPTS (Proof-of-Tip)
+  // ══════════════════════════════════════════════
+
+  /** GET /api/receipt/:tipId — Get cryptographic receipt for a tip */
+  router.get('/receipt/:tipId', (_req, res) => {
+    const receipt = receiptService.getReceipt(_req.params.tipId);
+    if (!receipt) {
+      res.status(404).json({ error: 'Receipt not found' });
+      return;
+    }
+    res.json({ receipt });
+  });
+
+  /** POST /api/receipt/verify — Verify a cryptographic receipt */
+  router.post('/receipt/verify', async (req, res) => {
+    try {
+      const { receipt } = req.body;
+      if (!receipt) {
+        res.status(400).json({ error: 'receipt object is required' });
+        return;
+      }
+      const verification = await receiptService.verifyReceipt(receipt);
+      res.json({ verification });
+    } catch (err) {
+      logger.error('Receipt verification failed', { error: String(err) });
+      res.status(500).json({ error: 'Receipt verification failed' });
+    }
+  });
+
+  /** GET /api/receipts — List all receipts */
+  router.get('/receipts', (_req, res) => {
+    res.json({ receipts: receiptService.getAllReceipts(), total: receiptService.getCount() });
+  });
+
+  // ══════════════════════════════════════════════
+  //  TIP STREAMING PROTOCOL
+  // ══════════════════════════════════════════════
+
+  /** POST /api/stream/start — Start a tip stream */
+  router.post('/stream/start', transactionLimiter, (req, res) => {
+    try {
+      const { recipient, amountPerTick, intervalSeconds, token, chainId, maxBudget } = req.body as {
+        recipient: string; amountPerTick: string; intervalSeconds?: number;
+        token?: string; chainId?: string; maxBudget?: string;
+      };
+      if (!recipient || !amountPerTick) {
+        res.status(400).json({ error: 'recipient and amountPerTick are required' });
+        return;
+      }
+      const stream = streamingService.startStream({
+        recipient,
+        amountPerTick,
+        intervalSeconds: intervalSeconds || 30,
+        token: (token as any) || 'native',
+        chainId: (chainId as any) || 'ethereum-sepolia',
+        maxBudget,
+      });
+      res.json({ stream });
+    } catch (err) {
+      logger.error('Failed to start stream', { error: String(err) });
+      res.status(500).json({ error: 'Failed to start tip stream' });
+    }
+  });
+
+  /** POST /api/stream/:id/pause — Pause a stream */
+  router.post('/stream/:id/pause', (req, res) => {
+    const stream = streamingService.pauseStream(req.params.id);
+    if (!stream) {
+      res.status(404).json({ error: 'Stream not found or not active' });
+      return;
+    }
+    res.json({ stream });
+  });
+
+  /** POST /api/stream/:id/resume — Resume a stream */
+  router.post('/stream/:id/resume', (req, res) => {
+    const stream = streamingService.resumeStream(req.params.id);
+    if (!stream) {
+      res.status(404).json({ error: 'Stream not found or not paused' });
+      return;
+    }
+    res.json({ stream });
+  });
+
+  /** POST /api/stream/:id/stop — Stop a stream */
+  router.post('/stream/:id/stop', (req, res) => {
+    const stream = streamingService.stopStream(req.params.id);
+    if (!stream) {
+      res.status(404).json({ error: 'Stream not found' });
+      return;
+    }
+    res.json({ stream });
+  });
+
+  /** GET /api/stream/active — List active streams */
+  router.get('/stream/active', (_req, res) => {
+    res.json({ streams: streamingService.getActiveStreams(), stats: streamingService.getStats() });
+  });
+
+  /** GET /api/stream/history — List completed streams */
+  router.get('/stream/history', (_req, res) => {
+    res.json({ streams: streamingService.getStreamHistory() });
+  });
+
+  // ══════════════════════════════════════════════
+  //  SOCIAL REPUTATION ENGINE
+  // ══════════════════════════════════════════════
+
+  /** GET /api/reputation/leaderboard — Top creators by reputation */
+  router.get('/reputation/leaderboard', (req, res) => {
+    const limit = parseInt(req.query.limit as string) || 20;
+    res.json({ leaderboard: reputationService.getLeaderboard(limit), total: reputationService.getCreatorCount() });
+  });
+
+  /** GET /api/reputation/recommendations — AI-powered tip recommendations */
+  router.get('/reputation/recommendations', (req, res) => {
+    const budget = parseFloat(req.query.budget as string) || 0.01;
+    const count = parseInt(req.query.count as string) || 5;
+    res.json({ recommendations: reputationService.getRecommendations(budget, count) });
+  });
+
+  /** GET /api/reputation/:address — Get reputation for a specific address */
+  router.get('/reputation/:address', (req, res) => {
+    const rep = reputationService.getReputation(req.params.address);
+    if (!rep) {
+      res.status(404).json({ error: 'No reputation data for this address' });
+      return;
+    }
+    res.json({ reputation: rep });
+  });
+
+  /** GET /api/reputation/config — Get scoring config */
+  router.get('/reputation/config', (_req, res) => {
+    res.json({ config: reputationService.getConfig() });
+  });
+
+  /** PUT /api/reputation/config — Update scoring config */
+  router.put('/reputation/config', (req, res) => {
+    const config = reputationService.updateConfig(req.body);
+    res.json({ config });
   });
 
   return router;

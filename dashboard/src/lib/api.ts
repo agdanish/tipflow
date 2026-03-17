@@ -70,6 +70,12 @@ import type {
   LendingRate,
   LendingPosition,
   LendingAction,
+  TipStream,
+  StreamStats,
+  CryptoReceipt,
+  ReceiptVerification,
+  CreatorReputation,
+  ReputationRecommendation,
 } from '../types';
 
 const BASE = '/api';
@@ -691,4 +697,43 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ chain, amount, asset }),
     }),
+
+  // ── Tip Streaming ──
+  startStream: (config: { recipient: string; amountPerTick: string; intervalSeconds?: number; token?: string; chainId?: string; maxBudget?: string }) =>
+    fetchJson<{ stream: TipStream }>('/stream/start', { method: 'POST', body: JSON.stringify(config) }),
+
+  pauseStream: (id: string) =>
+    fetchJson<{ stream: TipStream }>(`/stream/${id}/pause`, { method: 'POST' }),
+
+  resumeStream: (id: string) =>
+    fetchJson<{ stream: TipStream }>(`/stream/${id}/resume`, { method: 'POST' }),
+
+  stopStream: (id: string) =>
+    fetchJson<{ stream: TipStream }>(`/stream/${id}/stop`, { method: 'POST' }),
+
+  getActiveStreams: () =>
+    fetchJson<{ streams: TipStream[]; stats: StreamStats }>('/stream/active'),
+
+  getStreamHistory: () =>
+    fetchJson<{ streams: TipStream[] }>('/stream/history'),
+
+  // ── Cryptographic Receipts ──
+  getAllReceipts: () =>
+    fetchJson<{ receipts: CryptoReceipt[]; total: number }>('/receipts'),
+
+  getCryptoReceipt: (tipId: string) =>
+    fetchJson<{ receipt: CryptoReceipt }>(`/receipt/${tipId}`),
+
+  verifyReceipt: (receipt: CryptoReceipt) =>
+    fetchJson<{ verification: ReceiptVerification }>('/receipt/verify', { method: 'POST', body: JSON.stringify({ receipt }) }),
+
+  // ── Reputation Engine ──
+  getReputationLeaderboard: (limit = 20) =>
+    fetchJson<{ leaderboard: CreatorReputation[]; total: number }>(`/reputation/leaderboard?limit=${limit}`),
+
+  getReputation: (address: string) =>
+    fetchJson<{ reputation: CreatorReputation }>(`/reputation/${address}`),
+
+  getReputationRecommendations: (budget = 0.01, count = 5) =>
+    fetchJson<{ recommendations: ReputationRecommendation[] }>(`/reputation/recommendations?budget=${budget}&count=${count}`),
 };

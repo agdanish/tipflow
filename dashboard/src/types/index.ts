@@ -960,3 +960,89 @@ export interface LendingAction {
   completedAt?: string;
   error?: string;
 }
+
+/** Tip Stream — continuous micro-tipping */
+export interface TipStream {
+  id: string;
+  recipient: string;
+  microTipAmount: string;
+  intervalMs: number;
+  token: string;
+  chainId: string;
+  status: 'active' | 'paused' | 'stopped' | 'error';
+  totalStreamed: string;
+  totalTransactions: number;
+  totalFees: string;
+  startedAt: string;
+  stoppedAt?: string;
+  lastTipAt?: string;
+  lastTxHash?: string;
+  maxBudget?: string;
+  elapsedSeconds: number;
+  error?: string;
+}
+
+/** Stream statistics */
+export interface StreamStats {
+  activeStreams: number;
+  totalStreamsCreated: number;
+  totalAmountStreamed: string;
+  totalTransactionsSent: number;
+}
+
+/** Cryptographic tip receipt (Proof-of-Tip) */
+export interface CryptoReceipt {
+  version: string;
+  receiptId: string;
+  tipId: string;
+  from: string;
+  to: string;
+  amount: string;
+  token: string;
+  chainId: string;
+  txHash: string;
+  blockNumber?: number;
+  fee: string;
+  memo?: string;
+  timestamp: string;
+  senderPublicKey: string;
+  signature: string;
+  messageHash: string;
+}
+
+/** Receipt verification result */
+export interface ReceiptVerification {
+  valid: boolean;
+  receipt: CryptoReceipt;
+  verifiedAt: string;
+  signerAddress: string;
+  reason?: string;
+}
+
+/** Creator reputation profile */
+export interface CreatorReputation {
+  address: string;
+  name?: string;
+  score: number;
+  rawScore: number;
+  tier: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
+  totalReceived: number;
+  tipCount: number;
+  uniqueTippers: number;
+  avgTipAmount: number;
+  firstTipAt: string;
+  lastTipAt: string;
+  scoreHistory: Array<{ date: string; score: number }>;
+  chains: string[];
+}
+
+/** Reputation-based tip recommendation */
+export interface ReputationRecommendation {
+  address: string;
+  name?: string;
+  score: number;
+  tier: string;
+  reason: string;
+  suggestedAmount: string;
+  confidence: number;
+}

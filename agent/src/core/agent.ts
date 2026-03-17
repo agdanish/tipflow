@@ -10,6 +10,8 @@ import { ChallengesService } from '../services/challenges.service.js';
 import { LimitsService } from '../services/limits.service.js';
 import { GoalsService } from '../services/goals.service.js';
 import { TelegramService } from '../services/telegram.service.js';
+import type { ReceiptService } from '../services/receipt.service.js';
+import type { ReputationService } from '../services/reputation.service.js';
 import type { TelegramBotStatus } from '../services/telegram.service.js';
 import { logger } from '../utils/logger.js';
 import type {
@@ -63,6 +65,8 @@ export class TipFlowAgent {
   private limitsService: LimitsService | null = null;
   private telegramService: TelegramService | null = null;
   private goalsService: GoalsService | null = null;
+  private receiptService: ReceiptService | null = null;
+  private reputationService: ReputationService | null = null;
   private tipResults: Map<string, TipResult> = new Map();
   private static readonly MAX_ACTIVITY = 100;
 
@@ -99,6 +103,16 @@ export class TipFlowAgent {
   /** Set the goals service for tracking fundraising target progress */
   setGoalsService(service: GoalsService): void {
     this.goalsService = service;
+  }
+
+  /** Set the receipt service for cryptographic tip receipts (Proof-of-Tip) */
+  setReceiptService(service: ReceiptService): void {
+    this.receiptService = service;
+  }
+
+  /** Set the reputation service for social reputation scoring */
+  setReputationService(service: ReputationService): void {
+    this.reputationService = service;
   }
 
   /** Start Telegram bot if TELEGRAM_BOT_TOKEN is set. Optional — everything works without it. */
@@ -622,6 +636,18 @@ export class TipFlowAgent {
             });
           }
         }
+      }
+
+      // Generate cryptographic receipt (Proof-of-Tip)
+      if (this.receiptService) {
+        this.receiptService.generateReceipt(result).catch((err) => {
+          logger.warn('Receipt generation failed (non-fatal)', { error: String(err) });
+        });
+      }
+
+      // Update social reputation for recipient
+      if (this.reputationService) {
+        this.reputationService.recordTip(result.from, result.to, parseFloat(result.amount), result.chainId);
       }
 
       // Fire webhook for successful tip

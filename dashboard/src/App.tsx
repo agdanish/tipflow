@@ -63,6 +63,9 @@ import { AutonomyPanel } from './components/AutonomyPanel';
 import { TreasuryPanel } from './components/TreasuryPanel';
 import { BridgePanel } from './components/BridgePanel';
 import { LendingPanel } from './components/LendingPanel';
+import { StreamingPanel } from './components/StreamingPanel';
+import { CryptoReceiptPanel } from './components/CryptoReceipt';
+import { ReputationPanel } from './components/ReputationPanel';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useSwipe } from './hooks/useTouchGestures';
@@ -547,7 +550,9 @@ function App() {
                   {agentState.currentDecision && (
                     <DecisionTree decision={agentState.currentDecision} agentStatus={agentState.status} />
                   )}
+                  <StreamingPanel />
                   <AutonomyPanel />
+                  <ReputationPanel />
                   <ActivityFeed />
                   <TipGoals />
                   {/* Scheduled Tips */}
@@ -662,6 +667,7 @@ function App() {
               <TreasuryPanel />
               <BridgePanel />
               <LendingPanel />
+              <CryptoReceiptPanel />
               <SpendingLimits />
               <WebhookManager />
               <AuditLog />

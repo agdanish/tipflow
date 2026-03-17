@@ -11,7 +11,7 @@ import WDK from '@tetherto/wdk';
 import { WalletService } from './services/wallet.service.js';
 import { AIService } from './services/ai.service.js';
 import { TipFlowAgent } from './core/agent.js';
-import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService, treasuryService, indexerService, bridgeService, lendingService } from './routes/api.js';
+import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService, treasuryService, indexerService, bridgeService, lendingService, reputationService } from './routes/api.js';
 import { logger } from './utils/logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -84,6 +84,11 @@ async function main(): Promise<void> {
   }).catch(() => {
     logger.warn('WDK Indexer API health check failed (non-fatal)');
   });
+
+  // Log new patent-level features
+  logger.info(`Reputation engine: ${reputationService.getCreatorCount()} creators tracked`);
+  logger.info('Cryptographic receipts (Proof-of-Tip): enabled');
+  logger.info('Tip streaming protocol: enabled');
 
   // Log DeFi protocol integrations
   logger.info(`USDT0 Bridge service: ${bridgeService.isAvailable() ? 'available' : 'unavailable'} (${bridgeService.getRoutes().length} routes)`);
