@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Clock,
   Receipt,
+  MessageSquare,
 } from 'lucide-react';
 import type { TipReceipt as TipReceiptType } from '../types';
 import { shortenAddress, copyToClipboard } from '../lib/utils';
@@ -37,6 +38,7 @@ export function TipReceiptModal({ receipt, onClose }: TipReceiptProps) {
       `Fee: ${receipt.fee}`,
       `Status: ${receipt.status === 'confirmed' ? 'Confirmed' : 'Pending'}`,
       receipt.blockNumber ? `Block: #${receipt.blockNumber}` : '',
+      receipt.memo ? `Memo: ${receipt.memo}` : '',
       '',
       `TX Hash: ${receipt.txHash}`,
       `Explorer: ${receipt.explorerUrl}`,
@@ -152,6 +154,15 @@ export function TipReceiptModal({ receipt, onClose }: TipReceiptProps) {
           />
           <DetailRow label="Network" value={receipt.chainName} />
           <DetailRow label="Fee" value={receipt.fee} />
+          {receipt.memo && (
+            <div className="flex items-start gap-2 py-1.5">
+              <MessageSquare className="w-3 h-3 text-cyan-400 mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <span className="text-[10px] text-text-muted uppercase tracking-wider block mb-0.5">Memo</span>
+                <p className="text-xs text-text-secondary italic">{receipt.memo}</p>
+              </div>
+            </div>
+          )}
           {receipt.blockNumber && (
             <DetailRow
               label="Block"

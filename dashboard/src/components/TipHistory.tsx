@@ -1,4 +1,4 @@
-import { History, ExternalLink, CheckCircle2, XCircle, Brain, ChevronDown, Layers, Fuel, Download, Share2, Check, Search, X, BarChart3, TrendingUp, Percent, Coins, Receipt } from 'lucide-react';
+import { History, ExternalLink, CheckCircle2, XCircle, Brain, ChevronDown, Layers, Fuel, Download, Share2, Check, Search, X, BarChart3, TrendingUp, Percent, Coins, Receipt, MessageSquare } from 'lucide-react';
 import type { TipHistoryEntry, TipReceipt } from '../types';
 import { shortenAddress, timeAgo, chainColor, formatNumber } from '../lib/utils';
 import { api } from '../lib/api';
@@ -127,10 +127,11 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
       `TX Hash: ${entry.txHash}`,
       `Fee: ${entry.fee}`,
       `Status: ${entry.status === 'confirmed' ? 'Confirmed' : 'Failed'}`,
+      entry.memo ? `Memo: ${entry.memo}` : '',
       `Explorer: ${explorerUrl}`,
       ``,
       `Powered by TipFlow + Tether WDK`,
-    ];
+    ].filter(Boolean);
     const text = lines.join('\n');
     try {
       await navigator.clipboard.writeText(text);
@@ -430,6 +431,17 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                           {entry.reasoning}
                         </p>
                       </div>
+
+                      {/* Memo */}
+                      {entry.memo && (
+                        <div className="p-3 rounded-lg bg-surface-1 border border-border">
+                          <div className="flex items-center gap-1.5 mb-1.5">
+                            <MessageSquare className="w-3 h-3 text-cyan-400" />
+                            <span className="text-[10px] text-text-muted uppercase tracking-wider">Memo</span>
+                          </div>
+                          <p className="text-xs text-text-secondary italic">{entry.memo}</p>
+                        </div>
+                      )}
 
                       {/* Metadata grid */}
                       <div className="grid grid-cols-2 gap-2">

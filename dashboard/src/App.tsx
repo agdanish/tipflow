@@ -37,6 +37,7 @@ import { SettingsPanel } from './components/SettingsPanel';
 import { TransactionTimeline } from './components/TransactionTimeline';
 import { ExportPanel } from './components/ExportPanel';
 import { Footer } from './components/Footer';
+import { HelpCenter } from './components/HelpCenter';
 import { SystemInfo } from './components/SystemInfo';
 import { TechStack } from './components/TechStack';
 import { TipLinkCreator } from './components/TipLinkCreator';
@@ -44,6 +45,11 @@ import { ShareCard } from './components/ShareCard';
 import { MobileNav } from './components/MobileNav';
 import { TipCalendar } from './components/TipCalendar';
 import { initAccentColor } from './components/ThemeCustomizer';
+import { ChainComparison } from './components/ChainComparison';
+import { FavoriteRecipients } from './components/FavoriteRecipients';
+import { QuickActions } from './components/QuickActions';
+import { AuditLog } from './components/AuditLog';
+import { SpendingLimits } from './components/SpendingLimits';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useSwipe } from './hooks/useTouchGestures';
@@ -358,6 +364,29 @@ function App() {
           <SystemInfo />
         </section>
 
+        {/* Quick Actions Bar */}
+        <section className="mb-4 sm:mb-6">
+          <QuickActions
+            onRefreshBalances={refreshBalances}
+            onScrollToCompare={() => {
+              document.getElementById('chain-comparison-section')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            onScrollToTemplates={() => {
+              document.getElementById('tip-templates-section')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            onQuickTip={(amount) => {
+              setTipMode('single');
+              const amountInput = document.querySelector<HTMLInputElement>('[aria-label="Tip amount"], [aria-label="Tip amount in USDT"]');
+              if (amountInput) {
+                amountInput.focus();
+                const nativeEvent = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+                nativeEvent?.call(amountInput, amount);
+                amountInput.dispatchEvent(new Event('input', { bubbles: true }));
+              }
+            }}
+          />
+        </section>
+
         {/* Tabbed content */}
         <DashboardTabs
           dashboardContent={
@@ -448,6 +477,21 @@ function App() {
                       )}
                     </div>
                   )}
+
+                  {/* Favorite Recipients — quick-tip shortcuts */}
+                  <FavoriteRecipients
+                    history={history}
+                    onQuickTip={(address) => {
+                      setTipMode('single');
+                      const recipientInput = document.querySelector<HTMLInputElement>('[aria-label="Recipient wallet address or ENS name"]');
+                      if (recipientInput) {
+                        const nativeSet = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+                        nativeSet?.call(recipientInput, address);
+                        recipientInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        recipientInput.focus();
+                      }
+                    }}
+                  />
 
                   {tipMode === 'single' && (
                     <TipForm
@@ -561,6 +605,9 @@ function App() {
           analyticsContent={
             <div className="space-y-4 sm:space-y-6">
               <StatsPanel stats={stats} />
+              <div id="chain-comparison-section">
+                <ChainComparison />
+              </div>
               <AnalyticsDashboard />
               <Leaderboard entries={leaderboard} loading={leaderboardLoading} />
               <div className="dashboard-grid-cards">
@@ -584,12 +631,17 @@ function App() {
                 <WalletBackup totalTransactions={stats?.totalTips ?? 0} />
                 <WalletSwitcher onActiveChanged={() => refreshBalances()} />
               </div>
+              <SpendingLimits />
               <WebhookManager />
+              <AuditLog />
               <ApiDocs />
             </div>
           }
         />
       </main>
+
+      {/* Help Center */}
+      <HelpCenter />
 
       {/* Footer */}
       <Footer />

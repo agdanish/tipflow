@@ -1,6 +1,7 @@
 import { Activity, Zap, Github, Sun, Moon, Volume2, VolumeX, Keyboard } from 'lucide-react';
 import { NotificationCenter } from './NotificationCenter';
 import { ThemeCustomizer } from './ThemeCustomizer';
+import { ConnectionStatus } from './ConnectionStatus';
 import type { AppNotification } from './NotificationCenter';
 import type { HealthResponse } from '../types';
 
@@ -55,6 +56,7 @@ export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, o
               <span className="text-[10px] sm:text-[11px] text-error font-semibold">Offline</span>
             </div>
           )}
+          <ConnectionStatus />
           <NotificationCenter
             notifications={notifications}
             onMarkRead={onMarkRead}

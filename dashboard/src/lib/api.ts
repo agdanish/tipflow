@@ -45,6 +45,11 @@ import type {
   StreakData,
   CalendarResponse,
   ContactImportResult,
+  ChainAnalyticsResponse,
+  SpendingLimit,
+  SpendingTotals,
+  AuditEntry,
+  CSVImportResult,
 } from '../types';
 
 const BASE = '/api';
@@ -406,4 +411,36 @@ export const api = {
   // Calendar
   getCalendar: (month: number, year: number) =>
     fetchJson<CalendarResponse>(`/calendar?month=${month}&year=${year}`),
+
+  // Chain Analytics (Cross-Chain Comparison)
+  getChainAnalytics: () =>
+    fetchJson<ChainAnalyticsResponse>('/analytics/chains'),
+
+  // Spending Limits
+  getLimits: () =>
+    fetchJson<{ spending: SpendingTotals }>('/limits'),
+
+  updateLimits: (limits: Partial<SpendingLimit>) =>
+    fetchJson<{ limits: SpendingLimit }>('/limits', {
+      method: 'PUT',
+      body: JSON.stringify(limits),
+    }),
+
+  // Audit Log
+  getAuditLog: (filters?: { eventType?: string; dateFrom?: string; dateTo?: string; search?: string }) => {
+    const params = new URLSearchParams();
+    if (filters?.eventType) params.set('eventType', filters.eventType);
+    if (filters?.dateFrom) params.set('dateFrom', filters.dateFrom);
+    if (filters?.dateTo) params.set('dateTo', filters.dateTo);
+    if (filters?.search) params.set('search', filters.search);
+    const qs = params.toString();
+    return fetchJson<{ entries: AuditEntry[] }>(`/audit${qs ? `?${qs}` : ''}`);
+  },
+
+  // CSV Import
+  importCSV: (csv: string) =>
+    fetchJson<CSVImportResult>('/tip/import', {
+      method: 'POST',
+      body: JSON.stringify({ csv }),
+    }),
 };

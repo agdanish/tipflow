@@ -87,6 +87,7 @@ export interface TipResult {
   confirmedAt?: string;
   error?: string;
   retryCount?: number;
+  memo?: string;
 }
 
 export interface TipHistoryEntry {
@@ -100,6 +101,7 @@ export interface TipHistoryEntry {
   fee: string;
   createdAt: string;
   reasoning: string;
+  memo?: string;
 }
 
 export interface AgentState {
@@ -385,6 +387,7 @@ export interface TipReceipt {
   status: 'confirmed' | 'pending';
   blockNumber?: number;
   explorerUrl: string;
+  memo?: string;
 }
 
 /** Wallet receive info for QR code display */
@@ -666,10 +669,56 @@ export interface FavoriteRecipient {
   order: number;
 }
 
+/** Spending limit configuration */
+export interface SpendingLimit {
+  dailyLimit: number;
+  weeklyLimit: number;
+  perTipLimit: number;
+  currency: string;
+}
+
+/** Current spending totals */
+export interface SpendingTotals {
+  dailySpent: number;
+  weeklySpent: number;
+  dailyRemaining: number;
+  weeklyRemaining: number;
+  limits: SpendingLimit;
+  dailyPercentage: number;
+  weeklyPercentage: number;
+}
+
+/** Audit log entry */
+export interface AuditEntry {
+  id: string;
+  timestamp: string;
+  eventType: 'tip_sent' | 'tip_failed' | 'login' | 'settings_changed' | 'limit_exceeded' | 'webhook_fired';
+  details: string;
+  ip?: string;
+  status: 'success' | 'failure' | 'warning';
+  metadata?: Record<string, string>;
+}
+
 /** Telegram bot status */
 export interface TelegramBotStatus {
   connected: boolean;
   username: string | null;
   messageCount: number;
   startedAt: string | null;
+}
+
+/** CSV import result from POST /api/tip/import */
+export interface CSVImportResult {
+  total: number;
+  success: number;
+  failed: number;
+  results: Array<{
+    row: number;
+    recipient: string;
+    amount: string;
+    status: 'success' | 'failed';
+    txHash?: string;
+    error?: string;
+    memo?: string;
+  }>;
 }

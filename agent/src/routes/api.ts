@@ -18,9 +18,13 @@ import { ExportService } from '../services/export.service.js';
 import { ENSService } from '../services/ens.service.js';
 import { TagsService } from '../services/tags.service.js';
 import { ChallengesService } from '../services/challenges.service.js';
+import { LimitsService } from '../services/limits.service.js';
 
 /** Shared challenges service instance — exported for agent integration */
 export const challenges = new ChallengesService();
+
+/** Shared limits service instance — exported for agent integration */
+export const limitsService = new LimitsService();
 
 /** Shared contacts service instance */
 const contacts = new ContactsService();
@@ -373,6 +377,179 @@ export function createApiRouter(
       res.json({ result });
     } catch (err) {
       logger.error('Split tip failed', { error: String(err) });
+      res.status(500).json({ error: String(err) });
+    }
+  });
+
+  /** POST /api/tip/import — Import tips from CSV text and execute them sequentially */
+  router.post('/tip/import', transactionLimiter, async (req, res) => {
+    try {
+      const { csv } = req.body as { csv?: string };
+      if (!csv || typeof csv !== 'string') {
+        res.status(400).json({ error: 'csv string is required in request body' });
+        return;
+      }
+
+      // Parse CSV lines (skip empty lines and header if present)
+      const lines = csv.split('\n').map((l) => l.trim()).filter(Boolean);
+      if (lines.length === 0) {
+        res.status(400).json({ error: 'CSV is empty' });
+        return;
+      }
+
+      // Detect and skip header row
+      const firstLine = lines[0].toLowerCase();
+      const hasHeader = firstLine.includes('recipient') || firstLine.includes('address');
+      const dataLines = hasHeader ? lines.slice(1) : lines;
+
+      if (dataLines.length === 0) {
+        res.status(400).json({ error: 'CSV contains only a header row, no data' });
+        return;
+      }
+
+      if (dataLines.length > 20) {
+        res.status(400).json({ error: `Maximum 20 tips per import (got ${dataLines.length})` });
+        return;
+      }
+
+      // Parse rows: recipient,amount,token,chain,memo
+      const validTokens = ['native', 'usdt'];
+      const validChains = ['ethereum-sepolia', 'ton-testnet', 'ethereum-sepolia-gasless', 'ton-testnet-gasless', ''];
+
+      interface ParsedRow {
+        row: number;
+        recipient: string;
+        amount: string;
+        token: TokenType;
+        chain: ChainId | undefined;
+        memo: string;
+        valid: boolean;
+        error?: string;
+      }
+
+      const parsed: ParsedRow[] = dataLines.map((line, idx) => {
+        // Handle quoted fields
+        const fields: string[] = [];
+        let current = '';
+        let inQuotes = false;
+        for (const ch of line) {
+          if (ch === '"') {
+            inQuotes = !inQuotes;
+          } else if (ch === ',' && !inQuotes) {
+            fields.push(current.trim());
+            current = '';
+          } else {
+            current += ch;
+          }
+        }
+        fields.push(current.trim());
+
+        const [recipient = '', amount = '', token = 'native', chain = '', memo = ''] = fields;
+
+        // Validate
+        const errors: string[] = [];
+        if (!recipient) errors.push('missing recipient');
+        if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) errors.push('invalid amount');
+        if (!validTokens.includes(token.toLowerCase())) errors.push(`invalid token "${token}"`);
+        if (chain && !validChains.includes(chain.toLowerCase())) errors.push(`invalid chain "${chain}"`);
+
+        return {
+          row: idx + 1,
+          recipient,
+          amount,
+          token: (token.toLowerCase() || 'native') as TokenType,
+          chain: (chain || undefined) as ChainId | undefined,
+          memo,
+          valid: errors.length === 0,
+          error: errors.length > 0 ? errors.join(', ') : undefined,
+        };
+      });
+
+      // Execute tips sequentially
+      const results: Array<{
+        row: number;
+        recipient: string;
+        amount: string;
+        status: 'success' | 'failed';
+        txHash?: string;
+        error?: string;
+        memo?: string;
+      }> = [];
+
+      let successCount = 0;
+      let failCount = 0;
+
+      for (const row of parsed) {
+        if (!row.valid) {
+          results.push({
+            row: row.row,
+            recipient: row.recipient,
+            amount: row.amount,
+            status: 'failed',
+            error: `Validation: ${row.error}`,
+            memo: row.memo || undefined,
+          });
+          failCount++;
+          continue;
+        }
+
+        try {
+          const tipRequest: TipRequest = {
+            id: uuidv4(),
+            recipient: row.recipient,
+            amount: row.amount,
+            token: row.token,
+            preferredChain: row.chain,
+            message: row.memo || undefined,
+            createdAt: new Date().toISOString(),
+          };
+
+          const result = await agent.executeTip(tipRequest);
+          if (result.status === 'confirmed') {
+            contacts.incrementTipCount(row.recipient);
+            successCount++;
+            results.push({
+              row: row.row,
+              recipient: row.recipient,
+              amount: row.amount,
+              status: 'success',
+              txHash: result.txHash,
+              memo: row.memo || undefined,
+            });
+          } else {
+            failCount++;
+            results.push({
+              row: row.row,
+              recipient: row.recipient,
+              amount: row.amount,
+              status: 'failed',
+              error: result.error || 'Transaction failed',
+              memo: row.memo || undefined,
+            });
+          }
+        } catch (err) {
+          failCount++;
+          results.push({
+            row: row.row,
+            recipient: row.recipient,
+            amount: row.amount,
+            status: 'failed',
+            error: String(err),
+            memo: row.memo || undefined,
+          });
+        }
+      }
+
+      logger.info('CSV import complete', { total: parsed.length, success: successCount, failed: failCount });
+
+      res.json({
+        total: parsed.length,
+        success: successCount,
+        failed: failCount,
+        results,
+      });
+    } catch (err) {
+      logger.error('CSV import failed', { error: String(err) });
       res.status(500).json({ error: String(err) });
     }
   });
@@ -2123,6 +2300,69 @@ export function createApiRouter(
     } catch (err) {
       logger.error('Failed to get chain analytics', { error: String(err) });
       res.status(500).json({ error: 'Failed to get chain analytics' });
+    }
+  });
+
+  // ── Spending Limits ────────────────────────────────────────────
+
+  /** GET /api/limits — Get current spending limits and totals */
+  router.get('/limits', (_req, res) => {
+    try {
+      const spending = limitsService.getSpending();
+      res.json({ spending });
+    } catch (err) {
+      logger.error('Failed to get spending limits', { error: String(err) });
+      res.status(500).json({ error: 'Failed to get spending limits' });
+    }
+  });
+
+  /** PUT /api/limits — Update spending limits */
+  router.put('/limits', (req, res) => {
+    try {
+      const body = req.body as {
+        dailyLimit?: number;
+        weeklyLimit?: number;
+        perTipLimit?: number;
+        currency?: string;
+      };
+
+      if (body.dailyLimit !== undefined && (typeof body.dailyLimit !== 'number' || body.dailyLimit < 0)) {
+        res.status(400).json({ error: 'dailyLimit must be a non-negative number' });
+        return;
+      }
+      if (body.weeklyLimit !== undefined && (typeof body.weeklyLimit !== 'number' || body.weeklyLimit < 0)) {
+        res.status(400).json({ error: 'weeklyLimit must be a non-negative number' });
+        return;
+      }
+      if (body.perTipLimit !== undefined && (typeof body.perTipLimit !== 'number' || body.perTipLimit < 0)) {
+        res.status(400).json({ error: 'perTipLimit must be a non-negative number' });
+        return;
+      }
+
+      const limits = limitsService.setLimits(body);
+      res.json({ limits });
+    } catch (err) {
+      logger.error('Failed to update spending limits', { error: String(err) });
+      res.status(500).json({ error: 'Failed to update spending limits' });
+    }
+  });
+
+  // ── Audit Log ─────────────────────────────────────────────────
+
+  /** GET /api/audit — Get audit log entries with optional filters */
+  router.get('/audit', (req, res) => {
+    try {
+      const filters = {
+        eventType: req.query.eventType as string | undefined,
+        dateFrom: req.query.dateFrom as string | undefined,
+        dateTo: req.query.dateTo as string | undefined,
+        search: req.query.search as string | undefined,
+      };
+      const entries = limitsService.getAuditLog(filters);
+      res.json({ entries });
+    } catch (err) {
+      logger.error('Failed to get audit log', { error: String(err) });
+      res.status(500).json({ error: 'Failed to get audit log' });
     }
   });
 

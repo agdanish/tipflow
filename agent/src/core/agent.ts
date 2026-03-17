@@ -4,6 +4,7 @@ import { AIService } from '../services/ai.service.js';
 import { ConditionsService } from '../services/conditions.service.js';
 import { WebhooksService } from '../services/webhooks.service.js';
 import { ChallengesService } from '../services/challenges.service.js';
+import { LimitsService } from '../services/limits.service.js';
 import { TelegramService } from '../services/telegram.service.js';
 import type { TelegramBotStatus } from '../services/telegram.service.js';
 import { logger } from '../utils/logger.js';
@@ -55,6 +56,7 @@ export class TipFlowAgent {
   private activityListeners: Array<(event: ActivityEvent) => void> = [];
   private webhooksService: WebhooksService | null = null;
   private challengesService: ChallengesService | null = null;
+  private limitsService: LimitsService | null = null;
   private telegramService: TelegramService | null = null;
   private tipResults: Map<string, TipResult> = new Map();
   private static readonly MAX_ACTIVITY = 100;
@@ -82,6 +84,11 @@ export class TipFlowAgent {
   /** Set the webhooks service for firing webhook events on tip completion */
   setWebhooksService(service: WebhooksService): void {
     this.webhooksService = service;
+  }
+
+  /** Set the limits service for enforcing spending caps */
+  setLimitsService(service: LimitsService): void {
+    this.limitsService = service;
   }
 
   /** Start Telegram bot if TELEGRAM_BOT_TOKEN is set. Optional — everything works without it. */
@@ -401,6 +408,42 @@ export class TipFlowAgent {
       this.addActivity({ type: 'system', message: `Processing tip: ${request.amount} ${tokenLabel} to ${request.recipient.slice(0, 10)}...` });
       this.validateTipRequest(request);
 
+      // Step 1.5: CHECK SPENDING LIMITS
+      if (this.limitsService) {
+        const amount = parseFloat(request.amount);
+        const limitCheck = this.limitsService.checkLimit(amount);
+        if (!limitCheck.allowed) {
+          addStep('LIMIT_CHECK', `REJECTED: ${limitCheck.reason}`);
+          this.addActivity({ type: 'tip_failed', message: `Spending limit exceeded`, detail: limitCheck.reason });
+          this.setState({ status: 'idle', currentTip: undefined, currentDecision: undefined, lastError: limitCheck.reason });
+          const failResult: TipResult = {
+            id: tipId,
+            tipId,
+            status: 'failed',
+            chainId: request.preferredChain ?? 'ethereum-sepolia',
+            txHash: '',
+            from: '',
+            to: request.recipient,
+            amount: request.amount,
+            token,
+            fee: '0',
+            explorerUrl: '',
+            decision: {
+              selectedChain: request.preferredChain ?? 'ethereum-sepolia',
+              reasoning: `Spending limit exceeded: ${limitCheck.reason}`,
+              analyses: [],
+              steps,
+              confidence: 0,
+            },
+            createdAt: new Date().toISOString(),
+            error: limitCheck.reason,
+          };
+          this.tipResults.set(tipId, failResult);
+          return failResult;
+        }
+        addStep('LIMIT_CHECK', `Spending limit OK. Remaining allowance: ${limitCheck.remaining.toFixed(4)} ${this.limitsService.getLimits().currency}`);
+      }
+
       // Step 2: ANALYZE
       addStep('ANALYZE', 'Querying balances and fees across all chains...');
       const analyses = await this.analyzeChains(request);
@@ -541,6 +584,12 @@ export class TipFlowAgent {
       });
       this.recordHistory(result, decision.reasoning);
 
+      // Record spending for limit tracking
+      if (this.limitsService) {
+        this.limitsService.recordSpend(parseFloat(request.amount));
+        this.limitsService.addAuditEntry('tip_sent', `Sent ${request.amount} ${tokenLabel} to ${request.recipient.slice(0, 10)}... on ${decision.selectedChain} (tx: ${txResult!.hash.slice(0, 14)}...)`, 'success');
+      }
+
       // Update challenge progress
       if (this.challengesService) {
         this.challengesService.updateProgress('tip_sent', { recipient: request.recipient });
@@ -573,6 +622,11 @@ export class TipFlowAgent {
       const errorMsg = this.friendlyError(rawError);
       logger.error('Tip execution failed', { tipId, error: rawError });
       this.addActivity({ type: 'tip_failed', message: `Tip failed: ${errorMsg}`, detail: request.recipient.slice(0, 10) + '...' });
+
+      // Record failed tip in audit log
+      if (this.limitsService) {
+        this.limitsService.addAuditEntry('tip_failed', `Failed tip: ${request.amount} ${token === 'usdt' ? 'USDT' : 'native'} to ${request.recipient.slice(0, 10)}... — ${errorMsg}`, 'failure');
+      }
 
       // Fire webhook for failed tip
       this.webhooksService?.fireWebhook('tip.failed', {
