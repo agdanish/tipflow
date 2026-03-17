@@ -38,6 +38,11 @@ import type {
   PersonalityDefinition,
   PersonalityType,
   TipLink,
+  ENSResolveResult,
+  ENSReverseResult,
+  AddressTag,
+  Challenge,
+  StreakData,
 } from '../types';
 
 const BASE = '/api';
@@ -340,5 +345,39 @@ export const api = {
   deleteTipLink: (id: string) =>
     fetchJson<{ deleted: boolean; id: string }>(`/tiplinks/${encodeURIComponent(id)}`, {
       method: 'DELETE',
+    }),
+
+  // ENS Resolution
+  resolveENS: (name: string) =>
+    fetchJson<ENSResolveResult>(`/ens/resolve?name=${encodeURIComponent(name)}`),
+
+  reverseENS: (address: string) =>
+    fetchJson<ENSReverseResult>(`/ens/reverse?address=${encodeURIComponent(address)}`),
+
+  // Address Tags
+  getTags: () =>
+    fetchJson<{ tags: AddressTag[] }>('/tags'),
+
+  getTag: (address: string) =>
+    fetchJson<{ tag: AddressTag }>(`/tags/${encodeURIComponent(address)}`),
+
+  addTag: (address: string, label: string, color?: string) =>
+    fetchJson<{ tag: AddressTag }>('/tags', {
+      method: 'POST',
+      body: JSON.stringify({ address, label, color }),
+    }),
+
+  deleteTag: (address: string) =>
+    fetchJson<{ deleted: boolean; address: string }>(`/tags/${encodeURIComponent(address)}`, {
+      method: 'DELETE',
+    }),
+
+  // Challenges & Streaks
+  getChallenges: () =>
+    fetchJson<{ daily: Challenge[]; weekly: Challenge[]; streak: StreakData }>('/challenges'),
+
+  refreshChallenges: () =>
+    fetchJson<{ daily: Challenge[]; weekly: Challenge[]; streak: StreakData }>('/challenges/refresh', {
+      method: 'POST',
     }),
 };

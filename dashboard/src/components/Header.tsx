@@ -1,5 +1,6 @@
 import { Activity, Zap, Github, Sun, Moon, Volume2, VolumeX, Keyboard } from 'lucide-react';
 import { NotificationCenter } from './NotificationCenter';
+import { ThemeCustomizer } from './ThemeCustomizer';
 import type { AppNotification } from './NotificationCenter';
 import type { HealthResponse } from '../types';
 
@@ -77,6 +78,9 @@ export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, o
           >
             {soundOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           </button>
+          <div className="hidden sm:block">
+            <ThemeCustomizer />
+          </div>
           <button
             onClick={onToggleTheme}
             className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-secondary hover:bg-surface-3 transition-all"

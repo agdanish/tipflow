@@ -394,6 +394,55 @@ export interface AgentSettings {
   };
 }
 
+/** ENS resolution result */
+export interface ENSResolveResult {
+  name: string;
+  address: string | null;
+  resolved: boolean;
+}
+
+/** ENS reverse lookup result */
+export interface ENSReverseResult {
+  address: string;
+  name: string | null;
+  resolved: boolean;
+}
+
+/** Address tag — custom label for a wallet address */
+export interface AddressTag {
+  address: string;
+  label: string;
+  color?: string;
+  createdAt: string;
+}
+
+/** A gamified challenge with progress tracking */
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  type: 'daily' | 'weekly';
+  target: number;
+  progress: number;
+  reward: string;
+  expiresAt: string;
+  completed: boolean;
+  icon: string;
+}
+
+/** Streak tracking data */
+export interface StreakData {
+  currentStreak: number;
+  longestStreak: number;
+  lastTipDate: string | null;
+  streakMilestones: Array<{
+    days: number;
+    icon: string;
+    label: string;
+    reached: boolean;
+  }>;
+}
+
 /** Agent stats for dashboard */
 export interface AgentStats {
   totalTips: number;

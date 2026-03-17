@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Header } from './components/Header';
 import { WalletCard } from './components/WalletCard';
 import { TipForm } from './components/TipForm';
@@ -11,6 +11,7 @@ import { GasMonitor } from './components/GasMonitor';
 import { CurrencyConverter } from './components/CurrencyConverter';
 import { Leaderboard } from './components/Leaderboard';
 import { Achievements } from './components/Achievements';
+import { Challenges } from './components/Challenges';
 import { ActivityFeed } from './components/ActivityFeed';
 import { QRReceive } from './components/QRReceive';
 import { DecisionTree } from './components/DecisionTree';
@@ -39,8 +40,11 @@ import { SystemInfo } from './components/SystemInfo';
 import { TechStack } from './components/TechStack';
 import { TipLinkCreator } from './components/TipLinkCreator';
 import { ShareCard } from './components/ShareCard';
+import { MobileNav } from './components/MobileNav';
+import { initAccentColor } from './components/ThemeCustomizer';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useSwipe } from './hooks/useTouchGestures';
 import { api } from './lib/api';
 import { playSuccess, playError, playNotification, isSoundEnabled, setSoundEnabled } from './lib/sounds';
 import type { TipResult, ScheduledTip, LeaderboardEntry, Achievement, TipTemplate, SplitTipResult, TipLink } from './types';
@@ -69,10 +73,21 @@ function App() {
     return (localStorage.getItem('tipflow-theme') as 'dark' | 'light') || 'dark';
   });
 
+  // Initialize accent color from localStorage
+  useEffect(() => { initAccentColor(); }, []);
+
   useEffect(() => {
     document.documentElement.classList.toggle('light', theme === 'light');
     localStorage.setItem('tipflow-theme', theme);
   }, [theme]);
+
+  // Swipe gesture ref for tip mode tabs
+  const tipTabsRef = useRef<HTMLDivElement>(null);
+  const swipeHandlers = useMemo(() => ({
+    onSwipeLeft: () => setTipMode((prev) => prev === 'single' ? 'batch' : prev === 'batch' ? 'split' : prev),
+    onSwipeRight: () => setTipMode((prev) => prev === 'split' ? 'batch' : prev === 'batch' ? 'single' : prev),
+  }), []);
+  useSwipe(tipTabsRef, swipeHandlers);
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
@@ -372,7 +387,7 @@ function App() {
           {/* Left column: Tip Form + Agent */}
           <div className="lg:col-span-1 space-y-4 sm:space-y-6">
             {/* Tip mode tabs */}
-            <div className="flex gap-1 p-1 rounded-lg bg-surface-2 border border-border" data-onboarding="tip-form">
+            <div ref={tipTabsRef} className="flex gap-1 p-1 rounded-lg bg-surface-2 border border-border" data-onboarding="tip-form">
               <button
                 onClick={() => setTipMode('single')}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all ${
@@ -407,6 +422,9 @@ function App() {
                 Split
               </button>
             </div>
+
+            {/* Swipe hint — mobile only */}
+            <p className="text-[10px] text-text-muted text-center mt-1 sm:hidden">Swipe to switch tip mode</p>
 
             {/* Tip Link banner */}
             {tipLinkPrefill && (
@@ -534,22 +552,24 @@ function App() {
                 </div>
               </div>
             )}
+            <div id="section-history" />
             <TipHistory history={history} loading={historyLoading} />
             <ExportPanel historyCount={history.length} />
             <TransactionTimeline history={history} loading={historyLoading} />
             <StatsPanel stats={stats} />
             <Leaderboard entries={leaderboard} loading={leaderboardLoading} />
             <Achievements achievements={achievements} loading={achievementsLoading} />
+            <Challenges />
           </div>
         </div>
 
         {/* Advanced Analytics (collapsible) */}
-        <section className="mt-6">
+        <section id="section-analytics" className="mt-6">
           <AnalyticsDashboard />
         </section>
 
         {/* Settings (collapsible) */}
-        <section className="mt-6">
+        <section id="section-settings" className="mt-6">
           <SettingsPanel theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} />
         </section>
 
@@ -579,6 +599,8 @@ function App() {
       {showOnboarding && (
         <OnboardingOverlay onComplete={() => setShowOnboarding(false)} />
       )}
+
+      <MobileNav />
 
       {/* Tour restart button */}
       {!showOnboarding && (

@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { Send, Loader2, AlertCircle, Coins, Sparkles, Wand2, Clock, CalendarClock, BookUser, UserPlus, X, Trash2, BookMarked, Repeat, Zap } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Send, Loader2, AlertCircle, Coins, Sparkles, Wand2, Clock, CalendarClock, BookUser, UserPlus, X, Trash2, BookMarked, Repeat, Zap, CheckCircle2, XCircle } from 'lucide-react';
 import { api } from '../lib/api';
 import { VoiceButton } from './VoiceButton';
 import { GaslessToggle } from './GaslessToggle';
@@ -68,6 +68,42 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
   const [savingContact, setSavingContact] = useState(false);
   const [contactName, setContactName] = useState('');
   const contactsRef = useRef<HTMLDivElement>(null);
+
+  // ENS resolution state
+  const [ensResolving, setEnsResolving] = useState(false);
+  const [ensResolved, setEnsResolved] = useState<string | null>(null);
+  const [ensFailed, setEnsFailed] = useState(false);
+  const ensTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Debounced ENS resolution when recipient ends with .eth
+  const resolveENS = useCallback((name: string) => {
+    if (ensTimerRef.current) clearTimeout(ensTimerRef.current);
+    setEnsResolved(null);
+    setEnsFailed(false);
+
+    if (!name.endsWith('.eth')) {
+      setEnsResolving(false);
+      return;
+    }
+
+    setEnsResolving(true);
+    ensTimerRef.current = setTimeout(async () => {
+      try {
+        const result = await api.resolveENS(name);
+        if (result.resolved && result.address) {
+          setEnsResolved(result.address);
+          setEnsFailed(false);
+        } else {
+          setEnsResolved(null);
+          setEnsFailed(true);
+        }
+      } catch {
+        setEnsFailed(true);
+      } finally {
+        setEnsResolving(false);
+      }
+    }, 500);
+  }, []);
 
   // Load contacts on mount
   useEffect(() => {
@@ -179,6 +215,9 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
     e.preventDefault();
     if (!recipient || !amount || sending || disabled) return;
 
+    // Use ENS-resolved address if available
+    const resolvedRecipient = (recipient.trim().endsWith('.eth') && ensResolved) ? ensResolved : recipient;
+
     if (scheduleMode) {
       if (!scheduledAt) {
         setError('Please select a date and time for the scheduled tip');
@@ -197,7 +236,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
     try {
       if (scheduleMode) {
         await api.scheduleTip(
-          recipient,
+          resolvedRecipient,
           amount,
           new Date(scheduledAt).toISOString(),
           token,
@@ -209,7 +248,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
         onTipScheduled?.();
       } else if (gaslessMode) {
         const { result } = await api.sendGaslessTip(
-          recipient,
+          resolvedRecipient,
           amount,
           token,
           message || undefined,
@@ -242,7 +281,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
         refreshContacts();
       } else {
         const { result } = await api.sendTip(
-          recipient,
+          resolvedRecipient,
           amount,
           token,
           chain || undefined,
@@ -258,6 +297,8 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
       setChain('');
       setScheduledAt('');
       setRecurring(false);
+      setEnsResolved(null);
+      setEnsFailed(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -380,10 +421,10 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
             <input
               type="text"
               value={recipient}
-              onChange={(e) => setRecipient(e.target.value)}
+              onChange={(e) => { setRecipient(e.target.value); resolveENS(e.target.value.trim()); }}
               onFocus={() => { if (contacts.length > 0 && !recipient) setShowContacts(true); }}
-              placeholder={token === 'usdt' ? '0x...' : '0x... or UQ...'}
-              aria-label="Recipient wallet address"
+              placeholder={token === 'usdt' ? '0x... or name.eth' : '0x..., UQ..., or name.eth'}
+              aria-label="Recipient wallet address or ENS name"
               aria-required="true"
               className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border focus:ring-1 focus:ring-accent-border transition-colors font-mono"
               disabled={sending || disabled}
@@ -399,6 +440,30 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
               </button>
             )}
           </div>
+
+          {/* ENS resolution status */}
+          {recipient.trim().endsWith('.eth') && (
+            <div className="mt-1.5">
+              {ensResolving && (
+                <div className="flex items-center gap-1.5 text-[11px] text-text-secondary">
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  <span>Resolving {recipient.trim()}...</span>
+                </div>
+              )}
+              {ensResolved && !ensResolving && (
+                <div className="flex items-center gap-1.5 text-[11px] text-green-400">
+                  <CheckCircle2 className="w-3 h-3" />
+                  <span className="font-mono truncate">{ensResolved}</span>
+                </div>
+              )}
+              {ensFailed && !ensResolving && (
+                <div className="flex items-center gap-1.5 text-[11px] text-red-400">
+                  <XCircle className="w-3 h-3" />
+                  <span>ENS name not found</span>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Save contact inline form */}
           {savingContact && (

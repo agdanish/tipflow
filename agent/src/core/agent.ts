@@ -3,6 +3,7 @@ import { WalletService } from '../services/wallet.service.js';
 import { AIService } from '../services/ai.service.js';
 import { ConditionsService } from '../services/conditions.service.js';
 import { WebhooksService } from '../services/webhooks.service.js';
+import { ChallengesService } from '../services/challenges.service.js';
 import { TelegramService } from '../services/telegram.service.js';
 import type { TelegramBotStatus } from '../services/telegram.service.js';
 import { logger } from '../utils/logger.js';
@@ -53,6 +54,7 @@ export class TipFlowAgent {
   private activityLog: ActivityEvent[] = [];
   private activityListeners: Array<(event: ActivityEvent) => void> = [];
   private webhooksService: WebhooksService | null = null;
+  private challengesService: ChallengesService | null = null;
   private telegramService: TelegramService | null = null;
   private tipResults: Map<string, TipResult> = new Map();
   private static readonly MAX_ACTIVITY = 100;
@@ -70,6 +72,11 @@ export class TipFlowAgent {
     this.conditions = new ConditionsService(wallet);
     this.startScheduler();
     this.addActivity({ type: 'system', message: 'TipFlow agent initialized', detail: `Chains: ${wallet.getRegisteredChains().join(', ')}` });
+  }
+
+  /** Set the challenges service for tracking gamified progress */
+  setChallengesService(service: ChallengesService): void {
+    this.challengesService = service;
   }
 
   /** Set the webhooks service for firing webhook events on tip completion */
@@ -533,6 +540,12 @@ export class TipFlowAgent {
         chainId: decision.selectedChain,
       });
       this.recordHistory(result, decision.reasoning);
+
+      // Update challenge progress
+      if (this.challengesService) {
+        this.challengesService.updateProgress('tip_sent', { recipient: request.recipient });
+        this.challengesService.updateProgress('tip_sent_chain', { chainId: decision.selectedChain, recipient: request.recipient });
+      }
 
       // Fire webhook for successful tip
       this.webhooksService?.fireWebhook('tip.sent', {
@@ -1090,6 +1103,7 @@ export class TipFlowAgent {
   /** Mark that NLP was used to parse a tip */
   markNlpUsed(): void {
     this.achievementFlags.usedNlp = true;
+    this.challengesService?.updateProgress('nlp_tip');
   }
 
   /** Mark that a scheduled tip was created */

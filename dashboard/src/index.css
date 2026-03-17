@@ -187,6 +187,13 @@ html.light .animate-shimmer {
   }
 }
 
+/* Bottom padding for mobile nav */
+@media (max-width: 767px) {
+  main#main-content {
+    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px) + 1rem);
+  }
+}
+
 /* --- NEW POLISH ANIMATIONS --- */
 
 /* Soft idle breathing glow */

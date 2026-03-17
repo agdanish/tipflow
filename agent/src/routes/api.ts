@@ -15,6 +15,12 @@ import { transactionLimiter } from '../middleware/rateLimit.js';
 import { validateTipInput, validateBatchTipInput, validateChatInput, auditLog } from '../middleware/validate.js';
 import { getOpenApiSpec } from './openapi.js';
 import { ExportService } from '../services/export.service.js';
+import { ENSService } from '../services/ens.service.js';
+import { TagsService } from '../services/tags.service.js';
+import { ChallengesService } from '../services/challenges.service.js';
+
+/** Shared challenges service instance — exported for agent integration */
+export const challenges = new ChallengesService();
 
 /** Shared contacts service instance */
 const contacts = new ContactsService();
@@ -45,6 +51,12 @@ let agentSettings: AgentSettings = {
 
 /** Shared export service instance */
 const exportService = new ExportService();
+
+/** Shared ENS service instance */
+const ensService = new ENSService();
+
+/** Shared tags service instance */
+const tagsService = new TagsService();
 
 /** In-memory tip link store */
 const tipLinks: TipLink[] = [];
@@ -1605,7 +1617,7 @@ export function createApiRouter(
       uptime: Math.floor(process.uptime()),
       nodeVersion: process.version,
       wdkVersion: '1.0.0-beta.6',
-      apiEndpoints: 42,
+      apiEndpoints: 61,
       startTime: new Date(Date.now() - process.uptime() * 1000).toISOString(),
       memoryUsage: {
         heapUsed: Math.round(mem.heapUsed / 1024 / 1024),
@@ -1786,5 +1798,113 @@ export function createApiRouter(
     logger.info('Tip link deleted', { id: req.params.id });
     res.json({ deleted: true, id: req.params.id });
   });
+
+  // ── ENS Resolution ──────────────────────────────────────────────────
+
+  /** GET /api/ens/resolve?name=vitalik.eth — Resolve ENS name to address */
+  router.get('/ens/resolve', async (req, res) => {
+    try {
+      const name = req.query.name as string | undefined;
+      if (!name || !name.endsWith('.eth')) {
+        res.status(400).json({ error: 'Query parameter "name" is required and must end with .eth' });
+        return;
+      }
+      const address = await ensService.resolveENS(name);
+      if (address) {
+        res.json({ name, address, resolved: true });
+      } else {
+        res.json({ name, address: null, resolved: false });
+      }
+    } catch (err) {
+      logger.error('ENS resolve error', { error: String(err) });
+      res.status(500).json({ error: 'ENS resolution failed' });
+    }
+  });
+
+  /** GET /api/ens/reverse?address=0x... — Reverse lookup address to ENS name */
+  router.get('/ens/reverse', async (req, res) => {
+    try {
+      const address = req.query.address as string | undefined;
+      if (!address || !address.startsWith('0x')) {
+        res.status(400).json({ error: 'Query parameter "address" is required and must start with 0x' });
+        return;
+      }
+      const name = await ensService.lookupAddress(address);
+      if (name) {
+        res.json({ address, name, resolved: true });
+      } else {
+        res.json({ address, name: null, resolved: false });
+      }
+    } catch (err) {
+      logger.error('ENS reverse lookup error', { error: String(err) });
+      res.status(500).json({ error: 'ENS reverse lookup failed' });
+    }
+  });
+
+  // ── Address Tags ────────────────────────────────────────────────────
+
+  /** GET /api/tags — List all address tags */
+  router.get('/tags', (_req, res) => {
+    res.json({ tags: tagsService.getTags() });
+  });
+
+  /** GET /api/tags/:address — Get tag for a specific address */
+  router.get('/tags/:address', (req, res) => {
+    const tag = tagsService.getTag(req.params.address);
+    if (tag) {
+      res.json({ tag });
+    } else {
+      res.status(404).json({ error: 'No tag found for this address' });
+    }
+  });
+
+  /** POST /api/tags — Add or update an address tag */
+  router.post('/tags', (req, res) => {
+    const { address, label, color } = req.body as { address?: string; label?: string; color?: string };
+    if (!address || !label) {
+      res.status(400).json({ error: 'address and label are required' });
+      return;
+    }
+    const tag = tagsService.addTag(address, label, color);
+    res.json({ tag });
+  });
+
+  /** DELETE /api/tags/:address — Remove an address tag */
+  router.delete('/tags/:address', (req, res) => {
+    const deleted = tagsService.deleteTag(req.params.address);
+    if (deleted) {
+      res.json({ deleted: true, address: req.params.address });
+    } else {
+      res.status(404).json({ error: 'No tag found for this address' });
+    }
+  });
+
+  // ── Challenges & Streaks ──────────────────────────────────────────
+
+  /** GET /api/challenges — Active challenges with progress */
+  router.get('/challenges', (_req, res) => {
+    try {
+      const { daily, weekly } = challenges.getChallenges();
+      const streak = challenges.getStreakData();
+      res.json({ daily, weekly, streak });
+    } catch (err) {
+      logger.error('Failed to get challenges', { error: String(err) });
+      res.status(500).json({ error: 'Failed to get challenges' });
+    }
+  });
+
+  /** POST /api/challenges/refresh — Reset daily challenges */
+  router.post('/challenges/refresh', (_req, res) => {
+    try {
+      challenges.resetDailyChallenges();
+      const { daily, weekly } = challenges.getChallenges();
+      const streak = challenges.getStreakData();
+      res.json({ daily, weekly, streak });
+    } catch (err) {
+      logger.error('Failed to refresh challenges', { error: String(err) });
+      res.status(500).json({ error: 'Failed to refresh challenges' });
+    }
+  });
+
   return router;
 }

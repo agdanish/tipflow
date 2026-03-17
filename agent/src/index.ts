@@ -8,7 +8,7 @@ import WDK from '@tetherto/wdk';
 import { WalletService } from './services/wallet.service.js';
 import { AIService } from './services/ai.service.js';
 import { TipFlowAgent } from './core/agent.js';
-import { createApiRouter, webhooks } from './routes/api.js';
+import { createApiRouter, webhooks, challenges } from './routes/api.js';
 import { logger } from './utils/logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -60,6 +60,7 @@ async function main(): Promise<void> {
   // Create agent
   const agent = new TipFlowAgent(walletService, aiService);
   agent.setWebhooksService(webhooks);
+  agent.setChallengesService(challenges);
 
   // Start Telegram bot (optional — only if TELEGRAM_BOT_TOKEN is set)
   agent.startTelegramBot().catch((err) => {
