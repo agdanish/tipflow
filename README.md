@@ -43,7 +43,7 @@ TipFlow watches your viewing habits, learns your preferences, and autonomously m
 - **One-command startup** — `docker-compose up` and you're running
 - **$0 budget** — Zero paid APIs, everything runs locally
 
-[Watch Demo Video](https://youtube.com/watch?v=YOUR_DEMO_ID)
+<!-- Demo video link will be added after recording -->
 
 ---
 
@@ -511,7 +511,7 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 - Express 5 + rate limiting + validation + audit logging
 - Docker multi-stage build + docker-compose
 - PWA with service worker and offline support
-- 55 automated tests (validation, agent, API)
+- 24 automated tests across 6 test suites
 - Cross-chain fee comparison and optimization
 
 ### 4. Agentic Payment Design
@@ -554,7 +554,6 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 - In-app API documentation component
 - System info dashboard (uptime, Node version, WDK version, memory)
 - Comprehensive README with architecture diagrams and API reference
-- [Watch Demo Video](https://youtube.com/watch?v=YOUR_DEMO_ID)
 
 ---
 
@@ -634,10 +633,10 @@ tipflow/
 
 ```bash
 # Required
-SEED_PHRASE=your twelve word seed phrase here
+WDK_SEED=your twelve word seed phrase here
 
 # Optional
-OLLAMA_URL=http://localhost:11434          # AI reasoning
+OLLAMA_HOST=http://localhost:11434         # AI reasoning
 TELEGRAM_BOT_TOKEN=your_token             # Telegram bot
 ERC4337_BUNDLER_URL=https://...           # Gasless (Pimlico)
 ERC4337_PAYMASTER_URL=https://...         # Gasless (Pimlico)
@@ -654,7 +653,7 @@ See `agent/.env.example` for the full template.
 cd agent && npm test
 ```
 
-55 tests across 3 test suites: validation (31), agent (15), API (9).
+24 tests across 6 test suites: AI service (4), NLP parsing (7), reasoning (2), leaderboard (1), achievements (1), API (9).
 
 ---
 

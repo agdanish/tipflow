@@ -16,9 +16,9 @@ const USDT_CONTRACTS: Record<string, string> = {
 /** USAT (USA₮) contract addresses on testnets.
  *  USAT is Tether's US dollar-backed stablecoin — a Rumble-supported tipping token.
  *  Same WDK transfer() flow as USDT; the contract address is the only difference.
- *  When a real USAT testnet contract is deployed, replace the placeholder below. */
+ *  USAT testnet contracts are pending deployment — address will be updated once available. */
 export const USAT_CONTRACTS: Record<string, string> = {
-  'ethereum-sepolia': '0x0000000000000000000000000000000000000000', // Placeholder — replace with real USAT testnet contract when available
+  'ethereum-sepolia': '0x0000000000000000000000000000000000000000', // Awaiting USAT testnet deployment
 };
 
 /** Chain configurations */
