@@ -6,7 +6,7 @@ import type { WalletService } from '../services/wallet.service.js';
 import type { AIService } from '../services/ai.service.js';
 import { ContactsService } from '../services/contacts.service.js';
 import { TemplatesService } from '../services/templates.service.js';
-import type { ActivityEvent, ChatMessage, ChainId, TipRequest, TokenType, BatchTipRequest } from '../types/index.js';
+import type { ActivityEvent, ChatMessage, ChainId, ConditionType, TipRequest, TokenType, BatchTipRequest, SplitTipRequest } from '../types/index.js';
 import { logger } from '../utils/logger.js';
 import { transactionLimiter } from '../middleware/rateLimit.js';
 import { validateTipInput, validateBatchTipInput, validateChatInput, auditLog } from '../middleware/validate.js';
@@ -172,6 +172,60 @@ export function createApiRouter(
       res.json({ result });
     } catch (err) {
       logger.error('Batch tip failed', { error: String(err) });
+      res.status(500).json({ error: String(err) });
+    }
+  });
+
+  /** POST /api/tip/split — Execute a split tip among multiple recipients by percentage */
+  router.post('/tip/split', transactionLimiter, async (req, res) => {
+    try {
+      const { recipients, totalAmount, token, chainId } = req.body as SplitTipRequest;
+
+      if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
+        res.status(400).json({ error: 'recipients array is required and must not be empty' });
+        return;
+      }
+
+      if (recipients.length > 5) {
+        res.status(400).json({ error: 'Maximum 5 recipients per split tip' });
+        return;
+      }
+
+      if (!totalAmount) {
+        res.status(400).json({ error: 'totalAmount is required' });
+        return;
+      }
+
+      for (const r of recipients) {
+        if (!r.address) {
+          res.status(400).json({ error: 'Each recipient must have an address' });
+          return;
+        }
+        if (typeof r.percentage !== 'number' || r.percentage <= 0 || r.percentage > 100) {
+          res.status(400).json({ error: 'Each recipient must have a percentage between 0 and 100' });
+          return;
+        }
+      }
+
+      const totalPct = recipients.reduce((sum, r) => sum + r.percentage, 0);
+      if (Math.abs(totalPct - 100) > 0.01) {
+        res.status(400).json({ error: `Percentages must sum to 100 (got ${totalPct})` });
+        return;
+      }
+
+      const splitRequest: SplitTipRequest = {
+        recipients,
+        totalAmount,
+        token: token ?? 'native',
+        chainId,
+      };
+
+      logger.info('Processing split tip', { count: recipients.length, totalAmount });
+
+      const result = await agent.executeSplitTip(splitRequest);
+      res.json({ result });
+    } catch (err) {
+      logger.error('Split tip failed', { error: String(err) });
       res.status(500).json({ error: String(err) });
     }
   });
@@ -412,6 +466,68 @@ export function createApiRouter(
       return;
     }
     res.json({ cancelled: true, id });
+  });
+
+  // ── Gasless / ERC-4337 Account Abstraction ─────────────────────
+
+  /** GET /api/gasless/status — Check gasless availability and configuration */
+  router.get('/gasless/status', (_req, res) => {
+    const status = wallet.getGaslessStatus();
+    res.json({
+      gaslessAvailable: wallet.isGaslessAvailable(),
+      ...status,
+    });
+  });
+
+  /** POST /api/tip/gasless — Send a gasless tip (zero gas fees for user) */
+  router.post('/tip/gasless', transactionLimiter, validateTipInput(), async (req, res) => {
+    try {
+      const { recipient, amount, token, message } = req.body as {
+        recipient: string;
+        amount: string;
+        token?: TokenType;
+        message?: string;
+      };
+
+      if (!recipient || !amount) {
+        res.status(400).json({ error: 'recipient and amount are required' });
+        return;
+      }
+
+      logger.info('Processing gasless tip request', { recipient, amount, token: token ?? 'native' });
+
+      const result = await wallet.sendGaslessTransaction(
+        recipient,
+        amount,
+        token ?? 'native',
+      );
+
+      const explorerUrl = wallet.getExplorerUrl(result.chainId, result.hash);
+
+      agent.addActivity({
+        type: 'tip_sent',
+        message: `Gasless tip sent: ${amount} ${token === 'usdt' ? 'USDT' : 'native'} to ${recipient.slice(0, 8)}...`,
+        detail: result.gasless ? 'Zero gas fees (ERC-4337)' : 'Fallback to regular transaction',
+        chainId: result.chainId,
+      });
+
+      res.json({
+        result: {
+          hash: result.hash,
+          fee: result.fee,
+          gasless: result.gasless,
+          chainId: result.chainId,
+          explorerUrl,
+          recipient,
+          amount,
+          token: token ?? 'native',
+          message,
+        },
+      });
+    } catch (err) {
+      logger.error('Gasless tip failed', { error: String(err) });
+      res.status(500).json({ error: String(err) });
+    }
   });
 
   // ── Address Book Contacts ──────────────────────────────────────
@@ -841,6 +957,63 @@ export function createApiRouter(
       logger.error('Chat processing failed', { error: String(err) });
       res.status(500).json({ error: 'Failed to process chat message' });
     }
+  });
+
+  // ── Conditional Tips ──────────────────────────────────────────
+
+  /** GET /api/conditions — List all conditions */
+  router.get('/conditions', (_req, res) => {
+    res.json({ conditions: agent.getConditions() });
+  });
+
+  /** POST /api/conditions — Create a new condition */
+  router.post('/conditions', (req, res) => {
+    try {
+      const { type, params, tip } = req.body as {
+        type?: ConditionType;
+        params?: { threshold?: string; currency?: string; timeStart?: string; timeEnd?: string };
+        tip?: { recipient: string; amount: string; token?: 'native' | 'usdt'; chainId?: string };
+      };
+
+      if (!type || !tip?.recipient || !tip?.amount) {
+        res.status(400).json({ error: 'type, tip.recipient, and tip.amount are required' });
+        return;
+      }
+
+      const validTypes: ConditionType[] = ['gas_below', 'balance_above', 'time_of_day', 'price_change'];
+      if (!validTypes.includes(type)) {
+        res.status(400).json({ error: `Invalid condition type. Must be one of: ${validTypes.join(', ')}` });
+        return;
+      }
+
+      const condition = agent.addCondition({
+        type,
+        params: params ?? {},
+        tip: {
+          recipient: tip.recipient,
+          amount: tip.amount,
+          token: tip.token ?? 'native',
+          chainId: tip.chainId,
+        },
+      });
+
+      logger.info('Condition created via API', { id: condition.id, type });
+      res.json({ condition });
+    } catch (err) {
+      logger.error('Failed to create condition', { error: String(err) });
+      res.status(500).json({ error: 'Failed to create condition' });
+    }
+  });
+
+  /** DELETE /api/conditions/:id — Cancel a condition */
+  router.delete('/conditions/:id', (req, res) => {
+    const { id } = req.params;
+    const cancelled = agent.cancelCondition(id);
+    if (!cancelled) {
+      res.status(404).json({ error: 'Condition not found or not active' });
+      return;
+    }
+    res.json({ cancelled: true, id });
   });
 
   return router;

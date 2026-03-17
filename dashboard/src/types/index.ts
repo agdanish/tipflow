@@ -1,5 +1,37 @@
-export type ChainId = 'ethereum-sepolia' | 'ton-testnet';
+export type ChainId = 'ethereum-sepolia' | 'ton-testnet' | 'ethereum-sepolia-gasless' | 'ton-testnet-gasless';
 export type TokenType = 'native' | 'usdt';
+
+/** Gasless status returned by the API */
+export interface GaslessStatus {
+  gaslessAvailable: boolean;
+  evmErc4337: {
+    available: boolean;
+    chainId: ChainId;
+    chainName: string;
+    bundlerUrl: string;
+    paymasterUrl: string;
+    reason?: string;
+  };
+  tonGasless: {
+    available: boolean;
+    chainId: ChainId;
+    chainName: string;
+    reason?: string;
+  };
+}
+
+/** Gasless tip result */
+export interface GaslessTipResult {
+  hash: string;
+  fee: string;
+  gasless: boolean;
+  chainId: ChainId;
+  explorerUrl: string;
+  recipient: string;
+  amount: string;
+  token: TokenType;
+  message?: string;
+}
 
 export interface WalletBalance {
   chainId: ChainId;
@@ -202,6 +234,30 @@ export interface GasPricesResponse {
   chains: GasPriceInfo[];
 }
 
+/** Condition types for smart conditional tipping */
+export type ConditionType = 'gas_below' | 'balance_above' | 'time_of_day' | 'price_change';
+
+/** A conditional tip — executes automatically when conditions are met */
+export interface TipCondition {
+  id: string;
+  type: ConditionType;
+  params: {
+    threshold?: string;
+    currency?: string;
+    timeStart?: string;
+    timeEnd?: string;
+  };
+  tip: {
+    recipient: string;
+    amount: string;
+    token: 'native' | 'usdt';
+    chainId?: string;
+  };
+  status: 'active' | 'triggered' | 'cancelled';
+  createdAt: string;
+  triggeredAt?: string;
+}
+
 /** Activity event types for live tip feed */
 export type ActivityEventType =
   | 'tip_sent'
@@ -212,6 +268,8 @@ export type ActivityEventType =
   | 'nlp_parsed'
   | 'contact_saved'
   | 'batch_started'
+  | 'condition_triggered'
+  | 'condition_created'
   | 'system';
 
 /** Activity event for real-time activity feed */
@@ -233,6 +291,28 @@ export interface BatchTipResult {
   totalAmount: string;
   totalFees: string;
   createdAt: string;
+}
+
+/** Split tip recipient with percentage allocation */
+export interface SplitRecipient {
+  address: string;
+  percentage: number;
+  name?: string;
+}
+
+/** Split tip result — aggregate results from all split transfers */
+export interface SplitTipResult {
+  totalAmount: string;
+  results: Array<{
+    recipient: string;
+    amount: string;
+    percentage: number;
+    hash?: string;
+    status: 'success' | 'failed';
+    error?: string;
+  }>;
+  successCount: number;
+  failCount: number;
 }
 
 /** Price data for currency conversion */

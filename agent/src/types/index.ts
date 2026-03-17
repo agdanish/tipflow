@@ -1,5 +1,5 @@
 /** Supported blockchain networks */
-export type ChainId = 'ethereum-sepolia' | 'ton-testnet';
+export type ChainId = 'ethereum-sepolia' | 'ton-testnet' | 'ethereum-sepolia-gasless' | 'ton-testnet-gasless';
 
 /** Token types supported for tipping */
 export type TokenType = 'native' | 'usdt';
@@ -200,6 +200,36 @@ export interface FeeComparison {
   rank: number;
 }
 
+/** Split tip recipient with percentage allocation */
+export interface SplitRecipient {
+  address: string;
+  percentage: number;  // 0-100
+  name?: string;       // optional contact name
+}
+
+/** Split tip request — divide a tip among multiple recipients proportionally */
+export interface SplitTipRequest {
+  recipients: SplitRecipient[];
+  totalAmount: string;
+  token: 'native' | 'usdt';
+  chainId?: string;
+}
+
+/** Split tip result — aggregate results from all split transfers */
+export interface SplitTipResult {
+  totalAmount: string;
+  results: Array<{
+    recipient: string;
+    amount: string;
+    percentage: number;
+    hash?: string;
+    status: 'success' | 'failed';
+    error?: string;
+  }>;
+  successCount: number;
+  failCount: number;
+}
+
 /** Activity event types for live tip feed */
 export type ActivityEventType =
   | 'tip_sent'
@@ -210,6 +240,8 @@ export type ActivityEventType =
   | 'nlp_parsed'
   | 'contact_saved'
   | 'batch_started'
+  | 'condition_triggered'
+  | 'condition_created'
   | 'system';
 
 /** Activity event for real-time activity feed */
@@ -239,6 +271,30 @@ export interface Achievement {
   unlockedAt?: string;
   progress: number;
   target: number;
+}
+
+/** Condition types for smart conditional tipping */
+export type ConditionType = 'gas_below' | 'balance_above' | 'time_of_day' | 'price_change';
+
+/** A conditional tip — executes automatically when conditions are met */
+export interface TipCondition {
+  id: string;
+  type: ConditionType;
+  params: {
+    threshold?: string;    // gas price threshold (gwei) or balance threshold
+    currency?: string;     // ETH, TON
+    timeStart?: string;    // HH:MM format
+    timeEnd?: string;      // HH:MM format
+  };
+  tip: {
+    recipient: string;
+    amount: string;
+    token: 'native' | 'usdt';
+    chainId?: string;
+  };
+  status: 'active' | 'triggered' | 'cancelled';
+  createdAt: string;
+  triggeredAt?: string;
 }
 
 /** Chat message for conversational interface */

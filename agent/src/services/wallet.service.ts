@@ -1,6 +1,8 @@
 import WDK from '@tetherto/wdk';
 import WalletManagerEvm from '@tetherto/wdk-wallet-evm';
 import WalletManagerTon from '@tetherto/wdk-wallet-ton';
+import WalletManagerEvmErc4337 from '@tetherto/wdk-wallet-evm-erc-4337';
+import WalletManagerTonGasless from '@tetherto/wdk-wallet-ton-gasless';
 import { logger } from '../utils/logger.js';
 import { JsonRpcProvider } from 'ethers';
 import type { ChainId, ChainConfig, WalletBalance, ConfirmationResult, FeeComparison } from '../types/index.js';
@@ -29,7 +31,42 @@ const CHAIN_CONFIGS: Record<ChainId, ChainConfig> = {
     nativeCurrency: 'TON',
     explorerUrl: 'https://testnet.tonviewer.com',
   },
+  'ethereum-sepolia-gasless': {
+    id: 'ethereum-sepolia-gasless',
+    name: 'Ethereum Sepolia (Gasless)',
+    blockchain: 'ethereum-erc4337',
+    isTestnet: true,
+    nativeCurrency: 'ETH',
+    explorerUrl: 'https://sepolia.etherscan.io',
+    rpcUrl: process.env.ETH_SEPOLIA_RPC ?? 'https://ethereum-sepolia-rpc.publicnode.com',
+  },
+  'ton-testnet-gasless': {
+    id: 'ton-testnet-gasless',
+    name: 'TON Testnet (Gasless)',
+    blockchain: 'ton-gasless',
+    isTestnet: true,
+    nativeCurrency: 'TON',
+    explorerUrl: 'https://testnet.tonviewer.com',
+  },
 };
+
+/** Gasless status info returned by the API */
+export interface GaslessStatus {
+  evmErc4337: {
+    available: boolean;
+    chainId: ChainId;
+    chainName: string;
+    bundlerUrl: string;
+    paymasterUrl: string;
+    reason?: string;
+  };
+  tonGasless: {
+    available: boolean;
+    chainId: ChainId;
+    chainName: string;
+    reason?: string;
+  };
+}
 
 /**
  * WDK Wallet Service — manages multi-chain wallets via Tether WDK.
@@ -40,6 +77,10 @@ export class WalletService {
   private seed: string = '';
   private initialized = false;
   private registeredChains = new Set<ChainId>();
+  private gaslessEvmAvailable = false;
+  private gaslessTonAvailable = false;
+  private gaslessEvmError?: string;
+  private gaslessTonError?: string;
 
   /** Initialize WDK with a seed phrase, registering all supported chains */
   async initialize(seed?: string): Promise<void> {
@@ -72,6 +113,49 @@ export class WalletService {
       logger.info('Registered TON wallet (Testnet)');
     } catch (err) {
       logger.error('Failed to register TON wallet', { error: String(err) });
+    }
+
+    // Register EVM ERC-4337 (Account Abstraction / Gasless)
+    try {
+      const erc4337Config = CHAIN_CONFIGS['ethereum-sepolia-gasless'];
+      const bundlerUrl = process.env.ERC4337_BUNDLER_URL ?? 'https://api.pimlico.io/v2/11155111/rpc';
+      const paymasterUrl = process.env.ERC4337_PAYMASTER_URL ?? 'https://api.pimlico.io/v2/11155111/rpc';
+      const entryPointAddress = process.env.ERC4337_ENTRY_POINT ?? '0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789';
+
+      this.wdk.registerWallet('ethereum-erc4337', WalletManagerEvmErc4337 as any, {
+        chainId: 11155111, // Sepolia chain ID
+        provider: erc4337Config.rpcUrl,
+        bundlerUrl,
+        entryPointAddress,
+        safeModulesVersion: '0.2.0',
+        isSponsored: true,
+        paymasterUrl,
+      });
+      this.registeredChains.add('ethereum-sepolia-gasless');
+      this.gaslessEvmAvailable = true;
+      logger.info('Registered EVM ERC-4337 wallet (Gasless / Account Abstraction)');
+    } catch (err) {
+      this.gaslessEvmError = String(err);
+      logger.warn('EVM ERC-4337 gasless wallet not available (non-critical)', { error: String(err) });
+    }
+
+    // Register TON Gasless
+    try {
+      const tonUrl = process.env.TON_TESTNET_URL ?? 'https://testnet.toncenter.com/api/v2/jsonRPC';
+      const tonApiUrl = process.env.TON_API_URL ?? 'https://testnet.tonapi.io';
+      const tonPaymasterToken = process.env.TON_PAYMASTER_TOKEN_ADDRESS ?? 'EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs'; // Testnet USDT
+
+      this.wdk.registerWallet('ton-gasless', WalletManagerTonGasless as any, {
+        tonClient: { url: tonUrl },
+        tonApiClient: { url: tonApiUrl },
+        paymasterToken: { address: tonPaymasterToken },
+      });
+      this.registeredChains.add('ton-testnet-gasless');
+      this.gaslessTonAvailable = true;
+      logger.info('Registered TON Gasless wallet');
+    } catch (err) {
+      this.gaslessTonError = String(err);
+      logger.warn('TON gasless wallet not available (non-critical)', { error: String(err) });
     }
 
     this.initialized = true;
@@ -392,10 +476,121 @@ export class WalletService {
     }
   }
 
+  /** Check if gasless transactions are available */
+  isGaslessAvailable(type: 'evm' | 'ton' | 'any' = 'any'): boolean {
+    if (type === 'evm') return this.gaslessEvmAvailable;
+    if (type === 'ton') return this.gaslessTonAvailable;
+    return this.gaslessEvmAvailable || this.gaslessTonAvailable;
+  }
+
+  /** Get gasless status for both chains */
+  getGaslessStatus(): GaslessStatus {
+    const evmConfig = CHAIN_CONFIGS['ethereum-sepolia-gasless'];
+    const tonConfig = CHAIN_CONFIGS['ton-testnet-gasless'];
+
+    return {
+      evmErc4337: {
+        available: this.gaslessEvmAvailable,
+        chainId: 'ethereum-sepolia-gasless',
+        chainName: evmConfig.name,
+        bundlerUrl: process.env.ERC4337_BUNDLER_URL ?? 'https://api.pimlico.io/v2/11155111/rpc',
+        paymasterUrl: process.env.ERC4337_PAYMASTER_URL ?? 'https://api.pimlico.io/v2/11155111/rpc',
+        reason: this.gaslessEvmAvailable ? undefined : (this.gaslessEvmError ?? 'ERC-4337 bundler/paymaster not configured'),
+      },
+      tonGasless: {
+        available: this.gaslessTonAvailable,
+        chainId: 'ton-testnet-gasless',
+        chainName: tonConfig.name,
+        reason: this.gaslessTonAvailable ? undefined : (this.gaslessTonError ?? 'TON gasless API not configured'),
+      },
+    };
+  }
+
+  /**
+   * Send a gasless transaction using ERC-4337 Account Abstraction.
+   * The user pays zero gas fees — the paymaster/bundler sponsors the transaction.
+   * Falls back to a regular transaction if gasless is unavailable.
+   */
+  async sendGaslessTransaction(
+    recipient: string,
+    amount: string,
+    token: 'native' | 'usdt' = 'native',
+  ): Promise<{ hash: string; fee: string; gasless: boolean; chainId: ChainId }> {
+    this.ensureInitialized();
+
+    // Try EVM ERC-4337 gasless first
+    if (this.gaslessEvmAvailable) {
+      try {
+        const account = await this.wdk!.getAccount('ethereum-erc4337', 0);
+        const gaslessChainId: ChainId = 'ethereum-sepolia-gasless';
+
+        if (token === 'usdt') {
+          const usdtContract = USDT_CONTRACTS['ethereum-sepolia'];
+          if (!usdtContract) throw new Error('USDT contract not configured for gasless chain');
+
+          const amountRaw = BigInt(Math.floor(parseFloat(amount) * 1e6));
+          logger.info('Sending gasless USDT transfer via ERC-4337', { recipient, amount, amountRaw: amountRaw.toString() });
+
+          const result = await account.transfer({
+            token: usdtContract,
+            recipient,
+            amount: amountRaw,
+          });
+
+          logger.info('Gasless USDT transfer sent', { hash: result.hash });
+          return { hash: result.hash, fee: '0.000000', gasless: true, chainId: gaslessChainId };
+        } else {
+          const amountRaw = this.parseAmount(amount, 'ethereum-sepolia');
+          logger.info('Sending gasless native transfer via ERC-4337', { recipient, amount });
+
+          const result = await account.sendTransaction({
+            to: recipient,
+            value: amountRaw,
+          });
+
+          logger.info('Gasless native transfer sent', { hash: result.hash });
+          return { hash: result.hash, fee: '0.000000', gasless: true, chainId: gaslessChainId };
+        }
+      } catch (err) {
+        logger.warn('ERC-4337 gasless transaction failed, falling back to regular', { error: String(err) });
+      }
+    }
+
+    // Try TON gasless
+    if (this.gaslessTonAvailable && token === 'native') {
+      try {
+        const account = await this.wdk!.getAccount('ton-gasless', 0);
+        const amountRaw = this.parseAmount(amount, 'ton-testnet');
+        logger.info('Sending gasless TON transfer', { recipient, amount });
+
+        const result = await account.sendTransaction({
+          to: recipient,
+          value: amountRaw,
+        });
+
+        logger.info('Gasless TON transfer sent', { hash: result.hash });
+        return { hash: result.hash, fee: '0.000000', gasless: true, chainId: 'ton-testnet-gasless' };
+      } catch (err) {
+        logger.warn('TON gasless transaction failed, falling back to regular', { error: String(err) });
+      }
+    }
+
+    // Fallback: regular EVM transaction
+    logger.info('Gasless not available, falling back to regular transaction');
+    const fallbackChainId: ChainId = 'ethereum-sepolia';
+    if (token === 'usdt') {
+      const result = await this.sendUsdtTransfer(fallbackChainId, recipient, amount);
+      return { ...result, gasless: false, chainId: fallbackChainId };
+    } else {
+      const result = await this.sendTransaction(fallbackChainId, recipient, amount);
+      return { ...result, gasless: false, chainId: fallbackChainId };
+    }
+  }
+
   /** Get explorer URL for a transaction */
   getExplorerUrl(chainId: ChainId, txHash: string): string {
     const config = CHAIN_CONFIGS[chainId];
-    if (chainId === 'ton-testnet') {
+    if (chainId === 'ton-testnet' || chainId === 'ton-testnet-gasless') {
       return `${config.explorerUrl}/transaction/${txHash}`;
     }
     return `${config.explorerUrl}/tx/${txHash}`;

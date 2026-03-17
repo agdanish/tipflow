@@ -3,6 +3,7 @@ import { Header } from './components/Header';
 import { WalletCard } from './components/WalletCard';
 import { TipForm } from './components/TipForm';
 import { BatchTipForm } from './components/BatchTipForm';
+import { SplitTipForm } from './components/SplitTipForm';
 import { AgentPanel } from './components/AgentPanel';
 import { TipHistory } from './components/TipHistory';
 import { StatsPanel } from './components/StatsPanel';
@@ -20,12 +21,13 @@ import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { OnboardingOverlay, isOnboardingComplete, resetOnboarding } from './components/OnboardingOverlay';
 import { ChatInterface } from './components/ChatInterface';
 import { SecurityStatus } from './components/SecurityStatus';
+import { ConditionalTips } from './components/ConditionalTips';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { api } from './lib/api';
 import { playSuccess, playError, isSoundEnabled, setSoundEnabled } from './lib/sounds';
-import type { TipResult, ScheduledTip, LeaderboardEntry, Achievement, TipTemplate } from './types';
-import { Wallet, Send, Users, CalendarClock, X, Clock, CheckCircle2, XCircle, Repeat } from 'lucide-react';
+import type { TipResult, ScheduledTip, LeaderboardEntry, Achievement, TipTemplate, SplitTipResult } from './types';
+import { Wallet, Send, Users, Scissors, CalendarClock, X, Clock, CheckCircle2, XCircle, Repeat } from 'lucide-react';
 
 function App() {
   const { health } = useHealth();
@@ -34,7 +36,7 @@ function App() {
   const { history, loading: historyLoading, refresh: refreshHistory } = useHistory();
   const { stats, refresh: refreshStats } = useStats();
   const { toasts, addToast, dismissToast } = useToasts();
-  const [tipMode, setTipMode] = useState<'single' | 'batch'>('single');
+  const [tipMode, setTipMode] = useState<'single' | 'batch' | 'split'>('single');
   const [scheduledTips, setScheduledTips] = useState<ScheduledTip[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [leaderboardLoading, setLeaderboardLoading] = useState(true);
@@ -77,7 +79,7 @@ function App() {
         const input = document.getElementById('nlp-input') as HTMLInputElement | null;
         if (input) input.focus();
       },
-      toggleTipMode: () => setTipMode((prev) => (prev === 'single' ? 'batch' : 'single')),
+      toggleTipMode: () => setTipMode((prev) => prev === 'single' ? 'batch' : prev === 'batch' ? 'split' : 'single'),
       toggleTheme,
       showShortcutsHelp: () => setShowShortcuts(true),
       closeModal: () => setShowShortcuts(false),
@@ -199,6 +201,28 @@ function App() {
     refreshAchievements();
   };
 
+  const handleSplitComplete = (result: SplitTipResult) => {
+    if (result.successCount > 0) {
+      const msg = `${result.successCount}/${result.results.length} split tips sent (total: ${result.totalAmount})`;
+      addToast('success', 'Split Complete', msg);
+      playSuccess();
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('TipFlow — Split Complete', {
+          body: msg,
+          icon: '/favicon.svg',
+        });
+      }
+    } else {
+      addToast('error', 'Split Failed', 'All split tips failed');
+      playError();
+    }
+    refreshBalances();
+    refreshHistory();
+    refreshStats();
+    refreshLeaderboard();
+    refreshAchievements();
+  };
+
   const handleUseTemplate = useCallback((template: TipTemplate) => {
     setTipMode('single');
     setPendingTemplate(template);
@@ -268,9 +292,20 @@ function App() {
                 <Users className="w-3.5 h-3.5" />
                 Batch Tip
               </button>
+              <button
+                onClick={() => setTipMode('split')}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all ${
+                  tipMode === 'split'
+                    ? 'bg-surface-3 text-text-primary shadow-sm'
+                    : 'text-text-secondary hover:text-text-primary'
+                }`}
+              >
+                <Scissors className="w-3.5 h-3.5" />
+                Split
+              </button>
             </div>
 
-            {tipMode === 'single' ? (
+            {tipMode === 'single' && (
               <TipForm
                 onTipComplete={handleTipComplete}
                 onTipScheduled={handleTipScheduled}
@@ -278,8 +313,12 @@ function App() {
                 prefillTemplate={pendingTemplate}
                 onTemplatePrefilled={() => setPendingTemplate(null)}
               />
-            ) : (
+            )}
+            {tipMode === 'batch' && (
               <BatchTipForm onBatchComplete={handleBatchComplete} disabled={isAgentBusy} />
+            )}
+            {tipMode === 'split' && (
+              <SplitTipForm onSplitComplete={handleSplitComplete} disabled={isAgentBusy} />
             )}
             <TipTemplates onUseTemplate={handleUseTemplate} />
             <div data-onboarding="agent-panel">
@@ -288,6 +327,7 @@ function App() {
             {agentState.currentDecision && (
               <DecisionTree decision={agentState.currentDecision} agentStatus={agentState.status} />
             )}
+            <ConditionalTips />
             <ActivityFeed />
             <QRReceive />
           </div>

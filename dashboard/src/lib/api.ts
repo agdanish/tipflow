@@ -3,6 +3,8 @@ import type {
   WalletReceiveInfo,
   TipResult,
   TipHistoryEntry,
+  GaslessStatus,
+  GaslessTipResult,
   AgentState,
   AgentStats,
   HealthResponse,
@@ -20,6 +22,10 @@ import type {
   ChatMessage,
   PriceData,
   TipTemplate,
+  SplitRecipient,
+  SplitTipResult,
+  TipCondition,
+  ConditionType,
 } from '../types';
 
 const BASE = '/api';
@@ -79,6 +85,12 @@ export const api = {
     fetchJson<{ result: BatchTipResult }>('/tip/batch', {
       method: 'POST',
       body: JSON.stringify({ recipients, token: token ?? 'native', preferredChain }),
+    }),
+
+  splitTip: (recipients: SplitRecipient[], totalAmount: string, token?: TokenType, chainId?: string) =>
+    fetchJson<{ result: SplitTipResult }>('/tip/split', {
+      method: 'POST',
+      body: JSON.stringify({ recipients, totalAmount, token: token ?? 'native', chainId }),
     }),
 
   parseTipInput: (input: string) =>
@@ -177,4 +189,29 @@ export const api = {
   // Export
   exportHistory: (format: 'csv' = 'csv') =>
     downloadBlob(`${BASE}/agent/history/export?format=${format}`, `tipflow-history.${format}`),
+
+  // Conditional Tips
+  getConditions: () =>
+    fetchJson<{ conditions: TipCondition[] }>('/conditions'),
+
+  createCondition: (type: ConditionType, params: TipCondition['params'], tip: TipCondition['tip']) =>
+    fetchJson<{ condition: TipCondition }>('/conditions', {
+      method: 'POST',
+      body: JSON.stringify({ type, params, tip }),
+    }),
+
+  cancelCondition: (id: string) =>
+    fetchJson<{ cancelled: boolean; id: string }>(`/conditions/${id}`, {
+      method: 'DELETE',
+    }),
+
+  // Gasless / ERC-4337
+  getGaslessStatus: () =>
+    fetchJson<GaslessStatus>('/gasless/status'),
+
+  sendGaslessTip: (recipient: string, amount: string, token?: TokenType, message?: string) =>
+    fetchJson<{ result: GaslessTipResult }>('/tip/gasless', {
+      method: 'POST',
+      body: JSON.stringify({ recipient, amount, token: token ?? 'native', message }),
+    }),
 };

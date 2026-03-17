@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, Loader2, AlertCircle, Coins, Sparkles, Wand2, Clock, CalendarClock, BookUser, UserPlus, X, Trash2, BookMarked, Repeat } from 'lucide-react';
+import { Send, Loader2, AlertCircle, Coins, Sparkles, Wand2, Clock, CalendarClock, BookUser, UserPlus, X, Trash2, BookMarked, Repeat, Zap } from 'lucide-react';
 import { api } from '../lib/api';
+import { VoiceButton } from './VoiceButton';
+import { GaslessToggle } from './GaslessToggle';
 import type { ChainId, TokenType, TipResult, Contact, TipTemplate } from '../types';
 
 interface TipFormProps {
@@ -19,6 +21,8 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gaslessMode, setGaslessMode] = useState(false);
+  const [gaslessResult, setGaslessResult] = useState<{ gasless: boolean; fee: string } | null>(null);
 
   // Schedule state
   const [scheduleMode, setScheduleMode] = useState(false);
@@ -186,6 +190,39 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
           recurring ? interval : undefined,
         );
         onTipScheduled?.();
+      } else if (gaslessMode) {
+        const { result } = await api.sendGaslessTip(
+          recipient,
+          amount,
+          token,
+          message || undefined,
+        );
+        setGaslessResult({ gasless: result.gasless, fee: result.fee });
+        // Construct a TipResult-compatible object for the callback
+        onTipComplete({
+          id: result.hash,
+          tipId: result.hash,
+          status: 'confirmed',
+          chainId: result.chainId,
+          txHash: result.hash,
+          from: '',
+          to: result.recipient,
+          amount: result.amount,
+          token: result.token,
+          fee: result.fee,
+          explorerUrl: result.explorerUrl,
+          decision: {
+            selectedChain: result.chainId,
+            reasoning: result.gasless
+              ? 'Gasless transaction via ERC-4337 Account Abstraction - zero gas fees'
+              : 'Gasless unavailable, fell back to regular transaction',
+            analyses: [],
+            steps: [],
+            confidence: 1,
+          },
+          createdAt: new Date().toISOString(),
+        });
+        refreshContacts();
       } else {
         const { result } = await api.sendTip(
           recipient,
@@ -194,6 +231,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
           chain || undefined,
           message || undefined,
         );
+        setGaslessResult(null);
         onTipComplete(result);
         refreshContacts(); // Update tip counts
       }
@@ -240,6 +278,10 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
             id="nlp-input"
             placeholder='e.g. "send 0.01 ETH to 0x..."'
             className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-colors"
+            disabled={sending || disabled || nlpParsing}
+          />
+          <VoiceButton
+            onTranscript={(text) => { setNlpInput(text); clearNlpState(); }}
             disabled={sending || disabled || nlpParsing}
           />
           <button
@@ -535,6 +577,29 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
           )}
         </div>
 
+        {/* Gasless Mode Toggle */}
+        {!scheduleMode && (
+          <div>
+            <GaslessToggle
+              enabled={gaslessMode}
+              onToggle={(v) => { setGaslessMode(v); setGaslessResult(null); }}
+              disabled={sending || disabled}
+            />
+            {gaslessResult && (
+              <div className={`mt-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium ${
+                gaslessResult.gasless
+                  ? 'bg-green-500/10 border border-green-500/20 text-green-400'
+                  : 'bg-amber-500/10 border border-amber-500/20 text-amber-400'
+              }`}>
+                <Zap className="w-3 h-3" />
+                {gaslessResult.gasless
+                  ? 'Sent gasless! Fee: 0 (sponsored via ERC-4337)'
+                  : `Fell back to regular tx. Fee: ${gaslessResult.fee}`}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Save as Template */}
         {recipient.trim() && amount.trim() && (
           <div>
@@ -619,18 +684,25 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
           className={`w-full py-3 rounded-lg font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 ${
             scheduleMode
               ? 'bg-amber-500 text-white hover:bg-amber-400'
-              : 'bg-accent text-white hover:bg-accent-light'
+              : gaslessMode
+                ? 'bg-green-600 text-white hover:bg-green-500'
+                : 'bg-accent text-white hover:bg-accent-light'
           }`}
         >
           {sending ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              {scheduleMode ? 'Scheduling...' : 'Agent Processing...'}
+              {scheduleMode ? 'Scheduling...' : gaslessMode ? 'Sending Gasless...' : 'Agent Processing...'}
             </>
           ) : scheduleMode ? (
             <>
               <CalendarClock className="w-4 h-4" />
               Schedule {token === 'usdt' ? 'USDT' : ''} Tip
+            </>
+          ) : gaslessMode ? (
+            <>
+              <Zap className="w-4 h-4" />
+              Send Gasless {token === 'usdt' ? 'USDT' : ''} Tip
             </>
           ) : (
             <>

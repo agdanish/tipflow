@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { WalletService } from '../services/wallet.service.js';
 import { AIService } from '../services/ai.service.js';
+import { ConditionsService } from '../services/conditions.service.js';
 import { logger } from '../utils/logger.js';
 import type {
   Achievement,
@@ -12,9 +13,13 @@ import type {
   BatchTipResult,
   ChainAnalysis,
   ChainId,
+  ConditionType,
   LeaderboardEntry,
   ReasoningStep,
   ScheduledTip,
+  SplitTipRequest,
+  SplitTipResult,
+  TipCondition,
   TipHistoryEntry,
   TipRequest,
   TipResult,
@@ -35,6 +40,7 @@ import type {
 export class TipFlowAgent {
   private wallet: WalletService;
   private ai: AIService;
+  private conditions: ConditionsService;
   private state: AgentState = { status: 'idle' };
   private history: TipHistoryEntry[] = [];
   private listeners: Array<(state: AgentState) => void> = [];
@@ -54,15 +60,19 @@ export class TipFlowAgent {
   constructor(wallet: WalletService, ai: AIService) {
     this.wallet = wallet;
     this.ai = ai;
+    this.conditions = new ConditionsService(wallet);
     this.startScheduler();
     this.addActivity({ type: 'system', message: 'TipFlow agent initialized', detail: `Chains: ${wallet.getRegisteredChains().join(', ')}` });
   }
 
-  /** Start the background scheduler that checks for due tips every 10 seconds */
+  /** Start the background scheduler that checks for due tips and conditions every 10 seconds */
   private startScheduler(): void {
     this.schedulerInterval = setInterval(() => {
       this.processDueTips().catch((err) => {
         logger.error('Scheduler tick failed', { error: String(err) });
+      });
+      this.processConditions().catch((err) => {
+        logger.error('Condition check failed', { error: String(err) });
       });
     }, 10_000);
     logger.info('Tip scheduler started (10s interval)');
@@ -175,6 +185,78 @@ export class TipFlowAgent {
     this.scheduledTips.delete(id);
     logger.info('Scheduled tip cancelled', { id });
     return true;
+  }
+
+  // ── Conditional Tips ──────────────────────────────────────────
+
+  /** Add a conditional tip */
+  addCondition(input: {
+    type: ConditionType;
+    params: TipCondition['params'];
+    tip: TipCondition['tip'];
+  }): TipCondition {
+    const condition = this.conditions.addCondition(input);
+    this.addActivity({
+      type: 'condition_created',
+      message: `Condition created: ${input.type}`,
+      detail: `${input.tip.amount} ${input.tip.token} to ${input.tip.recipient.slice(0, 10)}...`,
+    });
+    return condition;
+  }
+
+  /** Get all conditions */
+  getConditions(): TipCondition[] {
+    return this.conditions.getConditions();
+  }
+
+  /** Cancel a condition */
+  cancelCondition(id: string): boolean {
+    return this.conditions.cancelCondition(id);
+  }
+
+  /** Check and execute triggered conditions */
+  private async processConditions(): Promise<void> {
+    const triggered = await this.conditions.checkConditions();
+
+    for (const condition of triggered) {
+      logger.info('Executing condition-triggered tip', {
+        conditionId: condition.id,
+        type: condition.type,
+        recipient: condition.tip.recipient,
+      });
+
+      this.addActivity({
+        type: 'condition_triggered',
+        message: `Condition "${condition.type}" triggered — executing tip`,
+        detail: `${condition.tip.amount} ${condition.tip.token} to ${condition.tip.recipient.slice(0, 10)}...`,
+      });
+
+      const request: TipRequest = {
+        id: uuidv4(),
+        recipient: condition.tip.recipient,
+        amount: condition.tip.amount,
+        token: condition.tip.token,
+        preferredChain: condition.tip.chainId as ChainId | undefined,
+        createdAt: new Date().toISOString(),
+      };
+
+      try {
+        const result = await this.executeTip(request);
+        if (result.status === 'confirmed') {
+          this.addActivity({
+            type: 'tip_sent',
+            message: `Conditional tip confirmed: ${condition.tip.amount} ${condition.tip.token}`,
+            detail: `Triggered by ${condition.type} | tx: ${result.txHash.slice(0, 14)}...`,
+            chainId: result.chainId,
+          });
+        }
+      } catch (err) {
+        logger.error('Condition-triggered tip failed', {
+          conditionId: condition.id,
+          error: String(err),
+        });
+      }
+    }
   }
 
   /** Get current agent state */
@@ -428,6 +510,97 @@ export class TipFlowAgent {
       totalAmount: totalAmount.toFixed(6),
       totalFees: totalFees.toFixed(6),
       createdAt: now,
+    };
+  }
+
+  /**
+   * Execute a split tip — divide a total amount among multiple recipients by percentage.
+   * Validates that percentages sum to 100, calculates each share, and executes sequentially.
+   */
+  async executeSplitTip(request: SplitTipRequest): Promise<SplitTipResult> {
+    // Validate percentages sum to 100
+    const totalPct = request.recipients.reduce((sum, r) => sum + r.percentage, 0);
+    if (Math.abs(totalPct - 100) > 0.01) {
+      throw new Error(`Percentages must sum to 100 (got ${totalPct})`);
+    }
+
+    const totalAmount = parseFloat(request.totalAmount);
+    if (isNaN(totalAmount) || totalAmount <= 0) {
+      throw new Error(`Invalid total amount: ${request.totalAmount}`);
+    }
+
+    this.addActivity({
+      type: 'batch_started',
+      message: `Split tip started: ${request.totalAmount} among ${request.recipients.length} recipients`,
+    });
+
+    const results: SplitTipResult['results'] = [];
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const recipient of request.recipients) {
+      const share = (totalAmount * recipient.percentage) / 100;
+      const shareStr = share.toFixed(6);
+      const label = recipient.name ? `${recipient.name} (${recipient.address.slice(0, 8)}...)` : `${recipient.address.slice(0, 10)}...`;
+
+      this.addActivity({
+        type: 'system',
+        message: `Split: sending ${shareStr} (${recipient.percentage}%) to ${label}`,
+      });
+
+      const tipRequest: TipRequest = {
+        id: uuidv4(),
+        recipient: recipient.address,
+        amount: shareStr,
+        token: request.token,
+        preferredChain: request.chainId as ChainId | undefined,
+        createdAt: new Date().toISOString(),
+      };
+
+      try {
+        const tipResult = await this.executeTip(tipRequest);
+        if (tipResult.status === 'failed') {
+          failCount++;
+          results.push({
+            recipient: recipient.address,
+            amount: shareStr,
+            percentage: recipient.percentage,
+            status: 'failed',
+            error: tipResult.error ?? 'Transaction failed',
+          });
+        } else {
+          successCount++;
+          results.push({
+            recipient: recipient.address,
+            amount: shareStr,
+            percentage: recipient.percentage,
+            hash: tipResult.txHash,
+            status: 'success',
+          });
+        }
+      } catch (err) {
+        failCount++;
+        results.push({
+          recipient: recipient.address,
+          amount: shareStr,
+          percentage: recipient.percentage,
+          status: 'failed',
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+
+    this.addActivity({
+      type: 'tip_sent',
+      message: `Split tip complete: ${successCount}/${request.recipients.length} succeeded`,
+      detail: `Total: ${request.totalAmount}`,
+    });
+
+    return {
+      totalAmount: request.totalAmount,
+      results,
+      successCount,
+      failCount,
     };
   }
 
