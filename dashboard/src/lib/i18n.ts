@@ -125,6 +125,33 @@ export const translations: Record<Locale, Record<string, string>> = {
     'stats.title': 'Statistics',
     'stats.totalTips': 'Total Tips',
 
+    // Navigation tabs
+    'nav.dashboard': 'Dashboard',
+    'nav.analytics': 'Analytics',
+
+    // Common
+    'common.loading': 'Loading...',
+    'common.error': 'Error',
+    'common.retry': 'Retry',
+    'common.cancel': 'Cancel',
+    'common.save': 'Save',
+    'common.delete': 'Delete',
+    'common.confirm': 'Confirm',
+    'common.search': 'Search',
+    'common.export': 'Export',
+    'common.import': 'Import',
+
+    // Agent extra
+    'agent.analyzing': 'Analyzing...',
+    'agent.verifying': 'Verifying...',
+    'agent.complete': 'Complete',
+
+    // Settings
+    'settings.theme': 'Theme',
+    'settings.language': 'Language',
+    'settings.sound': 'Sound',
+    'settings.personality': 'Personality',
+
     // Language
     'language.select': 'Language',
   },
@@ -218,6 +245,29 @@ export const translations: Record<Locale, Record<string, string>> = {
     'stats.title': 'Estad\u00EDsticas',
     'stats.totalTips': 'Total de Propinas',
 
+    'nav.dashboard': 'Panel',
+    'nav.analytics': 'Anal\u00EDtica',
+
+    'common.loading': 'Cargando...',
+    'common.error': 'Error',
+    'common.retry': 'Reintentar',
+    'common.cancel': 'Cancelar',
+    'common.save': 'Guardar',
+    'common.delete': 'Eliminar',
+    'common.confirm': 'Confirmar',
+    'common.search': 'Buscar',
+    'common.export': 'Exportar',
+    'common.import': 'Importar',
+
+    'agent.analyzing': 'Analizando...',
+    'agent.verifying': 'Verificando...',
+    'agent.complete': 'Completado',
+
+    'settings.theme': 'Tema',
+    'settings.language': 'Idioma',
+    'settings.sound': 'Sonido',
+    'settings.personality': 'Personalidad',
+
     'language.select': 'Idioma',
   },
 
@@ -309,6 +359,29 @@ export const translations: Record<Locale, Record<string, string>> = {
 
     'stats.title': '\u0627\u0644\u0625\u062D\u0635\u0627\u0626\u064A\u0627\u062A',
     'stats.totalTips': '\u0625\u062C\u0645\u0627\u0644\u064A \u0627\u0644\u0625\u0643\u0631\u0627\u0645\u064A\u0627\u062A',
+
+    'nav.dashboard': '\u0644\u0648\u062D\u0629 \u0627\u0644\u062A\u062D\u0643\u0645',
+    'nav.analytics': '\u0627\u0644\u062A\u062D\u0644\u064A\u0644\u0627\u062A',
+
+    'common.loading': '\u062C\u0627\u0631\u064A \u0627\u0644\u062A\u062D\u0645\u064A\u0644...',
+    'common.error': '\u062E\u0637\u0623',
+    'common.retry': '\u0625\u0639\u0627\u062F\u0629 \u0627\u0644\u0645\u062D\u0627\u0648\u0644\u0629',
+    'common.cancel': '\u0625\u0644\u063A\u0627\u0621',
+    'common.save': '\u062D\u0641\u0638',
+    'common.delete': '\u062D\u0630\u0641',
+    'common.confirm': '\u062A\u0623\u0643\u064A\u062F',
+    'common.search': '\u0628\u062D\u062B',
+    'common.export': '\u062A\u0635\u062F\u064A\u0631',
+    'common.import': '\u0627\u0633\u062A\u064A\u0631\u0627\u062F',
+
+    'agent.analyzing': '\u062C\u0627\u0631\u064A \u0627\u0644\u062A\u062D\u0644\u064A\u0644...',
+    'agent.verifying': '\u062C\u0627\u0631\u064A \u0627\u0644\u062A\u062D\u0642\u0642...',
+    'agent.complete': '\u0645\u0643\u062A\u0645\u0644',
+
+    'settings.theme': '\u0627\u0644\u0645\u0638\u0647\u0631',
+    'settings.language': '\u0627\u0644\u0644\u063A\u0629',
+    'settings.sound': '\u0627\u0644\u0635\u0648\u062A',
+    'settings.personality': '\u0627\u0644\u0634\u062E\u0635\u064A\u0629',
 
     'language.select': '\u0627\u0644\u0644\u063A\u0629',
   },
@@ -402,6 +475,29 @@ export const translations: Record<Locale, Record<string, string>> = {
     'stats.title': '\u7EDF\u8BA1',
     'stats.totalTips': '\u6253\u8D4F\u603B\u8BA1',
 
+    'nav.dashboard': '\u4EEA\u8868\u76D8',
+    'nav.analytics': '\u5206\u6790',
+
+    'common.loading': '\u52A0\u8F7D\u4E2D...',
+    'common.error': '\u9519\u8BEF',
+    'common.retry': '\u91CD\u8BD5',
+    'common.cancel': '\u53D6\u6D88',
+    'common.save': '\u4FDD\u5B58',
+    'common.delete': '\u5220\u9664',
+    'common.confirm': '\u786E\u8BA4',
+    'common.search': '\u641C\u7D22',
+    'common.export': '\u5BFC\u51FA',
+    'common.import': '\u5BFC\u5165',
+
+    'agent.analyzing': '\u5206\u6790\u4E2D...',
+    'agent.verifying': '\u9A8C\u8BC1\u4E2D...',
+    'agent.complete': '\u5B8C\u6210',
+
+    'settings.theme': '\u4E3B\u9898',
+    'settings.language': '\u8BED\u8A00',
+    'settings.sound': '\u58F0\u97F3',
+    'settings.personality': '\u4E2A\u6027',
+
     'language.select': '\u8BED\u8A00',
   },
 
@@ -494,6 +590,29 @@ export const translations: Record<Locale, Record<string, string>> = {
     'stats.title': 'Statistiques',
     'stats.totalTips': 'Total des Pourboires',
 
+    'nav.dashboard': 'Tableau de bord',
+    'nav.analytics': 'Analytique',
+
+    'common.loading': 'Chargement...',
+    'common.error': 'Erreur',
+    'common.retry': 'R\u00E9essayer',
+    'common.cancel': 'Annuler',
+    'common.save': 'Enregistrer',
+    'common.delete': 'Supprimer',
+    'common.confirm': 'Confirmer',
+    'common.search': 'Rechercher',
+    'common.export': 'Exporter',
+    'common.import': 'Importer',
+
+    'agent.analyzing': 'Analyse en cours...',
+    'agent.verifying': 'V\u00E9rification...',
+    'agent.complete': 'Termin\u00E9',
+
+    'settings.theme': 'Th\u00E8me',
+    'settings.language': 'Langue',
+    'settings.sound': 'Son',
+    'settings.personality': 'Personnalit\u00E9',
+
     'language.select': 'Langue',
   },
 };
@@ -526,3 +645,44 @@ export function getLocaleInfo(code: Locale): LocaleInfo {
 export function translate(locale: Locale, key: string): string {
   return translations[locale]?.[key] ?? translations.en[key] ?? key;
 }
+
+/** Apply text direction and lang attribute based on locale */
+export function applyLocaleDirection(locale: Locale): void {
+  const info = getLocaleInfo(locale);
+  document.documentElement.setAttribute('dir', info.dir);
+  document.documentElement.setAttribute('lang', locale);
+}
+
+// ---------------------------------------------------------------------------
+// Reactive locale state — lightweight pub/sub so components re-render on change
+// ---------------------------------------------------------------------------
+
+type LocaleListener = (locale: Locale) => void;
+const listeners = new Set<LocaleListener>();
+
+let currentLocale: Locale = getStoredLocale();
+
+export function getLocale(): Locale {
+  return currentLocale;
+}
+
+export function setLocale(locale: Locale): void {
+  if (locale === currentLocale) return;
+  currentLocale = locale;
+  storeLocale(locale);
+  applyLocaleDirection(locale);
+  listeners.forEach((fn) => fn(locale));
+}
+
+export function subscribe(fn: LocaleListener): () => void {
+  listeners.add(fn);
+  return () => { listeners.delete(fn); };
+}
+
+/** Shorthand: translate using the current global locale */
+export function t(key: string): string {
+  return translate(currentLocale, key);
+}
+
+// Apply direction on initial load
+applyLocaleDirection(currentLocale);

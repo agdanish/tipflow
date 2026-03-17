@@ -1,9 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Send, Loader2, AlertCircle, Coins, Sparkles, Wand2, Clock, CalendarClock, BookUser, UserPlus, X, Trash2, BookMarked, Repeat, Zap, CheckCircle2, XCircle } from 'lucide-react';
+import { Send, Loader2, AlertCircle, Coins, Sparkles, Wand2, Clock, CalendarClock, BookUser, UserPlus, X, Trash2, BookMarked, Repeat, Zap, CheckCircle2, XCircle, ScanLine } from 'lucide-react';
 import { api } from '../lib/api';
+import { t } from '../lib/i18n';
+import { useLocale } from '../hooks/useLocale';
 import { VoiceButton } from './VoiceButton';
 import { GaslessToggle } from './GaslessToggle';
 import { SpeedSelector } from './SpeedSelector';
+import { ClipboardPaste } from './ClipboardPaste';
+import { QRScanner } from './QRScanner';
 import type { SpeedLevel } from './SpeedSelector';
 import type { ChainId, TokenType, TipResult, Contact, TipTemplate, TipLink } from '../types';
 
@@ -18,6 +22,9 @@ interface TipFormProps {
 }
 
 export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTemplate, onTemplatePrefilled, prefillTipLink, onTipLinkPrefilled }: TipFormProps) {
+  // Re-render on locale change
+  useLocale();
+
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const [token, setToken] = useState<TokenType>('native');
@@ -68,6 +75,9 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
   const [savingContact, setSavingContact] = useState(false);
   const [contactName, setContactName] = useState('');
   const contactsRef = useRef<HTMLDivElement>(null);
+
+  // QR scanner state
+  const [showQRScanner, setShowQRScanner] = useState(false);
 
   // ENS resolution state
   const [ensResolving, setEnsResolving] = useState(false);
@@ -312,14 +322,14 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
     <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
       <h2 className="text-base font-semibold text-text-primary mb-3 sm:mb-4 flex items-center gap-2">
         <Send className="w-4 h-4 text-accent" />
-        Send Tip
+        {t('tip.send')}
       </h2>
 
       {/* NLP Natural Language Input */}
       <div className="mb-3 sm:mb-4">
         <div className="flex items-center gap-2 mb-1.5">
           <Wand2 className="w-3.5 h-3.5 text-purple-400" />
-          <label className="text-xs text-text-secondary">Natural Language Command</label>
+          <label className="text-xs text-text-secondary">{t('nlp.label')}</label>
           {nlpParsed && (
             <span className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-500/30 text-[10px] font-medium text-purple-400">
               <Sparkles className="w-3 h-3" />
@@ -334,8 +344,8 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
             onChange={(e) => { setNlpInput(e.target.value); clearNlpState(); }}
             onKeyDown={handleNlpKeyDown}
             id="nlp-input"
-            placeholder='e.g. "send 0.01 ETH to 0x..."'
-            aria-label="Natural language tip command"
+            placeholder={t('nlp.placeholder')}
+            aria-label={t('nlp.label')}
             aria-describedby="nlp-helper-text"
             className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-colors"
             disabled={sending || disabled || nlpParsing}
@@ -355,25 +365,25 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
             ) : (
               <Sparkles className="w-4 h-4" />
             )}
-            <span className="hidden sm:inline">Parse</span>
+            <span className="hidden sm:inline">{t('nlp.parse')}</span>
           </button>
         </div>
         <p id="nlp-helper-text" className="text-[10px] text-text-muted mt-1 hidden sm:block">
-          Try: "send 0.01 ETH to 0x..." &middot; "tip 5 USDT to 0x..." &middot; "transfer 0.1 TON to UQ..."
+          {t('nlp.hint')}
         </p>
       </div>
 
       <div className="relative">
         <div className="absolute inset-x-0 top-0 h-px bg-border" />
         <div className="flex justify-center -mt-2 mb-2">
-          <span className="px-2 bg-surface-1 text-[10px] text-text-muted uppercase tracking-wider">or fill manually</span>
+          <span className="px-2 bg-surface-1 text-[10px] text-text-muted uppercase tracking-wider">{t('nlp.orManual')}</span>
         </div>
       </div>
 
       <form id="tip-form" onSubmit={handleSubmit} role="form" aria-label="Send tip form" className="space-y-3 sm:space-y-4">
         {/* Token selector */}
         <div>
-          <label className="block text-xs text-text-secondary mb-1.5">Token</label>
+          <label className="block text-xs text-text-secondary mb-1.5">{t('tip.token')}</label>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
@@ -405,7 +415,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
 
         <div ref={contactsRef} className="relative">
           <div className="flex items-center justify-between mb-1.5">
-            <label className="text-xs text-text-secondary">Recipient Address</label>
+            <label className="text-xs text-text-secondary">{t('tip.recipient')}</label>
             {contacts.length > 0 && (
               <button
                 type="button"
@@ -413,7 +423,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
                 className="inline-flex items-center gap-1 text-[10px] text-accent hover:text-accent-light transition-colors"
               >
                 <BookUser className="w-3 h-3" />
-                Contacts ({contacts.length})
+                {t('contacts.title')} ({contacts.length})
               </button>
             )}
           </div>
@@ -429,6 +439,19 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
               className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border focus:ring-1 focus:ring-accent-border transition-colors font-mono"
               disabled={sending || disabled}
             />
+            <ClipboardPaste
+              onPaste={(text) => { setRecipient(text); resolveENS(text); }}
+              disabled={sending || disabled}
+            />
+            <button
+              type="button"
+              onClick={() => setShowQRScanner(true)}
+              title="Scan QR code"
+              className="px-2.5 py-2.5 rounded-lg bg-surface-2 border border-border text-text-secondary hover:text-accent hover:border-accent-border transition-colors shrink-0"
+              disabled={sending || disabled}
+            >
+              <ScanLine className="w-4 h-4" />
+            </button>
             {recipient.trim() && !savingContact && (
               <button
                 type="button"
@@ -820,6 +843,17 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
           )}
         </button>
       </form>
+
+      {/* QR Scanner Modal */}
+      {showQRScanner && (
+        <QRScanner
+          onAddressDetected={(addr) => {
+            setRecipient(addr);
+            resolveENS(addr);
+          }}
+          onClose={() => setShowQRScanner(false)}
+        />
+      )}
     </div>
   );
 }

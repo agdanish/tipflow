@@ -50,6 +50,7 @@ import type {
   SpendingTotals,
   AuditEntry,
   CSVImportResult,
+  TipGoal,
 } from '../types';
 
 const BASE = '/api';
@@ -442,5 +443,26 @@ export const api = {
     fetchJson<CSVImportResult>('/tip/import', {
       method: 'POST',
       body: JSON.stringify({ csv }),
+    }),
+
+  // Goals (Fundraising Targets)
+  getGoals: () =>
+    fetchJson<{ goals: TipGoal[] }>('/goals'),
+
+  createGoal: (goal: { title: string; description?: string; targetAmount: number; token: string; recipient?: string; deadline?: string }) =>
+    fetchJson<{ goal: TipGoal }>('/goals', {
+      method: 'POST',
+      body: JSON.stringify(goal),
+    }),
+
+  updateGoal: (id: string, updates: Partial<{ title: string; description: string; targetAmount: number; deadline: string; recipient: string }>) =>
+    fetchJson<{ goal: TipGoal }>(`/goals/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    }),
+
+  deleteGoal: (id: string) =>
+    fetchJson<{ success: boolean }>(`/goals/${id}`, {
+      method: 'DELETE',
     }),
 };

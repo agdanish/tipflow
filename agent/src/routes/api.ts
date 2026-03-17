@@ -19,12 +19,16 @@ import { ENSService } from '../services/ens.service.js';
 import { TagsService } from '../services/tags.service.js';
 import { ChallengesService } from '../services/challenges.service.js';
 import { LimitsService } from '../services/limits.service.js';
+import { GoalsService } from '../services/goals.service.js';
 
 /** Shared challenges service instance — exported for agent integration */
 export const challenges = new ChallengesService();
 
 /** Shared limits service instance — exported for agent integration */
 export const limitsService = new LimitsService();
+
+/** Shared goals service instance — exported for agent integration */
+export const goalsService = new GoalsService();
 
 /** Shared contacts service instance */
 const contacts = new ContactsService();
@@ -1231,6 +1235,21 @@ export function createApiRouter(
     res.json({ groups: contacts.getGroups() });
   });
 
+  /** GET /api/contacts/export/csv — Export all contacts as CSV */
+  router.get('/contacts/export/csv', (_req, res) => {
+    const data = contacts.exportContacts();
+    const header = 'name,address,group,tipCount';
+    const rows = data.map((c) => {
+      const escapeCsv = (v: string) =>
+        v.includes(',') || v.includes('"') || v.includes('\n') ? `"${v.replace(/"/g, '""')}"` : v;
+      return `${escapeCsv(c.name)},${escapeCsv(c.address)},${escapeCsv(c.group ?? '')},${c.tipCount}`;
+    });
+    const csv = [header, ...rows].join('\n');
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="tipflow-contacts.csv"');
+    res.send(csv);
+  });
+
   /** GET /api/contacts/export — Export all contacts as JSON */
   router.get('/contacts/export', (_req, res) => {
     const data = contacts.exportContacts();
@@ -2363,6 +2382,94 @@ export function createApiRouter(
     } catch (err) {
       logger.error('Failed to get audit log', { error: String(err) });
       res.status(500).json({ error: 'Failed to get audit log' });
+    }
+  });
+
+  // ── Goals (Fundraising Targets) ──────────────────────────────
+
+  /** GET /api/goals — List all goals */
+  router.get('/goals', (_req, res) => {
+    try {
+      const goals = goalsService.getGoals();
+      res.json({ goals });
+    } catch (err) {
+      logger.error('Failed to get goals', { error: String(err) });
+      res.status(500).json({ error: 'Failed to get goals' });
+    }
+  });
+
+  /** POST /api/goals — Create a new goal */
+  router.post('/goals', (req, res) => {
+    try {
+      const { title, description, targetAmount, token, recipient, deadline } = req.body;
+      if (!title || typeof title !== 'string' || title.trim().length === 0) {
+        res.status(400).json({ error: 'title is required' });
+        return;
+      }
+      if (!targetAmount || typeof targetAmount !== 'number' || targetAmount <= 0) {
+        res.status(400).json({ error: 'targetAmount must be a positive number' });
+        return;
+      }
+      if (!token || typeof token !== 'string') {
+        res.status(400).json({ error: 'token is required (native, usdt, or any)' });
+        return;
+      }
+
+      const goal = goalsService.createGoal({
+        title: title.trim(),
+        description: description ?? '',
+        targetAmount,
+        token,
+        recipient,
+        deadline,
+      });
+
+      res.status(201).json({ goal });
+    } catch (err) {
+      logger.error('Failed to create goal', { error: String(err) });
+      res.status(500).json({ error: 'Failed to create goal' });
+    }
+  });
+
+  /** PUT /api/goals/:id — Update a goal */
+  router.put('/goals/:id', (req, res) => {
+    try {
+      const { id } = req.params;
+      const { title, description, targetAmount, deadline, recipient } = req.body;
+
+      const updates: Record<string, unknown> = {};
+      if (title !== undefined) updates.title = title;
+      if (description !== undefined) updates.description = description;
+      if (targetAmount !== undefined) updates.targetAmount = targetAmount;
+      if (deadline !== undefined) updates.deadline = deadline;
+      if (recipient !== undefined) updates.recipient = recipient;
+
+      const goal = goalsService.updateGoal(id, updates);
+      if (!goal) {
+        res.status(404).json({ error: 'Goal not found' });
+        return;
+      }
+
+      res.json({ goal });
+    } catch (err) {
+      logger.error('Failed to update goal', { error: String(err) });
+      res.status(500).json({ error: 'Failed to update goal' });
+    }
+  });
+
+  /** DELETE /api/goals/:id — Delete a goal */
+  router.delete('/goals/:id', (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = goalsService.deleteGoal(id);
+      if (!deleted) {
+        res.status(404).json({ error: 'Goal not found' });
+        return;
+      }
+      res.json({ success: true });
+    } catch (err) {
+      logger.error('Failed to delete goal', { error: String(err) });
+      res.status(500).json({ error: 'Failed to delete goal' });
     }
   });
 

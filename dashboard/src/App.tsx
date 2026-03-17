@@ -49,6 +49,7 @@ import { ChainComparison } from './components/ChainComparison';
 import { FavoriteRecipients } from './components/FavoriteRecipients';
 import { QuickActions } from './components/QuickActions';
 import { AuditLog } from './components/AuditLog';
+import { TipGoals } from './components/TipGoals';
 import { SpendingLimits } from './components/SpendingLimits';
 import { BatchImport } from './components/BatchImport';
 import { TipReport } from './components/TipReport';
@@ -529,6 +530,7 @@ function App() {
                     <DecisionTree decision={agentState.currentDecision} agentStatus={agentState.status} />
                   )}
                   <ActivityFeed />
+                  <TipGoals />
                   {/* Scheduled Tips */}
                   {scheduledTips.length > 0 && (
                     <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">

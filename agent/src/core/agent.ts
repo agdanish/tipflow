@@ -5,6 +5,7 @@ import { ConditionsService } from '../services/conditions.service.js';
 import { WebhooksService } from '../services/webhooks.service.js';
 import { ChallengesService } from '../services/challenges.service.js';
 import { LimitsService } from '../services/limits.service.js';
+import { GoalsService } from '../services/goals.service.js';
 import { TelegramService } from '../services/telegram.service.js';
 import type { TelegramBotStatus } from '../services/telegram.service.js';
 import { logger } from '../utils/logger.js';
@@ -58,6 +59,7 @@ export class TipFlowAgent {
   private challengesService: ChallengesService | null = null;
   private limitsService: LimitsService | null = null;
   private telegramService: TelegramService | null = null;
+  private goalsService: GoalsService | null = null;
   private tipResults: Map<string, TipResult> = new Map();
   private static readonly MAX_ACTIVITY = 100;
 
@@ -89,6 +91,11 @@ export class TipFlowAgent {
   /** Set the limits service for enforcing spending caps */
   setLimitsService(service: LimitsService): void {
     this.limitsService = service;
+  }
+
+  /** Set the goals service for tracking fundraising target progress */
+  setGoalsService(service: GoalsService): void {
+    this.goalsService = service;
   }
 
   /** Start Telegram bot if TELEGRAM_BOT_TOKEN is set. Optional — everything works without it. */
@@ -594,6 +601,24 @@ export class TipFlowAgent {
       if (this.challengesService) {
         this.challengesService.updateProgress('tip_sent', { recipient: request.recipient });
         this.challengesService.updateProgress('tip_sent_chain', { chainId: decision.selectedChain, recipient: request.recipient });
+      }
+
+      // Update goal progress
+      if (this.goalsService) {
+        const updatedGoals = this.goalsService.updateGoalProgress(
+          request.recipient,
+          parseFloat(request.amount),
+          request.token ?? 'native',
+        );
+        for (const g of updatedGoals) {
+          if (g.completed) {
+            this.addActivity({
+              type: 'system',
+              message: `Goal completed: "${g.title}"`,
+              detail: `${g.currentAmount}/${g.targetAmount} ${g.token}`,
+            });
+          }
+        }
       }
 
       // Fire webhook for successful tip

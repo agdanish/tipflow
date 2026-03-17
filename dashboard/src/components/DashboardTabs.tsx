@@ -1,24 +1,26 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { LayoutDashboard, BarChart3, History, Settings } from 'lucide-react';
+import { t } from '../lib/i18n';
+import { useLocale } from '../hooks/useLocale';
 
 export type TabId = 'dashboard' | 'analytics' | 'history' | 'settings';
 
 interface TabDef {
   id: TabId;
-  label: string;
+  labelKey: string;
   icon: ReactNode;
 }
 
-const tabs: TabDef[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
-  { id: 'analytics', label: 'Analytics', icon: <BarChart3 className="w-4 h-4" /> },
-  { id: 'history',   label: 'History',   icon: <History className="w-4 h-4" /> },
-  { id: 'settings',  label: 'Settings',  icon: <Settings className="w-4 h-4" /> },
+const tabDefs: TabDef[] = [
+  { id: 'dashboard', labelKey: 'nav.dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+  { id: 'analytics', labelKey: 'nav.analytics', icon: <BarChart3 className="w-4 h-4" /> },
+  { id: 'history',   labelKey: 'nav.history',   icon: <History className="w-4 h-4" /> },
+  { id: 'settings',  labelKey: 'nav.settings',  icon: <Settings className="w-4 h-4" /> },
 ];
 
 function getTabFromHash(): TabId {
   const hash = window.location.hash.replace('#', '') as TabId;
-  if (tabs.some((t) => t.id === hash)) return hash;
+  if (tabDefs.some((td) => td.id === hash)) return hash;
   return (localStorage.getItem('tipflow-active-tab') as TabId) || 'dashboard';
 }
 
@@ -30,6 +32,9 @@ interface DashboardTabsProps {
 }
 
 export function DashboardTabs({ dashboardContent, analyticsContent, historyContent, settingsContent }: DashboardTabsProps) {
+  // Re-render on locale change so tab labels update
+  useLocale();
+
   const [activeTab, setActiveTab] = useState<TabId>(getTabFromHash);
 
   // Sync hash on mount and on popstate
@@ -60,7 +65,7 @@ export function DashboardTabs({ dashboardContent, analyticsContent, historyConte
       {/* Tab bar */}
       <div className="mb-4 sm:mb-6">
         <div className="flex gap-1 p-1 rounded-xl bg-surface-1 border border-border overflow-x-auto">
-          {tabs.map((tab) => (
+          {tabDefs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => switchTab(tab.id)}
@@ -75,7 +80,7 @@ export function DashboardTabs({ dashboardContent, analyticsContent, historyConte
               role="tab"
             >
               {tab.icon}
-              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="hidden sm:inline">{t(tab.labelKey)}</span>
             </button>
           ))}
         </div>

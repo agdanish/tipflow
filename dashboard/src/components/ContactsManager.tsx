@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Users, Plus, Trash2, Loader2, Search, Download, Upload, Edit3, Check, X, Copy, Tag, ChevronDown, ChevronUp } from 'lucide-react';
 import { api } from '../lib/api';
+import { AddressBookExport } from './AddressBookExport';
 import type { Contact, ContactImportResult } from '../types';
 
 const DEFAULT_GROUPS = ['Team', 'Friends', 'VIPs', 'Community'];
@@ -254,6 +255,9 @@ export function ContactsManager() {
               </button>
             ))}
           </div>
+
+          {/* CSV/JSON Export & Import */}
+          <AddressBookExport />
 
           {/* Add Contact Form */}
           {showAddForm && (

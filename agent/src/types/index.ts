@@ -472,6 +472,20 @@ export interface CSVImportResult {
   }>;
 }
 
+/** A fundraising/tipping goal */
+export interface TipGoal {
+  id: string;
+  title: string;
+  description: string;
+  targetAmount: number;
+  currentAmount: number;
+  token: string;
+  recipient?: string;
+  deadline?: string;
+  createdAt: string;
+  completed: boolean;
+}
+
 /** Agent stats for dashboard */
 export interface AgentStats {
   totalTips: number;

@@ -523,6 +523,20 @@ export interface SystemInfoData {
   environment: string;
 }
 
+/** A fundraising/tipping goal */
+export interface TipGoal {
+  id: string;
+  title: string;
+  description: string;
+  targetAmount: number;
+  currentAmount: number;
+  token: string;
+  recipient?: string;
+  deadline?: string;
+  createdAt: string;
+  completed: boolean;
+}
+
 /** Shareable tip link — pre-filled tip request URL */
 export interface TipLink {
   id: string;
