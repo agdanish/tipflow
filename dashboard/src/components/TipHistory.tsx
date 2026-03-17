@@ -1,4 +1,4 @@
-import { History, ExternalLink, CheckCircle2, XCircle, Brain } from 'lucide-react';
+import { History, ExternalLink, CheckCircle2, XCircle, Brain, ChevronDown, Layers, Fuel } from 'lucide-react';
 import type { TipHistoryEntry } from '../types';
 import { shortenAddress, timeAgo, chainColor, formatNumber } from '../lib/utils';
 import { useState } from 'react';
@@ -20,7 +20,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
         </h2>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="skeleton h-16 rounded-lg" />
+            <div key={i} className="animate-shimmer h-16 rounded-lg" />
           ))}
         </div>
       </div>
@@ -33,12 +33,20 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
         <History className="w-4 h-4 text-accent" />
         Transaction History
         {history.length > 0 && (
-          <span className="text-xs text-text-muted font-normal ml-auto">{history.length} tips</span>
+          <span className="text-[10px] text-text-muted font-normal ml-auto px-2 py-0.5 rounded-full bg-surface-3">
+            {history.length} tip{history.length !== 1 ? 's' : ''}
+          </span>
         )}
       </h2>
 
       {history.length === 0 ? (
-        <p className="text-sm text-text-muted text-center py-8">No tips sent yet</p>
+        <div className="text-center py-10">
+          <div className="w-10 h-10 rounded-full bg-surface-3 flex items-center justify-center mx-auto mb-3">
+            <History className="w-5 h-5 text-text-muted" />
+          </div>
+          <p className="text-sm text-text-muted">No tips sent yet</p>
+          <p className="text-xs text-text-muted mt-1">Transactions will appear here</p>
+        </div>
       ) : (
         <div className="space-y-2">
           {history.map((entry) => {
@@ -46,37 +54,53 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
             const explorerBase = entry.chainId.startsWith('ethereum')
               ? 'https://sepolia.etherscan.io/tx/'
               : 'https://testnet.tonviewer.com/transaction/';
+            const isEth = entry.chainId.startsWith('ethereum');
 
             return (
-              <div key={entry.id} className="rounded-lg border border-border bg-surface-2 overflow-hidden">
+              <div
+                key={entry.id}
+                className={`rounded-lg border overflow-hidden transition-colors ${
+                  isExpanded
+                    ? 'border-border-light bg-surface-2'
+                    : 'border-border bg-surface-2'
+                }`}
+              >
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : entry.id)}
-                  className="w-full p-3 flex items-center gap-3 hover:bg-surface-3/50 transition-colors text-left"
+                  className="w-full px-4 py-3.5 flex items-center gap-3 hover:bg-surface-3/50 transition-colors text-left"
                 >
                   {entry.status === 'confirmed' ? (
-                    <CheckCircle2 className="w-4 h-4 text-accent shrink-0" />
+                    <div className="w-7 h-7 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-accent" />
+                    </div>
                   ) : (
-                    <XCircle className="w-4 h-4 text-error shrink-0" />
+                    <div className="w-7 h-7 rounded-full bg-error/10 flex items-center justify-center shrink-0">
+                      <XCircle className="w-3.5 h-3.5 text-error" />
+                    </div>
                   )}
-
-                  <div
-                    className="w-2 h-2 rounded-full shrink-0"
-                    style={{ backgroundColor: chainColor(entry.chainId) }}
-                  />
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-text-primary">
-                        {formatNumber(entry.amount)} {entry.token === 'usdt' ? 'USDT' : entry.chainId.startsWith('ethereum') ? 'ETH' : 'TON'}
+                      <span className="text-sm font-semibold text-text-primary">
+                        {formatNumber(entry.amount)} {entry.token === 'usdt' ? 'USDT' : isEth ? 'ETH' : 'TON'}
                       </span>
-                      <span className="text-xs text-text-muted">→</span>
+                      <span className="text-xs text-text-muted">to</span>
                       <span className="text-xs text-text-secondary font-mono truncate">
                         {shortenAddress(entry.recipient)}
                       </span>
                     </div>
+                    <div className="flex items-center gap-2 mt-1">
+                      <div
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
+                        style={{ backgroundColor: chainColor(entry.chainId) }}
+                      />
+                      <span className="text-[11px] text-text-muted">
+                        {isEth ? 'Ethereum Sepolia' : 'TON Testnet'}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-3 shrink-0">
                     <span className="text-xs text-text-muted">{timeAgo(entry.createdAt)}</span>
                     {entry.txHash && (
                       <a
@@ -89,28 +113,57 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                         <ExternalLink className="w-3.5 h-3.5" />
                       </a>
                     )}
+                    <ChevronDown
+                      className={`w-4 h-4 text-text-muted transition-transform duration-200 ${
+                        isExpanded ? 'rotate-180' : ''
+                      }`}
+                    />
                   </div>
                 </button>
 
                 {isExpanded && (
-                  <div className="px-3 pb-3 border-t border-border">
-                    <div className="pt-3 space-y-2">
-                      <div className="flex items-start gap-2 p-2.5 rounded-md bg-surface-1">
-                        <Brain className="w-3.5 h-3.5 text-purple-400 mt-0.5 shrink-0" />
-                        <p className="text-xs text-text-secondary leading-relaxed">{entry.reasoning}</p>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div>
-                          <span className="text-text-muted">Fee:</span>{' '}
-                          <span className="text-text-secondary">{entry.fee}</span>
-                        </div>
-                        <div>
-                          <span className="text-text-muted">Chain:</span>{' '}
-                          <span className="text-text-secondary">
-                            {entry.chainId.startsWith('ethereum') ? 'Ethereum Sepolia' : 'TON Testnet'}
+                  <div className="animate-slide-down border-t border-border">
+                    <div className="px-4 py-4 space-y-3">
+                      {/* AI Reasoning card */}
+                      <div className="p-3.5 rounded-lg bg-gradient-to-br from-purple-500/8 via-surface-1 to-surface-1 border border-purple-500/15">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Brain className="w-3.5 h-3.5 text-purple-400" />
+                          <span className="text-[10px] font-semibold text-purple-400 uppercase tracking-wider">
+                            AI Decision
                           </span>
                         </div>
+                        <p className="text-xs text-text-secondary leading-relaxed">
+                          {entry.reasoning}
+                        </p>
                       </div>
+
+                      {/* Metadata grid */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="p-2.5 rounded-lg bg-surface-1 border border-border">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <Fuel className="w-3 h-3 text-warning" />
+                            <span className="text-[10px] text-text-muted uppercase tracking-wider">Gas Fee</span>
+                          </div>
+                          <p className="text-xs font-medium text-text-primary">{entry.fee}</p>
+                        </div>
+                        <div className="p-2.5 rounded-lg bg-surface-1 border border-border">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <Layers className="w-3 h-3 text-info" />
+                            <span className="text-[10px] text-text-muted uppercase tracking-wider">Network</span>
+                          </div>
+                          <p className="text-xs font-medium text-text-primary">
+                            {isEth ? 'Ethereum Sepolia' : 'TON Testnet'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* TX Hash */}
+                      {entry.txHash && (
+                        <div className="flex items-center gap-2 px-2 py-1.5 text-[11px]">
+                          <span className="text-text-muted">TX:</span>
+                          <span className="text-text-secondary font-mono truncate">{entry.txHash}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

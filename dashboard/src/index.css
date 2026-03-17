@@ -110,3 +110,107 @@ body {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
+
+/* --- NEW POLISH ANIMATIONS --- */
+
+/* Soft idle breathing glow */
+@keyframes idle-breathe {
+  0%, 100% { opacity: 0.5; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+  50% { opacity: 1; box-shadow: 0 0 20px 4px rgba(34, 197, 94, 0.08); }
+}
+.animate-idle-breathe {
+  animation: idle-breathe 3s ease-in-out infinite;
+}
+
+/* Shimmer for loading states */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-3) 25%,
+    var(--color-border) 50%,
+    var(--color-surface-3) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Slide down expand */
+@keyframes slide-down {
+  from { opacity: 0; max-height: 0; }
+  to { opacity: 1; max-height: 600px; }
+}
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out forwards;
+  overflow: hidden;
+}
+
+/* Step progress dot pulse */
+@keyframes step-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+}
+.animate-step-pulse {
+  animation: step-pulse 1s ease-in-out infinite;
+}
+
+/* Fade in */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+/* Copy success flash */
+@keyframes copy-flash {
+  0% { background-color: rgba(34, 197, 94, 0.2); }
+  100% { background-color: transparent; }
+}
+.animate-copy-flash {
+  animation: copy-flash 0.6s ease-out;
+}
+
+/* Progress bar fill */
+@keyframes progress-fill {
+  from { width: 0; }
+}
+.animate-progress-fill {
+  animation: progress-fill 0.5s ease-out forwards;
+}
+
+/* Header gradient */
+.header-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--color-surface-1) 0%,
+    rgba(34, 197, 94, 0.03) 50%,
+    var(--color-surface-1) 100%
+  );
+}
+
+/* Chain gradient backgrounds */
+.chain-gradient-eth {
+  background: linear-gradient(135deg, rgba(98, 126, 234, 0.08) 0%, rgba(98, 126, 234, 0.02) 100%);
+}
+.chain-gradient-ton {
+  background: linear-gradient(135deg, rgba(0, 152, 234, 0.08) 0%, rgba(130, 71, 229, 0.04) 100%);
+}
+
+/* Stat card subtle gradient backgrounds */
+.stat-card-green {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, var(--color-surface-2) 100%);
+}
+.stat-card-amber {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, var(--color-surface-2) 100%);
+}
+.stat-card-blue {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, var(--color-surface-2) 100%);
+}
+.stat-card-purple {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.08) 0%, var(--color-surface-2) 100%);
+}

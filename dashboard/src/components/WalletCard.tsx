@@ -27,27 +27,30 @@ export function WalletCard({ balance }: WalletCardProps) {
   const hasUsdt = balance.usdtBalance !== '0.000000' && balance.usdtBalance !== '0';
 
   return (
-    <div className="rounded-xl border border-border bg-surface-1 p-5 card-hover">
+    <div className={`rounded-xl border border-border bg-surface-1 p-5 card-hover ${isEth ? 'chain-gradient-eth' : 'chain-gradient-ton'}`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white"
-            style={{ backgroundColor: color }}
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-xs font-bold text-white shadow-lg"
+            style={{
+              backgroundColor: color,
+              boxShadow: `0 4px 12px ${color}33`,
+            }}
           >
             {isEth ? 'ETH' : 'TON'}
           </div>
           <div>
-            <p className="text-sm font-medium text-text-primary">
+            <p className="text-sm font-semibold text-text-primary">
               {isEth ? 'Ethereum Sepolia' : 'TON Testnet'}
             </p>
-            <p className="text-xs text-text-muted">Testnet</p>
+            <p className="text-[11px] text-text-muted">Testnet</p>
           </div>
         </div>
         <a
           href={`${explorerBase}${balance.address}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-text-muted hover:text-text-secondary transition-colors"
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-secondary hover:bg-surface-3 transition-all"
         >
           <ExternalLink className="w-4 h-4" />
         </a>
@@ -55,32 +58,41 @@ export function WalletCard({ balance }: WalletCardProps) {
 
       <div className="space-y-3">
         <div>
-          <p className="text-xs text-text-muted mb-1">Native Balance</p>
-          <p className="text-2xl font-semibold text-text-primary">
+          <p className="text-[11px] text-text-muted mb-1 uppercase tracking-wider">Native Balance</p>
+          <p className="text-2xl font-bold text-text-primary tracking-tight">
             {formatNumber(balance.nativeBalance)}{' '}
-            <span className="text-sm text-text-secondary">{balance.nativeCurrency}</span>
+            <span className="text-sm font-medium text-text-secondary">{balance.nativeCurrency}</span>
           </p>
         </div>
 
         <div>
-          <p className="text-xs text-text-muted mb-1">USDT Balance</p>
-          <p className={`text-lg font-medium ${hasUsdt ? 'text-accent' : 'text-text-muted'}`}>
+          <p className="text-[11px] text-text-muted mb-1 uppercase tracking-wider">USDT Balance</p>
+          <p className={`text-lg font-semibold ${hasUsdt ? 'text-accent' : 'text-text-muted'}`}>
             {hasUsdt ? formatNumber(balance.usdtBalance, 2) : '0.00'}{' '}
-            <span className="text-sm">USDT</span>
+            <span className="text-sm font-medium">USDT</span>
           </p>
         </div>
 
-        <div className="pt-2 border-t border-border">
+        <div className="pt-3 border-t border-border">
           <button
             onClick={handleCopy}
-            className="flex items-center gap-2 text-xs text-text-secondary hover:text-text-primary transition-colors group w-full"
+            className={`flex items-center gap-2 text-xs w-full py-1.5 px-2 rounded-md transition-all ${
+              copied
+                ? 'bg-accent/10 text-accent animate-copy-flash'
+                : 'text-text-secondary hover:text-text-primary hover:bg-surface-3'
+            }`}
           >
             {copied ? (
-              <Check className="w-3.5 h-3.5 text-accent" />
+              <>
+                <Check className="w-3.5 h-3.5 text-accent" />
+                <span className="font-medium text-accent">Copied!</span>
+              </>
             ) : (
-              <Copy className="w-3.5 h-3.5 group-hover:text-accent transition-colors" />
+              <>
+                <Copy className="w-3.5 h-3.5" />
+                <span className="font-mono truncate">{shortenAddress(balance.address, 8)}</span>
+              </>
             )}
-            <span className="font-mono truncate">{shortenAddress(balance.address, 8)}</span>
           </button>
         </div>
       </div>
