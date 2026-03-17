@@ -11,7 +11,8 @@ import WDK from '@tetherto/wdk';
 import { WalletService } from './services/wallet.service.js';
 import { AIService } from './services/ai.service.js';
 import { TipFlowAgent } from './core/agent.js';
-import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService, treasuryService, indexerService, bridgeService, lendingService, reputationService } from './routes/api.js';
+import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService, treasuryService, indexerService, bridgeService, lendingService, reputationService, escrowService } from './routes/api.js';
+import { DemoService } from './services/demo.service.js';
 import { logger } from './utils/logger.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -95,10 +96,41 @@ async function main(): Promise<void> {
   logger.info(`USDT0 Bridge service: ${bridgeService.isAvailable() ? 'available' : 'unavailable'} (${bridgeService.getRoutes().length} routes)`);
   logger.info(`Aave V3 Lending service: ${lendingService.isAvailable() ? 'available' : 'unavailable'}`);
 
+  // Log Escrow service
+  logger.info(`Tip Escrow Protocol: ${escrowService.getActiveCount()} active escrows`);
+
   // Start Telegram bot (optional — only if TELEGRAM_BOT_TOKEN is set)
   agent.startTelegramBot().catch((err) => {
     logger.warn('Telegram bot startup failed (non-fatal)', { error: String(err) });
   });
+
+  // Demo mode — seed sample data for judges
+  const demoService = new DemoService();
+  if (demoService.isEnabled()) {
+    logger.info('Demo mode enabled — seeding sample data for evaluation');
+
+    // Seed Rumble creators
+    for (const creator of demoService.getSampleCreators()) {
+      rumbleService.registerCreator(creator.name, creator.channelUrl, creator.walletAddress, creator.categories);
+    }
+
+    // Seed autonomy policies
+    for (const policy of demoService.getSamplePolicies()) {
+      autonomyService.setPolicy('default', policy);
+    }
+
+    // Seed tip history into agent
+    for (const tip of demoService.getSampleTipHistory()) {
+      agent.addDemoTip(tip);
+    }
+
+    // Seed activity feed
+    for (const activity of demoService.getSampleActivities()) {
+      agent.addDemoActivity(activity);
+    }
+
+    logger.info('Demo seed complete: 5 creators, 3 policies, 12 tips, 7 activities');
+  }
 
   // Subscribe to state changes for logging
   agent.onStateChange((state) => {

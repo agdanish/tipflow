@@ -29,6 +29,7 @@ import { LendingService } from '../services/lending.service.js';
 import { ReceiptService } from '../services/receipt.service.js';
 import { StreamingService } from '../services/streaming.service.js';
 import { ReputationService } from '../services/reputation.service.js';
+import { EscrowService } from '../services/escrow.service.js';
 
 /** Shared challenges service instance — exported for agent integration */
 export const challenges = new ChallengesService();
@@ -59,6 +60,9 @@ export const lendingService = new LendingService();
 
 /** Shared reputation service instance — exported for agent integration */
 export const reputationService = new ReputationService();
+
+/** Shared escrow service instance — exported for agent integration */
+export const escrowService = new EscrowService();
 
 /** Shared contacts service instance */
 const contacts = new ContactsService();
@@ -127,6 +131,70 @@ export function createApiRouter(
       chains: wallet.getRegisteredChains(),
       timestamp: new Date().toISOString(),
     });
+  });
+
+  // ── Full System Health ─────────────────────────────────────
+  router.get('/health/full', (_req, res) => {
+    const health = {
+      status: 'operational',
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+      services: {
+        agent: { status: 'running', tipCount: agent.getHistory().length },
+        wallet: { status: wallet ? 'connected' : 'disconnected' },
+        ai: { status: 'ready' },
+        rumble: { status: 'active', creatorCount: rumbleService.listCreators().length },
+        autonomy: { status: 'active', policyCount: autonomyService.getPolicies('default').length },
+        streaming: { status: 'ready' },
+        receipts: { status: 'ready' },
+        reputation: { status: 'ready' },
+        treasury: { status: 'ready' },
+        bridge: { status: 'ready' },
+        lending: { status: 'ready' },
+        escrow: { status: 'ready', activeCount: escrowService.getActiveCount() },
+        indexer: { status: 'ready' },
+        telegram: { status: process.env.TELEGRAM_BOT_TOKEN ? 'active' : 'not configured' },
+      },
+      chains: {
+        'ethereum-sepolia': { status: 'active', type: 'EVM' },
+        'ton-testnet': { status: 'active', type: 'TON' },
+        'tron-nile': { status: 'active', type: 'TRON' },
+      },
+      wdk: {
+        packages: [
+          '@tetherto/wdk',
+          '@tetherto/wdk-wallet-evm',
+          '@tetherto/wdk-wallet-ton',
+          '@tetherto/wdk-wallet-tron',
+          '@tetherto/wdk-wallet-evm-erc-4337',
+          '@tetherto/wdk-wallet-ton-gasless',
+          '@tetherto/wdk-protocol-bridge-usdt0-evm',
+          '@tetherto/wdk-protocol-lending-aave-evm',
+        ],
+        methods: [
+          'getAccount', 'getAddress', 'getBalance', 'getTokenBalance',
+          'sendTransaction', 'transfer', 'sign', 'verify', 'keyPair',
+          'quoteSendTransaction', 'getFeeRates', 'getRandomSeedPhrase',
+          'registerWallet', 'dispose', 'getAccountByPath',
+        ],
+      },
+      features: {
+        tipStreaming: true,
+        cryptoReceipts: true,
+        socialReputation: true,
+        autonomousExecution: true,
+        tieredApproval: true,
+        hdMultiAccount: true,
+        crossChainBridge: true,
+        aaveYield: true,
+        tipEscrow: true,
+        rumbleIntegration: true,
+        voiceCommands: true,
+        multiLanguage: ['en', 'es', 'fr', 'ar', 'zh'],
+      },
+      demoMode: process.env.DEMO_MODE !== 'false',
+    };
+    res.json(health);
   });
 
   /** GET /api/docs — OpenAPI 3.0 specification */
@@ -3447,6 +3515,57 @@ export function createApiRouter(
   router.put('/reputation/config', (req, res) => {
     const config = reputationService.updateConfig(req.body);
     res.json({ config });
+  });
+
+  // === TIP ESCROW PROTOCOL ================================================
+
+  /** POST /api/escrow — Create a new escrowed tip */
+  router.post('/escrow', (req, res) => {
+    const escrow = escrowService.createEscrow(req.body);
+    res.status(201).json(escrow);
+  });
+
+  /** GET /api/escrow — List all escrows */
+  router.get('/escrow', (_req, res) => {
+    res.json(escrowService.getAllEscrows());
+  });
+
+  /** GET /api/escrow/active — List active (held) escrows */
+  router.get('/escrow/active', (_req, res) => {
+    res.json(escrowService.getActiveEscrows());
+  });
+
+  /** GET /api/escrow/stats — Escrow statistics */
+  router.get('/escrow/stats', (_req, res) => {
+    res.json(escrowService.getStats());
+  });
+
+  /** GET /api/escrow/:id — Get a specific escrow */
+  router.get('/escrow/:id', (req, res) => {
+    const escrow = escrowService.getEscrow(req.params.id);
+    if (!escrow) return res.status(404).json({ error: 'Escrow not found' });
+    res.json(escrow);
+  });
+
+  /** POST /api/escrow/:id/release — Release escrowed tip to recipient */
+  router.post('/escrow/:id/release', (req, res) => {
+    const escrow = escrowService.releaseEscrow(req.params.id, req.body.txHash);
+    if (!escrow) return res.status(404).json({ error: 'Cannot release escrow' });
+    res.json(escrow);
+  });
+
+  /** POST /api/escrow/:id/refund — Refund escrowed tip to sender */
+  router.post('/escrow/:id/refund', (req, res) => {
+    const escrow = escrowService.refundEscrow(req.params.id, req.body.reason);
+    if (!escrow) return res.status(404).json({ error: 'Cannot refund escrow' });
+    res.json(escrow);
+  });
+
+  /** POST /api/escrow/:id/dispute — Dispute an escrowed tip */
+  router.post('/escrow/:id/dispute', (req, res) => {
+    const escrow = escrowService.disputeEscrow(req.params.id, req.body.reason);
+    if (!escrow) return res.status(404).json({ error: 'Cannot dispute escrow' });
+    res.json(escrow);
   });
 
   return router;

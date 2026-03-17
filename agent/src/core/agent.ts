@@ -1216,6 +1216,20 @@ export class TipFlowAgent {
     };
   }
 
+  /** Add a demo tip entry (for seeding sample data) */
+  addDemoTip(tip: TipHistoryEntry): void {
+    this.history.push(tip);
+  }
+
+  /** Add a demo activity with a pre-set timestamp (for seeding sample data) */
+  addDemoActivity(event: Omit<ActivityEvent, 'id'>): void {
+    const full: ActivityEvent = {
+      ...event,
+      id: `demo-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    };
+    this.activityLog.push(full);
+  }
+
   /** Get tip history */
   getHistory(): TipHistoryEntry[] {
     return [...this.history].reverse();
