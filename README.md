@@ -338,13 +338,14 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 </details>
 
 <details>
-<summary><strong>Tips (7 endpoints)</strong></summary>
+<summary><strong>Tips (8 endpoints)</strong></summary>
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `POST` | `/api/tip` | Execute a single tip |
 | `POST` | `/api/tip/batch` | Batch tip up to 10 recipients |
 | `POST` | `/api/tip/split` | Split tip by percentage |
+| `POST` | `/api/tip/import` | Import and execute tips from bulk data |
 | `POST` | `/api/tip/parse` | Parse NLP into structured tip data |
 | `GET` | `/api/tip/estimate` | Estimate fees across chains |
 | `GET` | `/api/tip/:id/receipt` | Generate structured receipt |
@@ -389,7 +390,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 </details>
 
 <details>
-<summary><strong>Activity, Contacts, Templates, Conditions, Webhooks, Tip Links, Gamification, Chat, Settings, Telegram, ENS, Challenges, Goals, Limits, Tags (52+ endpoints)</strong></summary>
+<summary><strong>Activity, Contacts, Templates, Conditions, Webhooks, Tip Links, Gamification, Chat, Settings, Telegram, ENS, Tags, Calendar, Goals, Limits, Audit, Demo (51 endpoints)</strong></summary>
 
 See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the in-app API documentation component.
 
@@ -432,7 +433,7 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 - Express 5 + rate limiting + validation + audit logging
 - Docker multi-stage build + docker-compose
 - PWA with service worker and offline support
-- 51 automated tests (validation, agent, API)
+- 55 automated tests (validation, agent, API)
 
 ### 4. Agentic Payment Design ⭐
 
@@ -573,7 +574,7 @@ See `agent/.env.example` for the full template.
 cd agent && npm test
 ```
 
-51 tests across 3 test suites: validation (26), agent (16), API (9).
+55 tests across 3 test suites: validation (31), agent (15), API (9).
 
 ---
 

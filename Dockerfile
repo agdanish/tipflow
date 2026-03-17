@@ -1,7 +1,7 @@
 # Stage 1: Build dashboard
 FROM node:22-alpine AS dashboard-build
 WORKDIR /app/dashboard
-COPY dashboard/package.json dashboard/package-lock.json ./
+COPY dashboard/package.json dashboard/package-lock.json dashboard/.npmrc ./
 RUN npm ci
 COPY dashboard/ ./
 RUN npm run build
