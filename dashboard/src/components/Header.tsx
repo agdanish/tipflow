@@ -1,11 +1,13 @@
-import { Activity, Zap, Github } from 'lucide-react';
+import { Activity, Zap, Github, Sun, Moon } from 'lucide-react';
 import type { HealthResponse } from '../types';
 
 interface HeaderProps {
   health: HealthResponse | null;
+  theme: 'dark' | 'light';
+  onToggleTheme: () => void;
 }
 
-export function Header({ health }: HeaderProps) {
+export function Header({ health, theme, onToggleTheme }: HeaderProps) {
   return (
     <header className="border-b border-border header-gradient backdrop-blur-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
@@ -43,6 +45,13 @@ export function Header({ health }: HeaderProps) {
               <span className="text-[10px] sm:text-[11px] text-error font-semibold">Offline</span>
             </div>
           )}
+          <button
+            onClick={onToggleTheme}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-secondary hover:bg-surface-3 transition-all"
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
           <a
             href="https://github.com/agdanish/tipflow"
             target="_blank"

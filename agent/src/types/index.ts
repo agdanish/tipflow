@@ -193,5 +193,11 @@ export interface AgentStats {
   totalFeesSaved: string;
   avgTipAmount: string;
   chainDistribution: Record<ChainId, number>;
-  tipsByDay: Array<{ date: string; count: number; amount: number }>;
+  tipsByDay: Array<{ date: string; count: number; volume: string }>;
+  tipsByChain: Array<{ chainId: ChainId; chainName: string; count: number; volume: string; percentage: number }>;
+  tipsByToken: Array<{ token: TokenType; count: number; volume: string; percentage: number }>;
+  averageConfirmationTime: number;
+  totalFeePaid: string;
+  totalFeeSaved: string;
+  successRate: number;
 }

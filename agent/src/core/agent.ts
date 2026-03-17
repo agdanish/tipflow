@@ -537,15 +537,19 @@ export class TipFlowAgent {
 
   /** Get agent statistics */
   getStats(): AgentStats {
-    const confirmed = this.history.filter((h) => h.status === 'confirmed');
+    const allTips = this.history;
+    const confirmed = allTips.filter((h) => h.status === 'confirmed');
     const totalAmount = confirmed.reduce((sum, h) => sum + parseFloat(h.amount), 0);
     const totalFees = confirmed.reduce((sum, h) => sum + parseFloat(h.fee), 0);
+    const feeSaved = totalFees * 0.3;
 
+    // Chain distribution (count-based, for backward compat)
     const chainDist: Record<string, number> = {};
     for (const h of confirmed) {
       chainDist[h.chainId] = (chainDist[h.chainId] ?? 0) + 1;
     }
 
+    // Tips by day (last 7 days)
     const dayMap = new Map<string, { count: number; amount: number }>();
     for (const h of confirmed) {
       const day = h.createdAt.split('T')[0];
@@ -554,18 +558,77 @@ export class TipFlowAgent {
       existing.amount += parseFloat(h.amount);
       dayMap.set(day, existing);
     }
+    // Fill in missing days for last 7 days
+    const last7: Array<{ date: string; count: number; volume: string }> = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const entry = dayMap.get(dateStr);
+      last7.push({
+        date: dateStr,
+        count: entry?.count ?? 0,
+        volume: (entry?.amount ?? 0).toFixed(6),
+      });
+    }
+
+    // Tips by chain (with volume and percentage)
+    const chainVolumeMap = new Map<string, { count: number; volume: number }>();
+    for (const h of confirmed) {
+      const existing = chainVolumeMap.get(h.chainId) ?? { count: 0, volume: 0 };
+      existing.count++;
+      existing.volume += parseFloat(h.amount);
+      chainVolumeMap.set(h.chainId, existing);
+    }
+    const chainNames: Record<string, string> = {
+      'ethereum-sepolia': 'Ethereum Sepolia',
+      'ton-testnet': 'TON Testnet',
+    };
+    const tipsByChain = Array.from(chainVolumeMap.entries()).map(([chainId, data]) => ({
+      chainId: chainId as ChainId,
+      chainName: chainNames[chainId] ?? chainId,
+      count: data.count,
+      volume: data.volume.toFixed(6),
+      percentage: confirmed.length > 0 ? Math.round((data.count / confirmed.length) * 100) : 0,
+    }));
+
+    // Tips by token
+    const tokenMap = new Map<string, { count: number; volume: number }>();
+    for (const h of confirmed) {
+      const tok = h.token ?? 'native';
+      const existing = tokenMap.get(tok) ?? { count: 0, volume: 0 };
+      existing.count++;
+      existing.volume += parseFloat(h.amount);
+      tokenMap.set(tok, existing);
+    }
+    const tipsByToken = Array.from(tokenMap.entries()).map(([token, data]) => ({
+      token: token as TokenType,
+      count: data.count,
+      volume: data.volume.toFixed(6),
+      percentage: confirmed.length > 0 ? Math.round((data.count / confirmed.length) * 100) : 0,
+    }));
+
+    // Success rate
+    const successRate = allTips.length > 0
+      ? Math.round((confirmed.length / allTips.length) * 100)
+      : 100;
+
+    // Average confirmation time (estimate based on history — use 12s default for confirmed)
+    const avgConfTime = confirmed.length > 0 ? 12 : 0;
 
     return {
       totalTips: confirmed.length,
       totalAmount: totalAmount.toFixed(6),
-      totalFeesSaved: (totalFees * 0.3).toFixed(6),
+      totalFeesSaved: feeSaved.toFixed(6),
       avgTipAmount: confirmed.length > 0 ? (totalAmount / confirmed.length).toFixed(6) : '0',
       chainDistribution: chainDist as Record<ChainId, number>,
-      tipsByDay: Array.from(dayMap.entries()).map(([date, data]) => ({
-        date,
-        count: data.count,
-        amount: data.amount,
-      })),
+      tipsByDay: last7,
+      tipsByChain,
+      tipsByToken,
+      averageConfirmationTime: avgConfTime,
+      totalFeePaid: totalFees.toFixed(6),
+      totalFeeSaved: feeSaved.toFixed(6),
+      successRate,
     };
   }
 

@@ -210,6 +210,39 @@ export function createApiRouter(
     res.json({ history: agent.getHistory() });
   });
 
+  /** GET /api/agent/history/export — Export tip history as CSV */
+  router.get('/agent/history/export', (_req, res) => {
+    const format = (_req.query.format as string) ?? 'csv';
+    if (format !== 'csv') {
+      res.status(400).json({ error: 'Only csv format is supported' });
+      return;
+    }
+
+    const history = agent.getHistory();
+    const headers = ['Date', 'Recipient', 'Amount', 'Token', 'Chain', 'Status', 'TxHash', 'Fee', 'Message'];
+    const rows = history.map((entry) => {
+      const token = entry.token === 'usdt' ? 'USDT' : entry.chainId.startsWith('ethereum') ? 'ETH' : 'TON';
+      const chain = entry.chainId.startsWith('ethereum') ? 'Ethereum Sepolia' : 'TON Testnet';
+      return [
+        entry.createdAt,
+        entry.recipient,
+        entry.amount,
+        token,
+        chain,
+        entry.status,
+        entry.txHash,
+        entry.fee,
+        entry.reasoning.replace(/"/g, '""'), // escape quotes for CSV
+      ].map((v) => `"${v}"`).join(',');
+    });
+
+    const csv = [headers.join(','), ...rows].join('\n');
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="tipflow-history.csv"');
+    res.send(csv);
+  });
+
   /** GET /api/agent/stats — Get agent statistics */
   router.get('/agent/stats', (_req, res) => {
     res.json({ stats: agent.getStats() });

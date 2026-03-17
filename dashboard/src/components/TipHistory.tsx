@@ -1,6 +1,7 @@
-import { History, ExternalLink, CheckCircle2, XCircle, Brain, ChevronDown, Layers, Fuel } from 'lucide-react';
+import { History, ExternalLink, CheckCircle2, XCircle, Brain, ChevronDown, Layers, Fuel, Download, Share2, Check } from 'lucide-react';
 import type { TipHistoryEntry } from '../types';
 import { shortenAddress, timeAgo, chainColor, formatNumber } from '../lib/utils';
+import { api } from '../lib/api';
 import { useState } from 'react';
 
 interface TipHistoryProps {
@@ -10,6 +11,35 @@ interface TipHistoryProps {
 
 export function TipHistory({ history, loading }: TipHistoryProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      await api.exportHistory('csv');
+    } catch (err) {
+      console.error('Export failed:', err);
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleShare = async (entry: TipHistoryEntry) => {
+    const isEth = entry.chainId.startsWith('ethereum');
+    const token = entry.token === 'usdt' ? 'USDT' : isEth ? 'ETH' : 'TON';
+    const explorerBase = isEth
+      ? 'https://sepolia.etherscan.io/tx/'
+      : 'https://testnet.tonviewer.com/transaction/';
+    const text = `\u26A1 Tipped ${entry.amount} ${token} via TipFlow \u2192 ${explorerBase}${entry.txHash}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(entry.id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      console.error('Failed to copy to clipboard');
+    }
+  };
 
   if (loading) {
     return (
@@ -33,9 +63,20 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
         <History className="w-4 h-4 text-accent" />
         Transaction History
         {history.length > 0 && (
-          <span className="text-[10px] text-text-muted font-normal ml-auto px-2 py-0.5 rounded-full bg-surface-3">
-            {history.length} tip{history.length !== 1 ? 's' : ''}
-          </span>
+          <>
+            <span className="text-[10px] text-text-muted font-normal ml-auto px-2 py-0.5 rounded-full bg-surface-3">
+              {history.length} tip{history.length !== 1 ? 's' : ''}
+            </span>
+            <button
+              onClick={handleExport}
+              disabled={exporting}
+              className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium text-text-muted hover:text-accent bg-surface-3 hover:bg-surface-3/80 rounded-full transition-colors disabled:opacity-50"
+              title="Export tip history as CSV"
+            >
+              <Download className="w-3 h-3" />
+              {exporting ? 'Exporting...' : 'Export CSV'}
+            </button>
+          </>
         )}
       </h2>
 
@@ -160,11 +201,28 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                         </div>
                       </div>
 
-                      {/* TX Hash */}
+                      {/* TX Hash + Share */}
                       {entry.txHash && (
                         <div className="flex items-center gap-2 px-2 py-1.5 text-[11px]">
                           <span className="text-text-muted">TX:</span>
-                          <span className="text-text-secondary font-mono truncate">{entry.txHash}</span>
+                          <span className="text-text-secondary font-mono truncate flex-1">{entry.txHash}</span>
+                          <button
+                            onClick={() => handleShare(entry)}
+                            className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-text-muted hover:text-accent bg-surface-3 hover:bg-surface-3/80 rounded-md transition-colors shrink-0"
+                            title="Copy share text to clipboard"
+                          >
+                            {copiedId === entry.id ? (
+                              <>
+                                <Check className="w-3 h-3 text-accent" />
+                                Copied!
+                              </>
+                            ) : (
+                              <>
+                                <Share2 className="w-3 h-3" />
+                                Share
+                              </>
+                            )}
+                          </button>
                         </div>
                       )}
                     </div>

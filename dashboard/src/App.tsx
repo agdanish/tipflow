@@ -21,6 +21,18 @@ function App() {
   const { toasts, addToast, dismissToast } = useToasts();
   const [tipMode, setTipMode] = useState<'single' | 'batch'>('single');
   const [scheduledTips, setScheduledTips] = useState<ScheduledTip[]>([]);
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    return (localStorage.getItem('tipflow-theme') as 'dark' | 'light') || 'dark';
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('light', theme === 'light');
+    localStorage.setItem('tipflow-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  }, []);
 
   const refreshScheduledTips = useCallback(async () => {
     try {
@@ -80,7 +92,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-surface">
-      <Header health={health} />
+      <Header health={health} theme={theme} onToggleTheme={toggleTheme} />
 
       <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Wallets */}

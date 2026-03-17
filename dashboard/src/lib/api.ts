@@ -28,6 +28,23 @@ async function fetchJson<T>(path: string, options?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+/** Trigger a file download from a fetch response */
+async function downloadBlob(url: string, fallbackName: string): Promise<void> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Export failed: HTTP ${res.status}`);
+  const blob = await res.blob();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  // Extract filename from Content-Disposition header, or use fallback
+  const disposition = res.headers.get('Content-Disposition');
+  const match = disposition?.match(/filename="?([^"]+)"?/);
+  a.download = match?.[1] ?? fallbackName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
 export const api = {
   health: () =>
     fetchJson<HealthResponse>('/health'),
@@ -104,4 +121,8 @@ export const api = {
     fetchJson<{ deleted: boolean; id: string }>(`/contacts/${id}`, {
       method: 'DELETE',
     }),
+
+  // Export
+  exportHistory: (format: 'csv' = 'csv') =>
+    downloadBlob(`${BASE}/agent/history/export?format=${format}`, `tipflow-history.${format}`),
 };

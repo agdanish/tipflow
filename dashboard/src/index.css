@@ -101,6 +101,70 @@ body {
   animation: status-ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
+/* Light theme overrides */
+html.light {
+  --color-surface: #f8fafc;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #f1f5f9;
+  --color-surface-3: #e2e8f0;
+  --color-border: #e2e8f0;
+  --color-border-light: #cbd5e1;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94a3b8;
+  --color-accent-dim: rgba(34, 197, 94, 0.08);
+  --color-accent-border: rgba(34, 197, 94, 0.25);
+}
+
+html.light .header-gradient {
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    rgba(34, 197, 94, 0.04) 50%,
+    #ffffff 100%
+  );
+}
+
+html.light .chain-gradient-eth {
+  background: linear-gradient(135deg, rgba(98, 126, 234, 0.1) 0%, rgba(98, 126, 234, 0.03) 100%);
+}
+html.light .chain-gradient-ton {
+  background: linear-gradient(135deg, rgba(0, 152, 234, 0.1) 0%, rgba(130, 71, 229, 0.05) 100%);
+}
+
+html.light .stat-card-green {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, #f1f5f9 100%);
+}
+html.light .stat-card-amber {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, #f1f5f9 100%);
+}
+html.light .stat-card-blue {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, #f1f5f9 100%);
+}
+html.light .stat-card-purple {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, #f1f5f9 100%);
+}
+
+html.light .bg-gradient-mesh {
+  background-image:
+    radial-gradient(at 20% 20%, rgba(34, 197, 94, 0.06) 0, transparent 50%),
+    radial-gradient(at 80% 80%, rgba(59, 130, 246, 0.04) 0, transparent 50%);
+}
+
+html.light .skeleton {
+  background: #e2e8f0;
+}
+
+html.light .animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    #e2e8f0 25%,
+    #cbd5e1 50%,
+    #e2e8f0 75%
+  );
+  background-size: 200% 100%;
+}
+
 /* Card hover effect — only on devices with hover support (not touch) */
 .card-hover {
   transition: all 0.2s ease;
@@ -110,6 +174,9 @@ body {
     border-color: var(--color-border-light);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  html.light .card-hover:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 }
 
