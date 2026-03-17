@@ -289,6 +289,34 @@ export function createApiRouter(
     }
   });
 
+  /** GET /api/wallet/accounts — List derived HD accounts */
+  router.get('/wallet/accounts', async (req, res) => {
+    try {
+      const chain = (req.query.chain as string) || 'ethereum-sepolia';
+      const count = parseInt(req.query.count as string) || 5;
+      const accounts = await wallet.listDerivedAccounts(chain as ChainId, count);
+      const activeIndex = wallet.getActiveAccountIndex();
+      res.json({ accounts, activeIndex, chain });
+    } catch (err) {
+      res.status(500).json({ error: String(err) });
+    }
+  });
+
+  /** POST /api/wallet/accounts/active — Set active HD account index */
+  router.post('/wallet/accounts/active', (req, res) => {
+    try {
+      const { index } = req.body as { index: number };
+      if (typeof index !== 'number') {
+        res.status(400).json({ error: 'index (number) is required' });
+        return;
+      }
+      wallet.setActiveAccountIndex(index);
+      res.json({ activeIndex: index, message: `Switched to account #${index}` });
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
   /** POST /api/tip — Execute a tip */
   router.post('/tip', transactionLimiter, validateTipInput(), async (req, res) => {
     try {

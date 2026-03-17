@@ -12,9 +12,9 @@
     <img src="https://img.shields.io/badge/Track-Tipping%20Bot-ff6b6b" alt="Track: Tipping Bot" />
   </p>
   <p align="center">
-    <img src="https://img.shields.io/badge/Endpoints-130-blueviolet" alt="130 API Endpoints" />
-    <img src="https://img.shields.io/badge/Components-74-orange" alt="74 React Components" />
-    <img src="https://img.shields.io/badge/Services-21-green" alt="21 Agent Services" />
+    <img src="https://img.shields.io/badge/Endpoints-160+-blueviolet" alt="160+ API Endpoints" />
+    <img src="https://img.shields.io/badge/Components-77-orange" alt="77 React Components" />
+    <img src="https://img.shields.io/badge/Services-24-green" alt="24 Agent Services" />
     <img src="https://img.shields.io/badge/Budget-%240-red" alt="$0 Budget" />
   </p>
 </p>
@@ -27,7 +27,7 @@
 
 In January 2026, [Rumble](https://rumble.com) launched its crypto wallet powered by Tether WDK, enabling viewers to tip creators directly with USDT, USAT (USA₮), XAU₮, and BTC. TipFlow extends that foundation with an **autonomous AI agent** that makes tipping smarter, automatic, and community-driven.
 
-TipFlow watches your viewing habits, learns your preferences, and autonomously manages tips to your favorite Rumble creators. Say **"tip my top 3 creators this week"** — the agent identifies them, calculates fair amounts based on watch time, executes transactions via **Tether WDK**, verifies on-chain, and reports back. All through a polished dashboard with 74 components.
+TipFlow watches your viewing habits, learns your preferences, and autonomously manages tips to your favorite Rumble creators. Say **"tip my top 3 creators this week"** — the agent identifies them, calculates fair amounts based on watch time, executes transactions via **Tether WDK**, verifies on-chain, and reports back. All through a polished dashboard with 77 components.
 
 **Key highlights:**
 - **Rumble-native** — Creator profiles, channel management, watch-time tracking, event-triggered tipping
@@ -36,7 +36,12 @@ TipFlow watches your viewing habits, learns your preferences, and autonomously m
 - **Multi-chain** — Ethereum Sepolia + TON Testnet + TRON Nile with intelligent chain selection
 - **Voice commands** — Speak your tips via Web Speech API
 - **Chat interface** — Conversational AI that understands tip intents, balance queries, and fee comparisons
-- **130 API endpoints** — Full REST + SSE real-time streaming
+- **160+ API endpoints** — Full REST + SSE real-time streaming
+- **Tip Streaming Protocol** — Continuous micro-tipping per second (like Superfluid without smart contracts)
+- **Cryptographic Tip Receipts** — WDK-signed Proof-of-Tip using `account.sign()` / `account.verify()`
+- **Social Reputation Engine** — AI-driven creator scoring with time-decay and tier system
+- **True agent autonomy** — Policy-driven auto-execution with tiered approval (small tips auto, large tips human OK)
+- **HD Multi-Account** — BIP-44 derivation paths, account switching, wallet recovery
 - **Gamification** — Achievements, creator leaderboard, challenges, tip goals, streaks
 - **Community tipping pools** — Collaborative fundraising with goals for creators
 - **5 languages** — EN/ES/FR/AR/ZH with RTL support
@@ -497,15 +502,15 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 - 8 WDK packages integrated: core, EVM, TON, TRON, ERC-4337 gasless, TON gasless, USDT0 bridge, Aave lending
 - WDK Indexer API for unified cross-chain balance and transfer data
 - Full-stack TypeScript with 100+ typed interfaces
-- 130 REST/SSE API endpoints across 16 categories
-- Clean WDK integration — 13+ methods, zero mocked calls
+- 160+ REST/SSE API endpoints across 20 categories
+- Clean WDK integration — 15+ methods including `sign()`, `verify()`, `keyPair`, zero mocked calls
 - Real testnet transactions (Ethereum Sepolia + TON Testnet + TRON Nile)
-- HD wallet derivation from a single seed phrase
+- HD wallet derivation with multi-account support (BIP-44 paths, account switching)
 - Resource cleanup with `dispose()` for graceful shutdown
 
 ### 3. Technical Execution
 
-- 74 React components, 21 backend services, 5 custom hooks
+- 77 React components, 24 backend services, 5 custom hooks
 - Dual SSE streams for real-time updates
 - OpenAPI 3.0 specification
 - Express 5 + rate limiting + validation + audit logging
@@ -524,6 +529,9 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 - Aave V3 treasury yield for idle fund optimization
 - Scheduled and conditional tips run without human intervention
 - Watch-time auto-tipping (80%+ threshold triggers autonomous tip)
+- **Tip Streaming Protocol** — continuous micro-tipping at intervals (pay-per-second)
+- **Tiered approval** — small tips auto-execute, large tips need human confirmation
+- **Autonomous decision loop** — agent proposes, evaluates, and executes tips on its own every 60s
 - Transaction retry with exponential backoff prevents wasted gas
 - $0 infrastructure — no paid APIs, runs entirely locally
 
@@ -536,6 +544,9 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 - Gamification — achievements, daily challenges, streaks, leaderboard
 - Policy engine with configurable budget limits, recipient rules, watch-time thresholds
 - Full decision logging with reasoning transparency for every action
+- **Cryptographic Tip Receipts (Proof-of-Tip)** — WDK `account.sign()` creates tamper-proof, verifiable receipts
+- **Social Reputation Engine** — time-decaying creator scores with bronze→diamond tiers
+- **HD Multi-Account Management** — BIP-44 derivation, account switching (no other tipping bot does this)
 
 ### 6. Polish & Ship-ability
 
@@ -581,11 +592,14 @@ tipflow/
 ├── agent/                          # Node.js agent server
 │   └── src/
 │       ├── core/agent.ts           # 6-step pipeline + scheduler + conditions
-│       ├── services/               # 21 services
-│       │   ├── wallet.service.ts   # WDK operations + HD derivation + gasless
+│       ├── services/               # 24 services
+│       │   ├── wallet.service.ts   # WDK operations + HD derivation + multi-account + gasless
 │       │   ├── ai.service.ts       # Ollama LLM + NLP + intent detection
 │       │   ├── rumble.service.ts   # Rumble creator profiles + watch-time + events
-│       │   ├── autonomy.service.ts # Pattern analysis + recommendations + policy engine
+│       │   ├── autonomy.service.ts # Pattern analysis + auto-execution + policy engine
+│       │   ├── streaming.service.ts # Tip Streaming Protocol (continuous micro-tips)
+│       │   ├── receipt.service.ts  # Cryptographic Proof-of-Tip (WDK sign/verify)
+│       │   ├── reputation.service.ts # Social reputation engine with time-decay
 │       │   ├── ens.service.ts      # ENS resolution with caching
 │       │   ├── telegram.service.ts # Telegram bot (7 commands)
 │       │   ├── conditions.service.ts # Conditional tip engine
@@ -607,19 +621,22 @@ tipflow/
 │       │   ├── rateLimit.ts        # Rate limiting
 │       │   └── validate.ts         # Input validation + audit
 │       ├── routes/
-│       │   ├── api.ts              # 130 REST + SSE endpoints
+│       │   ├── api.ts              # 160+ REST + SSE endpoints
 │       │   └── openapi.ts          # OpenAPI 3.0 spec
-│       ├── __tests__/              # 51 automated tests
+│       ├── __tests__/              # 24 automated tests
 │       └── index.ts                # Express 5 entry point
 ├── dashboard/                      # React frontend
 │   └── src/
-│       ├── components/             # 74 React components
+│       ├── components/             # 77 React components
 │       │   ├── RumbleIntegration.tsx # Rumble creator dashboard
 │       │   ├── AutonomyPanel.tsx   # Autonomous intelligence controls
+│       │   ├── StreamingPanel.tsx  # Tip Streaming Protocol UI
+│       │   ├── CryptoReceipt.tsx   # Proof-of-Tip verification
+│       │   ├── ReputationPanel.tsx # Social reputation leaderboard
 │       │   └── ...                 # 72 more components
 │       ├── hooks/                  # 5 custom hooks
 │       ├── lib/                    # API client, i18n, sounds, utils
-│       └── types/                  # 60+ TypeScript interfaces
+│       └── types/                  # 80+ TypeScript interfaces
 ├── Dockerfile                      # Multi-stage production build
 ├── docker-compose.yml              # One-command startup
 ├── package.json                    # Root orchestrator

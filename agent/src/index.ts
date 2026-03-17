@@ -66,6 +66,7 @@ async function main(): Promise<void> {
   agent.setChallengesService(challenges);
   agent.setLimitsService(limitsService);
   agent.setGoalsService(goalsService);
+  agent.setAutonomyService(autonomyService);
 
   // Log Rumble integration
   logger.info(`Rumble integration loaded: ${rumbleService.listCreators().length} creators registered`);

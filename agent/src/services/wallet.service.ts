@@ -99,6 +99,7 @@ export class WalletService {
   private gaslessEvmError?: string;
   private gaslessTonError?: string;
   private activeWalletIndex = 0;
+  private activeAccountIndex = 0;
 
   /** Initialize WDK with a seed phrase, registering all supported chains */
   async initialize(seed?: string): Promise<void> {
@@ -221,7 +222,7 @@ export class WalletService {
   async getAddress(chainId: ChainId): Promise<string> {
     this.ensureInitialized();
     const blockchain = this.getBlockchain(chainId);
-    const account = await this.wdk!.getAccount(blockchain, 0);
+    const account = await this.wdk!.getAccount(blockchain, this.activeAccountIndex);
     return account.getAddress();
   }
 
@@ -243,7 +244,7 @@ export class WalletService {
     this.ensureInitialized();
     const blockchain = this.getBlockchain(chainId);
     const config = CHAIN_CONFIGS[chainId];
-    const account = await this.wdk!.getAccount(blockchain, 0);
+    const account = await this.wdk!.getAccount(blockchain, this.activeAccountIndex);
 
     const address = await account.getAddress();
     const nativeBalance = await account.getBalance();
@@ -292,7 +293,7 @@ export class WalletService {
   async estimateFee(chainId: ChainId, recipient: string, amount: string): Promise<{ fee: string; feeRaw: bigint }> {
     this.ensureInitialized();
     const blockchain = this.getBlockchain(chainId);
-    const account = await this.wdk!.getAccount(blockchain, 0);
+    const account = await this.wdk!.getAccount(blockchain, this.activeAccountIndex);
     const amountRaw = this.parseAmount(amount, chainId);
 
     try {
@@ -384,7 +385,7 @@ export class WalletService {
   ): Promise<{ hash: string; fee: string }> {
     this.ensureInitialized();
     const blockchain = this.getBlockchain(chainId);
-    const account = await this.wdk!.getAccount(blockchain, 0);
+    const account = await this.wdk!.getAccount(blockchain, this.activeAccountIndex);
     const amountRaw = this.parseAmount(amount, chainId);
 
     logger.info('Sending transaction', { chainId, recipient, amount });
@@ -415,7 +416,7 @@ export class WalletService {
     }
 
     const blockchain = this.getBlockchain(chainId);
-    const account = await this.wdk!.getAccount(blockchain, 0);
+    const account = await this.wdk!.getAccount(blockchain, this.activeAccountIndex);
     const amountRaw = BigInt(Math.floor(parseFloat(amount) * 1e6)); // USDT has 6 decimals
 
     logger.info('Sending USDT transfer', { chainId, recipient, amount, amountRaw: amountRaw.toString() });
@@ -563,7 +564,7 @@ export class WalletService {
     // Try EVM ERC-4337 gasless first
     if (this.gaslessEvmAvailable) {
       try {
-        const account = await this.wdk!.getAccount('ethereum-erc4337', 0);
+        const account = await this.wdk!.getAccount('ethereum-erc4337', this.activeAccountIndex);
         const gaslessChainId: ChainId = 'ethereum-sepolia-gasless';
 
         if (token === 'usdt' || token === 'usat') {
@@ -601,7 +602,7 @@ export class WalletService {
     // Try TON gasless
     if (this.gaslessTonAvailable && token === 'native') {
       try {
-        const account = await this.wdk!.getAccount('ton-gasless', 0);
+        const account = await this.wdk!.getAccount('ton-gasless', this.activeAccountIndex);
         const amountRaw = this.parseAmount(amount, 'ton-testnet');
         logger.info('Sending gasless TON transfer', { recipient, amount });
 
@@ -689,7 +690,7 @@ export class WalletService {
   async signMessage(chainId: ChainId, message: string): Promise<{ signature: string; publicKey: string }> {
     this.ensureInitialized();
     const blockchain = this.getBlockchain(chainId);
-    const account = await this.wdk!.getAccount(blockchain, 0);
+    const account = await this.wdk!.getAccount(blockchain, this.activeAccountIndex);
     const signature = await account.sign(message);
     const publicKey = Buffer.from(account.keyPair.publicKey).toString('hex');
     return { signature, publicKey };
@@ -699,8 +700,37 @@ export class WalletService {
   async verifyMessage(chainId: ChainId, message: string, signature: string): Promise<boolean> {
     this.ensureInitialized();
     const blockchain = this.getBlockchain(chainId);
-    const account = await this.wdk!.getAccount(blockchain, 0);
+    const account = await this.wdk!.getAccount(blockchain, this.activeAccountIndex);
     return account.verify(message, signature);
+  }
+
+  /** Get the active account index for HD derivation */
+  getActiveAccountIndex(): number {
+    return this.activeAccountIndex;
+  }
+
+  /** Set the active account index (HD path changes) */
+  setActiveAccountIndex(index: number): void {
+    if (index < 0 || index > 99) throw new Error('Account index must be 0-99');
+    this.activeAccountIndex = index;
+    logger.info('Active account index changed', { index });
+  }
+
+  /** List derived accounts for a chain (first N indices) */
+  async listDerivedAccounts(chainId: ChainId, count = 5): Promise<Array<{ index: number; address: string }>> {
+    this.ensureInitialized();
+    const blockchain = this.getBlockchain(chainId);
+    const accounts: Array<{ index: number; address: string }> = [];
+    for (let i = 0; i < count; i++) {
+      try {
+        const account = await this.wdk!.getAccount(blockchain, i);
+        const address = await account.getAddress();
+        accounts.push({ index: i, address });
+      } catch {
+        break; // Stop if index not supported
+      }
+    }
+    return accounts;
   }
 
   /** Cleanup resources */

@@ -12,6 +12,7 @@ import { GoalsService } from '../services/goals.service.js';
 import { TelegramService } from '../services/telegram.service.js';
 import type { ReceiptService } from '../services/receipt.service.js';
 import type { ReputationService } from '../services/reputation.service.js';
+import type { AutonomyService } from '../services/autonomy.service.js';
 import type { TelegramBotStatus } from '../services/telegram.service.js';
 import { logger } from '../utils/logger.js';
 import type {
@@ -67,6 +68,7 @@ export class TipFlowAgent {
   private goalsService: GoalsService | null = null;
   private receiptService: ReceiptService | null = null;
   private reputationService: ReputationService | null = null;
+  private autonomyService: AutonomyService | null = null;
   private tipResults: Map<string, TipResult> = new Map();
   private static readonly MAX_ACTIVITY = 100;
 
@@ -115,6 +117,11 @@ export class TipFlowAgent {
     this.reputationService = service;
   }
 
+  /** Set the autonomy service for autonomous tip execution */
+  setAutonomyService(service: AutonomyService): void {
+    this.autonomyService = service;
+  }
+
   /** Start Telegram bot if TELEGRAM_BOT_TOKEN is set. Optional — everything works without it. */
   async startTelegramBot(): Promise<void> {
     const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -150,6 +157,109 @@ export class TipFlowAgent {
       });
     }, 10_000);
     logger.info('Tip scheduler started (10s interval)');
+
+    // Autonomous decision loop — runs every 60 seconds
+    setInterval(() => {
+      this.processAutonomousDecisions().catch((err) => {
+        logger.error('Autonomous decision loop failed', { error: String(err) });
+      });
+    }, 60_000);
+    logger.info('Autonomous decision loop started (60s interval)');
+  }
+
+  /** Autonomous decision loop: evaluate history, propose and auto-execute low-value tips */
+  private async processAutonomousDecisions(): Promise<void> {
+    if (!this.autonomyService) return;
+    if (this.history.length < 3) return; // Need minimum history to learn patterns
+
+    // Convert history to TipEntry format
+    const tips = this.history.map((h) => ({
+      id: h.id,
+      recipient: h.recipient,
+      amount: h.amount,
+      token: h.token,
+      chainId: h.chainId,
+      status: h.status,
+      createdAt: h.createdAt,
+      memo: h.memo,
+    }));
+
+    const proposals = this.autonomyService.evaluateAndPropose(tips);
+    if (proposals.length === 0) return;
+
+    // Get the confirmation threshold from active policies
+    const policies = this.autonomyService.getPolicies('default').filter((p) => p.enabled);
+    const confirmThreshold = policies.reduce(
+      (min, p) => Math.min(min, p.rules.requireConfirmationAbove ?? 0.001),
+      0.001
+    );
+
+    for (const decision of proposals) {
+      // Tiered approval: auto-execute if below confirmation threshold
+      if (decision.amount <= confirmThreshold && decision.policyCompliance.withinDailyLimit && decision.policyCompliance.withinPerTipLimit) {
+        // AUTO-APPROVE
+        this.autonomyService.approveDecision(decision.id);
+
+        this.addActivity({
+          type: 'system',
+          message: `Autonomous tip auto-approved: ${decision.amount} to ${decision.recipient.slice(0, 10)}...`,
+          detail: `Reason: ${decision.reasoning.trigger} | Confidence: ${decision.reasoning.confidenceScore}%`,
+        });
+
+        // AUTO-EXECUTE
+        try {
+          const request: TipRequest = {
+            id: uuidv4(),
+            recipient: decision.recipient,
+            amount: String(decision.amount),
+            token: 'native' as TokenType,
+            preferredChain: (decision.chain || undefined) as ChainId | undefined,
+            message: `[Auto] ${decision.reasoning.trigger}`,
+            createdAt: new Date().toISOString(),
+          };
+
+          const result = await this.executeTip(request);
+          this.autonomyService.markExecuted(decision.id);
+
+          this.addActivity({
+            type: 'tip_sent',
+            message: `Autonomous tip executed: ${decision.amount} to ${decision.recipient.slice(0, 10)}...`,
+            detail: `tx: ${result.txHash.slice(0, 14)}... | ${decision.reasoning.recipientReason}`,
+            chainId: result.chainId,
+          });
+
+          logger.info('Autonomous tip auto-executed', {
+            decisionId: decision.id,
+            recipient: decision.recipient,
+            amount: decision.amount,
+            txHash: result.txHash,
+            reasoning: decision.reasoning,
+          });
+        } catch (err) {
+          logger.error('Autonomous tip execution failed', {
+            decisionId: decision.id,
+            error: String(err),
+          });
+          this.addActivity({
+            type: 'tip_failed',
+            message: `Autonomous tip failed: ${String(err).slice(0, 60)}`,
+            detail: `Decision ${decision.id.slice(0, 8)}`,
+          });
+        }
+      } else {
+        // Above threshold — leave as 'proposed' for human review
+        this.addActivity({
+          type: 'system',
+          message: `Autonomous tip proposed (needs approval): ${decision.amount} to ${decision.recipient.slice(0, 10)}...`,
+          detail: `Above ${confirmThreshold} threshold | ${decision.reasoning.trigger}`,
+        });
+        logger.info('Autonomous tip proposed for human review', {
+          decisionId: decision.id,
+          amount: decision.amount,
+          threshold: confirmThreshold,
+        });
+      }
+    }
   }
 
   /** Stop the background scheduler (for cleanup) */
