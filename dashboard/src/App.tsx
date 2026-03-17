@@ -50,6 +50,8 @@ import { FavoriteRecipients } from './components/FavoriteRecipients';
 import { QuickActions } from './components/QuickActions';
 import { AuditLog } from './components/AuditLog';
 import { SpendingLimits } from './components/SpendingLimits';
+import { BatchImport } from './components/BatchImport';
+import { TipReport } from './components/TipReport';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useSwipe } from './hooks/useTouchGestures';
@@ -510,6 +512,7 @@ function App() {
                   {tipMode === 'split' && (
                     <SplitTipForm onSplitComplete={handleSplitComplete} disabled={isAgentBusy} />
                   )}
+                  <BatchImport />
                   <TipTemplates onUseTemplate={handleUseTemplate} />
                   <TipLinkCreator />
                   <ConditionalTips />
@@ -609,6 +612,7 @@ function App() {
                 <ChainComparison />
               </div>
               <AnalyticsDashboard />
+              <TipReport history={history} />
               <Leaderboard entries={leaderboard} loading={leaderboardLoading} />
               <div className="dashboard-grid-cards">
                 <Achievements achievements={achievements} loading={achievementsLoading} />
