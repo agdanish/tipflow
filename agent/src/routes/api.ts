@@ -8,6 +8,8 @@ import { ContactsService } from '../services/contacts.service.js';
 import { TemplatesService } from '../services/templates.service.js';
 import type { ActivityEvent, ChatMessage, ChainId, TipRequest, TokenType, BatchTipRequest } from '../types/index.js';
 import { logger } from '../utils/logger.js';
+import { transactionLimiter } from '../middleware/rateLimit.js';
+import { validateTipInput, validateBatchTipInput, validateChatInput, auditLog } from '../middleware/validate.js';
 
 /** Shared contacts service instance */
 const contacts = new ContactsService();
@@ -22,6 +24,9 @@ export function createApiRouter(
   ai: AIService,
 ): Router {
   const router = Router();
+
+  // Apply audit logging to all API routes
+  router.use(auditLog());
 
   /** GET /api/health — Service health check */
   router.get('/health', (_req, res) => {
@@ -92,7 +97,7 @@ export function createApiRouter(
   });
 
   /** POST /api/tip — Execute a tip */
-  router.post('/tip', async (req, res) => {
+  router.post('/tip', transactionLimiter, validateTipInput(), async (req, res) => {
     try {
       const { recipient, amount, token, preferredChain, message } = req.body as {
         recipient: string;
@@ -134,7 +139,7 @@ export function createApiRouter(
   });
 
   /** POST /api/tip/batch — Execute batch tips to multiple recipients */
-  router.post('/tip/batch', async (req, res) => {
+  router.post('/tip/batch', transactionLimiter, validateBatchTipInput(), async (req, res) => {
     try {
       const { recipients, token, preferredChain } = req.body as BatchTipRequest;
 
@@ -344,7 +349,7 @@ export function createApiRouter(
   });
 
   /** POST /api/tip/schedule — Schedule a future tip (optionally recurring) */
-  router.post('/tip/schedule', (req, res) => {
+  router.post('/tip/schedule', transactionLimiter, validateTipInput(), (req, res) => {
     try {
       const { recipient, amount, token, chain, message, scheduledAt, recurring, interval } = req.body as {
         recipient: string;
@@ -629,7 +634,7 @@ export function createApiRouter(
   // ── Conversational Chat ──────────────────────────────────────
 
   /** POST /api/chat — Conversational chat with the TipFlow agent */
-  router.post('/chat', async (req, res) => {
+  router.post('/chat', transactionLimiter, validateChatInput(), async (req, res) => {
     try {
       const { message } = req.body as { message?: string };
       if (!message || typeof message !== 'string' || message.trim().length === 0) {

@@ -70,6 +70,16 @@ async function main(): Promise<void> {
   app.use(cors());
   app.use(express.json());
 
+  // Security headers
+  app.use((_req, _res, next) => {
+    _res.setHeader('X-Content-Type-Options', 'nosniff');
+    _res.setHeader('X-Frame-Options', 'DENY');
+    _res.setHeader('X-XSS-Protection', '1; mode=block');
+    _res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    _res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    next();
+  });
+
   // Mount API routes
   app.use('/api', createApiRouter(agent, walletService, aiService));
 

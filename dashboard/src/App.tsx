@@ -19,6 +19,7 @@ import { ToastContainer, useToasts } from './components/Toast';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { OnboardingOverlay, isOnboardingComplete, resetOnboarding } from './components/OnboardingOverlay';
 import { ChatInterface } from './components/ChatInterface';
+import { SecurityStatus } from './components/SecurityStatus';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { api } from './lib/api';
@@ -232,10 +233,11 @@ function App() {
           )}
         </section>
 
-        {/* Gas Price Monitor + Currency Converter */}
-        <section className="mb-4 sm:mb-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Gas Price Monitor + Currency Converter + Security */}
+        <section className="mb-4 sm:mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <GasMonitor />
           <CurrencyConverter />
+          <SecurityStatus />
         </section>
 
         {/* Main grid: Tip Form + Agent | History + Stats */}
