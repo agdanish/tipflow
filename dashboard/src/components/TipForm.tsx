@@ -456,7 +456,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
               <button
                 type="button"
                 onClick={() => setSavingContact(true)}
-                title="Save to contacts"
+                title={t('contacts.saveToContacts')}
                 className="px-2.5 py-2.5 rounded-lg bg-surface-2 border border-border text-text-secondary hover:text-accent hover:border-accent-border transition-colors shrink-0"
               >
                 <UserPlus className="w-4 h-4" />
@@ -496,7 +496,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
                 value={contactName}
                 onChange={(e) => setContactName(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSaveContact(); } }}
-                placeholder="Contact name..."
+                placeholder={t('contacts.namePlaceholder')}
                 className="flex-1 min-w-0 px-2.5 py-1.5 rounded-md bg-surface-2 border border-accent-border text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent-border transition-colors"
                 autoFocus
               />
@@ -506,7 +506,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
                 disabled={!contactName.trim()}
                 className="px-2.5 py-1.5 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent-light disabled:opacity-40 transition-colors"
               >
-                Save
+                {t('contacts.save')}
               </button>
               <button
                 type="button"
@@ -542,7 +542,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
                     type="button"
                     onClick={(e) => handleDeleteContact(c.id, e)}
                     className="opacity-0 group-hover:opacity-100 p-1 rounded text-text-muted hover:text-error transition-all shrink-0"
-                    title="Remove contact"
+                    title={t('contacts.remove')}
                   >
                     <Trash2 className="w-3 h-3" />
                   </button>
@@ -554,7 +554,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
 
         <div>
           <label className="block text-xs text-text-secondary mb-1.5">
-            Amount {token === 'usdt' ? '(USDT)' : ''}
+            {t('tip.amount')} {token === 'usdt' ? '(USDT)' : ''}
           </label>
           <input
             type="text"
@@ -592,7 +592,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
 
         <div>
           <label className="block text-xs text-text-secondary mb-1.5">
-            Chain Preference <span className="text-text-muted">(optional — agent decides if empty)</span>
+            {t('tip.chain')} <span className="text-text-muted">({t('tip.chainOptional')})</span>
           </label>
           <select
             value={chain}
@@ -605,7 +605,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
               <option value="ethereum-sepolia">Ethereum Sepolia (USDT)</option>
             ) : (
               <>
-                <option value="">Auto (AI decides)</option>
+                <option value="">{t('tip.chainAuto')}</option>
                 <option value="ethereum-sepolia">Ethereum Sepolia</option>
                 <option value="ton-testnet">TON Testnet</option>
               </>
@@ -615,14 +615,14 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
 
         <div>
           <label className="block text-xs text-text-secondary mb-1.5">
-            Message <span className="text-text-muted">(optional)</span>
+            {t('tip.message')} <span className="text-text-muted">({t('tip.messageOptional')})</span>
           </label>
           <input
             type="text"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Great work on the PR!"
-            aria-label="Tip message (optional)"
+            placeholder={t('tip.messagePlaceholder')}
+            aria-label={`${t('tip.message')} (${t('tip.messageOptional')})`}
             className="w-full px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border focus:ring-1 focus:ring-accent-border transition-colors"
             disabled={sending || disabled}
           />
@@ -649,7 +649,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
             </button>
             <label className="flex items-center gap-1.5 text-xs text-text-secondary cursor-pointer" onClick={() => { setScheduleMode(!scheduleMode); setScheduledAt(''); setRecurring(false); }}>
               <Clock className="w-3.5 h-3.5" />
-              Schedule for later
+              {t('tip.schedule')}
             </label>
           </div>
           {scheduleMode && (
@@ -682,7 +682,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
                 </button>
                 <label className="flex items-center gap-1.5 text-xs text-text-secondary cursor-pointer" onClick={() => setRecurring(!recurring)}>
                   <Repeat className="w-3.5 h-3.5" />
-                  Recurring
+                  {t('tip.recurring')}
                 </label>
                 {recurring && (
                   <select
@@ -691,9 +691,9 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
                     className="ml-auto px-2 py-1 rounded-md bg-surface-2 border border-purple-500/30 text-xs text-text-primary focus:outline-none transition-colors"
                     disabled={sending || disabled}
                   >
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
+                    <option value="daily">{t('tip.daily')}</option>
+                    <option value="weekly">{t('tip.weekly')}</option>
+                    <option value="monthly">{t('tip.monthly')}</option>
                   </select>
                 )}
               </div>
@@ -755,7 +755,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
                       }
                     }
                   }}
-                  placeholder="Template name..."
+                  placeholder={t('template.namePlaceholder')}
                   className="flex-1 min-w-0 px-2.5 py-1.5 rounded-md bg-surface-2 border border-blue-500/30 text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-colors"
                   autoFocus
                 />
@@ -777,7 +777,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
                   disabled={!templateName.trim()}
                   className="px-2.5 py-1.5 rounded-md bg-blue-600 text-white text-xs font-medium hover:bg-blue-500 disabled:opacity-40 transition-colors"
                 >
-                  Save
+                  {t('common.save')}
                 </button>
                 <button
                   type="button"
@@ -794,7 +794,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
                 className="inline-flex items-center gap-1.5 text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
               >
                 <BookMarked className="w-3.5 h-3.5" />
-                Save as Template
+                {t('template.save')}
               </button>
             )}
           </div>
@@ -823,22 +823,22 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
           {sending ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              {scheduleMode ? 'Scheduling...' : gaslessMode ? 'Sending Gasless...' : 'Agent Processing...'}
+              {scheduleMode ? t('tip.scheduling') : gaslessMode ? t('tip.sendingGasless') : t('tip.sending')}
             </>
           ) : scheduleMode ? (
             <>
               <CalendarClock className="w-4 h-4" />
-              Schedule {token === 'usdt' ? 'USDT' : ''} Tip
+              {t('tip.scheduleTip')}
             </>
           ) : gaslessMode ? (
             <>
               <Zap className="w-4 h-4" />
-              Send Gasless {token === 'usdt' ? 'USDT' : ''} Tip
+              {t('tip.gasless')}
             </>
           ) : (
             <>
               <Send className="w-4 h-4" />
-              Send {token === 'usdt' ? 'USDT' : ''} Tip
+              {t('tip.send')}
             </>
           )}
         </button>

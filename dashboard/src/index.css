@@ -575,3 +575,81 @@ html, body {
     grid-template-columns: 1fr;
   }
 }
+
+/* --- RTL SUPPORT (Arabic) --- */
+
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Flip flex layouts */
+[dir="rtl"] .flex {
+  /* Tailwind flex-row is default, RTL reverses it automatically via dir attribute */
+}
+
+/* Adjust margins/paddings that assume LTR */
+[dir="rtl"] .ml-auto {
+  margin-left: unset;
+  margin-right: auto;
+}
+
+[dir="rtl"] .mr-auto {
+  margin-right: unset;
+  margin-left: auto;
+}
+
+/* Flip translate-x for toggle switches */
+[dir="rtl"] [role="switch"] span {
+  /* CSS logical properties handle this, but override explicit translate-x */
+}
+
+/* Ensure dropdown menus align correctly */
+[dir="rtl"] [role="listbox"] {
+  right: auto;
+  left: 0;
+}
+
+/* Mirror slide-in animation for RTL */
+[dir="rtl"] .animate-slide-in {
+  animation-name: slide-in-rtl;
+}
+
+@keyframes slide-in-rtl {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Flip font-mono direction for addresses (keep LTR) */
+[dir="rtl"] .font-mono {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* Keep code/numbers in LTR */
+[dir="rtl"] input[type="text"],
+[dir="rtl"] input[type="number"],
+[dir="rtl"] input[type="datetime-local"],
+[dir="rtl"] select {
+  text-align: right;
+}
+
+[dir="rtl"] input[type="text"].font-mono {
+  text-align: left;
+  direction: ltr;
+}
+
+/* Flip the status dot ping position */
+[dir="rtl"] .status-dot-ping::before {
+  inset: 0;
+}
+
+/* Ensure icons in flex containers don't flip */
+[dir="rtl"] svg {
+  /* SVG icons should not be mirrored */
+}
+
+/* Scrollbar on left side for RTL */
+[dir="rtl"] ::-webkit-scrollbar {
+  direction: rtl;
+}
