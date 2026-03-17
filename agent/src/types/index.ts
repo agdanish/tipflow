@@ -186,6 +186,47 @@ export interface FeeComparison {
   rank: number;
 }
 
+/** Activity event types for live tip feed */
+export type ActivityEventType =
+  | 'tip_sent'
+  | 'tip_failed'
+  | 'tip_scheduled'
+  | 'chain_selected'
+  | 'fee_optimized'
+  | 'nlp_parsed'
+  | 'contact_saved'
+  | 'batch_started'
+  | 'system';
+
+/** Activity event for real-time activity feed */
+export interface ActivityEvent {
+  id: string;
+  type: ActivityEventType;
+  message: string;
+  detail?: string;
+  timestamp: string;
+  chainId?: ChainId;
+}
+
+/** Leaderboard entry — top tip recipients */
+export interface LeaderboardEntry {
+  address: string;
+  totalTips: number;
+  totalVolume: string;
+  rank: number;
+}
+
+/** Achievement — gamification badge with progress tracking */
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  unlockedAt?: string;
+  progress: number;
+  target: number;
+}
+
 /** Agent stats for dashboard */
 export interface AgentStats {
   totalTips: number;

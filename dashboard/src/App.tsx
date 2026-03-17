@@ -6,6 +6,10 @@ import { BatchTipForm } from './components/BatchTipForm';
 import { AgentPanel } from './components/AgentPanel';
 import { TipHistory } from './components/TipHistory';
 import { StatsPanel } from './components/StatsPanel';
+import { GasMonitor } from './components/GasMonitor';
+import { Leaderboard } from './components/Leaderboard';
+import { Achievements } from './components/Achievements';
+import { ActivityFeed } from './components/ActivityFeed';
 import { ToastContainer, useToasts } from './components/Toast';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { OnboardingOverlay, isOnboardingComplete, resetOnboarding } from './components/OnboardingOverlay';
@@ -13,7 +17,7 @@ import { useHealth, useBalances, useAgentState, useHistory, useStats } from './h
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { api } from './lib/api';
 import { playSuccess, playError, isSoundEnabled, setSoundEnabled } from './lib/sounds';
-import type { TipResult, ScheduledTip } from './types';
+import type { TipResult, ScheduledTip, LeaderboardEntry, Achievement } from './types';
 import { Wallet, Send, Users, CalendarClock, X, Clock, CheckCircle2, XCircle } from 'lucide-react';
 
 function App() {
@@ -25,6 +29,10 @@ function App() {
   const { toasts, addToast, dismissToast } = useToasts();
   const [tipMode, setTipMode] = useState<'single' | 'batch'>('single');
   const [scheduledTips, setScheduledTips] = useState<ScheduledTip[]>([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [achievementsLoading, setAchievementsLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(() => !isOnboardingComplete());
   const [soundOn, setSoundOn] = useState(isSoundEnabled);
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -94,6 +102,34 @@ function App() {
     return () => clearInterval(id);
   }, [refreshScheduledTips]);
 
+  const refreshLeaderboard = useCallback(async () => {
+    try {
+      const { leaderboard: lb } = await api.getLeaderboard();
+      setLeaderboard(lb);
+    } catch {
+      // keep existing
+    } finally {
+      setLeaderboardLoading(false);
+    }
+  }, []);
+
+  const refreshAchievements = useCallback(async () => {
+    try {
+      const { achievements: ach } = await api.getAchievements();
+      setAchievements(ach);
+    } catch {
+      // keep existing
+    } finally {
+      setAchievementsLoading(false);
+    }
+  }, []);
+
+  // Fetch leaderboard and achievements on mount
+  useEffect(() => {
+    refreshLeaderboard();
+    refreshAchievements();
+  }, [refreshLeaderboard, refreshAchievements]);
+
   const handleTipScheduled = () => {
     addToast('success', 'Tip Scheduled', 'The agent will execute this tip at the scheduled time.');
     refreshScheduledTips();
@@ -128,6 +164,8 @@ function App() {
     refreshBalances();
     refreshHistory();
     refreshStats();
+    refreshLeaderboard();
+    refreshAchievements();
   };
 
   const handleBatchComplete = (results: TipResult[]) => {
@@ -149,6 +187,8 @@ function App() {
     refreshBalances();
     refreshHistory();
     refreshStats();
+    refreshLeaderboard();
+    refreshAchievements();
   };
 
   const isAgentBusy = agentState.status !== 'idle';
@@ -177,6 +217,11 @@ function App() {
               ))}
             </div>
           )}
+        </section>
+
+        {/* Gas Price Monitor */}
+        <section className="mb-4 sm:mb-6">
+          <GasMonitor />
         </section>
 
         {/* Main grid: Tip Form + Agent | History + Stats */}
@@ -285,6 +330,8 @@ function App() {
             )}
             <TipHistory history={history} loading={historyLoading} />
             <StatsPanel stats={stats} />
+            <Leaderboard entries={leaderboard} loading={leaderboardLoading} />
+            <Achievements achievements={achievements} loading={achievementsLoading} />
           </div>
         </div>
 

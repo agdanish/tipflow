@@ -12,6 +12,10 @@ import type {
   NLPTipParse,
   ScheduledTip,
   Contact,
+  GasPricesResponse,
+  ActivityEvent,
+  LeaderboardEntry,
+  Achievement,
 } from '../types';
 
 const BASE = '/api';
@@ -121,6 +125,21 @@ export const api = {
     fetchJson<{ deleted: boolean; id: string }>(`/contacts/${id}`, {
       method: 'DELETE',
     }),
+
+  // Gas Prices
+  getGasPrices: () =>
+    fetchJson<GasPricesResponse>('/gas'),
+
+  // Leaderboard & Achievements
+  getLeaderboard: () =>
+    fetchJson<{ leaderboard: LeaderboardEntry[] }>('/leaderboard'),
+
+  getAchievements: () =>
+    fetchJson<{ achievements: Achievement[] }>('/achievements'),
+
+  // Activity Feed
+  getActivity: () =>
+    fetchJson<{ activity: ActivityEvent[] }>('/activity'),
 
   // Export
   exportHistory: (format: 'csv' = 'csv') =>

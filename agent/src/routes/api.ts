@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import { JsonRpcProvider, formatUnits } from 'ethers';
 import type { TipFlowAgent } from '../core/agent.js';
 import type { WalletService } from '../services/wallet.service.js';
 import type { AIService } from '../services/ai.service.js';
 import { ContactsService } from '../services/contacts.service.js';
-import type { ChainId, TipRequest, TokenType, BatchTipRequest } from '../types/index.js';
+import type { ActivityEvent, ChainId, TipRequest, TokenType, BatchTipRequest } from '../types/index.js';
 import { logger } from '../utils/logger.js';
 
 /** Shared contacts service instance */
@@ -87,6 +88,9 @@ export function createApiRouter(
       const result = await agent.executeTip(tipRequest);
       if (result.status === 'confirmed') {
         contacts.incrementTipCount(recipient);
+        if (result.decision?.feeSavings) {
+          agent.markFeeOptimizerUsed();
+        }
       }
       res.json({ result });
     } catch (err) {
@@ -143,6 +147,8 @@ export function createApiRouter(
       }
 
       const parsed = await ai.parseNaturalLanguageTip(input);
+      agent.markNlpUsed();
+      agent.addActivity({ type: 'nlp_parsed', message: `NLP parsed: "${input.slice(0, 50)}"`, detail: `${parsed.amount} to ${parsed.recipient.slice(0, 10)}... (${Math.round(parsed.confidence * 100)}% confidence)` });
       res.json({ parsed, source: ai.isAvailable() ? 'llm' : 'regex' });
     } catch (err) {
       logger.error('Tip parsing failed', { error: String(err) });
@@ -198,6 +204,29 @@ export function createApiRouter(
 
     const unsubscribe = agent.onStateChange((state) => {
       res.write(`data: ${JSON.stringify({ type: 'state', state })}\n\n`);
+    });
+
+    _req.on('close', () => {
+      unsubscribe();
+    });
+  });
+
+  /** GET /api/activity — Get recent activity log */
+  router.get('/activity', (_req, res) => {
+    res.json({ activity: agent.getActivityLog() });
+  });
+
+  /** GET /api/activity/stream — SSE stream for real-time activity events */
+  router.get('/activity/stream', (_req, res) => {
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      Connection: 'keep-alive',
+    });
+    res.write('data: {"type":"connected"}\n\n');
+
+    const unsubscribe = agent.onActivity((event: ActivityEvent) => {
+      res.write(`data: ${JSON.stringify({ type: 'activity', event })}\n\n`);
     });
 
     _req.on('close', () => {
@@ -313,6 +342,7 @@ export function createApiRouter(
         scheduledAt,
       );
 
+      agent.markScheduleUsed();
       logger.info('Tip scheduled via API', { id: tip.id, scheduledAt });
       res.json({ tip });
     } catch (err) {
@@ -360,6 +390,7 @@ export function createApiRouter(
       }
 
       const contact = contacts.addContact(name, address, chain);
+      agent.addActivity({ type: 'contact_saved', message: `Contact saved: ${name}`, detail: address.slice(0, 10) + '...' });
       res.json({ contact });
     } catch (err) {
       logger.error('Failed to add contact', { error: String(err) });
@@ -416,6 +447,81 @@ export function createApiRouter(
   router.get('/chains', (_req, res) => {
     const chains = wallet.getRegisteredChains().map((id) => wallet.getChainConfig(id));
     res.json({ chains });
+  });
+
+  /** GET /api/gas — Real-time gas prices across all chains */
+  router.get('/gas', async (_req, res) => {
+    try {
+      const chainIds = wallet.getRegisteredChains();
+      const chains = await Promise.all(
+        chainIds.map(async (chainId) => {
+          const config = wallet.getChainConfig(chainId);
+
+          // EVM chains: fetch live gas price from the RPC provider
+          if (config.blockchain === 'ethereum') {
+            try {
+              const rpcUrl = config.rpcUrl
+                ?? process.env.ETH_SEPOLIA_RPC
+                ?? 'https://ethereum-sepolia-rpc.publicnode.com';
+              const provider = new JsonRpcProvider(rpcUrl);
+              const feeData = await provider.getFeeData();
+              const gasPriceWei = feeData.gasPrice ?? 0n;
+              const gasPriceGwei = parseFloat(formatUnits(gasPriceWei, 'gwei'));
+
+              let status: 'low' | 'medium' | 'high' = 'medium';
+              if (gasPriceGwei < 10) status = 'low';
+              else if (gasPriceGwei >= 30) status = 'high';
+
+              return {
+                chainId,
+                chainName: config.name,
+                gasPrice: gasPriceWei.toString(),
+                gasPriceGwei: gasPriceGwei.toFixed(2),
+                status,
+                lastUpdated: new Date().toISOString(),
+              };
+            } catch (err) {
+              logger.warn('Failed to fetch EVM gas price', { chainId, error: String(err) });
+              return {
+                chainId,
+                chainName: config.name,
+                gasPrice: '0',
+                gasPriceGwei: '0.00',
+                status: 'medium' as const,
+                lastUpdated: new Date().toISOString(),
+              };
+            }
+          }
+
+          // TON: static estimate (TON has fixed/low gas costs)
+          return {
+            chainId,
+            chainName: config.name,
+            gasPrice: '10000000', // ~0.01 TON in nanoton
+            gasPriceGwei: '0.01',
+            status: 'low' as const,
+            lastUpdated: new Date().toISOString(),
+          };
+        }),
+      );
+
+      res.json({ chains });
+    } catch (err) {
+      logger.error('Gas price fetch failed', { error: String(err) });
+      res.status(500).json({ error: 'Failed to fetch gas prices' });
+    }
+  });
+
+  // ── Leaderboard & Achievements ──────────────────────────────────
+
+  /** GET /api/leaderboard — Top tip recipients */
+  router.get('/leaderboard', (_req, res) => {
+    res.json({ leaderboard: agent.getLeaderboard() });
+  });
+
+  /** GET /api/achievements — Achievement progress */
+  router.get('/achievements', (_req, res) => {
+    res.json({ achievements: agent.getAchievements() });
   });
 
   return router;

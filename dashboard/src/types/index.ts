@@ -137,6 +137,25 @@ export interface Contact {
   lastTipped?: string;
 }
 
+/** Leaderboard entry — top tip recipients */
+export interface LeaderboardEntry {
+  address: string;
+  totalTips: number;
+  totalVolume: string;
+  rank: number;
+}
+
+/** Achievement — gamification badge with progress tracking */
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  unlockedAt?: string;
+  progress: number;
+  target: number;
+}
+
 export interface HealthResponse {
   status: string;
   agent: string;
@@ -152,6 +171,43 @@ export interface ChainConfig {
   isTestnet: boolean;
   nativeCurrency: string;
   explorerUrl: string;
+}
+
+/** Real-time gas price data for a single chain */
+export interface GasPriceInfo {
+  chainId: ChainId;
+  chainName: string;
+  gasPrice: string;
+  gasPriceGwei: string;
+  status: 'low' | 'medium' | 'high';
+  lastUpdated: string;
+}
+
+/** Gas prices response from the API */
+export interface GasPricesResponse {
+  chains: GasPriceInfo[];
+}
+
+/** Activity event types for live tip feed */
+export type ActivityEventType =
+  | 'tip_sent'
+  | 'tip_failed'
+  | 'tip_scheduled'
+  | 'chain_selected'
+  | 'fee_optimized'
+  | 'nlp_parsed'
+  | 'contact_saved'
+  | 'batch_started'
+  | 'system';
+
+/** Activity event for real-time activity feed */
+export interface ActivityEvent {
+  id: string;
+  type: ActivityEventType;
+  message: string;
+  detail?: string;
+  timestamp: string;
+  chainId?: ChainId;
 }
 
 export interface BatchTipResult {

@@ -3,6 +3,8 @@ import { WalletService } from '../services/wallet.service.js';
 import { AIService } from '../services/ai.service.js';
 import { logger } from '../utils/logger.js';
 import type {
+  Achievement,
+  ActivityEvent,
   AgentDecision,
   AgentState,
   AgentStats,
@@ -10,6 +12,7 @@ import type {
   BatchTipResult,
   ChainAnalysis,
   ChainId,
+  LeaderboardEntry,
   ReasoningStep,
   ScheduledTip,
   TipHistoryEntry,
@@ -37,11 +40,22 @@ export class TipFlowAgent {
   private listeners: Array<(state: AgentState) => void> = [];
   private scheduledTips: Map<string, ScheduledTip> = new Map();
   private schedulerInterval: ReturnType<typeof setInterval> | null = null;
+  private activityLog: ActivityEvent[] = [];
+  private activityListeners: Array<(event: ActivityEvent) => void> = [];
+  private static readonly MAX_ACTIVITY = 100;
+
+  // Achievement tracking state (in-memory)
+  private achievementFlags = {
+    usedNlp: false,
+    usedSchedule: false,
+    usedFeeOptimizer: false,
+  };
 
   constructor(wallet: WalletService, ai: AIService) {
     this.wallet = wallet;
     this.ai = ai;
     this.startScheduler();
+    this.addActivity({ type: 'system', message: 'TipFlow agent initialized', detail: `Chains: ${wallet.getRegisteredChains().join(', ')}` });
   }
 
   /** Start the background scheduler that checks for due tips every 10 seconds */
@@ -71,6 +85,7 @@ export class TipFlowAgent {
       if (new Date(tip.scheduledAt).getTime() > now) continue;
 
       logger.info('Executing scheduled tip', { id: tip.id, recipient: tip.recipient });
+      this.addActivity({ type: 'tip_scheduled', message: `Scheduled tip firing now`, detail: `${tip.amount} to ${tip.recipient.slice(0, 10)}...` });
       const request: TipRequest = {
         id: uuidv4(),
         recipient: tip.recipient,
@@ -113,6 +128,7 @@ export class TipFlowAgent {
     };
     this.scheduledTips.set(id, tip);
     logger.info('Tip scheduled', { id, recipient: tip.recipient, scheduledAt });
+    this.addActivity({ type: 'tip_scheduled', message: `Tip scheduled for ${new Date(scheduledAt).toLocaleString()}`, detail: `${request.amount} to ${request.recipient.slice(0, 10)}...` });
     return tip;
   }
 
@@ -133,6 +149,35 @@ export class TipFlowAgent {
   /** Get current agent state */
   getState(): AgentState {
     return { ...this.state };
+  }
+
+  /** Add an activity event to the log and notify listeners */
+  addActivity(event: Omit<ActivityEvent, 'id' | 'timestamp'>): void {
+    const full: ActivityEvent = {
+      ...event,
+      id: uuidv4(),
+      timestamp: new Date().toISOString(),
+    };
+    this.activityLog.push(full);
+    if (this.activityLog.length > TipFlowAgent.MAX_ACTIVITY) {
+      this.activityLog = this.activityLog.slice(-TipFlowAgent.MAX_ACTIVITY);
+    }
+    for (const listener of this.activityListeners) {
+      listener(full);
+    }
+  }
+
+  /** Get recent activity log */
+  getActivityLog(): ActivityEvent[] {
+    return [...this.activityLog];
+  }
+
+  /** Subscribe to new activity events */
+  onActivity(listener: (event: ActivityEvent) => void): () => void {
+    this.activityListeners.push(listener);
+    return () => {
+      this.activityListeners = this.activityListeners.filter((l) => l !== listener);
+    };
   }
 
   /** Subscribe to state changes */
@@ -177,12 +222,15 @@ export class TipFlowAgent {
       this.setState({ status: 'analyzing', currentTip: request });
       const tokenLabel = token === 'usdt' ? 'USDT' : 'native';
       addStep('INTAKE', `Received tip request: ${request.amount} ${tokenLabel} to ${request.recipient}`);
+      this.addActivity({ type: 'system', message: `Processing tip: ${request.amount} ${tokenLabel} to ${request.recipient.slice(0, 10)}...` });
       this.validateTipRequest(request);
 
       // Step 2: ANALYZE
       addStep('ANALYZE', 'Querying balances and fees across all chains...');
       const analyses = await this.analyzeChains(request);
       addStep('ANALYZE', `Analyzed ${analyses.length} chains: ${analyses.map((a) => `${a.chainName}(score:${a.score})`).join(', ')}`);
+
+      this.addActivity({ type: 'chain_selected', message: `Analyzed ${analyses.length} chains`, detail: analyses.map((a) => `${a.chainName}(score:${a.score})`).join(', ') });
 
       // Fee comparison across all chains
       addStep('ANALYZE', 'Comparing fees across all chains for cost optimization...');
@@ -191,8 +239,10 @@ export class TipFlowAgent {
       const mostExpensive = feeComparison[feeComparison.length - 1];
       if (cheapest && mostExpensive && feeComparison.length > 1) {
         addStep('FEE_OPTIMIZE', `Cheapest: ${cheapest.chainName} (${cheapest.estimatedFeeUsd}) | Most expensive: ${mostExpensive.chainName} (${mostExpensive.estimatedFeeUsd}) | Potential savings: ${cheapest.savingsVsHighest}`);
+        this.addActivity({ type: 'fee_optimized', message: `Fee optimized: ${cheapest.chainName} saves ${cheapest.savingsVsHighest}`, detail: `${cheapest.estimatedFeeUsd} vs ${mostExpensive.estimatedFeeUsd}`, chainId: cheapest.chainId });
       } else if (cheapest) {
         addStep('FEE_OPTIMIZE', `Fee estimate: ${cheapest.chainName} at ${cheapest.estimatedFeeUsd}`);
+        this.addActivity({ type: 'fee_optimized', message: `Fee estimate: ${cheapest.chainName} at ${cheapest.estimatedFeeUsd}`, chainId: cheapest.chainId });
       }
 
       // Step 3: REASON
@@ -208,6 +258,7 @@ export class TipFlowAgent {
       } else {
         addStep('REASON', `Selected ${decision.selectedChain} with ${decision.confidence}% confidence`);
       }
+      this.addActivity({ type: 'chain_selected', message: `Selected ${decision.selectedChain} (${decision.confidence}% confidence)`, chainId: decision.selectedChain });
       this.setState({ currentDecision: decision });
 
       // Step 4: EXECUTE
@@ -253,6 +304,12 @@ export class TipFlowAgent {
         gasUsed: confirmation.confirmed ? confirmation.gasUsed : undefined,
       };
 
+      this.addActivity({
+        type: 'tip_sent',
+        message: `Tip ${confirmation.confirmed ? 'confirmed' : 'sent'}: ${request.amount} ${tokenLabel} to ${request.recipient.slice(0, 10)}...`,
+        detail: `tx: ${txResult.hash.slice(0, 14)}... | block #${confirmation.blockNumber ?? 'pending'}`,
+        chainId: decision.selectedChain,
+      });
       this.recordHistory(result, decision.reasoning);
       if (decision.feeSavings) {
         addStep('REPORT', `Fee savings: you saved ${decision.feeSavings} by using ${decision.selectedChain}`);
@@ -266,6 +323,7 @@ export class TipFlowAgent {
       const rawError = err instanceof Error ? err.message : String(err);
       const errorMsg = this.friendlyError(rawError);
       logger.error('Tip execution failed', { tipId, error: rawError });
+      this.addActivity({ type: 'tip_failed', message: `Tip failed: ${errorMsg}`, detail: request.recipient.slice(0, 10) + '...' });
 
       const result: TipResult = {
         id: uuidv4(),
@@ -307,6 +365,7 @@ export class TipFlowAgent {
     const now = new Date().toISOString();
 
     logger.info('Starting batch tip', { batchId, count: batch.recipients.length });
+    this.addActivity({ type: 'batch_started', message: `Batch tip started: ${batch.recipients.length} recipients` });
 
     for (const recipient of batch.recipients) {
       const request: TipRequest = {
@@ -630,6 +689,135 @@ export class TipFlowAgent {
       totalFeeSaved: feeSaved.toFixed(6),
       successRate,
     };
+  }
+
+  /** Mark that NLP was used to parse a tip */
+  markNlpUsed(): void {
+    this.achievementFlags.usedNlp = true;
+  }
+
+  /** Mark that a scheduled tip was created */
+  markScheduleUsed(): void {
+    this.achievementFlags.usedSchedule = true;
+  }
+
+  /** Mark that the fee optimizer saved money */
+  markFeeOptimizerUsed(): void {
+    this.achievementFlags.usedFeeOptimizer = true;
+  }
+
+  /** Get leaderboard — top recipients sorted by tip count */
+  getLeaderboard(): LeaderboardEntry[] {
+    const confirmed = this.history.filter((h) => h.status === 'confirmed');
+    const recipientMap = new Map<string, { count: number; volume: number }>();
+
+    for (const h of confirmed) {
+      const existing = recipientMap.get(h.recipient) ?? { count: 0, volume: 0 };
+      existing.count++;
+      existing.volume += parseFloat(h.amount);
+      recipientMap.set(h.recipient, existing);
+    }
+
+    const entries = Array.from(recipientMap.entries())
+      .map(([address, data]) => ({
+        address,
+        totalTips: data.count,
+        totalVolume: data.volume.toFixed(6),
+        rank: 0,
+      }))
+      .sort((a, b) => b.totalTips - a.totalTips)
+      .slice(0, 10);
+
+    entries.forEach((entry, i) => {
+      entry.rank = i + 1;
+    });
+
+    return entries;
+  }
+
+  /** Get achievements with progress tracking */
+  getAchievements(): Achievement[] {
+    const confirmed = this.history.filter((h) => h.status === 'confirmed');
+    const totalTips = confirmed.length;
+    const chainsUsed = new Set(confirmed.map((h) => h.chainId));
+
+    let hasBatch = false;
+    for (let i = 1; i < confirmed.length; i++) {
+      const prev = new Date(confirmed[i - 1].createdAt).getTime();
+      const curr = new Date(confirmed[i].createdAt).getTime();
+      if (Math.abs(curr - prev) < 2000) {
+        hasBatch = true;
+        break;
+      }
+    }
+
+    const feeOptUsed = this.achievementFlags.usedFeeOptimizer || chainsUsed.size > 1;
+
+    return [
+      {
+        id: 'first-tip',
+        name: 'First Tip',
+        description: 'Send your first tip',
+        icon: '\u{1F3AF}',
+        progress: Math.min(totalTips, 1),
+        target: 1,
+        unlockedAt: totalTips >= 1 ? confirmed[0].createdAt : undefined,
+      },
+      {
+        id: 'big-tipper',
+        name: 'Big Tipper',
+        description: 'Send 10 tips',
+        icon: '\u{1F48E}',
+        progress: Math.min(totalTips, 10),
+        target: 10,
+        unlockedAt: totalTips >= 10 ? confirmed[9].createdAt : undefined,
+      },
+      {
+        id: 'multi-chain-master',
+        name: 'Multi-Chain Master',
+        description: 'Use 2+ different chains',
+        icon: '\u{1F310}',
+        progress: Math.min(chainsUsed.size, 2),
+        target: 2,
+        unlockedAt: chainsUsed.size >= 2 ? confirmed[confirmed.length - 1].createdAt : undefined,
+      },
+      {
+        id: 'batch-boss',
+        name: 'Batch Boss',
+        description: 'Send a batch tip',
+        icon: '\u{1F465}',
+        progress: hasBatch ? 1 : 0,
+        target: 1,
+        unlockedAt: hasBatch ? confirmed[confirmed.length - 1].createdAt : undefined,
+      },
+      {
+        id: 'smart-sender',
+        name: 'Smart Sender',
+        description: 'Use NLP to send a tip',
+        icon: '\u{1F9E0}',
+        progress: this.achievementFlags.usedNlp ? 1 : 0,
+        target: 1,
+        unlockedAt: this.achievementFlags.usedNlp ? new Date().toISOString() : undefined,
+      },
+      {
+        id: 'time-traveler',
+        name: 'Time Traveler',
+        description: 'Schedule a future tip',
+        icon: '\u{23F0}',
+        progress: this.achievementFlags.usedSchedule ? 1 : 0,
+        target: 1,
+        unlockedAt: this.achievementFlags.usedSchedule ? new Date().toISOString() : undefined,
+      },
+      {
+        id: 'fee-optimizer',
+        name: 'Fee Optimizer',
+        description: 'Save on fees by AI chain selection',
+        icon: '\u{1F4B0}',
+        progress: feeOptUsed ? 1 : 0,
+        target: 1,
+        unlockedAt: feeOptUsed ? new Date().toISOString() : undefined,
+      },
+    ];
   }
 
   /** Convert raw error messages to user-friendly text */
