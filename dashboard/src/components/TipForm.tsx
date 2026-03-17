@@ -5,7 +5,7 @@ import { VoiceButton } from './VoiceButton';
 import { GaslessToggle } from './GaslessToggle';
 import { SpeedSelector } from './SpeedSelector';
 import type { SpeedLevel } from './SpeedSelector';
-import type { ChainId, TokenType, TipResult, Contact, TipTemplate } from '../types';
+import type { ChainId, TokenType, TipResult, Contact, TipTemplate, TipLink } from '../types';
 
 interface TipFormProps {
   onTipComplete: (result: TipResult) => void;
@@ -13,9 +13,11 @@ interface TipFormProps {
   disabled: boolean;
   prefillTemplate?: TipTemplate | null;
   onTemplatePrefilled?: () => void;
+  prefillTipLink?: TipLink | null;
+  onTipLinkPrefilled?: () => void;
 }
 
-export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTemplate, onTemplatePrefilled }: TipFormProps) {
+export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTemplate, onTemplatePrefilled, prefillTipLink, onTipLinkPrefilled }: TipFormProps) {
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
   const [token, setToken] = useState<TokenType>('native');
@@ -47,6 +49,18 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
       onTemplatePrefilled?.();
     }
   }, [prefillTemplate, onTemplatePrefilled]);
+
+  // Prefill from tip link
+  useEffect(() => {
+    if (prefillTipLink) {
+      setRecipient(prefillTipLink.recipient);
+      setAmount(prefillTipLink.amount);
+      setToken(prefillTipLink.token);
+      setChain((prefillTipLink.chainId as ChainId) || '');
+      if (prefillTipLink.message) setMessage(prefillTipLink.message);
+      onTipLinkPrefilled?.();
+    }
+  }, [prefillTipLink, onTipLinkPrefilled]);
 
   // Contacts / address book state
   const [contacts, setContacts] = useState<Contact[]>([]);

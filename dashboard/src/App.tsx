@@ -37,11 +37,13 @@ import { ExportPanel } from './components/ExportPanel';
 import { Footer } from './components/Footer';
 import { SystemInfo } from './components/SystemInfo';
 import { TechStack } from './components/TechStack';
+import { TipLinkCreator } from './components/TipLinkCreator';
+import { ShareCard } from './components/ShareCard';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { api } from './lib/api';
 import { playSuccess, playError, playNotification, isSoundEnabled, setSoundEnabled } from './lib/sounds';
-import type { TipResult, ScheduledTip, LeaderboardEntry, Achievement, TipTemplate, SplitTipResult } from './types';
+import type { TipResult, ScheduledTip, LeaderboardEntry, Achievement, TipTemplate, SplitTipResult, TipLink } from './types';
 import { Wallet, Send, Users, Scissors, CalendarClock, X, Clock, CheckCircle2, XCircle, Repeat } from 'lucide-react';
 
 function App() {
@@ -59,6 +61,8 @@ function App() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [achievementsLoading, setAchievementsLoading] = useState(true);
   const [pendingTemplate, setPendingTemplate] = useState<TipTemplate | null>(null);
+  const [tipLinkPrefill, setTipLinkPrefill] = useState<TipLink | null>(null);
+  const [shareResult, setShareResult] = useState<TipResult | null>(null);
   const [showOnboarding, setShowOnboarding] = useState(() => !isOnboardingComplete());
   const [soundOn, setSoundOn] = useState(isSoundEnabled);
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -111,6 +115,24 @@ function App() {
       Notification.requestPermission();
     }
   }, []);
+
+  // Check URL for ?tiplink= param on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tipLinkId = params.get('tiplink');
+    if (tipLinkId) {
+      api.getTipLink(tipLinkId).then(({ tipLink }) => {
+        setTipLinkPrefill(tipLink);
+        setTipMode('single');
+        // Clean URL without reload
+        const url = new URL(window.location.href);
+        url.searchParams.delete('tiplink');
+        window.history.replaceState({}, '', url.pathname + url.search);
+      }).catch(() => {
+        addToast('error', 'Tip Link Not Found', 'The tip link may have expired or been deleted.');
+      });
+    }
+  }, [addToast]);
 
   // SSE activity stream -> push to notification center
   useEffect(() => {
@@ -220,6 +242,9 @@ function App() {
       addToast('success', 'Tip Sent!', msg);
       pushNotification('tip_sent', msg, `TX: ${result.txHash.slice(0, 16)}...`);
       playSuccess();
+      setShareResult(result);
+      // Clear tiplink prefill after successful tip
+      if (tipLinkPrefill) setTipLinkPrefill(null);
       // Browser notification
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification('TipFlow — Tip Sent!', {
@@ -383,6 +408,28 @@ function App() {
               </button>
             </div>
 
+            {/* Tip Link banner */}
+            {tipLinkPrefill && (
+              <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-cyan-400">Tip Link Loaded</p>
+                  <button
+                    onClick={() => setTipLinkPrefill(null)}
+                    className="p-1 rounded-md text-text-muted hover:text-text-primary transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <p className="text-xs text-text-secondary">
+                  You&apos;re about to tip <span className="font-semibold text-text-primary">{tipLinkPrefill.amount} {tipLinkPrefill.token === 'usdt' ? 'USDT' : 'Native'}</span> to{' '}
+                  <span className="font-mono text-[11px]">{tipLinkPrefill.recipient.slice(0, 10)}...{tipLinkPrefill.recipient.slice(-6)}</span>
+                </p>
+                {tipLinkPrefill.message && (
+                  <p className="text-[11px] text-text-muted italic">&ldquo;{tipLinkPrefill.message}&rdquo;</p>
+                )}
+              </div>
+            )}
+
             {tipMode === 'single' && (
               <TipForm
                 onTipComplete={handleTipComplete}
@@ -390,6 +437,8 @@ function App() {
                 disabled={isAgentBusy}
                 prefillTemplate={pendingTemplate}
                 onTemplatePrefilled={() => setPendingTemplate(null)}
+                prefillTipLink={tipLinkPrefill}
+                onTipLinkPrefilled={() => setTipLinkPrefill(null)}
               />
             )}
             {tipMode === 'batch' && (
@@ -399,6 +448,7 @@ function App() {
               <SplitTipForm onSplitComplete={handleSplitComplete} disabled={isAgentBusy} />
             )}
             <TipTemplates onUseTemplate={handleUseTemplate} />
+            <TipLinkCreator />
             <div data-onboarding="agent-panel">
               <AgentPanel state={agentState} />
             </div>
@@ -519,6 +569,9 @@ function App() {
 
       <ChatInterface />
       <InstallPrompt />
+      {shareResult && (
+        <ShareCard result={shareResult} onClose={() => setShareResult(null)} />
+      )}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       <KeyboardShortcutsModal open={showShortcuts} onClose={() => setShowShortcuts(false)} />
 
