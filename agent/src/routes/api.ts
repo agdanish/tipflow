@@ -52,6 +52,36 @@ export function createApiRouter(
     }
   });
 
+  /** GET /api/wallet/receive — Get wallet addresses formatted for receiving with QR code URLs */
+  router.get('/wallet/receive', async (_req, res) => {
+    try {
+      const addresses = await wallet.getAllAddresses();
+      const chains = wallet.getRegisteredChains();
+      const wallets = chains
+        .filter((chainId) => addresses[chainId])
+        .map((chainId) => {
+          const config = wallet.getChainConfig(chainId);
+          const address = addresses[chainId];
+          const isEth = chainId.startsWith('ethereum');
+          const explorerBase = isEth
+            ? 'https://sepolia.etherscan.io/address/'
+            : 'https://testnet.tonviewer.com/';
+          return {
+            chainId,
+            chainName: config.name,
+            address,
+            qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=256x256&data=${encodeURIComponent(address)}`,
+            explorerUrl: `${explorerBase}${address}`,
+            nativeCurrency: config.nativeCurrency,
+          };
+        });
+      res.json({ wallets });
+    } catch (err) {
+      logger.error('Failed to get receive info', { error: String(err) });
+      res.status(500).json({ error: 'Failed to fetch receive info' });
+    }
+  });
+
   /** GET /api/wallet/seed — Get the seed phrase (for demo/setup display only) */
   router.get('/wallet/seed', (_req, res) => {
     res.json({ seed: wallet.getSeedPhrase() });

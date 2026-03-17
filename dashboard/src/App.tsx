@@ -10,6 +10,9 @@ import { GasMonitor } from './components/GasMonitor';
 import { Leaderboard } from './components/Leaderboard';
 import { Achievements } from './components/Achievements';
 import { ActivityFeed } from './components/ActivityFeed';
+import { QRReceive } from './components/QRReceive';
+import { DecisionTree } from './components/DecisionTree';
+import { WalletCardSkeleton } from './components/Skeleton';
 import { ToastContainer, useToasts } from './components/Toast';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { OnboardingOverlay, isOnboardingComplete, resetOnboarding } from './components/OnboardingOverlay';
@@ -207,7 +210,7 @@ function App() {
           {balancesLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[1, 2].map((i) => (
-                <div key={i} className="skeleton h-44 rounded-xl" />
+                <WalletCardSkeleton key={i} />
               ))}
             </div>
           ) : (
@@ -262,6 +265,11 @@ function App() {
             <div data-onboarding="agent-panel">
               <AgentPanel state={agentState} />
             </div>
+            {agentState.currentDecision && (
+              <DecisionTree decision={agentState.currentDecision} agentStatus={agentState.status} />
+            )}
+            <ActivityFeed />
+            <QRReceive />
           </div>
 
           {/* Right column: Scheduled Tips + History + Stats */}

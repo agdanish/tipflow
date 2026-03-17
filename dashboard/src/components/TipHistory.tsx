@@ -3,6 +3,8 @@ import type { TipHistoryEntry } from '../types';
 import { shortenAddress, timeAgo, chainColor, formatNumber } from '../lib/utils';
 import { api } from '../lib/api';
 import { useState } from 'react';
+import { EmptyState } from './EmptyState';
+import { TipHistorySkeleton } from './Skeleton';
 
 interface TipHistoryProps {
   history: TipHistoryEntry[];
@@ -28,10 +30,24 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
   const handleShare = async (entry: TipHistoryEntry) => {
     const isEth = entry.chainId.startsWith('ethereum');
     const token = entry.token === 'usdt' ? 'USDT' : isEth ? 'ETH' : 'TON';
+    const chain = isEth ? 'Ethereum Sepolia' : 'TON Testnet';
     const explorerBase = isEth
       ? 'https://sepolia.etherscan.io/tx/'
       : 'https://testnet.tonviewer.com/transaction/';
-    const text = `\u26A1 Tipped ${entry.amount} ${token} via TipFlow \u2192 ${explorerBase}${entry.txHash}`;
+    const explorerUrl = `${explorerBase}${entry.txHash}`;
+    const lines = [
+      `--- TipFlow Transaction Receipt ---`,
+      `Amount: ${entry.amount} ${token}`,
+      `Chain: ${chain}`,
+      `Recipient: ${entry.recipient}`,
+      `TX Hash: ${entry.txHash}`,
+      `Fee: ${entry.fee}`,
+      `Status: ${entry.status === 'confirmed' ? 'Confirmed' : 'Failed'}`,
+      `Explorer: ${explorerUrl}`,
+      ``,
+      `Powered by TipFlow + Tether WDK`,
+    ];
+    const text = lines.join('\n');
     try {
       await navigator.clipboard.writeText(text);
       setCopiedId(entry.id);
@@ -48,11 +64,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
           <History className="w-4 h-4 text-accent" />
           Transaction History
         </h2>
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="animate-shimmer h-16 rounded-lg" />
-          ))}
-        </div>
+        <TipHistorySkeleton />
       </div>
     );
   }
@@ -81,13 +93,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
       </h2>
 
       {history.length === 0 ? (
-        <div className="text-center py-10">
-          <div className="w-10 h-10 rounded-full bg-surface-3 flex items-center justify-center mx-auto mb-3">
-            <History className="w-5 h-5 text-text-muted" />
-          </div>
-          <p className="text-sm text-text-muted">No tips sent yet</p>
-          <p className="text-xs text-text-muted mt-1">Transactions will appear here</p>
-        </div>
+        <EmptyState variant="no-tips" />
       ) : (
         <div className="space-y-2">
           {history.map((entry) => {

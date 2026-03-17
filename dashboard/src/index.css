@@ -354,3 +354,63 @@ html.light .onboarding-card {
   from { opacity: 1; transform: translateY(0) scale(1); }
   to { opacity: 0; transform: translateY(-8px) scale(0.98); }
 }
+
+/* --- MICRO-INTERACTIONS --- */
+
+/* Button press effect */
+.btn-press {
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.btn-press:active {
+  transform: scale(0.98);
+}
+
+/* Card lift on hover */
+.card-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+@media (hover: hover) {
+  .card-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+  html.light .card-lift:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  }
+}
+
+/* List item stagger fade-in */
+@keyframes list-item-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-list-item-in {
+  animation: list-item-in 0.3s ease-out both;
+}
+
+/* Smooth counter — use with CSS counter or JS-driven number */
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-count-up {
+  animation: count-up 0.4s ease-out both;
+}
+
+/* Decision tree node pulse (blue) */
+@keyframes decision-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+  50% { box-shadow: 0 0 12px 3px rgba(59, 130, 246, 0.2); }
+}
+.decision-node-pulse {
+  animation: decision-pulse 1.5s ease-in-out infinite;
+}
+
+/* Subtle scale-in for modals / popovers */
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out both;
+}

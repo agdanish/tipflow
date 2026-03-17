@@ -1,5 +1,6 @@
 import type {
   WalletBalance,
+  WalletReceiveInfo,
   TipResult,
   TipHistoryEntry,
   AgentState,
@@ -58,6 +59,9 @@ export const api = {
 
   getBalances: () =>
     fetchJson<{ balances: WalletBalance[] }>('/wallet/balances'),
+
+  getReceiveInfo: () =>
+    fetchJson<{ wallets: WalletReceiveInfo[] }>('/wallet/receive'),
 
   getSeed: () =>
     fetchJson<{ seed: string }>('/wallet/seed'),

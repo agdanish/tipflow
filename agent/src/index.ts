@@ -73,6 +73,17 @@ async function main(): Promise<void> {
   // Mount API routes
   app.use('/api', createApiRouter(agent, walletService, aiService));
 
+  // Serve dashboard static files in production (Docker build)
+  const dashboardDist = resolve(__dirname, '..', '..', 'dashboard', 'dist');
+  if (existsSync(dashboardDist)) {
+    logger.info(`Serving dashboard from ${dashboardDist}`);
+    app.use(express.static(dashboardDist));
+    // SPA catch-all: serve index.html for non-API routes
+    app.get('/{*splat}', (_req, res) => {
+      res.sendFile(resolve(dashboardDist, 'index.html'));
+    });
+  }
+
   // Start server
   app.listen(PORT, () => {
     logger.info(`TipFlow Agent running on http://localhost:${PORT}`);

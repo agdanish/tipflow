@@ -1,5 +1,6 @@
 import type { LeaderboardEntry } from '../types';
 import { Trophy } from 'lucide-react';
+import { EmptyState } from './EmptyState';
 
 interface LeaderboardProps {
   entries: LeaderboardEntry[];
@@ -48,11 +49,11 @@ export function Leaderboard({ entries, loading }: LeaderboardProps) {
           ))}
         </div>
       ) : entries.length === 0 ? (
-        <div className="text-center py-8">
-          <Trophy className="w-8 h-8 text-text-muted mx-auto mb-2 opacity-40" />
-          <p className="text-sm text-text-muted">No tips sent yet</p>
-          <p className="text-xs text-text-muted mt-1">Send your first tip to see the leaderboard</p>
-        </div>
+        <EmptyState
+          variant="no-data"
+          title="No leaderboard data"
+          description="Send your first tip to see the leaderboard."
+        />
       ) : (
         <div className="space-y-2">
           {entries.slice(0, 5).map((entry) => {

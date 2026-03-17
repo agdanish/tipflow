@@ -139,6 +139,14 @@ npm run dev
 
 Dashboard opens at **http://localhost:5173** | Agent API at **http://localhost:3001**
 
+### Docker (One-Command Startup)
+
+```bash
+docker-compose up
+```
+
+Open **http://localhost:3001** — the agent serves the dashboard and API together.
+
 ### Getting Testnet Funds
 
 1. Copy your wallet addresses from the TipFlow dashboard

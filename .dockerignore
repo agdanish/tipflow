@@ -1,0 +1,13 @@
+node_modules
+agent/node_modules
+dashboard/node_modules
+agent/dist
+dashboard/dist
+.git
+.seed
+.env
+agent/.env
+agent/.seed
+*.log
+.DS_Store
+research

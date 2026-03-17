@@ -1,0 +1,8 @@
+services:
+  tipflow:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - OLLAMA_URL=${OLLAMA_URL:-}

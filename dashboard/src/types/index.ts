@@ -220,3 +220,13 @@ export interface BatchTipResult {
   totalFees: string;
   createdAt: string;
 }
+
+/** Wallet receive info for QR code display */
+export interface WalletReceiveInfo {
+  chainId: ChainId;
+  chainName: string;
+  address: string;
+  qrCodeUrl: string;
+  explorerUrl: string;
+  nativeCurrency: string;
+}
