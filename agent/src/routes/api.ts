@@ -1434,16 +1434,41 @@ export function createApiRouter(
     }
   });
 
-  /** GET /api/prices — Approximate crypto prices for currency conversion */
-  router.get('/prices', (_req, res) => {
+  /** GET /api/prices — Crypto prices via CoinGecko free API with static fallback */
+  const priceCache = { prices: { ETH: 2500, TON: 2.50, USDT: 1.00 }, fetchedAt: '', isLive: false };
+  router.get('/prices', async (_req, res) => {
+    // Try CoinGecko free API (no API key needed, rate-limited)
+    const cacheAge = priceCache.fetchedAt ? Date.now() - new Date(priceCache.fetchedAt).getTime() : Infinity;
+    if (cacheAge > 60_000) { // Refresh every 60s max
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+        const resp = await fetch(
+          'https://api.coingecko.com/api/v3/simple/price?ids=ethereum,the-open-network,tether&vs_currencies=usd',
+          { signal: controller.signal }
+        );
+        clearTimeout(timeout);
+        if (resp.ok) {
+          const data = await resp.json() as Record<string, { usd: number }>;
+          priceCache.prices = {
+            ETH: data.ethereum?.usd ?? 2500,
+            TON: data['the-open-network']?.usd ?? 2.50,
+            USDT: data.tether?.usd ?? 1.00,
+          };
+          priceCache.fetchedAt = new Date().toISOString();
+          priceCache.isLive = true;
+        }
+      } catch {
+        // CoinGecko unavailable — use cached/static prices
+        if (!priceCache.fetchedAt) priceCache.fetchedAt = new Date().toISOString();
+        priceCache.isLive = false;
+      }
+    }
     res.json({
-      prices: {
-        ETH: 2500,
-        TON: 2.50,
-        USDT: 1.00,
-      },
-      lastUpdated: new Date().toISOString(),
-      note: 'Approximate prices for conversion estimates only. Not suitable for trading.',
+      prices: priceCache.prices,
+      lastUpdated: priceCache.fetchedAt || new Date().toISOString(),
+      isLive: priceCache.isLive,
+      source: priceCache.isLive ? 'CoinGecko API' : 'Static fallback (CoinGecko unavailable)',
     });
   });
 
@@ -1753,7 +1778,7 @@ export function createApiRouter(
         return;
       }
 
-      const validTypes: ConditionType[] = ['gas_below', 'balance_above', 'time_of_day', 'price_change'];
+      const validTypes: ConditionType[] = ['gas_below', 'balance_above', 'time_of_day'];
       if (!validTypes.includes(type)) {
         res.status(400).json({ error: `Invalid condition type. Must be one of: ${validTypes.join(', ')}` });
         return;

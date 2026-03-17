@@ -279,7 +279,7 @@ export interface Achievement {
 }
 
 /** Condition types for smart conditional tipping */
-export type ConditionType = 'gas_below' | 'balance_above' | 'time_of_day' | 'price_change';
+export type ConditionType = 'gas_below' | 'balance_above' | 'time_of_day';
 
 /** A conditional tip — executes automatically when conditions are met */
 export interface TipCondition {

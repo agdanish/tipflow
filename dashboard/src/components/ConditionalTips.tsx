@@ -3,18 +3,16 @@ import { Zap, Plus, X, Loader2, Trash2, Clock, CheckCircle2, XCircle, Activity }
 import { api } from '../lib/api';
 import type { TipCondition, ConditionType } from '../types';
 
-const CONDITION_LABELS: Record<ConditionType, string> = {
+const CONDITION_LABELS: Record<string, string> = {
   gas_below: 'Gas Below',
   balance_above: 'Balance Above',
   time_of_day: 'Time Window',
-  price_change: 'Price Change',
 };
 
-const CONDITION_DESCRIPTIONS: Record<ConditionType, string> = {
+const CONDITION_DESCRIPTIONS: Record<string, string> = {
   gas_below: 'Tip when gas price drops below threshold (gwei)',
   balance_above: 'Tip when wallet balance exceeds threshold',
   time_of_day: 'Tip when current time is within window',
-  price_change: 'Tip on price movement (auto-trigger)',
 };
 
 export function ConditionalTips() {

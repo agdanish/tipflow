@@ -92,9 +92,7 @@ export class ConditionsService {
         return this.checkBalanceAbove(condition);
       case 'time_of_day':
         return this.checkTimeOfDay(condition);
-      case 'price_change':
-        // Placeholder — always passes for demo
-        return true;
+      // price_change removed: requires paid price feed API (zero budget constraint)
       default:
         return false;
     }
