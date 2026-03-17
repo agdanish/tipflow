@@ -57,6 +57,7 @@ import { SpendingLimits } from './components/SpendingLimits';
 import { BatchImport } from './components/BatchImport';
 import { TipReport } from './components/TipReport';
 import { DemoBanner } from './components/DemoBanner';
+import { DemoScenarios } from './components/DemoScenarios';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useSwipe } from './hooks/useTouchGestures';

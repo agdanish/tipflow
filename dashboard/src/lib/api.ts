@@ -465,4 +465,13 @@ export const api = {
     fetchJson<{ success: boolean }>(`/goals/${id}`, {
       method: 'DELETE',
     }),
+
+  // Demo Mode
+  getDemoScenarios: () =>
+    fetchJson<{ scenarios: Array<{ id: string; name: string; description: string; feature: string; action: string }>; addresses: Record<string, string> }>('/demo/scenarios'),
+
+  demoSelfTip: () =>
+    fetchJson<{ result: TipResult; demoInfo: { selfAddress: string; amount: string; purpose: string } }>('/demo/self-tip', {
+      method: 'POST',
+    }),
 };

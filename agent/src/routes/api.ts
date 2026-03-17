@@ -2498,5 +2498,103 @@ export function createApiRouter(
     }
   });
 
+  // ── Demo Mode Endpoints ──────────────────────────────────────────────
+
+  /** GET /api/demo/scenarios — Returns available demo scenarios with descriptions */
+  router.get('/demo/scenarios', async (_req, res) => {
+    try {
+      const chains = wallet.getRegisteredChains();
+      const addresses: Record<string, string> = {};
+      for (const chain of chains) {
+        try {
+          addresses[chain] = await wallet.getAddress(chain);
+        } catch {
+          // skip chains that fail
+        }
+      }
+
+      const scenarios = [
+        {
+          id: 'quick-tip',
+          name: 'Quick Tip',
+          description: 'Send a 0.0001 ETH self-tip to demonstrate a real on-chain transaction',
+          feature: 'Single Tip + Agent Reasoning',
+          action: 'self-tip',
+        },
+        {
+          id: 'nlp-tip',
+          name: 'NLP Tip',
+          description: 'Pre-fills the NLP input with a natural language tip command',
+          feature: 'Natural Language Processing',
+          action: 'nlp-prefill',
+        },
+        {
+          id: 'batch-demo',
+          name: 'Batch Demo',
+          description: 'Pre-fills batch form with 2 small self-tips',
+          feature: 'Batch Tipping',
+          action: 'batch-prefill',
+        },
+        {
+          id: 'split-demo',
+          name: 'Split Demo',
+          description: 'Pre-fills split form with 2 recipients (own address)',
+          feature: 'Tip Splitting',
+          action: 'split-prefill',
+        },
+        {
+          id: 'check-balances',
+          name: 'Check Balances',
+          description: 'Shows all wallet balances across chains',
+          feature: 'Multi-Chain Wallets',
+          action: 'check-balances',
+        },
+        {
+          id: 'compare-fees',
+          name: 'Compare Fees',
+          description: 'Shows cross-chain fee comparison for a demo tip',
+          feature: 'Fee Optimization',
+          action: 'compare-fees',
+        },
+      ];
+
+      res.json({ scenarios, addresses });
+    } catch (err) {
+      logger.error('Failed to get demo scenarios', { error: String(err) });
+      res.status(500).json({ error: 'Failed to get demo scenarios' });
+    }
+  });
+
+  /** POST /api/demo/self-tip — Sends a tiny self-tip for demo purposes */
+  router.post('/demo/self-tip', transactionLimiter, async (_req, res) => {
+    try {
+      // Get the agent's own EVM address
+      const selfAddress = await wallet.getAddress('ethereum-sepolia' as ChainId);
+
+      if (!selfAddress) {
+        res.status(400).json({ error: 'No EVM wallet address available' });
+        return;
+      }
+
+      const tipRequest: TipRequest = {
+        id: uuidv4(),
+        recipient: selfAddress,
+        amount: '0.0001',
+        token: 'native' as TokenType,
+        preferredChain: 'ethereum-sepolia' as ChainId,
+        message: 'Demo self-tip — TipFlow showcase',
+        createdAt: new Date().toISOString(),
+      };
+
+      logger.info('Executing demo self-tip', { tipId: tipRequest.id, address: selfAddress });
+
+      const result = await agent.executeTip(tipRequest);
+      res.json({ result, demoInfo: { selfAddress, amount: '0.0001', purpose: 'Demo self-tip to showcase real transaction flow' } });
+    } catch (err) {
+      logger.error('Demo self-tip failed', { error: String(err) });
+      res.status(500).json({ error: String(err) });
+    }
+  });
+
   return router;
 }
