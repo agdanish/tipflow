@@ -402,3 +402,41 @@ export interface NetworkHealthStatus {
 export interface NetworkHealthResponse {
   chains: NetworkHealthStatus[];
 }
+
+/** Analytics daily volume entry */
+export interface AnalyticsDailyVolume {
+  date: string;
+  count: number;
+  volume: number;
+}
+
+/** Analytics cumulative data point */
+export interface AnalyticsCumulativePoint {
+  date: string;
+  totalTips: number;
+  totalVolume: number;
+}
+
+/** Analytics trends */
+export interface AnalyticsTrends {
+  tipsToday: number;
+  tipsYesterday: number;
+  tipsThisWeek: number;
+  tipsLastWeek: number;
+  avgTipSize: number;
+  largestTip: number;
+  busiestHour: number;
+  mostActiveChain: string;
+}
+
+/** Full analytics response from GET /api/agent/analytics */
+export interface AnalyticsData {
+  dailyVolume: AnalyticsDailyVolume[];
+  hourlyDistribution: number[];
+  tokenDistribution: { native: number; usdt: number };
+  chainDistribution: Record<string, number>;
+  trends: AnalyticsTrends;
+  cumulativeData: AnalyticsCumulativePoint[];
+  successRate: number;
+  totalTips: number;
+}

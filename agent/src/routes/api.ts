@@ -577,6 +577,144 @@ export function createApiRouter(
     res.json({ stats: agent.getStats() });
   });
 
+  /** GET /api/agent/analytics — Advanced analytics with aggregated data */
+  router.get('/agent/analytics', (_req, res) => {
+    try {
+      const allTips = agent.getHistory();
+      const confirmed = allTips.filter((h) => h.status === 'confirmed');
+
+      // Daily volume — last 7 days
+      const dailyMap = new Map<string, { count: number; volume: number }>();
+      for (const h of confirmed) {
+        const day = h.createdAt.split('T')[0];
+        const existing = dailyMap.get(day) ?? { count: 0, volume: 0 };
+        existing.count++;
+        existing.volume += parseFloat(h.amount);
+        dailyMap.set(day, existing);
+      }
+      const dailyVolume: Array<{ date: string; count: number; volume: number }> = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+        const entry = dailyMap.get(dateStr);
+        dailyVolume.push({
+          date: dateStr,
+          count: entry?.count ?? 0,
+          volume: entry?.volume ?? 0,
+        });
+      }
+
+      // Hourly distribution (0-23)
+      const hourlyDistribution = new Array<number>(24).fill(0);
+      for (const h of confirmed) {
+        const hour = new Date(h.createdAt).getHours();
+        hourlyDistribution[hour]++;
+      }
+
+      // Token distribution
+      let nativeCount = 0;
+      let usdtCount = 0;
+      for (const h of confirmed) {
+        if (h.token === 'usdt') usdtCount++;
+        else nativeCount++;
+      }
+
+      // Chain distribution
+      const chainDistribution: Record<string, number> = {};
+      for (const h of confirmed) {
+        chainDistribution[h.chainId] = (chainDistribution[h.chainId] ?? 0) + 1;
+      }
+
+      // Trends
+      const today = new Date().toISOString().split('T')[0];
+      const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0];
+      const twoWeeksAgo = new Date(Date.now() - 14 * 86400000).toISOString().split('T')[0];
+
+      const tipsToday = confirmed.filter((h) => h.createdAt.startsWith(today)).length;
+      const tipsYesterday = confirmed.filter((h) => h.createdAt.startsWith(yesterday)).length;
+      const tipsThisWeek = confirmed.filter((h) => h.createdAt >= weekAgo).length;
+      const tipsLastWeek = confirmed.filter((h) => h.createdAt >= twoWeeksAgo && h.createdAt < weekAgo).length;
+
+      const amounts = confirmed.map((h) => parseFloat(h.amount));
+      const avgTipSize = amounts.length > 0 ? amounts.reduce((a, b) => a + b, 0) / amounts.length : 0;
+      const largestTip = amounts.length > 0 ? Math.max(...amounts) : 0;
+
+      const busiestHour = hourlyDistribution.indexOf(Math.max(...hourlyDistribution));
+      const mostActiveChain = Object.entries(chainDistribution).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'none';
+
+      // Cumulative data
+      const sortedConfirmed = [...confirmed].sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      );
+      const cumulativeMap = new Map<string, { totalTips: number; totalVolume: number }>();
+      let runningTips = 0;
+      let runningVolume = 0;
+      for (const h of sortedConfirmed) {
+        const day = h.createdAt.split('T')[0];
+        runningTips++;
+        runningVolume += parseFloat(h.amount);
+        cumulativeMap.set(day, { totalTips: runningTips, totalVolume: runningVolume });
+      }
+      // Fill in gaps for last 7 days
+      const cumulativeData: Array<{ date: string; totalTips: number; totalVolume: number }> = [];
+      let prevTips = 0;
+      let prevVol = 0;
+      // Find first entry before the 7-day window
+      for (const [, val] of cumulativeMap) {
+        prevTips = val.totalTips;
+        prevVol = val.totalVolume;
+      }
+      // Reset and build properly
+      prevTips = 0;
+      prevVol = 0;
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+        const entry = cumulativeMap.get(dateStr);
+        if (entry) {
+          prevTips = entry.totalTips;
+          prevVol = entry.totalVolume;
+        }
+        cumulativeData.push({
+          date: dateStr,
+          totalTips: prevTips,
+          totalVolume: Math.round(prevVol * 1e6) / 1e6,
+        });
+      }
+
+      // Success rate
+      const successRate = allTips.length > 0
+        ? Math.round((confirmed.length / allTips.length) * 100)
+        : 100;
+
+      res.json({
+        dailyVolume,
+        hourlyDistribution,
+        tokenDistribution: { native: nativeCount, usdt: usdtCount },
+        chainDistribution,
+        trends: {
+          tipsToday,
+          tipsYesterday,
+          tipsThisWeek,
+          tipsLastWeek,
+          avgTipSize: Math.round(avgTipSize * 1e6) / 1e6,
+          largestTip: Math.round(largestTip * 1e6) / 1e6,
+          busiestHour,
+          mostActiveChain,
+        },
+        cumulativeData,
+        successRate,
+        totalTips: confirmed.length,
+      });
+    } catch (err) {
+      logger.error('Analytics endpoint failed', { error: String(err) });
+      res.status(500).json({ error: 'Failed to compute analytics' });
+    }
+  });
+
   /** GET /api/tx/:hash/status — Check on-chain confirmation status of a transaction */
   router.get('/tx/:hash/status', async (req, res) => {
     try {

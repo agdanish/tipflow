@@ -18,7 +18,7 @@ interface HeaderProps {
 
 export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, onShowShortcuts, notifications, onMarkRead, onMarkAllRead, onClearAll }: HeaderProps) {
   return (
-    <header className="border-b border-border header-gradient backdrop-blur-sm sticky top-0 z-50">
+    <header role="banner" aria-label="TipFlow main navigation" className="border-b border-border header-gradient backdrop-blur-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-accent/20 flex items-center justify-center glow-accent">
@@ -64,6 +64,7 @@ export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, o
             onClick={onShowShortcuts}
             className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-secondary hover:bg-surface-3 transition-all"
             title="Keyboard shortcuts (?)"
+            aria-label="Show keyboard shortcuts"
           >
             <Keyboard className="w-4 h-4" />
           </button>
@@ -71,6 +72,8 @@ export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, o
             onClick={onToggleSound}
             className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-secondary hover:bg-surface-3 transition-all"
             title={soundOn ? 'Mute sounds' : 'Enable sounds'}
+            aria-label={soundOn ? 'Mute sounds' : 'Enable sounds'}
+            aria-pressed={soundOn}
           >
             {soundOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           </button>
@@ -78,6 +81,7 @@ export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, o
             onClick={onToggleTheme}
             className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-secondary hover:bg-surface-3 transition-all"
             title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
@@ -86,6 +90,7 @@ export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, o
             target="_blank"
             rel="noopener noreferrer"
             className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-secondary hover:bg-surface-3 transition-all"
+            aria-label="View TipFlow on GitHub"
           >
             <Github className="w-4 h-4" />
           </a>

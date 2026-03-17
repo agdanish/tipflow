@@ -280,6 +280,8 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
             onKeyDown={handleNlpKeyDown}
             id="nlp-input"
             placeholder='e.g. "send 0.01 ETH to 0x..."'
+            aria-label="Natural language tip command"
+            aria-describedby="nlp-helper-text"
             className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/30 transition-colors"
             disabled={sending || disabled || nlpParsing}
           />
@@ -301,7 +303,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
             <span className="hidden sm:inline">Parse</span>
           </button>
         </div>
-        <p className="text-[10px] text-text-muted mt-1 hidden sm:block">
+        <p id="nlp-helper-text" className="text-[10px] text-text-muted mt-1 hidden sm:block">
           Try: "send 0.01 ETH to 0x..." &middot; "tip 5 USDT to 0x..." &middot; "transfer 0.1 TON to UQ..."
         </p>
       </div>
@@ -313,7 +315,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
         </div>
       </div>
 
-      <form id="tip-form" onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+      <form id="tip-form" onSubmit={handleSubmit} role="form" aria-label="Send tip form" className="space-y-3 sm:space-y-4">
         {/* Token selector */}
         <div>
           <label className="block text-xs text-text-secondary mb-1.5">Token</label>
@@ -367,6 +369,8 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
               onChange={(e) => setRecipient(e.target.value)}
               onFocus={() => { if (contacts.length > 0 && !recipient) setShowContacts(true); }}
               placeholder={token === 'usdt' ? '0x...' : '0x... or UQ...'}
+              aria-label="Recipient wallet address"
+              aria-required="true"
               className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border focus:ring-1 focus:ring-accent-border transition-colors font-mono"
               disabled={sending || disabled}
             />
@@ -455,6 +459,8 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder={token === 'usdt' ? '10.00' : '0.01'}
+            aria-label={`Tip amount${token === 'usdt' ? ' in USDT' : ''}`}
+            aria-required="true"
             className="w-full px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border focus:ring-1 focus:ring-accent-border transition-colors"
             disabled={sending || disabled}
           />
@@ -489,6 +495,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
           <select
             value={chain}
             onChange={(e) => setChain(e.target.value as ChainId | '')}
+            aria-label="Blockchain network preference"
             className="w-full px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary focus:outline-none focus:border-accent-border transition-colors"
             disabled={sending || disabled || token === 'usdt'}
           >
