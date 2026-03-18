@@ -499,6 +499,175 @@ export class RumbleService {
     return Array.from(this.collabSplits.values());
   }
 
+  // === Engagement Score Algorithm (CORE INNOVATION) ===
+  //
+  // This is TipFlow's key differentiator: instead of flat-rate tipping,
+  // the agent calculates a dynamic "engagement score" that determines
+  // how much to tip. Higher engagement = higher tip. This creates an
+  // economic feedback loop:
+  //   Better content → More engagement → Higher tips → Creator incentive
+  //
+  // The algorithm considers:
+  //   1. Watch completion (0-100%)  → weighted 40%
+  //   2. Rewatch count              → weighted 20%
+  //   3. Session frequency          → weighted 15%
+  //   4. Creator loyalty (history)  → weighted 15%
+  //   5. Content category premium   → weighted 10%
+
+  /**
+   * Calculate engagement score for a user-creator relationship.
+   * Returns a score from 0.0 to 1.0 that scales the tip amount.
+   */
+  calculateEngagementScore(userId: string, creatorId: string): {
+    score: number;
+    breakdown: {
+      watchCompletion: number;
+      rewatchBonus: number;
+      frequency: number;
+      loyalty: number;
+      categoryPremium: number;
+    };
+    suggestedMultiplier: number;
+    reasoning: string;
+  } {
+    const sessions = this.watchSessions.filter(
+      (s) => s.userId === userId && s.creatorId === creatorId,
+    );
+
+    if (sessions.length === 0) {
+      return {
+        score: 0,
+        breakdown: { watchCompletion: 0, rewatchBonus: 0, frequency: 0, loyalty: 0, categoryPremium: 0 },
+        suggestedMultiplier: 0,
+        reasoning: 'No watch history with this creator',
+      };
+    }
+
+    // 1. Watch completion — average watch % across all sessions (0-1)
+    const avgWatch = sessions.reduce((sum, s) => sum + s.watchPercent, 0) / sessions.length / 100;
+    const watchCompletion = Math.min(1, avgWatch); // Cap at 1.0
+
+    // 2. Rewatch bonus — videos watched more than once show high engagement
+    const videoIds = sessions.map((s) => s.videoId);
+    const uniqueVideos = new Set(videoIds).size;
+    const rewatchRatio = uniqueVideos > 0 ? (sessions.length - uniqueVideos) / sessions.length : 0;
+    const rewatchBonus = Math.min(1, rewatchRatio * 2); // Double weight for rewatches
+
+    // 3. Frequency — how often they watch this creator (sessions per week)
+    const now = Date.now();
+    const weekMs = 7 * 24 * 60 * 60 * 1000;
+    const recentSessions = sessions.filter(
+      (s) => now - new Date(s.timestamp).getTime() < weekMs,
+    );
+    const frequency = Math.min(1, recentSessions.length / 10); // 10+ per week = max
+
+    // 4. Loyalty — how long they've been watching this creator
+    const firstWatch = new Date(sessions[0].timestamp).getTime();
+    const daysFollowing = (now - firstWatch) / (24 * 60 * 60 * 1000);
+    const loyalty = Math.min(1, daysFollowing / 30); // 30+ days = max loyalty
+
+    // 5. Category premium — certain content categories get bonus
+    const creator = this.creators.get(creatorId);
+    const premiumCategories = ['education', 'news', 'technology', 'science'];
+    const hasPremium = creator?.categories.some((c) =>
+      premiumCategories.includes(c.toLowerCase()),
+    ) ?? false;
+    const categoryPremium = hasPremium ? 1.0 : 0.5;
+
+    // Weighted score
+    const score =
+      watchCompletion * 0.40 +
+      rewatchBonus * 0.20 +
+      frequency * 0.15 +
+      loyalty * 0.15 +
+      categoryPremium * 0.10;
+
+    // Suggested tip multiplier: 0.5x to 3.0x base amount
+    const suggestedMultiplier = 0.5 + score * 2.5;
+
+    // Build reasoning string
+    const parts: string[] = [];
+    if (watchCompletion > 0.8) parts.push('consistently completes videos');
+    else if (watchCompletion > 0.5) parts.push('watches most of each video');
+    if (rewatchBonus > 0.3) parts.push('rewatches content (high interest)');
+    if (frequency > 0.5) parts.push('watches frequently this week');
+    if (loyalty > 0.5) parts.push(`loyal viewer for ${Math.round(daysFollowing)}+ days`);
+    if (hasPremium) parts.push('premium content category');
+
+    const reasoning = parts.length > 0
+      ? `Engagement: ${parts.join(', ')}. Score: ${(score * 100).toFixed(0)}% → ${suggestedMultiplier.toFixed(1)}x multiplier`
+      : `Low engagement (${(score * 100).toFixed(0)}%). Suggest base rate tip.`;
+
+    return {
+      score: Math.round(score * 1000) / 1000,
+      breakdown: {
+        watchCompletion: Math.round(watchCompletion * 100) / 100,
+        rewatchBonus: Math.round(rewatchBonus * 100) / 100,
+        frequency: Math.round(frequency * 100) / 100,
+        loyalty: Math.round(loyalty * 100) / 100,
+        categoryPremium: Math.round(categoryPremium * 100) / 100,
+      },
+      suggestedMultiplier: Math.round(suggestedMultiplier * 100) / 100,
+      reasoning,
+    };
+  }
+
+  /**
+   * Get engagement-weighted tip recommendations.
+   * Unlike flat auto-tip rules, this dynamically adjusts tip amounts
+   * based on how engaged the viewer is with each creator.
+   */
+  getEngagementWeightedRecommendations(userId: string, baseTipAmount = 0.01): Array<{
+    creatorId: string;
+    creatorName: string;
+    walletAddress: string;
+    engagementScore: number;
+    multiplier: number;
+    adjustedAmount: number;
+    reasoning: string;
+  }> {
+    const rules = this.autoTipRules.get(userId) ?? [];
+    if (rules.length === 0) return [];
+
+    const recommendations: Array<{
+      creatorId: string;
+      creatorName: string;
+      walletAddress: string;
+      engagementScore: number;
+      multiplier: number;
+      adjustedAmount: number;
+      reasoning: string;
+    }> = [];
+
+    // Get unique creators the user has watched
+    const watchedCreatorIds = new Set(
+      this.watchSessions.filter((s) => s.userId === userId).map((s) => s.creatorId),
+    );
+
+    for (const creatorId of watchedCreatorIds) {
+      const creator = this.creators.get(creatorId);
+      if (!creator) continue;
+
+      const engagement = this.calculateEngagementScore(userId, creatorId);
+      if (engagement.score < 0.1) continue; // Skip very low engagement
+
+      const adjustedAmount = Math.round(baseTipAmount * engagement.suggestedMultiplier * 1e6) / 1e6;
+
+      recommendations.push({
+        creatorId,
+        creatorName: creator.name,
+        walletAddress: creator.walletAddress,
+        engagementScore: engagement.score,
+        multiplier: engagement.suggestedMultiplier,
+        adjustedAmount,
+        reasoning: engagement.reasoning,
+      });
+    }
+
+    // Sort by engagement score (highest first)
+    return recommendations.sort((a, b) => b.engagementScore - a.engagementScore);
+  }
+
   // === Persistence ===
 
   /** Load data from disk */

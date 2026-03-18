@@ -2871,6 +2871,28 @@ export function createApiRouter(
     res.json({ rules });
   });
 
+  /** GET /api/rumble/engagement/:userId/:creatorId — Calculate engagement score */
+  router.get('/rumble/engagement/:userId/:creatorId', (req, res) => {
+    try {
+      const { userId, creatorId } = req.params;
+      const score = rumbleService.calculateEngagementScore(userId, creatorId);
+      res.json(score);
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/rumble/engagement-tips/:userId — Get engagement-weighted tip recommendations */
+  router.get('/rumble/engagement-tips/:userId', (req, res) => {
+    try {
+      const baseTip = parseFloat(req.query.baseTip as string) || 0.01;
+      const recommendations = rumbleService.getEngagementWeightedRecommendations(req.params.userId, baseTip);
+      res.json({ recommendations, algorithm: 'engagement-weighted', weights: { watchCompletion: 0.4, rewatchBonus: 0.2, frequency: 0.15, loyalty: 0.15, categoryPremium: 0.1 } });
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
   /** POST /api/rumble/pools — Create a community tip pool */
   router.post('/rumble/pools', (req, res) => {
     try {

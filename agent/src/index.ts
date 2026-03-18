@@ -70,6 +70,7 @@ async function main(): Promise<void> {
   agent.setAutonomyService(autonomyService);
   agent.setOrchestratorService(orchestratorService);
   agent.setTreasuryService(treasuryService);
+  agent.setRumbleService(rumbleService);
 
   // Log Rumble integration
   logger.info(`Rumble integration loaded: ${rumbleService.listCreators().length} creators registered`);

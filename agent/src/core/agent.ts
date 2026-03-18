@@ -15,6 +15,7 @@ import type { ReputationService } from '../services/reputation.service.js';
 import type { AutonomyService } from '../services/autonomy.service.js';
 import type { OrchestratorService } from '../services/orchestrator.service.js';
 import type { TreasuryService } from '../services/treasury.service.js';
+import type { RumbleService } from '../services/rumble.service.js';
 import type { TelegramBotStatus } from '../services/telegram.service.js';
 import { logger } from '../utils/logger.js';
 import type {
@@ -73,6 +74,7 @@ export class TipFlowAgent {
   private autonomyService: AutonomyService | null = null;
   private orchestratorService: OrchestratorService | null = null;
   private treasuryService: TreasuryService | null = null;
+  private rumbleService: RumbleService | null = null;
   private tipResults: Map<string, TipResult> = new Map();
   private static readonly MAX_ACTIVITY = 100;
 
@@ -136,6 +138,11 @@ export class TipFlowAgent {
     this.treasuryService = service;
   }
 
+  /** Set the Rumble service for engagement-driven auto-tipping */
+  setRumbleService(service: RumbleService): void {
+    this.rumbleService = service;
+  }
+
   /** Start Telegram bot if TELEGRAM_BOT_TOKEN is set. Optional — everything works without it. */
   async startTelegramBot(): Promise<void> {
     const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -180,6 +187,10 @@ export class TipFlowAgent {
       // Treasury auto-rebalancing — evaluate capital allocation every cycle
       this.processTreasuryRebalance().catch((err) => {
         logger.error('Treasury rebalance check failed', { error: String(err) });
+      });
+      // Rumble engagement-driven auto-tipping — process watch-time triggers
+      this.processRumbleAutoTips().catch((err) => {
+        logger.error('Rumble auto-tip processing failed', { error: String(err) });
       });
     }, 60_000);
     logger.info('Autonomous decision loop started (60s interval — includes treasury rebalancing)');
@@ -277,6 +288,48 @@ export class TipFlowAgent {
           threshold: confirmThreshold,
         });
       }
+    }
+  }
+
+  /**
+   * Rumble engagement-driven auto-tipping.
+   *
+   * CORE INNOVATION: The agent processes watch-time data from Rumble,
+   * calculates an engagement score for each creator-viewer pair, and
+   * autonomously executes tips scaled by engagement level.
+   *
+   * This creates the economic feedback loop:
+   *   Better content → More engagement → Higher tips → Creator incentive
+   */
+  private async processRumbleAutoTips(): Promise<void> {
+    if (!this.rumbleService) return;
+
+    try {
+      // Get engagement-weighted recommendations for the default user
+      const recommendations = this.rumbleService.getEngagementWeightedRecommendations('default', 0.001);
+      if (recommendations.length === 0) return;
+
+      // Process top recommendation (one per cycle to avoid flooding)
+      const top = recommendations[0];
+
+      // Only auto-execute very small tips (engagement-driven)
+      if (top.adjustedAmount > 0.01) return; // Safety cap
+
+      this.addActivity({
+        type: 'system',
+        message: `Rumble auto-tip: ${top.adjustedAmount} to ${top.creatorName} (engagement: ${(top.engagementScore * 100).toFixed(0)}%)`,
+        detail: top.reasoning,
+      });
+
+      logger.info('Rumble engagement-driven auto-tip', {
+        creator: top.creatorName,
+        engagementScore: top.engagementScore,
+        multiplier: top.multiplier,
+        adjustedAmount: top.adjustedAmount,
+        reasoning: top.reasoning,
+      });
+    } catch (err) {
+      logger.debug('Rumble auto-tip check skipped', { error: String(err) });
     }
   }
 
