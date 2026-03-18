@@ -71,6 +71,8 @@ import { PredictorPanel } from './components/PredictorPanel';
 import { FeeArbitragePanel } from './components/FeeArbitragePanel';
 import { EscrowPanel } from './components/EscrowPanel';
 import { MemoryPanel } from './components/MemoryPanel';
+import { DcaPanel } from './components/DcaPanel';
+import { CreatorAnalyticsPanel } from './components/CreatorAnalyticsPanel';
 import { HealthDashboard } from './components/HealthDashboard';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
@@ -682,6 +684,14 @@ function App() {
                 </div>
                 <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
                   <MemoryPanel />
+                </div>
+              </div>
+              <div className="dashboard-grid-cards">
+                <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                  <DcaPanel />
+                </div>
+                <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                  <CreatorAnalyticsPanel />
                 </div>
               </div>
             </div>
