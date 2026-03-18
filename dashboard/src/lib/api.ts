@@ -828,4 +828,33 @@ export const api = {
     fetchJson<{ success: boolean }>(`/memory/${encodeURIComponent(id)}`, {
       method: 'DELETE',
     }),
+
+  // DCA
+  dcaCreate: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/dca', { method: 'POST', body: JSON.stringify(params) }),
+
+  dcaAll: () =>
+    fetchJson<Record<string, unknown>[]>('/dca'),
+
+  dcaActive: () =>
+    fetchJson<Record<string, unknown>[]>('/dca/active'),
+
+  dcaStats: () =>
+    fetchJson<Record<string, unknown>>('/dca/stats'),
+
+  dcaPause: (id: string) =>
+    fetchJson<Record<string, unknown>>(`/dca/${id}/pause`, { method: 'POST', body: JSON.stringify({}) }),
+
+  dcaResume: (id: string) =>
+    fetchJson<Record<string, unknown>>(`/dca/${id}/resume`, { method: 'POST', body: JSON.stringify({}) }),
+
+  dcaCancel: (id: string) =>
+    fetchJson<Record<string, unknown>>(`/dca/${id}/cancel`, { method: 'POST', body: JSON.stringify({}) }),
+
+  // Creator Analytics
+  creatorIncome: (address: string) =>
+    fetchJson<Record<string, unknown>>(`/analytics/creators/${encodeURIComponent(address)}`),
+
+  platformAnalytics: () =>
+    fetchJson<Record<string, unknown>>('/analytics/platform'),
 };

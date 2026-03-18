@@ -11,7 +11,7 @@ import WDK from '@tetherto/wdk';
 import { WalletService } from './services/wallet.service.js';
 import { AIService } from './services/ai.service.js';
 import { TipFlowAgent } from './core/agent.js';
-import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService, treasuryService, indexerService, bridgeService, lendingService, reputationService, escrowService, orchestratorService, predictorService, feeArbitrageService, memoryService } from './routes/api.js';
+import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService, treasuryService, indexerService, bridgeService, lendingService, reputationService, escrowService, orchestratorService, predictorService, feeArbitrageService, memoryService, dcaService, creatorAnalyticsService } from './routes/api.js';
 import { DemoService } from './services/demo.service.js';
 import { logger } from './utils/logger.js';
 
@@ -112,6 +112,14 @@ async function main(): Promise<void> {
   // Log Multi-Agent Orchestrator
   const orchStats = orchestratorService.getStats();
   logger.info('Multi-agent orchestrator ready', { agents: ['TipExecutor', 'Guardian', 'TreasuryOptimizer'], dailyLimit: orchStats.dailyLimit });
+
+  // Log DCA Tipping Service
+  const dcaStats = dcaService.getStats();
+  logger.info(`DCA tipping service: ${dcaStats.active} active plans, ${dcaStats.totalDistributed} distributed`);
+
+  // Log Creator Analytics Service
+  const platformStats = creatorAnalyticsService.getPlatformAnalytics();
+  logger.info(`Creator analytics service: ready (${platformStats.totalTipsProcessed} tips ingested, income trends enabled)`);
 
   // Start Telegram bot (optional — only if TELEGRAM_BOT_TOKEN is set)
   agent.startTelegramBot().catch((err) => {

@@ -34,6 +34,8 @@ import { OrchestratorService } from '../services/orchestrator.service.js';
 import { PredictorService } from '../services/predictor.service.js';
 import { FeeArbitrageService } from '../services/fee-arbitrage.service.js';
 import { MemoryService } from '../services/memory.service.js';
+import { DcaService } from '../services/dca.service.js';
+import { CreatorAnalyticsService } from '../services/creator-analytics.service.js';
 
 /** Shared challenges service instance — exported for agent integration */
 export const challenges = new ChallengesService();
@@ -79,6 +81,12 @@ export const feeArbitrageService = new FeeArbitrageService();
 
 /** Shared memory service instance — persistent agent memory */
 export const memoryService = new MemoryService();
+
+/** Shared DCA service instance — dollar-cost averaging for tips */
+export const dcaService = new DcaService();
+
+/** Shared creator analytics service instance — income analytics */
+export const creatorAnalyticsService = new CreatorAnalyticsService();
 
 /** Shared contacts service instance */
 const contacts = new ContactsService();
@@ -172,6 +180,8 @@ export function createApiRouter(
         orchestrator: { status: 'ready', agents: ['TipExecutor', 'Guardian', 'TreasuryOptimizer'] },
         predictor: { status: 'ready', pendingPredictions: predictorService.getPendingPredictions().length },
         feeArbitrage: { status: 'ready', chainsMonitored: feeArbitrageService.getCurrentFees().length },
+        dca: { status: 'ready', activePlans: dcaService.getActivePlans().length },
+        creatorAnalytics: { status: 'ready' },
         indexer: { status: 'ready' },
         telegram: { status: process.env.TELEGRAM_BOT_TOKEN ? 'active' : 'not configured' },
       },
@@ -214,6 +224,8 @@ export function createApiRouter(
         agentMemory: true,
         xautGoldToken: true,
         voiceCommands: true,
+        dcaTipping: true,
+        creatorAnalytics: true,
         multiLanguage: ['en', 'es', 'fr', 'ar', 'zh'],
       },
       demoMode: process.env.DEMO_MODE !== 'false',
@@ -3718,6 +3730,63 @@ export function createApiRouter(
     const success = memoryService.forget(req.params.id);
     if (!success) return res.status(404).json({ error: 'Memory not found' });
     res.json({ success: true });
+  });
+
+  // ── DCA Tipping ──────────────────────────────────────────────
+  router.post('/dca', (req, res) => {
+    const plan = dcaService.createPlan(req.body);
+    res.status(201).json(plan);
+  });
+
+  router.get('/dca', (_req, res) => {
+    res.json(dcaService.getAllPlans());
+  });
+
+  router.get('/dca/active', (_req, res) => {
+    res.json(dcaService.getActivePlans());
+  });
+
+  router.get('/dca/stats', (_req, res) => {
+    res.json(dcaService.getStats());
+  });
+
+  router.get('/dca/:id', (req, res) => {
+    const plan = dcaService.getPlan(req.params.id);
+    if (!plan) return res.status(404).json({ error: 'Plan not found' });
+    res.json(plan);
+  });
+
+  router.post('/dca/:id/pause', (req, res) => {
+    const plan = dcaService.pausePlan(req.params.id);
+    if (!plan) return res.status(404).json({ error: 'Cannot pause plan' });
+    res.json(plan);
+  });
+
+  router.post('/dca/:id/resume', (req, res) => {
+    const plan = dcaService.resumePlan(req.params.id);
+    if (!plan) return res.status(404).json({ error: 'Cannot resume plan' });
+    res.json(plan);
+  });
+
+  router.post('/dca/:id/cancel', (req, res) => {
+    const plan = dcaService.cancelPlan(req.params.id);
+    if (!plan) return res.status(404).json({ error: 'Cannot cancel plan' });
+    res.json(plan);
+  });
+
+  // ── Creator Analytics ────────────────────────────────────────
+  router.post('/analytics/creators/ingest', (req, res) => {
+    creatorAnalyticsService.ingestTips(req.body.tips ?? []);
+    res.json({ success: true });
+  });
+
+  router.get('/analytics/creators/:address', (req, res) => {
+    const income = creatorAnalyticsService.getCreatorIncome(req.params.address);
+    res.json(income);
+  });
+
+  router.get('/analytics/platform', (_req, res) => {
+    res.json(creatorAnalyticsService.getPlatformAnalytics());
   });
 
   return router;
