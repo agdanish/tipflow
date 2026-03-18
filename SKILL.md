@@ -1,8 +1,8 @@
 ---
 name: tipflow
-description: AI-powered tipping agent for Rumble creators using Tether WDK. Multi-agent orchestration, predictive tipping, tip streaming, escrow, cross-chain fee arbitrage, and cryptographic receipts.
+description: AI-powered tipping agent for Rumble creators using Tether WDK. Multi-agent orchestration, predictive tipping, tip streaming, escrow, cross-chain fee arbitrage, cryptographic receipts, and x402 agent commerce. Compatible with OpenClaw and any MCP-compatible agent framework.
 license: Apache-2.0
-compatibility: Requires Node.js 22+, Tether WDK SDK, 3 chains (EVM + TON + TRON)
+compatibility: Requires Node.js 22+, Tether WDK SDK, 7 chains (EVM + TON + TRON + BTC + SOL + Plasma + Stable). OpenClaw compatible.
 metadata:
   author: Danish A
   version: "1.0.0"
@@ -11,7 +11,7 @@ metadata:
 
 # TipFlow Agent Skill
 
-TipFlow is an AI-powered tipping agent that extends Rumble's existing WDK-based tipping wallet. It uses Tether WDK to manage multi-chain wallets (Ethereum Sepolia + TON Testnet + TRON Nile) and lets you send USDT, USAT (USA₮), and native crypto tips through natural language. TipFlow uses the same WDK wallet primitives as Rumble's native wallet — same seed, same keys, same addresses.
+TipFlow is an AI-powered tipping agent that extends Rumble's existing WDK-based tipping wallet. It uses Tether WDK to manage multi-chain wallets across 7 chains (Ethereum Sepolia, TON Testnet, TRON Nile, Bitcoin Testnet, Solana Devnet, Plasma, Stable) and lets you send USDT, USAT (USA₮), XAUT, BTC, and native crypto tips through natural language. TipFlow uses the same WDK wallet primitives as Rumble's native wallet — same seed, same keys, same addresses. Compatible with OpenClaw, Claude, Cursor, and any MCP-compatible agent framework via the built-in MCP server (35 wallet tools).
 
 **Unique capabilities:** Multi-Agent Orchestration (3 sub-agents vote on every tip), Predictive Tipping Intelligence, Tip Streaming Protocol, Tip Escrow Protocol, Cross-Chain Fee Arbitrage, Cryptographic Tip Receipts (WDK sign/verify), Social Reputation Engine.
 
