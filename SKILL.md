@@ -1,24 +1,19 @@
 ---
-name: TipFlow
-description: AI-powered tipping agent for Rumble creators using Tether WDK. Send crypto tips, manage wallets, automate tipping based on watch-time, and build community tipping pools.
-version: 1.0.0
-author: Danish A
+name: tipflow
+description: AI-powered tipping agent for Rumble creators using Tether WDK. Multi-agent orchestration, predictive tipping, tip streaming, escrow, cross-chain fee arbitrage, and cryptographic receipts.
 license: Apache-2.0
-tags:
-  - tipping
-  - crypto
-  - usdt
-  - usat
-  - rumble
-  - wdk
-  - wallet
-  - ethereum
-  - ton
+compatibility: Requires Node.js 22+, Tether WDK SDK, 3 chains (EVM + TON + TRON)
+metadata:
+  author: Danish A
+  version: "1.0.0"
+  repository: https://github.com/agdanish/Tether-WDK-Hackathon
 ---
 
 # TipFlow Agent Skill
 
-TipFlow is an AI-powered tipping agent that extends Rumble's existing WDK-based tipping wallet. It uses Tether WDK to manage multi-chain wallets (Ethereum Sepolia + TON Testnet) and lets you send USDT, USAT (USA₮), and native crypto tips through natural language. TipFlow uses the same WDK wallet primitives as Rumble's native wallet — same seed, same keys, same addresses. It learns your tipping patterns, makes autonomous recommendations, and supports community tipping pools, watch-time auto-tipping, and event-triggered tips.
+TipFlow is an AI-powered tipping agent that extends Rumble's existing WDK-based tipping wallet. It uses Tether WDK to manage multi-chain wallets (Ethereum Sepolia + TON Testnet + TRON Nile) and lets you send USDT, USAT (USA₮), and native crypto tips through natural language. TipFlow uses the same WDK wallet primitives as Rumble's native wallet — same seed, same keys, same addresses.
+
+**Unique capabilities:** Multi-Agent Orchestration (3 sub-agents vote on every tip), Predictive Tipping Intelligence, Tip Streaming Protocol, Tip Escrow Protocol, Cross-Chain Fee Arbitrage, Cryptographic Tip Receipts (WDK sign/verify), Social Reputation Engine.
 
 **API Base URL:** `http://localhost:3001/api`
 
@@ -796,12 +791,74 @@ This endpoint handles the full conversation loop internally, including intent de
 
 ---
 
+### Multi-Agent Orchestration
+
+Propose a tip and have 3 sub-agents (TipExecutor, Guardian, TreasuryOptimizer) independently evaluate it with 2-of-3 consensus.
+
+**Endpoint:** `POST /api/orchestrator/propose`
+
+**Parameters:**
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `type` | string | yes | Action type: `"tip"`, `"escrow"`, `"stream"`, `"bridge"`, `"lend"` |
+| `params` | object | yes | `{ recipient, amount, token, chainId, memo }` |
+
+**Response:** Returns the action with each sub-agent's vote (approve/reject/abstain), confidence scores, reasoning chain, and final consensus.
+
+---
+
+### Predictive Tipping
+
+Generate proactive tip predictions based on learned user behavior patterns.
+
+**Endpoint:** `POST /api/predictions/generate`
+
+**Response:** Returns array of predictions with recipient, amount, confidence, category (time_pattern/recipient_affinity/content_trigger/milestone/streak), and reasoning.
+
+**Accept:** `POST /api/predictions/:id/accept`
+**Dismiss:** `POST /api/predictions/:id/dismiss`
+
+---
+
+### Cross-Chain Fee Arbitrage
+
+Compare fees across all 3 chains and get optimal timing recommendation.
+
+**Endpoint:** `GET /api/fees/compare?amount=0.01&token=usdt`
+
+**Response:** Returns fee data for all chains, best chain recommendation, savings amount, and optimization score.
+
+**Timing:** `GET /api/fees/optimal-timing` — Returns congestion status and recommendation.
+
+---
+
+### Tip Escrow
+
+Hold tips in escrow until release conditions are met.
+
+**Endpoint:** `POST /api/escrow`
+
+**Parameters:**
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `sender` | string | yes | Sender address |
+| `recipient` | string | yes | Recipient address |
+| `amount` | string | yes | Amount to escrow |
+| `releaseCondition` | string | no | `"manual"`, `"auto_after_24h"`, `"creator_confirm"`, `"watch_time"` |
+
+**Release:** `POST /api/escrow/:id/release`
+**Refund:** `POST /api/escrow/:id/refund`
+**Dispute:** `POST /api/escrow/:id/dispute`
+
+---
+
 ## Chain Reference
 
 | Chain ID | Name | Currency | Address Format |
 |----------|------|----------|----------------|
 | `ethereum-sepolia` | Ethereum Sepolia | ETH | `0x` prefixed, 42 chars |
 | `ton-testnet` | TON Testnet | TON | `UQ` or `EQ` prefixed |
+| `tron-nile` | TRON Nile | TRX | `T` prefixed, 34 chars |
 | `ethereum-sepolia-gasless` | Ethereum Sepolia (Gasless) | ETH | `0x` prefixed, 42 chars |
 | `ton-testnet-gasless` | TON Testnet (Gasless) | TON | `UQ` or `EQ` prefixed |
 

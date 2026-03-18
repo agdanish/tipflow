@@ -142,6 +142,81 @@ async function main(): Promise<void> {
     logger.info('Demo seed complete: 5 creators, 3 policies, 12 tips, 7 activities');
   }
 
+  // ── Autonomous Demo Cycle ─────────────────────────────────────
+  // Demonstrates ZERO-CLICK autonomy — agent acts on its own
+  if (demoService.isEnabled()) {
+    setTimeout(async () => {
+      try {
+        logger.info('═══ AUTONOMOUS CYCLE STARTING ═══');
+        logger.info('Watch-time threshold reached for CryptoDaily (890 min)');
+
+        // Step 1: Orchestrator evaluates the auto-tip
+        const orchestratorAction = orchestratorService.propose('tip', {
+          recipient: '0x8ba1f109551bD432803012645Ac136ddd64DBA72',
+          amount: '0.003',
+          token: 'usdt',
+          chainId: 'ethereum-sepolia',
+          memo: '[Auto] Watch-time threshold: CryptoDaily (890 min)',
+        });
+
+        logger.info('Multi-agent consensus', {
+          consensus: orchestratorAction.consensus,
+          confidence: orchestratorAction.overallConfidence,
+          votes: orchestratorAction.votes.map(v => `${v.agent}: ${v.decision} (${v.confidence}%)`),
+        });
+
+        // Step 2: Add to activity feed
+        agent.addActivity({
+          type: 'system',
+          message: `Autonomous cycle: ${orchestratorAction.consensus.toUpperCase()}`,
+          detail: orchestratorAction.reasoningChain.join(' → '),
+        });
+
+        // Step 3: Predictor learns from demo history and generates predictions
+        const tips = agent.getHistory().map(h => ({
+          recipient: h.recipient,
+          amount: h.amount,
+          chainId: h.chainId,
+          createdAt: h.createdAt,
+        }));
+        predictorService.learnFromHistory(tips);
+        const predictions = predictorService.generatePredictions();
+
+        if (predictions.length > 0) {
+          logger.info('Predictions generated', {
+            count: predictions.length,
+            topPrediction: `${predictions[0].recipient.slice(0, 12)}... (${predictions[0].confidence}% confidence)`,
+            category: predictions[0].category,
+          });
+          agent.addActivity({
+            type: 'system',
+            message: `Predicted ${predictions.length} upcoming tips`,
+            detail: predictions.map(p => `${p.category}: ${p.confidence}%`).join(', '),
+          });
+        }
+
+        // Step 4: Fee arbitrage recommendation
+        const feeComparison = feeArbitrageService.compareFees('0.003', 'usdt');
+        logger.info('Fee arbitrage recommendation', {
+          bestChain: feeComparison.recommendation.bestChain,
+          reason: feeComparison.recommendation.reason,
+          savings: feeComparison.recommendation.savings,
+        });
+        agent.addActivity({
+          type: 'system',
+          message: `Fee optimization: ${feeComparison.recommendation.bestChain} recommended`,
+          detail: feeComparison.recommendation.reason,
+        });
+
+        logger.info('═══ AUTONOMOUS CYCLE COMPLETE ═══');
+        logger.info('Agent is now running autonomously. No human input required.');
+        logger.info('Decision loop: 60s | Fee updates: 30s | Auto-release: 30s');
+      } catch (err) {
+        logger.error('Autonomous cycle failed', { error: String(err) });
+      }
+    }, 15_000);
+  }
+
   // Subscribe to state changes for logging
   agent.onStateChange((state) => {
     logger.info('Agent state changed', { status: state.status });
