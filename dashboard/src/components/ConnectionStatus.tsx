@@ -8,8 +8,24 @@ export function ConnectionStatus() {
   const [latency, setLatency] = useState<number | null>(null);
   const [reconnecting, setReconnecting] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const retryCount = useRef(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startCountdown = useCallback(() => {
+    setCountdown(10);
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    countdownRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          if (countdownRef.current) clearInterval(countdownRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, []);
 
   const checkHealth = useCallback(async () => {
     const start = performance.now();
@@ -20,26 +36,31 @@ export function ConnectionStatus() {
         setLatency(elapsed);
         setStatus(elapsed > 2000 ? 'slow' : 'connected');
         setReconnecting(false);
+        setCountdown(0);
+        if (countdownRef.current) clearInterval(countdownRef.current);
         retryCount.current = 0;
       } else {
         setStatus('disconnected');
         setLatency(null);
         setReconnecting(true);
         retryCount.current += 1;
+        startCountdown();
       }
     } catch {
       setStatus('disconnected');
       setLatency(null);
       setReconnecting(true);
       retryCount.current += 1;
+      startCountdown();
     }
-  }, []);
+  }, [startCountdown]);
 
   useEffect(() => {
     checkHealth();
     intervalRef.current = setInterval(checkHealth, 10_000);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
+      if (countdownRef.current) clearInterval(countdownRef.current);
     };
   }, [checkHealth]);
 
@@ -62,9 +83,11 @@ export function ConnectionStatus() {
       ? 'Connected'
       : status === 'slow'
         ? 'Slow'
-        : reconnecting
-          ? 'Reconnecting...'
-          : 'Disconnected';
+        : reconnecting && countdown > 0
+          ? `Retry in ${countdown}s`
+          : reconnecting
+            ? 'Reconnecting...'
+            : 'Disconnected';
 
   return (
     <div

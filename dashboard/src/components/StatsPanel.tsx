@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { BarChart3, TrendingUp, Coins, Shield, Zap, Activity, Clock, CircleDollarSign } from 'lucide-react';
 import type { AgentStats } from '../types';
 import { formatNumber, chainColor, chainName } from '../lib/utils';
@@ -16,6 +17,8 @@ interface StatsPanelProps {
 }
 
 export function StatsPanel({ stats }: StatsPanelProps) {
+  const prevValuesRef = useRef<Record<string, number>>({});
+
   if (!stats) {
     return (
       <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
@@ -36,6 +39,7 @@ export function StatsPanel({ stats }: StatsPanelProps) {
   const statCards = [
     {
       label: 'Total Tips',
+      key: 'totalTips',
       rawValue: stats.totalTips,
       displayFn: (n: number) => Math.round(n).toString(),
       icon: TrendingUp,
@@ -44,6 +48,7 @@ export function StatsPanel({ stats }: StatsPanelProps) {
     },
     {
       label: 'Total Sent',
+      key: 'totalSent',
       rawValue: parseFloat(stats.totalAmount) || 0,
       displayFn: (n: number) => formatNumber(n),
       icon: Coins,
@@ -52,6 +57,7 @@ export function StatsPanel({ stats }: StatsPanelProps) {
     },
     {
       label: 'Success Rate',
+      key: 'successRate',
       rawValue: stats.successRate,
       displayFn: (n: number) => `${Math.round(n)}%`,
       icon: Shield,
@@ -60,6 +66,7 @@ export function StatsPanel({ stats }: StatsPanelProps) {
     },
     {
       label: 'Fees Saved',
+      key: 'feesSaved',
       rawValue: parseFloat(stats.totalFeeSaved) || 0,
       displayFn: (n: number) => formatNumber(n),
       icon: Zap,
@@ -67,6 +74,16 @@ export function StatsPanel({ stats }: StatsPanelProps) {
       bgClass: 'stat-card-purple',
     },
   ];
+
+  // Compute trends by comparing to previously stored values
+  const trends: Record<string, 'up' | 'down' | 'flat'> = {};
+  for (const card of statCards) {
+    const prev = prevValuesRef.current[card.key];
+    if (prev !== undefined && card.rawValue > prev) trends[card.key] = 'up';
+    else if (prev !== undefined && card.rawValue < prev) trends[card.key] = 'down';
+    else trends[card.key] = 'flat';
+    prevValuesRef.current[card.key] = card.rawValue;
+  }
 
   // Bar chart: find max count for scaling
   const maxDayCount = Math.max(...stats.tipsByDay.map((d) => d.count), 1);
@@ -96,8 +113,14 @@ export function StatsPanel({ stats }: StatsPanelProps) {
                   {card.label}
                 </span>
               </div>
-              <p className="text-lg sm:text-xl font-bold text-text-primary tracking-tight tabular-nums">
+              <p className="text-lg sm:text-xl font-bold text-text-primary tracking-tight tabular-nums flex items-center gap-1">
                 <AnimatedStat value={card.rawValue} format={card.displayFn} />
+                {trends[card.key] === 'up' && (
+                  <span className="text-xs text-green-400 animate-fade-in" title="Increased">&#8593;</span>
+                )}
+                {trends[card.key] === 'down' && (
+                  <span className="text-xs text-red-400 animate-fade-in" title="Decreased">&#8595;</span>
+                )}
               </p>
             </div>
           );

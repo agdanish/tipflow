@@ -337,13 +337,26 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
           <Send className="w-4 h-4 text-accent" />
           {t('tip.send')}
         </h2>
-        {/* Auto-save draft indicator */}
-        {(recipient.trim() || amount.trim()) && (
-          <span className="inline-flex items-center gap-1 text-[10px] text-text-muted autosave-saved">
-            <Save className="w-3 h-3" />
-            Draft saved
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {/* Auto-save draft indicator */}
+          {(recipient.trim() || amount.trim()) && (
+            <span className="inline-flex items-center gap-1 text-[10px] text-text-muted autosave-saved">
+              <Save className="w-3 h-3" />
+              Draft saved
+            </span>
+          )}
+          {/* Clear form button */}
+          {(recipient.trim() || amount.trim() || message.trim()) && (
+            <button
+              type="button"
+              onClick={() => { setRecipient(''); setAmount(''); setMessage(''); setChain(''); setToken('native'); setEnsResolved(null); setEnsFailed(false); setNlpInput(''); clearNlpState(); setError(null); setScheduleMode(false); setScheduledAt(''); setRecurring(false); setGaslessMode(false); setGaslessResult(null); }}
+              className="inline-flex items-center gap-1 text-[10px] text-text-muted hover:text-error transition-colors btn-press px-1.5 py-0.5 rounded-md hover:bg-error/10"
+            >
+              <Trash2 className="w-3 h-3" />
+              Clear
+            </button>
+          )}
+        </div>
       </div>
 
       {/* NLP Natural Language Input */}
@@ -653,17 +666,23 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
         </div>
 
         <div>
-          <label className="block text-xs text-text-secondary mb-1.5">
-            {t('tip.message')} <span className="text-text-muted">({t('tip.messageOptional')})</span>
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs text-text-secondary">
+              {t('tip.message')} <span className="text-text-muted">({t('tip.messageOptional')})</span>
+            </label>
+            <span className={`text-[10px] tabular-nums transition-colors ${message.length > 180 ? 'text-red-400' : message.length > 140 ? 'text-amber-400' : 'text-text-muted'}`}>
+              {message.length}/200
+            </span>
+          </div>
           <input
             type="text"
             value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={(e) => { if (e.target.value.length <= 200) setMessage(e.target.value); }}
             placeholder={t('tip.messagePlaceholder')}
             aria-label={`${t('tip.message')} (${t('tip.messageOptional')})`}
             className="w-full px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border focus:ring-1 focus:ring-accent-border transition-colors"
             disabled={sending || disabled}
+            maxLength={200}
           />
         </div>
 

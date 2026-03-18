@@ -344,6 +344,20 @@ export function StreamingPanel() {
                     {stream.totalTransactions} txns
                   </div>
                 </div>
+                {/* Burn rate */}
+                {stream.status === 'active' && stream.elapsedSeconds > 0 && (
+                  <div className="flex items-center gap-1.5 mb-2 px-2 py-1 rounded-md bg-amber-500/5 border border-amber-500/15">
+                    <Zap className="w-3 h-3 text-amber-400" />
+                    <span className="text-[10px] text-amber-400 font-medium tabular-nums">
+                      Burn rate: {((parseFloat(stream.totalStreamed) / stream.elapsedSeconds) * 3600).toFixed(4)} {stream.token}/hr
+                    </span>
+                    {stream.maxBudget && parseFloat(stream.maxBudget) > 0 && (
+                      <span className="text-[10px] text-text-muted ml-auto tabular-nums">
+                        ~{Math.max(0, Math.round(((parseFloat(stream.maxBudget) - parseFloat(stream.totalStreamed)) / (parseFloat(stream.totalStreamed) / stream.elapsedSeconds)) / 60))}m left
+                      </span>
+                    )}
+                  </div>
+                )}
                 {stream.maxBudget && (
                   <div className="mb-2">
                     <div className="h-1.5 rounded-full bg-surface-1 overflow-hidden">

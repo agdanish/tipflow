@@ -33,9 +33,11 @@ interface DashboardTabsProps {
   rumbleContent: ReactNode;
   aiContent: ReactNode;
   settingsContent: ReactNode;
+  /** Tab IDs that have unread/new data */
+  tabsWithUpdates?: TabId[];
 }
 
-export function DashboardTabs({ dashboardContent, analyticsContent, historyContent, rumbleContent, aiContent, settingsContent }: DashboardTabsProps) {
+export function DashboardTabs({ dashboardContent, analyticsContent, historyContent, rumbleContent, aiContent, settingsContent, tabsWithUpdates = [] }: DashboardTabsProps) {
   // Re-render on locale change so tab labels update
   useLocale();
 
@@ -76,7 +78,7 @@ export function DashboardTabs({ dashboardContent, analyticsContent, historyConte
               key={tab.id}
               onClick={() => switchTab(tab.id)}
               className={`
-                flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap min-w-0 btn-press
+                relative flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap min-w-0 btn-press
                 ${activeTab === tab.id
                   ? 'bg-accent/10 text-accent border border-accent-border shadow-sm'
                   : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'
@@ -87,6 +89,9 @@ export function DashboardTabs({ dashboardContent, analyticsContent, historyConte
             >
               {tab.icon}
               <span className="hidden sm:inline">{t(tab.labelKey)}</span>
+              {tabsWithUpdates.includes(tab.id) && activeTab !== tab.id && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border border-surface-1 animate-pulse" />
+              )}
             </button>
           ))}
         </div>

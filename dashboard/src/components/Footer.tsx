@@ -91,11 +91,20 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-6 pt-4 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-[11px] text-text-muted text-center sm:text-left">
-            Built for <span className="text-accent font-medium">Tether Hackathon Galactica: WDK Edition 1</span>
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="text-[11px] text-text-muted text-center sm:text-left flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+              </span>
+              System Online
+            </p>
+            <span className="px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-[10px] font-medium text-accent tabular-nums">
+              228+ API endpoints
+            </span>
+          </div>
           <p className="text-[11px] text-text-muted">
-            &copy; 2026 TipFlow. All rights reserved.
+            &copy; 2026 TipFlow &middot; Built for <span className="text-accent font-medium">Tether Hackathon Galactica</span>
           </p>
         </div>
       </div>

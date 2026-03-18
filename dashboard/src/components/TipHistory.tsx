@@ -1,4 +1,4 @@
-import { History, ExternalLink, CheckCircle2, XCircle, Brain, ChevronDown, Layers, Fuel, Download, Share2, Check, Search, X, BarChart3, TrendingUp, Percent, Coins, Receipt, MessageSquare } from 'lucide-react';
+import { History, ExternalLink, CheckCircle2, XCircle, Brain, ChevronDown, Layers, Fuel, Download, Share2, Check, Search, X, BarChart3, TrendingUp, Percent, Coins, Receipt, MessageSquare, Copy } from 'lucide-react';
 import type { TipHistoryEntry, TipReceipt } from '../types';
 import { shortenAddress, timeAgo, chainColor, formatNumber } from '../lib/utils';
 import { api } from '../lib/api';
@@ -18,6 +18,7 @@ type StatusFilter = 'all' | 'confirmed' | 'failed';
 export function TipHistory({ history, loading }: TipHistoryProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copiedTxId, setCopiedTxId] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [receiptData, setReceiptData] = useState<TipReceipt | null>(null);
   const [loadingReceipt, setLoadingReceipt] = useState<string | null>(null);
@@ -396,6 +397,13 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                   </div>
 
                   <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                    <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full border ${
+                      entry.status === 'confirmed'
+                        ? 'bg-green-500/10 border-green-500/30 text-green-400'
+                        : 'bg-red-500/10 border-red-500/30 text-red-400'
+                    }`}>
+                      {entry.status === 'confirmed' ? 'Confirmed' : 'Failed'}
+                    </span>
                     <span className="text-[10px] sm:text-xs text-text-muted">{timeAgo(entry.createdAt)}</span>
                     {entry.txHash && (
                       <a
@@ -464,11 +472,34 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                         </div>
                       </div>
 
-                      {/* TX Hash + Share */}
+                      {/* TX Hash + Copy + Share */}
                       {entry.txHash && (
                         <div className="flex items-center gap-2 px-2 py-1.5 text-[11px]">
                           <span className="text-text-muted">TX:</span>
                           <span className="text-text-secondary font-mono truncate flex-1">{entry.txHash}</span>
+                          <button
+                            onClick={async () => {
+                              try {
+                                await navigator.clipboard.writeText(entry.txHash);
+                                setCopiedTxId(entry.id);
+                                setTimeout(() => setCopiedTxId(null), 2000);
+                              } catch { /* silent */ }
+                            }}
+                            className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-text-muted hover:text-accent bg-surface-3 hover:bg-surface-3/80 rounded-md transition-colors shrink-0"
+                            title="Copy transaction hash"
+                          >
+                            {copiedTxId === entry.id ? (
+                              <>
+                                <CheckCircle2 className="w-3 h-3 text-green-400" />
+                                <span className="text-green-400">Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-3 h-3" />
+                                Copy TX
+                              </>
+                            )}
+                          </button>
                           <button
                             onClick={() => handleReceipt(entry)}
                             disabled={loadingReceipt === entry.id}

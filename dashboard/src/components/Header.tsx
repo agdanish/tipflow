@@ -1,4 +1,5 @@
-import { Activity, Zap, Github, Sun, Moon, Volume2, VolumeX, Keyboard } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Activity, Zap, Github, Sun, Moon, Volume2, VolumeX, Keyboard, Clock } from 'lucide-react';
 import { NotificationCenter } from './NotificationCenter';
 import { ThemeCustomizer } from './ThemeCustomizer';
 import { ConnectionStatus } from './ConnectionStatus';
@@ -24,6 +25,13 @@ interface HeaderProps {
 export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, onShowShortcuts, notifications, onMarkRead, onMarkAllRead, onClearAll }: HeaderProps) {
   // Subscribe so component re-renders on locale change
   useLocale();
+
+  // Live clock
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <header role="banner" aria-label="TipFlow main navigation" className="border-b border-white/[0.07] glass-elevated sticky top-0 z-50">
@@ -53,6 +61,12 @@ export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, o
               <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-accent-dim border border-accent-border">
                 <span className="relative w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-accent status-dot-ping" />
                 <span className="text-[10px] sm:text-[11px] text-accent font-semibold">{t('nav.online')}</span>
+              </div>
+              <div className="hidden md:flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-2 border border-border">
+                <Clock className="w-3 h-3 text-text-muted" />
+                <span className="text-[10px] text-text-secondary font-mono tabular-nums">
+                  {now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                </span>
               </div>
             </>
           )}

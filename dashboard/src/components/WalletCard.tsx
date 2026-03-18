@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Check, ExternalLink } from 'lucide-react';
+import { Copy, Check, ExternalLink, RefreshCw } from 'lucide-react';
 import type { WalletBalance } from '../types';
 import { shortenAddress, copyToClipboard, formatNumber, chainColor } from '../lib/utils';
 import { useAnimatedValue } from '../hooks/useAnimatedNumber';
@@ -10,6 +10,7 @@ interface WalletCardProps {
 
 export function WalletCard({ balance }: WalletCardProps) {
   const [copied, setCopied] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const isEth = balance.chainId.startsWith('ethereum');
   const isTron = balance.chainId.startsWith('tron');
   const color = chainColor(balance.chainId);
@@ -66,7 +67,20 @@ export function WalletCard({ balance }: WalletCardProps) {
 
       <div className="space-y-3">
         <div>
-          <p className="text-[11px] text-text-muted mb-1 uppercase tracking-wider">Native Balance</p>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-[11px] text-text-muted uppercase tracking-wider">Native Balance</p>
+            <button
+              onClick={() => {
+                setRefreshing(true);
+                setTimeout(() => setRefreshing(false), 1200);
+              }}
+              className="w-5 h-5 rounded flex items-center justify-center text-text-muted hover:text-accent hover:bg-accent/10 transition-all btn-press"
+              title="Refresh balance"
+              aria-label="Refresh balance"
+            >
+              <RefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
           <p className="text-xl sm:text-2xl font-bold text-text-primary tracking-tight tabular-nums neon-glow">
             {formatNumber(animatedNative)}{' '}
             <span className="text-sm font-medium text-text-secondary">{balance.nativeCurrency}</span>

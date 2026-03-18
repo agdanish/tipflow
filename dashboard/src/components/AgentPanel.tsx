@@ -90,7 +90,7 @@ export function AgentPanel({ state, retryActivity, onRetry, retrying }: AgentPan
                         stepState === 'done'
                           ? 'bg-accent/20 text-accent'
                           : stepState === 'active'
-                          ? 'bg-accent/20 text-accent animate-step-pulse'
+                          ? 'bg-accent/20 text-accent animate-step-pulse shadow-[0_0_12px_rgba(34,197,94,0.4),0_0_24px_rgba(34,197,94,0.2)] ring-2 ring-accent/40'
                           : 'bg-surface-3 text-text-muted'
                       }`}
                     >
