@@ -11,7 +11,7 @@ import WDK from '@tetherto/wdk';
 import { WalletService } from './services/wallet.service.js';
 import { AIService } from './services/ai.service.js';
 import { TipFlowAgent } from './core/agent.js';
-import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService, treasuryService, indexerService, bridgeService, lendingService, reputationService, escrowService, orchestratorService, predictorService, feeArbitrageService, memoryService, dcaService, creatorAnalyticsService } from './routes/api.js';
+import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService, treasuryService, indexerService, bridgeService, lendingService, reputationService, escrowService, orchestratorService, predictorService, feeArbitrageService, memoryService, dcaService, creatorAnalyticsService, agentIdentityService, x402Service } from './routes/api.js';
 import { DemoService } from './services/demo.service.js';
 import { logger } from './utils/logger.js';
 
@@ -90,10 +90,16 @@ async function main(): Promise<void> {
     logger.warn('WDK Indexer API health check failed (non-fatal)');
   });
 
-  // Wire WDK wallet service into bridge and lending for real protocol execution
+  // Wire WDK wallet service into bridge, lending, and identity for real protocol execution
   bridgeService.setWalletService(walletService);
   lendingService.setWalletService(walletService);
-  logger.info('Bridge + Lending services wired to WDK wallet for REAL protocol execution');
+  agentIdentityService.setWalletService(walletService);
+  x402Service.setWalletAddress(addresses['ethereum-sepolia'] ?? '');
+  logger.info('Bridge + Lending + Identity services wired to WDK wallet');
+
+  // Initialize cryptographic agent identity
+  const agentId = await agentIdentityService.initialize();
+  logger.info(`Agent identity: ${agentId.agentId} (${agentId.capabilities.length} capabilities)`);
 
   // Log new patent-level features
   logger.info(`Reputation engine: ${reputationService.getCreatorCount()} creators tracked`);

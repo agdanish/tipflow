@@ -38,12 +38,16 @@ import { DcaService } from '../services/dca.service.js';
 import { CreatorAnalyticsService } from '../services/creator-analytics.service.js';
 import { TipPolicyService } from '../services/tip-policy.service.js';
 import { X402Service } from '../services/x402.service.js';
+import { AgentIdentityService } from '../services/agent-identity.service.js';
 
 /** Shared tip policy service — programmable money engine */
 export const tipPolicyService = new TipPolicyService();
 
 /** Shared x402 payment protocol — agent-to-agent commerce */
 export const x402Service = new X402Service();
+
+/** Shared agent identity service — cryptographic identity */
+export const agentIdentityService = new AgentIdentityService();
 
 /** Shared challenges service instance — exported for agent integration */
 export const challenges = new ChallengesService();
@@ -3898,6 +3902,45 @@ export function createApiRouter(
   /** GET /api/x402/stats — x402 revenue and payment statistics */
   router.get('/x402/stats', (_req, res) => {
     res.json(x402Service.getStats());
+  });
+
+  // ══════════════════════════════════════════════
+  //  AGENT IDENTITY — Cryptographic Identity & Discovery
+  // ══════════════════════════════════════════════
+
+  /** GET /api/agent/identity — Get this agent's cryptographic identity */
+  router.get('/agent/identity', (_req, res) => {
+    const identity = agentIdentityService.getIdentity();
+    if (!identity) return res.status(503).json({ error: 'Agent identity not initialized' });
+    res.json({ identity, protocol: 'TipFlow Protocol v1.0' });
+  });
+
+  /** GET /api/agent/challenge — Generate a challenge for identity verification */
+  router.get('/agent/challenge', (_req, res) => {
+    const challenge = agentIdentityService.generateChallenge();
+    res.json(challenge);
+  });
+
+  /** POST /api/agent/verify — Verify another agent's identity */
+  router.post('/agent/verify', async (req, res) => {
+    try {
+      const result = await agentIdentityService.verifyAgent(req.body);
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  /** POST /api/agent/sign-challenge — Sign a challenge to prove our identity */
+  router.post('/agent/sign-challenge', async (req, res) => {
+    try {
+      const { challenge } = req.body as { challenge: string };
+      if (!challenge) return res.status(400).json({ error: 'challenge is required' });
+      const result = await agentIdentityService.signChallenge(challenge);
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
   });
 
   return router;
