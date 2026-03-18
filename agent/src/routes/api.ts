@@ -44,11 +44,20 @@ import { PlatformAdapterService } from '../services/platform-adapter.service.js'
 import { ProofOfEngagementService } from '../services/proof-of-engagement.service.js';
 import { RevenueSmoothingService } from '../services/revenue-smoothing.service.js';
 
+import { CreatorDiscoveryService } from '../services/creator-discovery.service.js';
+import { TipPropagationService } from '../services/tip-propagation.service.js';
+
 /** Shared proof-of-engagement — cryptographic attestations */
 export const proofOfEngagementService = new ProofOfEngagementService();
 
 /** Shared revenue smoothing — creator income insurance */
 export const revenueSmoothingService = new RevenueSmoothingService();
+
+/** Shared creator discovery — AI angel investing */
+export const creatorDiscoveryService = new CreatorDiscoveryService();
+
+/** Shared tip propagation — viral tipping */
+export const tipPropagationService = new TipPropagationService();
 
 /** Shared tip policy service — programmable money engine */
 export const tipPolicyService = new TipPolicyService();
@@ -4087,6 +4096,70 @@ export function createApiRouter(
   router.get('/smoothing/history', (req, res) => {
     const creatorId = req.query.creatorId as string | undefined;
     res.json({ actions: revenueSmoothingService.getActionHistory(creatorId) });
+  });
+
+  // ══════════════════════════════════════════════
+  //  CREATOR DISCOVERY — AI Angel Investing
+  // ══════════════════════════════════════════════
+
+  /** POST /api/discovery/analyze — Analyze all creators for undervaluation */
+  router.post('/discovery/analyze', (_req, res) => {
+    const creators = rumbleService.listCreators().map((c) => ({
+      id: c.id, name: c.name, walletAddress: c.walletAddress,
+      categories: c.categories, totalTipAmount: c.totalTipAmount,
+      subscriberCount: c.subscriberCount,
+    }));
+    const signals = creatorDiscoveryService.analyzeCreators(creators);
+    res.json({ signals, stats: creatorDiscoveryService.getStats() });
+  });
+
+  /** GET /api/discovery/signals — Get current discovery signals */
+  router.get('/discovery/signals', (_req, res) => {
+    res.json({ signals: creatorDiscoveryService.getSignals(), stats: creatorDiscoveryService.getStats() });
+  });
+
+  /** POST /api/discovery/record — Record a discovery tip */
+  router.post('/discovery/record', (req, res) => {
+    try {
+      const record = creatorDiscoveryService.recordDiscovery(req.body);
+      res.json({ record });
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  // ══════════════════════════════════════════════
+  //  TIP PROPAGATION — Viral Tipping + Amplifiers
+  // ══════════════════════════════════════════════
+
+  /** POST /api/propagation/wave — Create a tip wave */
+  router.post('/propagation/wave', (req, res) => {
+    try {
+      const wave = tipPropagationService.createWave(req.body);
+      res.json({ wave });
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/propagation/waves — Get all tip waves */
+  router.get('/propagation/waves', (_req, res) => {
+    res.json({ waves: tipPropagationService.getAllWaves(), stats: tipPropagationService.getStats() });
+  });
+
+  /** POST /api/propagation/pools — Create an amplifier pool */
+  router.post('/propagation/pools', (req, res) => {
+    try {
+      const pool = tipPropagationService.createPool(req.body);
+      res.json({ pool });
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/propagation/pools — List amplifier pools */
+  router.get('/propagation/pools', (_req, res) => {
+    res.json({ pools: tipPropagationService.getPools(), stats: tipPropagationService.getStats() });
   });
 
   return router;
