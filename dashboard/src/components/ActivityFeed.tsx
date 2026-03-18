@@ -79,6 +79,10 @@ const CHAIN_BADGES: Record<ChainId, { label: string; className: string }> = {
     label: 'TON-GL',
     className: 'bg-sky-500/20 text-sky-300 border-sky-500/30',
   },
+  'bitcoin-testnet': {
+    label: 'BTC',
+    className: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
+  },
 };
 
 function relativeTime(iso: string): string {

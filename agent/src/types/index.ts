@@ -1,5 +1,5 @@
 /** Supported blockchain networks */
-export type ChainId = 'ethereum-sepolia' | 'ton-testnet' | 'tron-nile' | 'ethereum-sepolia-gasless' | 'ton-testnet-gasless';
+export type ChainId = 'ethereum-sepolia' | 'ton-testnet' | 'tron-nile' | 'ethereum-sepolia-gasless' | 'ton-testnet-gasless' | 'bitcoin-testnet';
 
 /** Token types supported for tipping */
 export type TokenType = 'native' | 'usdt' | 'usat' | 'xaut' | 'xaut';

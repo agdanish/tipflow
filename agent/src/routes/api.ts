@@ -47,6 +47,7 @@ import { RevenueSmoothingService } from '../services/revenue-smoothing.service.j
 import { CreatorDiscoveryService } from '../services/creator-discovery.service.js';
 import { TipPropagationService } from '../services/tip-propagation.service.js';
 import { RiskEngineService } from '../services/risk-engine.service.js';
+import { SwapService } from '../services/swap.service.js';
 
 /** Shared risk engine — transaction risk assessment */
 export const riskEngineService = new RiskEngineService();
@@ -176,11 +177,15 @@ export function createApiRouter(
 ): Router {
   const router = Router();
 
-  // Receipt & Streaming & DCA services (need walletService reference)
+  // Receipt & Streaming & DCA & Swap services (need walletService reference)
   const receiptService = new ReceiptService(wallet);
   const streamingService = new StreamingService(wallet);
+  const swapService = new SwapService(wallet);
   dcaService.setWalletService(wallet);
   escrowService.setWalletService(wallet);
+
+  // Initialize swap protocol (async, non-blocking)
+  swapService.initialize().catch(() => {});
 
   // Wire receipt and reputation services to agent
   agent.setReceiptService(receiptService);
@@ -4266,6 +4271,47 @@ export function createApiRouter(
         platforms: { status: 'active', ...platformAdapterService.getCrossPlatformStats() },
       },
     });
+  });
+
+  // ── Swap / DEX ──────────────────────────────────────────────
+  /** GET /api/swap/status — Check swap service availability */
+  router.get('/swap/status', (_req, res) => {
+    res.json(swapService.getStats());
+  });
+
+  /** POST /api/swap/quote — Get a swap quote */
+  router.post('/swap/quote', async (req, res) => {
+    try {
+      const { fromToken, toToken, amount } = req.body;
+      if (!fromToken || !toToken || !amount) {
+        res.status(400).json({ error: 'fromToken, toToken, and amount are required' });
+        return;
+      }
+      const quote = await swapService.getQuote(fromToken, toToken, amount);
+      res.json(quote);
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : 'Swap quote failed' });
+    }
+  });
+
+  /** POST /api/swap/execute — Execute a token swap */
+  router.post('/swap/execute', transactionLimiter, async (req, res) => {
+    try {
+      const { fromToken, toToken, amount, slippage } = req.body;
+      if (!fromToken || !toToken || !amount) {
+        res.status(400).json({ error: 'fromToken, toToken, and amount are required' });
+        return;
+      }
+      const result = await swapService.executeSwap(fromToken, toToken, amount, slippage ?? 1);
+      res.json(result);
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : 'Swap failed' });
+    }
+  });
+
+  /** GET /api/swap/history — Get swap history */
+  router.get('/swap/history', (_req, res) => {
+    res.json(swapService.getHistory());
   });
 
   return router;

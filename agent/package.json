@@ -33,6 +33,8 @@
     "@tetherto/wdk-mcp-toolkit": "github:tetherto/wdk-mcp-toolkit",
     "@tetherto/wdk-protocol-bridge-usdt0-evm": "^1.0.0-beta.3",
     "@tetherto/wdk-protocol-lending-aave-evm": "^1.0.0-beta.3",
+    "@tetherto/wdk-protocol-swap-velora-evm": "^1.0.0-beta.4",
+    "@tetherto/wdk-wallet-btc": "^1.0.0-beta.6",
     "@tetherto/wdk-wallet-evm": "^1.0.0-beta.8",
     "@tetherto/wdk-wallet-evm-erc-4337": "^1.0.0-beta.5",
     "@tetherto/wdk-wallet-ton": "^1.0.0-beta.7",

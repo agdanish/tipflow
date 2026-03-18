@@ -4,6 +4,7 @@ import WalletManagerTon from '@tetherto/wdk-wallet-ton';
 import WalletManagerTron from '@tetherto/wdk-wallet-tron';
 import WalletManagerEvmErc4337 from '@tetherto/wdk-wallet-evm-erc-4337';
 import WalletManagerTonGasless from '@tetherto/wdk-wallet-ton-gasless';
+import WalletManagerBtc from '@tetherto/wdk-wallet-btc';
 import { logger } from '../utils/logger.js';
 import { JsonRpcProvider } from 'ethers';
 import type { ChainId, ChainConfig, WalletBalance, ConfirmationResult, FeeComparison, DerivedWallet } from '../types/index.js';
@@ -72,6 +73,14 @@ const CHAIN_CONFIGS: Record<ChainId, ChainConfig> = {
     isTestnet: true,
     nativeCurrency: 'TON',
     explorerUrl: 'https://testnet.tonviewer.com',
+  },
+  'bitcoin-testnet': {
+    id: 'bitcoin-testnet',
+    name: 'Bitcoin Testnet',
+    blockchain: 'bitcoin',
+    isTestnet: true,
+    nativeCurrency: 'BTC',
+    explorerUrl: 'https://mempool.space/testnet',
   },
 };
 
@@ -198,6 +207,18 @@ export class WalletService {
     } catch (err) {
       this.gaslessTonError = String(err);
       logger.warn('TON gasless wallet not available (non-critical)', { error: String(err) });
+    }
+
+    // Register Bitcoin (Testnet)
+    // Bitcoin is a Rumble-supported token (USDT, XAUT, BTC). WDK provides full BIP-84 HD wallet.
+    try {
+      this.wdk.registerWallet('bitcoin', WalletManagerBtc as any, {
+        network: 'testnet',
+      });
+      this.registeredChains.add('bitcoin-testnet');
+      logger.info('Registered Bitcoin wallet (Testnet)');
+    } catch (err) {
+      logger.warn('Bitcoin wallet not available (non-critical)', { error: String(err) });
     }
 
     this.initialized = true;
@@ -700,6 +721,9 @@ export class WalletService {
     }
     if (chainId === 'tron-nile') {
       return `${config.explorerUrl}/#/transaction/${txHash}`;
+    }
+    if (chainId === 'bitcoin-testnet') {
+      return `${config.explorerUrl}/tx/${txHash}`;
     }
     return `${config.explorerUrl}/tx/${txHash}`;
   }

@@ -25,6 +25,7 @@ export function chainName(chainId: ChainId): string {
     'ethereum-sepolia': 'Ethereum Sepolia',
     'ton-testnet': 'TON Testnet',
     'tron-nile': 'Tron Nile',
+    'bitcoin-testnet': 'Bitcoin Testnet',
   };
   return names[chainId] ?? chainId;
 }
@@ -34,6 +35,7 @@ export function chainColor(chainId: ChainId): string {
   if (chainId.startsWith('ethereum')) return '#627eea';
   if (chainId.startsWith('ton')) return '#0098ea';
   if (chainId.startsWith('tron')) return '#eb0029';
+  if (chainId.startsWith('bitcoin')) return '#f7931a';
   return '#22c55e';
 }
 
@@ -42,6 +44,7 @@ export function chainIcon(chainId: ChainId): string {
   if (chainId.startsWith('ethereum')) return 'ETH';
   if (chainId.startsWith('ton')) return 'TON';
   if (chainId.startsWith('tron')) return 'TRX';
+  if (chainId.startsWith('bitcoin')) return 'BTC';
   return '?';
 }
 
