@@ -151,7 +151,21 @@ async function main(): Promise<void> {
       agent.addDemoActivity(activity);
     }
 
-    logger.info('Demo seed complete: 5 creators, 3 policies, 12 tips, 7 activities');
+    // Seed DCA plans for demo
+    dcaService.createPlan({ recipient: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', totalAmount: 0.05, installments: 10, intervalHours: 24, token: 'usdt', chainId: 'ethereum-sepolia' });
+    dcaService.createPlan({ recipient: '0xdead000000000000000000000000000000000002', totalAmount: 0.02, installments: 5, intervalHours: 12, token: 'native', chainId: 'ethereum-sepolia' });
+
+    // Seed reputation data from demo tips
+    const demoFrom = '0x74118B69ac22FB7e46081400BD5ef9d9a0AC9b62';
+    for (const tip of demoService.getSampleTipHistory()) {
+      reputationService.recordTip(demoFrom, tip.recipient, parseFloat(tip.amount), tip.chainId);
+    }
+    // Ingest all demo tips into creator analytics at once
+    creatorAnalyticsService.ingestTips(demoService.getSampleTipHistory().map(t => ({
+      recipient: t.recipient, amount: t.amount, token: t.token || 'usdt', chainId: t.chainId, createdAt: t.createdAt, sender: demoFrom,
+    })));
+
+    logger.info('Demo seed complete: 5 creators, 3 policies, 12 tips, 7 activities, 2 DCA plans, reputation + analytics seeded');
   }
 
   // ── Autonomous Demo Cycle ─────────────────────────────────────
