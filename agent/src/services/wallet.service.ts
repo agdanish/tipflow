@@ -5,6 +5,7 @@ import WalletManagerTron from '@tetherto/wdk-wallet-tron';
 import WalletManagerEvmErc4337 from '@tetherto/wdk-wallet-evm-erc-4337';
 import WalletManagerTonGasless from '@tetherto/wdk-wallet-ton-gasless';
 import WalletManagerBtc from '@tetherto/wdk-wallet-btc';
+import WalletManagerSolana from '@tetherto/wdk-wallet-solana';
 import { logger } from '../utils/logger.js';
 import { JsonRpcProvider } from 'ethers';
 import type { ChainId, ChainConfig, WalletBalance, ConfirmationResult, FeeComparison, DerivedWallet } from '../types/index.js';
@@ -81,6 +82,33 @@ const CHAIN_CONFIGS: Record<ChainId, ChainConfig> = {
     isTestnet: true,
     nativeCurrency: 'BTC',
     explorerUrl: 'https://mempool.space/testnet',
+  },
+  'solana-devnet': {
+    id: 'solana-devnet',
+    name: 'Solana Devnet',
+    blockchain: 'solana',
+    isTestnet: true,
+    nativeCurrency: 'SOL',
+    explorerUrl: 'https://explorer.solana.com',
+    rpcUrl: 'https://api.devnet.solana.com',
+  },
+  'plasma': {
+    id: 'plasma',
+    name: 'Plasma',
+    blockchain: 'plasma',
+    isTestnet: false,
+    nativeCurrency: 'ETH',
+    explorerUrl: 'https://explorer.plasma.to',
+    rpcUrl: 'https://rpc.plasma.to',
+  },
+  'stable': {
+    id: 'stable',
+    name: 'Stable',
+    blockchain: 'stable',
+    isTestnet: false,
+    nativeCurrency: 'ETH',
+    explorerUrl: 'https://explorer.stable.xyz',
+    rpcUrl: 'https://rpc.stable.xyz',
   },
 };
 
@@ -219,6 +247,39 @@ export class WalletService {
       logger.info('Registered Bitcoin wallet (Testnet)');
     } catch (err) {
       logger.warn('Bitcoin wallet not available (non-critical)', { error: String(err) });
+    }
+
+    // Register Solana (Devnet)
+    try {
+      this.wdk.registerWallet('solana', WalletManagerSolana as any, {
+        provider: process.env.SOLANA_RPC ?? 'https://api.devnet.solana.com',
+      });
+      this.registeredChains.add('solana-devnet');
+      logger.info('Registered Solana wallet (Devnet)');
+    } catch (err) {
+      logger.warn('Solana wallet not available (non-critical)', { error: String(err) });
+    }
+
+    // Register Plasma (x402-recommended chain for near-zero fee USDT0 transfers)
+    try {
+      this.wdk.registerWallet('plasma', WalletManagerEvm as any, {
+        provider: 'https://rpc.plasma.to',
+      });
+      this.registeredChains.add('plasma');
+      logger.info('Registered Plasma wallet (x402 recommended — near-zero fees)');
+    } catch (err) {
+      logger.warn('Plasma wallet not available (non-critical)', { error: String(err) });
+    }
+
+    // Register Stable (x402-recommended chain for instant USDT0 finality)
+    try {
+      this.wdk.registerWallet('stable', WalletManagerEvm as any, {
+        provider: 'https://rpc.stable.xyz',
+      });
+      this.registeredChains.add('stable');
+      logger.info('Registered Stable wallet (x402 recommended — instant finality)');
+    } catch (err) {
+      logger.warn('Stable wallet not available (non-critical)', { error: String(err) });
     }
 
     this.initialized = true;
@@ -724,6 +785,9 @@ export class WalletService {
     }
     if (chainId === 'bitcoin-testnet') {
       return `${config.explorerUrl}/tx/${txHash}`;
+    }
+    if (chainId === 'solana-devnet') {
+      return `${config.explorerUrl}/tx/${txHash}?cluster=devnet`;
     }
     return `${config.explorerUrl}/tx/${txHash}`;
   }

@@ -1,4 +1,4 @@
-export type ChainId = 'ethereum-sepolia' | 'ton-testnet' | 'tron-nile' | 'ethereum-sepolia-gasless' | 'ton-testnet-gasless' | 'bitcoin-testnet';
+export type ChainId = 'ethereum-sepolia' | 'ton-testnet' | 'tron-nile' | 'ethereum-sepolia-gasless' | 'ton-testnet-gasless' | 'bitcoin-testnet' | 'solana-devnet' | 'plasma' | 'stable';
 export type TokenType = 'native' | 'usdt' | 'usat' | 'xaut' | 'xaut';
 
 /** Gasless status returned by the API */

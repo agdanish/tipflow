@@ -26,6 +26,9 @@ export function chainName(chainId: ChainId): string {
     'ton-testnet': 'TON Testnet',
     'tron-nile': 'Tron Nile',
     'bitcoin-testnet': 'Bitcoin Testnet',
+    'solana-devnet': 'Solana Devnet',
+    'plasma': 'Plasma',
+    'stable': 'Stable',
   };
   return names[chainId] ?? chainId;
 }
@@ -36,6 +39,9 @@ export function chainColor(chainId: ChainId): string {
   if (chainId.startsWith('ton')) return '#0098ea';
   if (chainId.startsWith('tron')) return '#eb0029';
   if (chainId.startsWith('bitcoin')) return '#f7931a';
+  if (chainId.startsWith('solana')) return '#9945ff';
+  if (chainId === 'plasma') return '#00d4aa';
+  if (chainId === 'stable') return '#4a90d9';
   return '#22c55e';
 }
 
@@ -45,6 +51,9 @@ export function chainIcon(chainId: ChainId): string {
   if (chainId.startsWith('ton')) return 'TON';
   if (chainId.startsWith('tron')) return 'TRX';
   if (chainId.startsWith('bitcoin')) return 'BTC';
+  if (chainId.startsWith('solana')) return 'SOL';
+  if (chainId === 'plasma') return 'PLS';
+  if (chainId === 'stable') return 'STB';
   return '?';
 }
 

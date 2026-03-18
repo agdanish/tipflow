@@ -83,6 +83,18 @@ const CHAIN_BADGES: Record<ChainId, { label: string; className: string }> = {
     label: 'BTC',
     className: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
   },
+  'solana-devnet': {
+    label: 'SOL',
+    className: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+  },
+  'plasma': {
+    label: 'PLS',
+    className: 'bg-teal-500/20 text-teal-300 border-teal-500/30',
+  },
+  'stable': {
+    label: 'STB',
+    className: 'bg-blue-400/20 text-blue-300 border-blue-400/30',
+  },
 };
 
 function relativeTime(iso: string): string {
