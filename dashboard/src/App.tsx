@@ -436,7 +436,7 @@ function App() {
       </a>
       <Header health={health} theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} onShowShortcuts={() => setShowShortcuts(true)} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onClearAll={clearAll} />
 
-      <main ref={spotlightRef} id="main-content" role="main" className="relative z-10 max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <main ref={spotlightRef} id="main-content" role="main" className="relative z-10 max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Demo Mode Banner */}
         <DemoBanner />
 
@@ -512,8 +512,8 @@ function App() {
                   {tipMode === 'split' && <SplitTipForm onSplitComplete={handleSplitComplete} disabled={isAgentBusy} />}
 
                   {/* Collapsible: Templates & Links */}
-                  <details className="group">
-                    <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-text-secondary hover:text-text-primary py-2 transition-colors">Templates &amp; Links<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
+                  <details className="group rounded-xl bg-surface-2/50 border border-border">
+                    <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Templates &amp; Links<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
                     <div className="space-y-4 pt-2 animate-slide-down">
                       <div id="tip-templates-section"><TipTemplates onUseTemplate={handleUseTemplate} /></div>
                       <TipLinkCreator />
@@ -522,8 +522,8 @@ function App() {
                   </details>
 
                   {/* Collapsible: Contacts & Receiving */}
-                  <details className="group">
-                    <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-text-secondary hover:text-text-primary py-2 transition-colors">Contacts &amp; Receiving<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
+                  <details className="group rounded-xl bg-surface-2/50 border border-border">
+                    <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Contacts &amp; Receiving<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
                     <div className="space-y-4 pt-2 animate-slide-down">
                       <ContactsManager />
                       <QRReceive />
@@ -587,8 +587,8 @@ function App() {
                     </div>
                   )}
                   <div className="glass-card p-4 sm:p-5 scroll-reveal"><TipCalendar onCancelTip={handleCancelScheduled} /></div>
-                  <details className="group">
-                    <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-text-secondary hover:text-text-primary py-2 transition-colors">Agent Logs<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
+                  <details className="group rounded-xl bg-surface-2/50 border border-border">
+                    <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Agent Logs<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
                     <div className="space-y-4 pt-2 animate-slide-down"><AgentActivityFeed /><DecisionAuditTrail /></div>
                   </details>
                 </div>
@@ -610,8 +610,8 @@ function App() {
               <div className="mb-4 scroll-reveal"><SmartSuggestions onNavigate={navigateToTab} tipCount={stats?.totalTips ?? 0} /></div>
 
               {/* Collapsible: Demo & Showcase */}
-              <details className="group mb-4">
-                <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-text-secondary hover:text-text-primary py-2 transition-colors">Demo Scenarios &amp; Innovation Showcase<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
+              <details className="group rounded-xl bg-surface-2/50 border border-border mb-4">
+                <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Demo Scenarios &amp; Innovation Showcase<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
                 <div className="space-y-4 pt-2 animate-slide-down">
                   <DemoScenarios onSetTipMode={setTipMode} onTipComplete={handleTipComplete} />
                   <InnovationShowcase onNavigate={navigateToTab} />
@@ -720,8 +720,8 @@ function App() {
               </div>
 
               {/* Monitors */}
-              <details className="group" open>
-                <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-text-secondary hover:text-text-primary py-2 transition-colors">Monitors &amp; Status<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
+              <details className="group rounded-xl bg-surface-2/50 border border-border" open>
+                <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Monitors &amp; Status<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2 animate-slide-down">
                   <div className="glass-card p-4 sm:p-5"><GasMonitor /></div>
                   <div className="glass-card p-4 sm:p-5"><CurrencyConverter /></div>
@@ -733,8 +733,8 @@ function App() {
               </details>
 
               {/* Integrations */}
-              <details className="group">
-                <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-text-secondary hover:text-text-primary py-2 transition-colors">Integrations &amp; Finance<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
+              <details className="group rounded-xl bg-surface-2/50 border border-border">
+                <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Integrations &amp; Finance<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
                 <div className="space-y-4 pt-2 animate-slide-down">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="glass-card p-4 sm:p-5"><TreasuryPanel /></div>
@@ -751,8 +751,8 @@ function App() {
               </details>
 
               {/* Developer Tools */}
-              <details className="group">
-                <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-text-secondary hover:text-text-primary py-2 transition-colors">Developer Tools<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
+              <details className="group rounded-xl bg-surface-2/50 border border-border">
+                <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Developer Tools<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
                 <div className="space-y-4 pt-2 animate-slide-down">
                   <WebhookManager />
                   <AuditLog />

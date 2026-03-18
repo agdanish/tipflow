@@ -28,10 +28,47 @@
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 450;
+  letter-spacing: -0.011em;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  font-size: 15px;
+  line-height: 1.6;
   background: var(--color-surface);
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Display headings — Plus Jakarta Sans */
+h1, h2, h3, h4,
+.panel-title,
+.text-base.font-semibold,
+.text-sm.font-semibold,
+.text-sm.font-medium,
+.text-lg.font-semibold,
+.text-xl.font-semibold {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+
+/* Monospace — JetBrains Mono */
+.font-mono, code, pre {
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: max(12px, 0.8125rem) !important;
+}
+
+/* Nuke microscopic font sizes */
+.text-\[9px\],
+.text-\[10px\],
+.text-\[11px\] {
+  font-size: 12px !important;
+}
+
+/* Force minimum font sizes on desktop */
+@media (min-width: 768px) {
+  .text-xs { font-size: 0.8125rem !important; }
 }
 
 /* Scrollbar styling */
