@@ -66,6 +66,10 @@ import { LendingPanel } from './components/LendingPanel';
 import { StreamingPanel } from './components/StreamingPanel';
 import { CryptoReceiptPanel } from './components/CryptoReceipt';
 import { ReputationPanel } from './components/ReputationPanel';
+import { OrchestratorPanel } from './components/OrchestratorPanel';
+import { PredictorPanel } from './components/PredictorPanel';
+import { FeeArbitragePanel } from './components/FeeArbitragePanel';
+import { EscrowPanel } from './components/EscrowPanel';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useSwipe } from './hooks/useTouchGestures';
@@ -656,6 +660,26 @@ function App() {
           }
           rumbleContent={
             <RumbleIntegration />
+          }
+          aiContent={
+            <div className="space-y-4 sm:space-y-6">
+              <div className="dashboard-grid-cards">
+                <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                  <OrchestratorPanel />
+                </div>
+                <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                  <PredictorPanel />
+                </div>
+              </div>
+              <div className="dashboard-grid-cards">
+                <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                  <FeeArbitragePanel />
+                </div>
+                <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                  <EscrowPanel />
+                </div>
+              </div>
+            </div>
           }
           settingsContent={
             <div className="space-y-4 sm:space-y-6">

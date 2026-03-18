@@ -129,6 +129,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'nav.dashboard': 'Dashboard',
     'nav.analytics': 'Analytics',
     'nav.rumble': 'Rumble',
+    'nav.ai': 'AI Engine',
 
     // Common
     'common.loading': 'Loading...',
@@ -249,6 +250,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'nav.dashboard': 'Panel',
     'nav.analytics': 'Anal\u00EDtica',
     'nav.rumble': 'Rumble',
+    'nav.ai': 'Motor IA',
 
     'common.loading': 'Cargando...',
     'common.error': 'Error',
@@ -365,6 +367,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'nav.dashboard': '\u0644\u0648\u062D\u0629 \u0627\u0644\u062A\u062D\u0643\u0645',
     'nav.analytics': '\u0627\u0644\u062A\u062D\u0644\u064A\u0644\u0627\u062A',
     'nav.rumble': 'Rumble',
+    'nav.ai': '\u0645\u062D\u0631\u0643 \u0630\u0643\u0627\u0621',
 
     'common.loading': '\u062C\u0627\u0631\u064A \u0627\u0644\u062A\u062D\u0645\u064A\u0644...',
     'common.error': '\u062E\u0637\u0623',
@@ -481,6 +484,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'nav.dashboard': '\u4EEA\u8868\u76D8',
     'nav.analytics': '\u5206\u6790',
     'nav.rumble': 'Rumble',
+    'nav.ai': 'AI\u5F15\u64CE',
 
     'common.loading': '\u52A0\u8F7D\u4E2D...',
     'common.error': '\u9519\u8BEF',
@@ -597,6 +601,7 @@ export const translations: Record<Locale, Record<string, string>> = {
     'nav.dashboard': 'Tableau de bord',
     'nav.analytics': 'Analytique',
     'nav.rumble': 'Rumble',
+    'nav.ai': 'Moteur IA',
 
     'common.loading': 'Chargement...',
     'common.error': 'Erreur',

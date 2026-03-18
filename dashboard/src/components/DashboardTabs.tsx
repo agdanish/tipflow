@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
-import { LayoutDashboard, BarChart3, History, Settings, Tv } from 'lucide-react';
+import { LayoutDashboard, BarChart3, History, Settings, Tv, Brain } from 'lucide-react';
 import { t } from '../lib/i18n';
 import { useLocale } from '../hooks/useLocale';
 
-export type TabId = 'dashboard' | 'analytics' | 'history' | 'rumble' | 'settings';
+export type TabId = 'dashboard' | 'analytics' | 'history' | 'rumble' | 'ai' | 'settings';
 
 interface TabDef {
   id: TabId;
@@ -16,6 +16,7 @@ const tabDefs: TabDef[] = [
   { id: 'analytics', labelKey: 'nav.analytics', icon: <BarChart3 className="w-4 h-4" /> },
   { id: 'history',   labelKey: 'nav.history',   icon: <History className="w-4 h-4" /> },
   { id: 'rumble',    labelKey: 'nav.rumble',    icon: <Tv className="w-4 h-4" /> },
+  { id: 'ai',        labelKey: 'nav.ai',        icon: <Brain className="w-4 h-4" /> },
   { id: 'settings',  labelKey: 'nav.settings',  icon: <Settings className="w-4 h-4" /> },
 ];
 
@@ -30,10 +31,11 @@ interface DashboardTabsProps {
   analyticsContent: ReactNode;
   historyContent: ReactNode;
   rumbleContent: ReactNode;
+  aiContent: ReactNode;
   settingsContent: ReactNode;
 }
 
-export function DashboardTabs({ dashboardContent, analyticsContent, historyContent, rumbleContent, settingsContent }: DashboardTabsProps) {
+export function DashboardTabs({ dashboardContent, analyticsContent, historyContent, rumbleContent, aiContent, settingsContent }: DashboardTabsProps) {
   // Re-render on locale change so tab labels update
   useLocale();
 
@@ -60,6 +62,7 @@ export function DashboardTabs({ dashboardContent, analyticsContent, historyConte
     analytics: analyticsContent,
     history: historyContent,
     rumble: rumbleContent,
+    ai: aiContent,
     settings: settingsContent,
   };
 

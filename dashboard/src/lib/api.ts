@@ -736,4 +736,72 @@ export const api = {
 
   getReputationRecommendations: (budget = 0.01, count = 5) =>
     fetchJson<{ recommendations: ReputationRecommendation[] }>(`/reputation/recommendations?budget=${budget}&count=${count}`),
+
+  // ── Orchestrator ──
+  orchestratorPropose: (type: string, params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/orchestrator/propose', { method: 'POST', body: JSON.stringify({ type, params }) }),
+
+  orchestratorHistory: () =>
+    fetchJson<Record<string, unknown>[]>('/orchestrator/history'),
+
+  orchestratorStats: () =>
+    fetchJson<Record<string, unknown>>('/orchestrator/stats'),
+
+  orchestratorConfig: (config: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/orchestrator/config', { method: 'POST', body: JSON.stringify(config) }),
+
+  // ── Predictions ──
+  predictionsGenerate: () =>
+    fetchJson<Record<string, unknown>>('/predictions/generate', { method: 'POST', body: JSON.stringify({}) }),
+
+  predictionsPending: () =>
+    fetchJson<Record<string, unknown>[]>('/predictions'),
+
+  predictionsAll: () =>
+    fetchJson<Record<string, unknown>[]>('/predictions/all'),
+
+  predictionsStats: () =>
+    fetchJson<Record<string, unknown>>('/predictions/stats'),
+
+  predictionAccept: (id: string) =>
+    fetchJson<Record<string, unknown>>(`/predictions/${id}/accept`, { method: 'POST', body: JSON.stringify({}) }),
+
+  predictionDismiss: (id: string) =>
+    fetchJson<Record<string, unknown>>(`/predictions/${id}/dismiss`, { method: 'POST', body: JSON.stringify({}) }),
+
+  // ── Fee Arbitrage ──
+  feesCompare: (amount: string, token?: string) =>
+    fetchJson<Record<string, unknown>>(`/fees/compare?amount=${amount}&token=${token ?? 'usdt'}`),
+
+  feesCurrent: () =>
+    fetchJson<Record<string, unknown>>('/fees/current'),
+
+  feesHistory: () =>
+    fetchJson<Record<string, unknown>[]>('/fees/history'),
+
+  feesOptimalTiming: () =>
+    fetchJson<Record<string, unknown>>('/fees/optimal-timing'),
+
+  // ── Escrow ──
+  escrowCreate: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/escrow', { method: 'POST', body: JSON.stringify(params) }),
+
+  escrowList: () =>
+    fetchJson<Record<string, unknown>[]>('/escrow'),
+
+  escrowActive: () =>
+    fetchJson<Record<string, unknown>[]>('/escrow/active'),
+
+  escrowStats: () =>
+    fetchJson<Record<string, unknown>>('/escrow/stats'),
+
+  escrowRelease: (id: string, txHash?: string) =>
+    fetchJson<Record<string, unknown>>(`/escrow/${id}/release`, { method: 'POST', body: JSON.stringify({ txHash }) }),
+
+  escrowRefund: (id: string, reason?: string) =>
+    fetchJson<Record<string, unknown>>(`/escrow/${id}/refund`, { method: 'POST', body: JSON.stringify({ reason }) }),
+
+  // ── Full Health ──
+  healthFull: () =>
+    fetchJson<Record<string, unknown>>('/health/full'),
 };
