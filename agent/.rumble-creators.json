@@ -23,8 +23,8 @@
         "crypto",
         "finance"
       ],
-      "totalTipsReceived": 0,
-      "totalTipAmount": 0,
+      "totalTipsReceived": 3,
+      "totalTipAmount": 0.049999999999999996,
       "subscriberCount": 0,
       "registeredAt": "2026-03-18T08:27:26.124Z"
     },
@@ -37,8 +37,8 @@
         "gaming",
         "entertainment"
       ],
-      "totalTipsReceived": 0,
-      "totalTipAmount": 0,
+      "totalTipsReceived": 2,
+      "totalTipAmount": 0.020999999999999998,
       "subscriberCount": 0,
       "registeredAt": "2026-03-18T08:27:26.125Z"
     },
@@ -69,11 +69,783 @@
       "totalTipAmount": 0,
       "subscriberCount": 0,
       "registeredAt": "2026-03-18T08:27:26.125Z"
+    },
+    {
+      "id": "8416eef2-2d1f-4e18-9d8d-82383d0d01f0",
+      "name": "CodingMaster",
+      "channelUrl": "https://rumble.com/c/CodingMaster",
+      "walletAddress": "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B",
+      "categories": [
+        "tech",
+        "education"
+      ],
+      "totalTipsReceived": 0,
+      "totalTipAmount": 0,
+      "subscriberCount": 0,
+      "registeredAt": "2026-03-18T16:05:52.074Z"
+    },
+    {
+      "id": "e6ee9460-9429-4ce6-8543-0f8c81f58bf3",
+      "name": "MusicMaven",
+      "channelUrl": "https://rumble.com/c/MusicMaven",
+      "walletAddress": "0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF",
+      "categories": [
+        "music",
+        "entertainment"
+      ],
+      "totalTipsReceived": 0,
+      "totalTipAmount": 0,
+      "subscriberCount": 0,
+      "registeredAt": "2026-03-18T16:05:52.074Z"
+    },
+    {
+      "id": "09c84554-5220-4f1c-953d-eed5451dd125",
+      "name": "TravelVlogger",
+      "channelUrl": "https://rumble.com/c/TravelVlogger",
+      "walletAddress": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      "categories": [
+        "travel",
+        "lifestyle"
+      ],
+      "totalTipsReceived": 0,
+      "totalTipAmount": 0,
+      "subscriberCount": 0,
+      "registeredAt": "2026-03-18T16:05:52.074Z"
+    },
+    {
+      "id": "d8c698fb-0097-4e71-b18d-9519c644b79b",
+      "name": "ChefSpecial",
+      "channelUrl": "https://rumble.com/c/ChefSpecial",
+      "walletAddress": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+      "categories": [
+        "cooking",
+        "food"
+      ],
+      "totalTipsReceived": 0,
+      "totalTipAmount": 0,
+      "subscriberCount": 0,
+      "registeredAt": "2026-03-18T16:05:52.074Z"
+    },
+    {
+      "id": "e0092f71-c9f7-47bf-adf2-33183a3f7899",
+      "name": "ScienceExplained",
+      "channelUrl": "https://rumble.com/c/ScienceExplained",
+      "walletAddress": "0x514910771AF9Ca656af840dff83E8264EcF986CA",
+      "categories": [
+        "science",
+        "education"
+      ],
+      "totalTipsReceived": 0,
+      "totalTipAmount": 0,
+      "subscriberCount": 0,
+      "registeredAt": "2026-03-18T16:05:52.075Z"
+    },
+    {
+      "id": "44d05af3-a5b9-4eb8-910c-e45383165e4d",
+      "name": "IndieFilmmaker",
+      "channelUrl": "https://rumble.com/c/IndieFilmmaker",
+      "walletAddress": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+      "categories": [
+        "film",
+        "art"
+      ],
+      "totalTipsReceived": 0,
+      "totalTipAmount": 0,
+      "subscriberCount": 0,
+      "registeredAt": "2026-03-18T16:05:52.075Z"
+    },
+    {
+      "id": "599e6fc1-7c7b-4cb7-be9f-1043da75782c",
+      "name": "DebateKing",
+      "channelUrl": "https://rumble.com/c/DebateKing",
+      "walletAddress": "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0",
+      "categories": [
+        "politics",
+        "debate"
+      ],
+      "totalTipsReceived": 0,
+      "totalTipAmount": 0,
+      "subscriberCount": 0,
+      "registeredAt": "2026-03-18T16:05:52.075Z"
+    },
+    {
+      "id": "1d76fa0c-eff5-4eeb-9d8e-a671608cb200",
+      "name": "PetLovers",
+      "channelUrl": "https://rumble.com/c/PetLovers",
+      "walletAddress": "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
+      "categories": [
+        "animals",
+        "lifestyle"
+      ],
+      "totalTipsReceived": 0,
+      "totalTipAmount": 0,
+      "subscriberCount": 0,
+      "registeredAt": "2026-03-18T16:05:52.076Z"
+    },
+    {
+      "id": "7d234fb6-45d6-47b1-8f5f-c4d66b5a18b7",
+      "name": "BlockchainDev",
+      "channelUrl": "https://rumble.com/c/BlockchainDev",
+      "walletAddress": "0x3845badAde8e6dFF049820680d1F14bD3903a5d0",
+      "categories": [
+        "crypto",
+        "tech",
+        "education"
+      ],
+      "totalTipsReceived": 0,
+      "totalTipAmount": 0,
+      "subscriberCount": 0,
+      "registeredAt": "2026-03-18T16:05:52.076Z"
+    },
+    {
+      "id": "6c95f430-dee2-426e-8fb7-f3d3e0b726d0",
+      "name": "ComedyClub",
+      "channelUrl": "https://rumble.com/c/ComedyClub",
+      "walletAddress": "0xBBbbCA6A901c926F240b89EacB641d8Aec7AEafD",
+      "categories": [
+        "comedy",
+        "entertainment"
+      ],
+      "totalTipsReceived": 0,
+      "totalTipAmount": 0,
+      "subscriberCount": 0,
+      "registeredAt": "2026-03-18T16:05:52.076Z"
     }
   ],
-  "watchSessions": [],
-  "autoTipRules": [],
-  "tipPools": [],
+  "watchSessions": [
+    {
+      "id": "3ac5b5d4-fa89-4e75-a491-7ab425501f50",
+      "userId": "demo-user",
+      "creatorId": "25ceb1b4-c0d5-44ee-b444-b2e47cd125de",
+      "videoId": "video_0_0",
+      "watchPercent": 95,
+      "timestamp": "2026-03-18T16:05:52.096Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "7cc72eb9-2b41-49e1-8774-c0d2bd185ece",
+      "userId": "demo-user",
+      "creatorId": "25ceb1b4-c0d5-44ee-b444-b2e47cd125de",
+      "videoId": "video_0_1",
+      "watchPercent": 82,
+      "timestamp": "2026-03-18T16:05:52.096Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "a1f3c2ee-56d5-4a55-92f2-98c5cd2d8e94",
+      "userId": "demo-user",
+      "creatorId": "25ceb1b4-c0d5-44ee-b444-b2e47cd125de",
+      "videoId": "video_0_2",
+      "watchPercent": 67,
+      "timestamp": "2026-03-18T16:05:52.096Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "120d75fc-9694-4674-b48b-7cc0437e0fbe",
+      "userId": "demo-user",
+      "creatorId": "676a3424-6a43-4216-8236-f87671f15e99",
+      "videoId": "video_1_0",
+      "watchPercent": 82,
+      "timestamp": "2026-03-18T16:05:52.097Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "6f463cfd-db67-4ee4-b502-0474e5dc8409",
+      "userId": "demo-user",
+      "creatorId": "676a3424-6a43-4216-8236-f87671f15e99",
+      "videoId": "video_1_1",
+      "watchPercent": 67,
+      "timestamp": "2026-03-18T16:05:52.097Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "f57dc7f0-ca6f-4fd9-ba5a-a1235883f0a9",
+      "userId": "demo-user",
+      "creatorId": "676a3424-6a43-4216-8236-f87671f15e99",
+      "videoId": "video_1_2",
+      "watchPercent": 44,
+      "timestamp": "2026-03-18T16:05:52.097Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "383da6f5-f2f1-4768-b55b-e5e0e28ba4ff",
+      "userId": "demo-user",
+      "creatorId": "676a3424-6a43-4216-8236-f87671f15e99",
+      "videoId": "video_1_3",
+      "watchPercent": 100,
+      "timestamp": "2026-03-18T16:05:52.097Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "d4765a74-4dcb-4385-87f9-73cc94b03c1d",
+      "userId": "demo-user",
+      "creatorId": "4da9746b-c501-4a89-8470-c42b6232e2ca",
+      "videoId": "video_2_0",
+      "watchPercent": 67,
+      "timestamp": "2026-03-18T16:05:52.098Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "10745a28-29e3-4668-913a-7ebb5a43d473",
+      "userId": "demo-user",
+      "creatorId": "4da9746b-c501-4a89-8470-c42b6232e2ca",
+      "videoId": "video_2_1",
+      "watchPercent": 44,
+      "timestamp": "2026-03-18T16:05:52.098Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "26be0af7-9eba-4285-802f-9d558d5f2b07",
+      "userId": "demo-user",
+      "creatorId": "4da9746b-c501-4a89-8470-c42b6232e2ca",
+      "videoId": "video_2_2",
+      "watchPercent": 100,
+      "timestamp": "2026-03-18T16:05:52.098Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "83b00dc0-fa85-469f-adc3-e541a87ba8fd",
+      "userId": "demo-user",
+      "creatorId": "4da9746b-c501-4a89-8470-c42b6232e2ca",
+      "videoId": "video_2_3",
+      "watchPercent": 78,
+      "timestamp": "2026-03-18T16:05:52.099Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "cd4880df-37aa-4396-8cf9-686d7f2e7a06",
+      "userId": "demo-user",
+      "creatorId": "4da9746b-c501-4a89-8470-c42b6232e2ca",
+      "videoId": "video_2_4",
+      "watchPercent": 91,
+      "timestamp": "2026-03-18T16:05:52.099Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "c1ed59e7-3c22-41b7-a081-fb316258934f",
+      "userId": "demo-user",
+      "creatorId": "3b71249e-471e-440e-a653-fafae620121a",
+      "videoId": "video_3_0",
+      "watchPercent": 44,
+      "timestamp": "2026-03-18T16:05:52.099Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "48aed9c5-b1d2-4844-9c50-7c881ffc2e63",
+      "userId": "demo-user",
+      "creatorId": "3b71249e-471e-440e-a653-fafae620121a",
+      "videoId": "video_3_1",
+      "watchPercent": 100,
+      "timestamp": "2026-03-18T16:05:52.100Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "c1fa1032-c018-4b00-a6e4-9384c96844e9",
+      "userId": "demo-user",
+      "creatorId": "3b71249e-471e-440e-a653-fafae620121a",
+      "videoId": "video_3_2",
+      "watchPercent": 78,
+      "timestamp": "2026-03-18T16:05:52.100Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "640d904f-b7f1-423a-ae4e-4e735c30bf65",
+      "userId": "demo-user",
+      "creatorId": "5b7c0945-f070-4eb6-884c-e6aec64edb67",
+      "videoId": "video_4_0",
+      "watchPercent": 100,
+      "timestamp": "2026-03-18T16:05:52.100Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "9739d619-3a93-4875-b101-2fa6525a3df5",
+      "userId": "demo-user",
+      "creatorId": "5b7c0945-f070-4eb6-884c-e6aec64edb67",
+      "videoId": "video_4_1",
+      "watchPercent": 78,
+      "timestamp": "2026-03-18T16:05:52.100Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "a16678de-207a-47ea-8323-2a40e9486c31",
+      "userId": "demo-user",
+      "creatorId": "5b7c0945-f070-4eb6-884c-e6aec64edb67",
+      "videoId": "video_4_2",
+      "watchPercent": 91,
+      "timestamp": "2026-03-18T16:05:52.101Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "af29518f-4dfa-437e-9229-8e8c5fa055f1",
+      "userId": "demo-user",
+      "creatorId": "5b7c0945-f070-4eb6-884c-e6aec64edb67",
+      "videoId": "video_4_3",
+      "watchPercent": 55,
+      "timestamp": "2026-03-18T16:05:52.101Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "3441b5f1-3808-4d61-9891-550d3422727b",
+      "userId": "demo-user",
+      "creatorId": "8416eef2-2d1f-4e18-9d8d-82383d0d01f0",
+      "videoId": "video_5_0",
+      "watchPercent": 78,
+      "timestamp": "2026-03-18T16:05:52.101Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "8da7260d-8500-4c8d-81fc-eb462725fdce",
+      "userId": "demo-user",
+      "creatorId": "8416eef2-2d1f-4e18-9d8d-82383d0d01f0",
+      "videoId": "video_5_1",
+      "watchPercent": 91,
+      "timestamp": "2026-03-18T16:05:52.102Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "60c77c91-9914-47a8-98d3-8cd5603fae60",
+      "userId": "demo-user",
+      "creatorId": "8416eef2-2d1f-4e18-9d8d-82383d0d01f0",
+      "videoId": "video_5_2",
+      "watchPercent": 55,
+      "timestamp": "2026-03-18T16:05:52.102Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "475dbe57-c217-4e95-a6ab-6c5b9d1b8b7f",
+      "userId": "demo-user",
+      "creatorId": "8416eef2-2d1f-4e18-9d8d-82383d0d01f0",
+      "videoId": "video_5_3",
+      "watchPercent": 88,
+      "timestamp": "2026-03-18T16:05:52.102Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "b58a0b4c-d6d6-4aae-b156-ead0a86205cd",
+      "userId": "demo-user",
+      "creatorId": "8416eef2-2d1f-4e18-9d8d-82383d0d01f0",
+      "videoId": "video_5_4",
+      "watchPercent": 73,
+      "timestamp": "2026-03-18T16:05:52.103Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "3d217d5a-b1e4-45f1-a9ac-80c34dd3932d",
+      "userId": "demo-user",
+      "creatorId": "e6ee9460-9429-4ce6-8543-0f8c81f58bf3",
+      "videoId": "video_6_0",
+      "watchPercent": 91,
+      "timestamp": "2026-03-18T16:05:52.103Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "e3d1a420-70ca-4de4-ace2-c7f6c2b5fc0a",
+      "userId": "demo-user",
+      "creatorId": "e6ee9460-9429-4ce6-8543-0f8c81f58bf3",
+      "videoId": "video_6_1",
+      "watchPercent": 55,
+      "timestamp": "2026-03-18T16:05:52.103Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "cd3c209b-36ad-4cb0-a289-c0c71b4b075b",
+      "userId": "demo-user",
+      "creatorId": "e6ee9460-9429-4ce6-8543-0f8c81f58bf3",
+      "videoId": "video_6_2",
+      "watchPercent": 88,
+      "timestamp": "2026-03-18T16:05:52.103Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "69bf9cce-cb12-41ea-b566-1b2766e5b87f",
+      "userId": "demo-user",
+      "creatorId": "09c84554-5220-4f1c-953d-eed5451dd125",
+      "videoId": "video_7_0",
+      "watchPercent": 55,
+      "timestamp": "2026-03-18T16:05:52.104Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "906b0157-30a9-461a-9474-c6dc1ef0e8c7",
+      "userId": "demo-user",
+      "creatorId": "09c84554-5220-4f1c-953d-eed5451dd125",
+      "videoId": "video_7_1",
+      "watchPercent": 88,
+      "timestamp": "2026-03-18T16:05:52.104Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "e02de6ca-1419-4087-9305-b15445da83cc",
+      "userId": "demo-user",
+      "creatorId": "09c84554-5220-4f1c-953d-eed5451dd125",
+      "videoId": "video_7_2",
+      "watchPercent": 73,
+      "timestamp": "2026-03-18T16:05:52.104Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "6bcd2b1f-50b0-4975-a66c-8a676c4b3b95",
+      "userId": "demo-user",
+      "creatorId": "09c84554-5220-4f1c-953d-eed5451dd125",
+      "videoId": "video_7_3",
+      "watchPercent": 95,
+      "timestamp": "2026-03-18T16:05:52.105Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "1a1deb39-808f-4d18-9428-d9df163c7aa6",
+      "userId": "demo-user",
+      "creatorId": "d8c698fb-0097-4e71-b18d-9519c644b79b",
+      "videoId": "video_8_0",
+      "watchPercent": 88,
+      "timestamp": "2026-03-18T16:05:52.105Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "868577e2-92e8-4fd3-a8aa-08592e71208f",
+      "userId": "demo-user",
+      "creatorId": "d8c698fb-0097-4e71-b18d-9519c644b79b",
+      "videoId": "video_8_1",
+      "watchPercent": 73,
+      "timestamp": "2026-03-18T16:05:52.105Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "223c8c9d-b0d8-46d4-882f-1a79b2bd0b49",
+      "userId": "demo-user",
+      "creatorId": "d8c698fb-0097-4e71-b18d-9519c644b79b",
+      "videoId": "video_8_2",
+      "watchPercent": 95,
+      "timestamp": "2026-03-18T16:05:52.106Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "4abaaa35-9d9d-4f5f-b775-4d7636a25b18",
+      "userId": "demo-user",
+      "creatorId": "d8c698fb-0097-4e71-b18d-9519c644b79b",
+      "videoId": "video_8_3",
+      "watchPercent": 82,
+      "timestamp": "2026-03-18T16:05:52.106Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "8ba688c1-96bf-49e6-8c62-ea78ad3784b5",
+      "userId": "demo-user",
+      "creatorId": "d8c698fb-0097-4e71-b18d-9519c644b79b",
+      "videoId": "video_8_4",
+      "watchPercent": 67,
+      "timestamp": "2026-03-18T16:05:52.106Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "ad90e7d7-0f0e-4209-9c0d-28613dd8192d",
+      "userId": "demo-user",
+      "creatorId": "e0092f71-c9f7-47bf-adf2-33183a3f7899",
+      "videoId": "video_9_0",
+      "watchPercent": 73,
+      "timestamp": "2026-03-18T16:05:52.107Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "06abdf34-5005-447a-ad4a-1319ba3f2e67",
+      "userId": "demo-user",
+      "creatorId": "e0092f71-c9f7-47bf-adf2-33183a3f7899",
+      "videoId": "video_9_1",
+      "watchPercent": 95,
+      "timestamp": "2026-03-18T16:05:52.107Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "0ca52bd4-fbaa-4ab7-834e-a241d79ec85c",
+      "userId": "demo-user",
+      "creatorId": "e0092f71-c9f7-47bf-adf2-33183a3f7899",
+      "videoId": "video_9_2",
+      "watchPercent": 82,
+      "timestamp": "2026-03-18T16:05:52.107Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "322f4047-fc94-480f-ab12-125a2bb81db2",
+      "userId": "demo-user",
+      "creatorId": "44d05af3-a5b9-4eb8-910c-e45383165e4d",
+      "videoId": "video_10_0",
+      "watchPercent": 95,
+      "timestamp": "2026-03-18T16:05:52.108Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "ff249394-f0a7-4545-a96d-ccf53f8a54c5",
+      "userId": "demo-user",
+      "creatorId": "44d05af3-a5b9-4eb8-910c-e45383165e4d",
+      "videoId": "video_10_1",
+      "watchPercent": 82,
+      "timestamp": "2026-03-18T16:05:52.108Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "830d9550-c9e4-48bf-ad1c-03313d5bb694",
+      "userId": "demo-user",
+      "creatorId": "44d05af3-a5b9-4eb8-910c-e45383165e4d",
+      "videoId": "video_10_2",
+      "watchPercent": 67,
+      "timestamp": "2026-03-18T16:05:52.108Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "491412f1-7766-4bbe-8783-98e2c7999e73",
+      "userId": "demo-user",
+      "creatorId": "44d05af3-a5b9-4eb8-910c-e45383165e4d",
+      "videoId": "video_10_3",
+      "watchPercent": 44,
+      "timestamp": "2026-03-18T16:05:52.108Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "8b0fc2af-4679-44e9-9ce1-5e97e9b72494",
+      "userId": "demo-user",
+      "creatorId": "599e6fc1-7c7b-4cb7-be9f-1043da75782c",
+      "videoId": "video_11_0",
+      "watchPercent": 82,
+      "timestamp": "2026-03-18T16:05:52.109Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "38d4d0b2-f290-4f0a-a79a-466038c289db",
+      "userId": "demo-user",
+      "creatorId": "599e6fc1-7c7b-4cb7-be9f-1043da75782c",
+      "videoId": "video_11_1",
+      "watchPercent": 67,
+      "timestamp": "2026-03-18T16:05:52.109Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "ec6b3af0-88b7-49d5-ba99-ebd4cbde0775",
+      "userId": "demo-user",
+      "creatorId": "599e6fc1-7c7b-4cb7-be9f-1043da75782c",
+      "videoId": "video_11_2",
+      "watchPercent": 44,
+      "timestamp": "2026-03-18T16:05:52.109Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "2c49c54f-f4fe-4ce0-b04e-b55b27b7961f",
+      "userId": "demo-user",
+      "creatorId": "599e6fc1-7c7b-4cb7-be9f-1043da75782c",
+      "videoId": "video_11_3",
+      "watchPercent": 100,
+      "timestamp": "2026-03-18T16:05:52.110Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "375d98ed-2fc9-4fa2-bd2d-bc4fea569f88",
+      "userId": "demo-user",
+      "creatorId": "599e6fc1-7c7b-4cb7-be9f-1043da75782c",
+      "videoId": "video_11_4",
+      "watchPercent": 78,
+      "timestamp": "2026-03-18T16:05:52.110Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "b2fe9be3-f0d9-4867-92a4-559a970aa349",
+      "userId": "demo-user",
+      "creatorId": "1d76fa0c-eff5-4eeb-9d8e-a671608cb200",
+      "videoId": "video_12_0",
+      "watchPercent": 67,
+      "timestamp": "2026-03-18T16:05:52.110Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "3e633d48-f751-4826-983c-d4c093ecbc36",
+      "userId": "demo-user",
+      "creatorId": "1d76fa0c-eff5-4eeb-9d8e-a671608cb200",
+      "videoId": "video_12_1",
+      "watchPercent": 44,
+      "timestamp": "2026-03-18T16:05:52.111Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "1dd8c6c8-a03f-4c89-9d36-d84558d0d6f3",
+      "userId": "demo-user",
+      "creatorId": "1d76fa0c-eff5-4eeb-9d8e-a671608cb200",
+      "videoId": "video_12_2",
+      "watchPercent": 100,
+      "timestamp": "2026-03-18T16:05:52.111Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "1fb04e7a-b76d-4a27-bce9-208e575cdf1c",
+      "userId": "demo-user",
+      "creatorId": "7d234fb6-45d6-47b1-8f5f-c4d66b5a18b7",
+      "videoId": "video_13_0",
+      "watchPercent": 44,
+      "timestamp": "2026-03-18T16:05:52.111Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "033aa204-fb6e-48c0-80a1-c5587c8f0341",
+      "userId": "demo-user",
+      "creatorId": "7d234fb6-45d6-47b1-8f5f-c4d66b5a18b7",
+      "videoId": "video_13_1",
+      "watchPercent": 100,
+      "timestamp": "2026-03-18T16:05:52.112Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "51ffa62e-b846-4589-82fe-e4dd6f91cf9a",
+      "userId": "demo-user",
+      "creatorId": "7d234fb6-45d6-47b1-8f5f-c4d66b5a18b7",
+      "videoId": "video_13_2",
+      "watchPercent": 78,
+      "timestamp": "2026-03-18T16:05:52.112Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "cd69c625-b632-4dd8-8da3-c20da5f70568",
+      "userId": "demo-user",
+      "creatorId": "7d234fb6-45d6-47b1-8f5f-c4d66b5a18b7",
+      "videoId": "video_13_3",
+      "watchPercent": 91,
+      "timestamp": "2026-03-18T16:05:52.112Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "c6920f33-7efb-4b61-87e0-2b542675bb6c",
+      "userId": "demo-user",
+      "creatorId": "6c95f430-dee2-426e-8fb7-f3d3e0b726d0",
+      "videoId": "video_14_0",
+      "watchPercent": 100,
+      "timestamp": "2026-03-18T16:05:52.113Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "bc0275c6-3a84-402b-9d54-c10d0e41eaf4",
+      "userId": "demo-user",
+      "creatorId": "6c95f430-dee2-426e-8fb7-f3d3e0b726d0",
+      "videoId": "video_14_1",
+      "watchPercent": 78,
+      "timestamp": "2026-03-18T16:05:52.113Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "a60597e3-fb55-4ec1-ae67-bec333e94501",
+      "userId": "demo-user",
+      "creatorId": "6c95f430-dee2-426e-8fb7-f3d3e0b726d0",
+      "videoId": "video_14_2",
+      "watchPercent": 91,
+      "timestamp": "2026-03-18T16:05:52.113Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "bc1486f5-df30-4acc-a375-82a73558440f",
+      "userId": "demo-user",
+      "creatorId": "6c95f430-dee2-426e-8fb7-f3d3e0b726d0",
+      "videoId": "video_14_3",
+      "watchPercent": 55,
+      "timestamp": "2026-03-18T16:05:52.114Z",
+      "autoTipTriggered": false
+    },
+    {
+      "id": "8fb15916-c3b7-4d89-ba51-18d0978524ae",
+      "userId": "demo-user",
+      "creatorId": "6c95f430-dee2-426e-8fb7-f3d3e0b726d0",
+      "videoId": "video_14_4",
+      "watchPercent": 88,
+      "timestamp": "2026-03-18T16:05:52.114Z",
+      "autoTipTriggered": false
+    }
+  ],
+  "autoTipRules": [
+    {
+      "id": "8a668390-6d29-4d13-877f-5915f650c216",
+      "userId": "demo-user",
+      "minWatchPercent": 80,
+      "tipAmount": 0.003,
+      "maxTipsPerDay": 5,
+      "enabledCategories": [
+        "tech",
+        "crypto"
+      ],
+      "enabled": true,
+      "createdAt": "2026-03-18T16:05:52.116Z"
+    },
+    {
+      "id": "a4f8917f-da01-46e2-bebe-680bd0343564",
+      "userId": "demo-user",
+      "minWatchPercent": 70,
+      "tipAmount": 0.005,
+      "maxTipsPerDay": 3,
+      "enabledCategories": [
+        "finance",
+        "education"
+      ],
+      "enabled": true,
+      "createdAt": "2026-03-18T16:05:52.116Z"
+    },
+    {
+      "id": "0bfba3d4-fd52-4c5a-a984-e66c2a0dd73b",
+      "userId": "demo-user",
+      "minWatchPercent": 90,
+      "tipAmount": 0.002,
+      "maxTipsPerDay": 10,
+      "enabledCategories": [
+        "gaming",
+        "entertainment"
+      ],
+      "enabled": true,
+      "createdAt": "2026-03-18T16:05:52.116Z"
+    }
+  ],
+  "tipPools": [
+    {
+      "id": "e05a117d-3b1b-4425-b373-549f2a78b3a4",
+      "creatorId": "676a3424-6a43-4216-8236-f87671f15e99",
+      "creatorName": "CryptoDaily",
+      "title": "Crypto Education Fund",
+      "goalAmount": 0.1,
+      "currentAmount": 0.049999999999999996,
+      "contributors": [
+        {
+          "contributor": "demo-user-1",
+          "amount": 0.025,
+          "timestamp": "2026-03-18T16:05:52.117Z"
+        },
+        {
+          "contributor": "demo-user-2",
+          "amount": 0.018,
+          "timestamp": "2026-03-18T16:05:52.117Z"
+        },
+        {
+          "contributor": "demo-user-3",
+          "amount": 0.007,
+          "timestamp": "2026-03-18T16:05:52.118Z"
+        }
+      ],
+      "completed": false,
+      "createdAt": "2026-03-18T16:05:52.116Z"
+    },
+    {
+      "id": "6d0df9c0-4f53-44ea-a765-0029ac681102",
+      "creatorId": "4da9746b-c501-4a89-8470-c42b6232e2ca",
+      "creatorName": "GameStreamPro",
+      "title": "Gaming Community Tips",
+      "goalAmount": 0.05,
+      "currentAmount": 0.020999999999999998,
+      "contributors": [
+        {
+          "contributor": "demo-user-1",
+          "amount": 0.012,
+          "timestamp": "2026-03-18T16:05:52.118Z"
+        },
+        {
+          "contributor": "demo-user-4",
+          "amount": 0.009,
+          "timestamp": "2026-03-18T16:05:52.119Z"
+        }
+      ],
+      "completed": false,
+      "createdAt": "2026-03-18T16:05:52.118Z"
+    }
+  ],
   "eventTriggers": [],
   "collabSplits": []
 }

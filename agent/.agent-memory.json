@@ -1,0 +1,61 @@
+{
+  "memories": [
+    {
+      "id": "mem_1_1773849952121",
+      "type": "preference",
+      "key": "CryptoDaily_chain",
+      "value": "TON testnet is preferred for CryptoDaily — lower fees",
+      "confidence": 70,
+      "source": "observed",
+      "createdAt": "2026-03-18T16:05:52.121Z",
+      "lastAccessed": "2026-03-18T16:05:52.121Z",
+      "accessCount": 1
+    },
+    {
+      "id": "mem_2_1773849952121",
+      "type": "context",
+      "key": "weekday_tipping",
+      "value": "User tips more on weekdays (Mon-Fri) between 9am-12pm",
+      "confidence": 70,
+      "source": "observed",
+      "createdAt": "2026-03-18T16:05:52.121Z",
+      "lastAccessed": "2026-03-18T16:05:52.121Z",
+      "accessCount": 1
+    },
+    {
+      "id": "mem_3_1773849952121",
+      "type": "fact",
+      "key": "fee_insight",
+      "value": "TRON Nile consistently 85% cheaper than Ethereum Sepolia for USDT transfers",
+      "confidence": 70,
+      "source": "observed",
+      "createdAt": "2026-03-18T16:05:52.121Z",
+      "lastAccessed": "2026-03-18T16:05:52.121Z",
+      "accessCount": 1
+    },
+    {
+      "id": "mem_4_1773849952122",
+      "type": "preference",
+      "key": "auto_tip_threshold",
+      "value": "User prefers auto-tips under 0.005 USDT without confirmation",
+      "confidence": 70,
+      "source": "observed",
+      "createdAt": "2026-03-18T16:05:52.122Z",
+      "lastAccessed": "2026-03-18T16:05:52.122Z",
+      "accessCount": 1
+    },
+    {
+      "id": "mem_5_1773849952122",
+      "type": "fact",
+      "key": "creator_loyalty",
+      "value": "TechReviewer and CryptoDaily are top 2 most-tipped creators (together 60% of volume)",
+      "confidence": 70,
+      "source": "observed",
+      "createdAt": "2026-03-18T16:05:52.122Z",
+      "lastAccessed": "2026-03-18T16:05:52.122Z",
+      "accessCount": 1
+    }
+  ],
+  "conversations": [],
+  "counter": 5
+}

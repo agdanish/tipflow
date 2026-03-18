@@ -167,21 +167,84 @@ async function main(): Promise<void> {
       agent.addDemoActivity(activity);
     }
 
-    // Seed DCA plans for demo
+    // Seed DCA plans
     dcaService.createPlan({ recipient: '0x8ba1f109551bD432803012645Ac136ddd64DBA72', totalAmount: 0.05, installments: 10, intervalHours: 24, token: 'usdt', chainId: 'ethereum-sepolia' });
-    dcaService.createPlan({ recipient: '0xdead000000000000000000000000000000000002', totalAmount: 0.02, installments: 5, intervalHours: 12, token: 'native', chainId: 'ethereum-sepolia' });
+    dcaService.createPlan({ recipient: '0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B', totalAmount: 0.02, installments: 5, intervalHours: 12, token: 'native', chainId: 'ethereum-sepolia' });
+    dcaService.createPlan({ recipient: 'UQBanAkpRVoVeUHJVSLbaCjregNDAejcBdKl1VA3ujWMWpOv', totalAmount: 0.03, installments: 7, intervalHours: 48, token: 'usdt', chainId: 'ton-testnet' });
 
-    // Seed reputation data from demo tips
-    const demoFrom = '0x74118B69ac22FB7e46081400BD5ef9d9a0AC9b62';
-    for (const tip of demoService.getSampleTipHistory()) {
+    // Seed reputation data from ALL demo tips
+    const demoFrom = addresses['ethereum-sepolia'] ?? '0x74118B69ac22FB7e46081400BD5ef9d9a0AC9b62';
+    const allTips = demoService.getSampleTipHistory();
+    for (const tip of allTips) {
       reputationService.recordTip(demoFrom, tip.recipient, parseFloat(tip.amount), tip.chainId);
     }
-    // Ingest all demo tips into creator analytics at once
-    creatorAnalyticsService.ingestTips(demoService.getSampleTipHistory().map(t => ({
+
+    // Ingest all demo tips into creator analytics
+    creatorAnalyticsService.ingestTips(allTips.map(t => ({
       recipient: t.recipient, amount: t.amount, token: t.token || 'usdt', chainId: t.chainId, createdAt: t.createdAt, sender: demoFrom,
     })));
 
-    logger.info('Demo seed complete: 5 creators, 3 policies, 12 tips, 7 activities, 2 DCA plans, reputation + analytics seeded');
+    // Seed watch sessions for engagement scoring
+    const creators = demoService.getSampleCreators();
+    for (let i = 0; i < creators.length; i++) {
+      const creator = rumbleService.listCreators().find(c => c.name === creators[i].name);
+      if (creator) {
+        // Record 3-5 watch sessions per creator with varying engagement
+        const watchPercents = [95, 82, 67, 44, 100, 78, 91, 55, 88, 73];
+        for (let j = 0; j < 3 + (i % 3); j++) {
+          rumbleService.recordWatchTime(creator.id, `video_${i}_${j}`, watchPercents[(i + j) % watchPercents.length], 'demo-user');
+        }
+      }
+    }
+
+    // Seed goals
+    try {
+      goalsService.createGoal({ title: 'Support 10 Creators', targetAmount: 0.1, deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), token: 'usdt' });
+      goalsService.createGoal({ title: 'Weekly Tipping Budget', targetAmount: 0.05, deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), token: 'usdt' });
+      goalsService.createGoal({ title: 'Community Pool Fund', targetAmount: 0.5, deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), token: 'usdt' });
+    } catch { /* goals may already exist from disk */ }
+
+    // Seed Rumble auto-tip rules
+    const rumbleCreators = rumbleService.listCreators();
+    if (rumbleCreators.length >= 3) {
+      try {
+        rumbleService.setAutoTipRules('demo-user', [
+          { minWatchPercent: 80, tipAmount: 0.003, maxTipsPerDay: 5, enabledCategories: ['tech', 'crypto'], enabled: true },
+          { minWatchPercent: 70, tipAmount: 0.005, maxTipsPerDay: 3, enabledCategories: ['finance', 'education'], enabled: true },
+          { minWatchPercent: 90, tipAmount: 0.002, maxTipsPerDay: 10, enabledCategories: ['gaming', 'entertainment'], enabled: true },
+        ]);
+      } catch { /* rules may already exist */ }
+    }
+
+    // Seed community tipping pools
+    if (rumbleCreators.length >= 2) {
+      try {
+        const pool1 = rumbleService.createTipPool(rumbleCreators[1].id, 0.1, 'Crypto Education Fund');
+        rumbleService.contributeToPool(pool1.id, 0.025, 'demo-user-1');
+        rumbleService.contributeToPool(pool1.id, 0.018, 'demo-user-2');
+        rumbleService.contributeToPool(pool1.id, 0.007, 'demo-user-3');
+        const pool2 = rumbleService.createTipPool(rumbleCreators[2].id, 0.05, 'Gaming Community Tips');
+        rumbleService.contributeToPool(pool2.id, 0.012, 'demo-user-1');
+        rumbleService.contributeToPool(pool2.id, 0.009, 'demo-user-4');
+      } catch { /* pools may already exist */ }
+    }
+
+    // Seed predictions from tip history
+    const tipData = agent.getHistory().map(h => ({
+      recipient: h.recipient, amount: h.amount, chainId: h.chainId, createdAt: h.createdAt,
+    }));
+    predictorService.learnFromHistory(tipData);
+    predictorService.generatePredictions();
+
+    // Seed agent memory
+    memoryService.remember('preference', 'CryptoDaily_chain', 'TON testnet is preferred for CryptoDaily — lower fees');
+    memoryService.remember('context', 'weekday_tipping', 'User tips more on weekdays (Mon-Fri) between 9am-12pm');
+    memoryService.remember('fact', 'fee_insight', 'TRON Nile consistently 85% cheaper than Ethereum Sepolia for USDT transfers');
+    memoryService.remember('preference', 'auto_tip_threshold', 'User prefers auto-tips under 0.005 USDT without confirmation');
+    memoryService.remember('fact', 'creator_loyalty', 'TechReviewer and CryptoDaily are top 2 most-tipped creators (together 60% of volume)');
+
+    const totalVolume = allTips.reduce((sum, t) => sum + parseFloat(t.amount), 0).toFixed(4);
+    logger.info(`Demo seed complete: ${creators.length} creators, ${demoService.getSamplePolicies().length} policies, ${allTips.length} tips (${totalVolume} USDT), ${demoService.getSampleActivities().length} activities, 3 DCA plans, 3 goals, 3 auto-tip rules, 2 pools, 5 memories, reputation + analytics + predictions seeded`);
   }
 
   // ── Autonomous Demo Cycle ─────────────────────────────────────
