@@ -70,7 +70,7 @@ export function DashboardTabs({ dashboardContent, analyticsContent, historyConte
     <div>
       {/* Tab bar */}
       <div className="mb-4 sm:mb-6">
-        <div className="flex gap-1 p-1 rounded-xl bg-surface-1 border border-border overflow-x-auto">
+        <div className="flex gap-1 p-1 rounded-xl glass-card overflow-x-auto">
           {tabDefs.map((tab) => (
             <button
               key={tab.id}

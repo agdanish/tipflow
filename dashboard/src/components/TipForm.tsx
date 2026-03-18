@@ -319,7 +319,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
   const presetAmounts = token === 'usdt' ? ['1', '5', '10', '25'] : token === 'xaut' ? ['0.001', '0.005', '0.01', '0.05'] : ['0.001', '0.005', '0.01', '0.05'];
 
   return (
-    <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+    <div className="gradient-border-wrap"><div className="rounded-xl bg-surface-1 p-4 sm:p-5">
       <h2 className="text-base font-semibold text-text-primary mb-3 sm:mb-4 flex items-center gap-2">
         <Send className="w-4 h-4 text-accent" />
         {t('tip.send')}
@@ -866,6 +866,6 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
           onClose={() => setShowQRScanner(false)}
         />
       )}
-    </div>
+    </div></div>
   );
 }

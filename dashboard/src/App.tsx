@@ -371,13 +371,18 @@ function App() {
   const isAgentBusy = agentState.status !== 'idle';
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-screen bg-surface relative overflow-hidden">
+      {/* Aurora ambient background */}
+      <div className="aurora-blob-1" aria-hidden="true" />
+      <div className="aurora-blob-2" aria-hidden="true" />
+      <div className="aurora-blob-3" aria-hidden="true" />
+
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:rounded-lg focus:text-sm focus:font-medium">
         Skip to main content
       </a>
       <Header health={health} theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} onShowShortcuts={() => setShowShortcuts(true)} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onClearAll={clearAll} />
 
-      <main id="main-content" role="main" className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <main id="main-content" role="main" className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Demo Mode Banner */}
         <DemoBanner />
 
@@ -668,29 +673,29 @@ function App() {
           aiContent={
             <div className="space-y-4 sm:space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                <div className="glass-card glow-hover p-4 sm:p-5">
                   <OrchestratorPanel />
                 </div>
-                <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                <div className="glass-card glow-hover p-4 sm:p-5">
                   <PredictorPanel />
                 </div>
-                <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                <div className="glass-card glow-hover p-4 sm:p-5">
                   <FeeArbitragePanel />
                 </div>
               </div>
               <div className="dashboard-grid-cards">
-                <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                <div className="glass-card glow-hover p-4 sm:p-5">
                   <EscrowPanel />
                 </div>
-                <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                <div className="glass-card glow-hover p-4 sm:p-5">
                   <MemoryPanel />
                 </div>
               </div>
               <div className="dashboard-grid-cards">
-                <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                <div className="glass-card glow-hover p-4 sm:p-5">
                   <DcaPanel />
                 </div>
-                <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                <div className="glass-card glow-hover p-4 sm:p-5">
                   <CreatorAnalyticsPanel />
                 </div>
               </div>

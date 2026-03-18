@@ -83,7 +83,7 @@ export function StatsPanel({ stats }: StatsPanelProps) {
                   {card.label}
                 </span>
               </div>
-              <p className="text-lg sm:text-xl font-bold text-text-primary tracking-tight">{card.value}</p>
+              <p className="text-lg sm:text-xl font-bold text-text-primary tracking-tight tabular-nums">{card.value}</p>
             </div>
           );
         })}

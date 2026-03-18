@@ -151,7 +151,7 @@ export function StreamingPanel() {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+    <div className="glass-card glow-hover p-4 sm:p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-base font-semibold text-text-primary flex items-center gap-2">
@@ -170,16 +170,16 @@ export function StreamingPanel() {
       {/* Stats bar */}
       {stats && (
         <div className="grid grid-cols-3 gap-3 mb-4">
-          <div className="bg-surface-2 rounded-lg px-3 py-2 text-center">
-            <div className="text-lg font-bold text-text-primary">{stats.activeStreams}</div>
+          <div className="bg-white/[0.03] rounded-lg px-3 py-2 text-center border border-white/[0.05]">
+            <div className="text-lg font-bold text-text-primary tabular-nums value-glow-green">{stats.activeStreams}</div>
             <div className="text-[10px] text-text-muted">Active</div>
           </div>
-          <div className="bg-surface-2 rounded-lg px-3 py-2 text-center">
-            <div className="text-lg font-bold text-text-primary">{parseFloat(stats.totalAmountStreamed).toFixed(4)}</div>
+          <div className="bg-white/[0.03] rounded-lg px-3 py-2 text-center border border-white/[0.05]">
+            <div className="text-lg font-bold text-text-primary tabular-nums">{parseFloat(stats.totalAmountStreamed).toFixed(4)}</div>
             <div className="text-[10px] text-text-muted">Streamed</div>
           </div>
-          <div className="bg-surface-2 rounded-lg px-3 py-2 text-center">
-            <div className="text-lg font-bold text-text-primary">{stats.totalTransactionsSent}</div>
+          <div className="bg-white/[0.03] rounded-lg px-3 py-2 text-center border border-white/[0.05]">
+            <div className="text-lg font-bold text-text-primary tabular-nums">{stats.totalTransactionsSent}</div>
             <div className="text-[10px] text-text-muted">Txns</div>
           </div>
         </div>

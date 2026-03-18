@@ -62,7 +62,7 @@ export function WalletCard({ balance }: WalletCardProps) {
       <div className="space-y-3">
         <div>
           <p className="text-[11px] text-text-muted mb-1 uppercase tracking-wider">Native Balance</p>
-          <p className="text-xl sm:text-2xl font-bold text-text-primary tracking-tight">
+          <p className="text-xl sm:text-2xl font-bold text-text-primary tracking-tight tabular-nums">
             {formatNumber(balance.nativeBalance)}{' '}
             <span className="text-sm font-medium text-text-secondary">{balance.nativeCurrency}</span>
           </p>
@@ -70,7 +70,7 @@ export function WalletCard({ balance }: WalletCardProps) {
 
         <div>
           <p className="text-[11px] text-text-muted mb-1 uppercase tracking-wider">USDT Balance</p>
-          <p className={`text-lg font-semibold ${hasUsdt ? 'text-accent' : 'text-text-muted'}`}>
+          <p className={`text-lg font-semibold tabular-nums ${hasUsdt ? 'text-accent value-glow-accent' : 'text-text-muted'}`}>
             {hasUsdt ? formatNumber(balance.usdtBalance, 2) : '0.00'}{' '}
             <span className="text-sm font-medium">USDT</span>
           </p>

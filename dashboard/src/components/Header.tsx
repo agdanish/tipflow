@@ -26,7 +26,7 @@ export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, o
   useLocale();
 
   return (
-    <header role="banner" aria-label="TipFlow main navigation" className="border-b border-border header-gradient backdrop-blur-sm sticky top-0 z-50">
+    <header role="banner" aria-label="TipFlow main navigation" className="border-b border-white/[0.07] glass-elevated sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-accent/20 flex items-center justify-center glow-accent">
