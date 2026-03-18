@@ -1,7 +1,32 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Wifi, Database } from 'lucide-react';
 import { api } from '../lib/api';
 import type { NetworkHealthStatus, IndexerHealthResult } from '../types';
+
+const MAX_LATENCY_HISTORY = 8;
+
+/** Tiny latency sparkline */
+function LatencySparkline({ data, status }: { data: number[]; status: string }) {
+  if (data.length < 2) return null;
+  const width = 40;
+  const height = 14;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const points = data
+    .map((v, i) => {
+      const x = (i / (data.length - 1)) * width;
+      const y = height - ((v - min) / range) * height;
+      return `${x},${y}`;
+    })
+    .join(' ');
+  const strokeColor = status === 'healthy' ? '#4ade80' : status === 'degraded' ? '#fbbf24' : '#f87171';
+  return (
+    <svg width={width} height={height} className="inline-block opacity-60 shrink-0">
+      <polyline fill="none" stroke={strokeColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" points={points} />
+    </svg>
+  );
+}
 
 export function NetworkHealth() {
   const [chains, setChains] = useState<NetworkHealthStatus[]>([]);
@@ -9,12 +34,25 @@ export function NetworkHealth() {
   const [lastChecked, setLastChecked] = useState<string | null>(null);
   const [indexer, setIndexer] = useState<IndexerHealthResult | null>(null);
   const [indexerChainCount, setIndexerChainCount] = useState<number>(0);
+  const latencyHistory = useRef<Record<string, number[]>>({});
+  const healthyChecks = useRef<Record<string, { total: number; healthy: number }>>({});
 
   const refresh = useCallback(async () => {
     try {
       const data = await api.getNetworkHealth();
       setChains(data.chains);
       setLastChecked(new Date().toLocaleTimeString());
+      // Track latency history & uptime
+      for (const chain of data.chains) {
+        const hist = latencyHistory.current[chain.chainId] ?? [];
+        hist.push(chain.latencyMs);
+        if (hist.length > MAX_LATENCY_HISTORY) hist.shift();
+        latencyHistory.current[chain.chainId] = hist;
+        const checks = healthyChecks.current[chain.chainId] ?? { total: 0, healthy: 0 };
+        checks.total++;
+        if (chain.status === 'healthy') checks.healthy++;
+        healthyChecks.current[chain.chainId] = checks;
+      }
     } catch {
       // keep existing data
     }
@@ -102,18 +140,30 @@ export function NetworkHealth() {
                   <span className={`text-[10px] font-semibold ${statusTextColor(chain.status)}`}>
                     {statusLabel(chain.status)}
                   </span>
+                  {/* Uptime percentage */}
+                  {healthyChecks.current[chain.chainId]?.total > 1 && (
+                    <span className="text-[10px] tabular-nums text-text-muted">
+                      {Math.round((healthyChecks.current[chain.chainId].healthy / healthyChecks.current[chain.chainId].total) * 100)}% uptime
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-3 mt-0.5">
-                  <span className="text-[10px] text-text-muted">
+                  <span className="text-[10px] text-text-muted tabular-nums">
                     {chain.latencyMs}ms
                   </span>
                   {chain.blockNumber !== undefined && (
-                    <span className="text-[10px] text-text-muted">
+                    <span className="text-[10px] text-text-muted tabular-nums">
                       Block #{chain.blockNumber.toLocaleString()}
                     </span>
                   )}
                 </div>
               </div>
+
+              {/* Latency sparkline */}
+              <LatencySparkline
+                data={latencyHistory.current[chain.chainId] ?? []}
+                status={chain.status}
+              />
 
               {/* Latency bar */}
               <div className="w-12 h-1.5 rounded-full bg-surface-3 overflow-hidden shrink-0">

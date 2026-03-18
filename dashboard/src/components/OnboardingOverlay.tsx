@@ -206,6 +206,19 @@ export function OnboardingOverlay({ onComplete }: OnboardingOverlayProps) {
         className={`onboarding-card ${isTransitioning ? 'onboarding-card-exit' : 'onboarding-card-enter'}`}
         style={{ ...getCardStyle(), zIndex: 10000, width: 380, maxWidth: 'calc(100vw - 32px)' }}
       >
+        {/* Progress bar at top */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-surface-3 rounded-t-xl overflow-hidden">
+          <div
+            className="h-full bg-accent transition-all duration-500 ease-out rounded-full"
+            style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+          />
+        </div>
+
+        {/* Step indicator */}
+        <div className="absolute top-3 left-4 text-[10px] text-text-muted font-medium tabular-nums">
+          Step {step + 1} of {STEPS.length}
+        </div>
+
         {/* Skip button */}
         <button
           onClick={finish}

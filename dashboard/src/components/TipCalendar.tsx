@@ -353,14 +353,21 @@ export function TipCalendar({ onCancelTip }: TipCalendarProps) {
                         ${isToday ? 'ring-1 ring-inset ring-accent/40' : ''}
                       `}
                     >
-                      <span
-                        className={`
-                          text-xs font-medium block
-                          ${isToday ? 'text-accent font-bold' : 'text-text-secondary'}
-                        `}
-                      >
-                        {day}
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`
+                            text-xs font-medium
+                            ${isToday ? 'text-accent font-bold bg-accent/15 w-5 h-5 rounded-full flex items-center justify-center' : 'text-text-secondary'}
+                          `}
+                        >
+                          {day}
+                        </span>
+                        {hasTips && (
+                          <span className="text-[8px] font-semibold tabular-nums text-amber-400 bg-amber-500/10 px-1 rounded-full sm:inline hidden">
+                            {tips.length}
+                          </span>
+                        )}
+                      </div>
 
                       {/* Tip dots */}
                       {hasTips && (

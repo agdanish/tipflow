@@ -199,20 +199,30 @@ export function SplitTipForm({ onSplitComplete, disabled }: SplitTipFormProps) {
               );
             })}
           </div>
-          {/* Legend */}
+          {/* Legend with amount + percentage breakdown */}
           <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1.5">
             {recipients.map((r, i) => {
               const pct = parseFloat(r.percentage) || 0;
               const share = totalAmountNum > 0 ? ((totalAmountNum * pct) / 100).toFixed(6) : '0';
               return (
-                <div key={r.id} className="flex items-center gap-1 text-[10px] text-text-muted">
+                <div key={r.id} className="flex items-center gap-1 text-[10px] text-text-muted animate-fade-in">
                   <div className={`w-2 h-2 rounded-full ${COLORS[i % COLORS.length]}`} />
-                  <span>{r.name || `#${i + 1}`}:</span>
-                  <span className="font-mono">{share}</span>
+                  <span className="font-medium text-text-secondary">{r.name || `#${i + 1}`}</span>
+                  <span className="font-mono tabular-nums">{share}</span>
+                  <span className={`font-mono ${pct > 0 ? 'text-text-secondary' : ''}`}>({pct.toFixed(1)}%)</span>
                 </div>
               );
             })}
           </div>
+          {/* Summary bar */}
+          {totalAmountNum > 0 && pctValid && (
+            <div className="mt-2 flex items-center justify-between px-2.5 py-1.5 rounded-md bg-accent/5 border border-accent-border/20 text-[10px]">
+              <span className="text-text-muted">Split Summary</span>
+              <span className="font-medium text-text-primary tabular-nums value-glow-accent">
+                {totalAmountNum} {token === 'usdt' ? 'USDT' : 'Native'} ÷ {recipients.filter(r => r.address.trim()).length} recipients
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Even Split button */}

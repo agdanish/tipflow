@@ -23,14 +23,19 @@ function ProgressBar({ progress, target }: { progress: number; target: number })
 
 function AchievementBadge({ achievement }: { achievement: Achievement }) {
   const unlocked = !!achievement.unlockedAt;
+  const pct = Math.min(100, Math.round((achievement.progress / achievement.target) * 100));
   return (
     <div
-      className={`relative p-3 sm:p-4 rounded-xl border transition-all ${
+      className={`relative p-3 sm:p-4 rounded-xl border transition-all overflow-hidden ${
         unlocked
-          ? 'bg-green-500/5 border-green-500/20 shadow-[0_0_12px_rgba(34,197,94,0.08)]'
+          ? 'bg-green-500/5 border-green-500/20 shadow-[0_0_12px_rgba(34,197,94,0.08)] verified-glow'
           : 'bg-surface-2/50 border-border opacity-60'
       }`}
     >
+      {/* Shimmer effect on unlocked achievements */}
+      {unlocked && (
+        <div className="absolute inset-0 -translate-x-full animate-[shimmer_3s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-white/[0.04] to-transparent pointer-events-none" />
+      )}
       <div className="flex items-start gap-3">
         <span className={`text-2xl ${unlocked ? '' : 'grayscale'}`}>
           {achievement.icon}
@@ -46,10 +51,13 @@ function AchievementBadge({ achievement }: { achievement: Achievement }) {
           </div>
           <p className="text-xs text-text-muted mt-0.5">{achievement.description}</p>
           <ProgressBar progress={achievement.progress} target={achievement.target} />
-          <div className="text-[10px] text-text-muted mt-1">
-            {achievement.progress}/{achievement.target}
+          <div className="text-[10px] text-text-muted mt-1 flex items-center gap-2">
+            <span className="tabular-nums">{achievement.progress}/{achievement.target}</span>
+            <span className={`font-semibold tabular-nums ${pct >= 100 ? 'text-green-400' : pct >= 50 ? 'text-accent' : 'text-text-muted'}`}>
+              {pct}%
+            </span>
             {unlocked && achievement.unlockedAt && (
-              <span className="ml-2 text-green-400">
+              <span className="ml-auto text-green-400">
                 Unlocked {new Date(achievement.unlockedAt).toLocaleDateString()}
               </span>
             )}

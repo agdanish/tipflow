@@ -135,8 +135,8 @@ export function GasMonitor() {
                 {chain.chainName}
               </span>
 
-              {/* Gas price */}
-              <span className="text-xs font-mono text-text-secondary">
+              {/* Gas price with color coding */}
+              <span className={`text-xs font-mono tabular-nums font-semibold ${colors.text}`}>
                 {isEvm ? `${chain.gasPriceGwei} gwei` : `~${chain.gasPriceGwei} TON`}
               </span>
 
@@ -158,6 +158,13 @@ export function GasMonitor() {
             </div>
           );
         })}
+      </div>
+
+      {/* Gas thresholds reference */}
+      <div className="mt-2 flex items-center gap-3 px-3 py-1.5 text-[10px] text-text-muted">
+        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-400" /> &lt;20 gwei</span>
+        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-yellow-400" /> 20-50 gwei</span>
+        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-red-400" /> &gt;50 gwei</span>
       </div>
 
       {/* Best time to tip banner */}

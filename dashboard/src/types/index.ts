@@ -174,6 +174,7 @@ export interface TipTemplate {
   token: 'native' | 'usdt' | 'usat' | 'xaut';
   chainId?: string;
   createdAt: string;
+  useCount?: number;
 }
 
 /** Address book contact */

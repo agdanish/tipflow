@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Settings, ChevronDown, ChevronRight, RotateCcw, Save, Loader2, MessageSquare, Link2, Coins, Bell, Palette, Volume2, Globe } from 'lucide-react';
+import { Settings, ChevronDown, ChevronRight, RotateCcw, Save, Loader2, MessageSquare, Link2, Coins, Bell, Palette, Volume2, Globe, CheckCircle2 } from 'lucide-react';
 import { api } from '../lib/api';
 import type { PersonalityType, AgentSettings, ChainId, TokenType } from '../types';
 import { LOCALES, getStoredLocale, storeLocale, type Locale } from '../lib/i18n';
@@ -162,15 +162,18 @@ export function SettingsPanel({ theme, onToggleTheme, soundOn, onToggleSound }: 
 
       {expanded && (
         <div className="px-4 sm:px-5 pb-5 space-y-6 border-t border-border pt-4">
-          {/* Status Bar */}
+          {/* Settings saved toast / status bar */}
           {(saving || saved || error) && (
-            <div className={`flex items-center gap-2 text-xs px-3 py-2 rounded-lg ${
+            <div className={`flex items-center gap-2 text-xs px-3 py-2.5 rounded-lg transition-all animate-slide-down ${
               error ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
-              saved ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+              saved ? 'bg-green-500/10 text-green-400 border border-green-500/20 value-flash' :
               'bg-accent/10 text-accent border border-accent/20'
             }`}>
-              {saving && <Loader2 className="w-3 h-3 animate-spin" />}
-              {saving ? 'Saving...' : saved ? 'Settings saved!' : error ? `Error: ${error}` : ''}
+              {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              {saved && <CheckCircle2 className="w-3.5 h-3.5" />}
+              <span className="font-medium">
+                {saving ? 'Saving...' : saved ? 'Settings saved successfully!' : error ? `Error: ${error}` : ''}
+              </span>
             </div>
           )}
 

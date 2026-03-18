@@ -104,11 +104,18 @@ export function ConditionalTips() {
   const statusIcon = (status: TipCondition['status']) => {
     switch (status) {
       case 'active':
-        return <Activity className="w-3.5 h-3.5 text-green-400" />;
+        return (
+          <span className="relative flex h-3.5 w-3.5 shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-40" />
+            <span className="relative inline-flex rounded-full h-3.5 w-3.5 items-center justify-center">
+              <Activity className="w-3.5 h-3.5 text-green-400" />
+            </span>
+          </span>
+        );
       case 'triggered':
         return <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" />;
       case 'cancelled':
-        return <XCircle className="w-3.5 h-3.5 text-gray-400" />;
+        return <XCircle className="w-3.5 h-3.5 text-gray-400 opacity-50" />;
     }
   };
 
@@ -142,6 +149,12 @@ export function ConditionalTips() {
         <h2 className="text-base font-semibold text-text-primary flex items-center gap-2">
           <Zap className="w-4 h-4 text-yellow-400" />
           Smart Conditions
+          {conditions.filter(c => c.status === 'active').length > 0 && (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] font-medium text-green-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              {conditions.filter(c => c.status === 'active').length} active
+            </span>
+          )}
         </h2>
         <button
           onClick={() => setCreating((p) => !p)}

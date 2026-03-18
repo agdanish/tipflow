@@ -71,6 +71,7 @@ export function BatchTipForm({ onBatchComplete, disabled }: BatchTipFormProps) {
   };
 
   const validCount = recipients.filter((r) => r.address && r.amount).length;
+  const totalAmount = recipients.reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);
 
   return (
     <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
@@ -180,6 +181,18 @@ export function BatchTipForm({ onBatchComplete, disabled }: BatchTipFormProps) {
             <p className="text-xs text-text-secondary mt-1">
               Total: {result.totalAmount} | Fees: {result.totalFees}
             </p>
+          </div>
+        )}
+
+        {/* Live total summary bar */}
+        {validCount > 0 && (
+          <div className="flex items-center justify-between px-3 py-2.5 rounded-lg bg-accent/5 border border-accent-border/30 animate-fade-in">
+            <span className="text-xs text-text-secondary">Total</span>
+            <span className="text-sm font-semibold tabular-nums value-glow-accent">
+              {totalAmount > 0 ? totalAmount.toFixed(6).replace(/\.?0+$/, '') : '0'}{' '}
+              <span className="text-xs font-normal text-text-muted">{token === 'usdt' ? 'USDT' : 'Native'}</span>
+              <span className="text-xs text-text-muted ml-1.5">across {validCount} recipient{validCount !== 1 ? 's' : ''}</span>
+            </span>
           </div>
         )}
 

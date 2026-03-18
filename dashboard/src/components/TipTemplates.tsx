@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { BookMarked, Play, Trash2, Plus, X, Loader2 } from 'lucide-react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { BookMarked, Play, Trash2, Plus, X, Loader2, Star } from 'lucide-react';
 import { api } from '../lib/api';
 import type { TipTemplate } from '../types';
 
@@ -75,6 +75,18 @@ export function TipTemplates({ onUseTemplate }: TipTemplatesProps) {
     if (addr.length <= 14) return addr;
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
+
+  // Find the most-used template
+  const mostUsedId = useMemo(() => {
+    if (templates.length === 0) return null;
+    let best: TipTemplate | null = null;
+    for (const t of templates) {
+      if ((t.useCount ?? 0) > 0 && (!best || (t.useCount ?? 0) > (best.useCount ?? 0))) {
+        best = t;
+      }
+    }
+    return best?.id ?? null;
+  }, [templates]);
 
   const tokenLabel = (t: TipTemplate) => {
     if (t.token === 'usdt') return 'USDT';
@@ -172,14 +184,22 @@ export function TipTemplates({ onUseTemplate }: TipTemplatesProps) {
         </div>
       ) : (
         <div className="grid gap-2">
-          {templates.map((t) => (
+          {templates.map((t) => {
+            const isPopular = mostUsedId === t.id;
+            return (
             <div
               key={t.id}
-              className="flex items-center gap-3 p-3 rounded-lg bg-surface-2 border border-border hover:border-border-light transition-colors group"
+              className={`flex items-center gap-3 p-3 rounded-lg bg-surface-2 border transition-colors group ${isPopular ? 'border-amber-500/30 bg-amber-500/[0.03]' : 'border-border hover:border-border-light'}`}
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-text-primary truncate">{t.name}</span>
+                  {isPopular && (
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/25 text-[10px] font-semibold text-amber-400 discovery-star">
+                      <Star className="w-2.5 h-2.5" />
+                      Popular
+                    </span>
+                  )}
                   <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
                     t.token === 'usdt'
                       ? 'bg-green-500/15 text-green-400 border border-green-500/20'
@@ -192,6 +212,9 @@ export function TipTemplates({ onUseTemplate }: TipTemplatesProps) {
                   <span className="text-xs text-text-secondary font-medium">{t.amount}</span>
                   <span className="text-[10px] text-text-muted">to</span>
                   <span className="text-[10px] text-text-muted font-mono">{truncateAddr(t.recipient)}</span>
+                  {(t.useCount ?? 0) > 0 && (
+                    <span className="text-[10px] text-text-muted tabular-nums ml-auto">Used {t.useCount}x</span>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-1 shrink-0">
@@ -232,7 +255,8 @@ export function TipTemplates({ onUseTemplate }: TipTemplatesProps) {
                 )}
               </div>
             </div>
-          ))}
+          );
+          })}
         </div>
       )}
     </div>

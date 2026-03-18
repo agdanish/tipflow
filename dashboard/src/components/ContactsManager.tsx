@@ -423,8 +423,14 @@ export function ContactsManager() {
                               {contact.group}
                             </span>
                           )}
+                          {contact.lastTipped && (Date.now() - new Date(contact.lastTipped).getTime()) < 86400000 && (
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] font-medium text-green-400 animate-fade-in">
+                              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                              Recent
+                            </span>
+                          )}
                           {contact.tipCount > 0 && (
-                            <span className="text-[10px] text-text-muted">{contact.tipCount} tips</span>
+                            <span className="text-[10px] text-text-muted tabular-nums">{contact.tipCount} tips</span>
                           )}
                         </div>
                         <div className="flex items-center gap-1.5 mt-0.5">

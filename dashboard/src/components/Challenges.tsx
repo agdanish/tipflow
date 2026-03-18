@@ -21,31 +21,38 @@ function ChallengeProgressBar({ progress, target }: { progress: number; target: 
 
 function TimeRemaining({ expiresAt }: { expiresAt: string }) {
   const [remaining, setRemaining] = useState('');
+  const [urgent, setUrgent] = useState(false);
 
   useEffect(() => {
     const update = () => {
       const diff = new Date(expiresAt).getTime() - Date.now();
       if (diff <= 0) {
         setRemaining('Expired');
+        setUrgent(false);
         return;
       }
       const hours = Math.floor(diff / 3600000);
       const minutes = Math.floor((diff % 3600000) / 60000);
+      const seconds = Math.floor((diff % 60000) / 1000);
+      setUrgent(diff < 3600000); // under 1 hour
+
       if (hours > 0) {
-        setRemaining(`${hours}h ${minutes}m left`);
+        setRemaining(`${hours}h ${minutes}m`);
+      } else if (minutes > 0) {
+        setRemaining(`${minutes}m ${seconds}s`);
       } else {
-        setRemaining(`${minutes}m left`);
+        setRemaining(`${seconds}s`);
       }
     };
 
     update();
-    const id = setInterval(update, 60000);
+    const id = setInterval(update, urgent || (new Date(expiresAt).getTime() - Date.now()) < 3600000 ? 1000 : 60000);
     return () => clearInterval(id);
-  }, [expiresAt]);
+  }, [expiresAt, urgent]);
 
   return (
-    <span className="inline-flex items-center gap-1 text-[10px] text-text-muted">
-      <Clock className="w-2.5 h-2.5" />
+    <span className={`inline-flex items-center gap-1 text-[10px] tabular-nums ${urgent ? 'text-amber-400 font-semibold' : 'text-text-muted'}`}>
+      <Clock className={`w-2.5 h-2.5 ${urgent ? 'animate-pulse' : ''}`} />
       {remaining}
     </span>
   );
