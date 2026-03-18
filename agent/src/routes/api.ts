@@ -33,6 +33,7 @@ import { EscrowService } from '../services/escrow.service.js';
 import { OrchestratorService } from '../services/orchestrator.service.js';
 import { PredictorService } from '../services/predictor.service.js';
 import { FeeArbitrageService } from '../services/fee-arbitrage.service.js';
+import { MemoryService } from '../services/memory.service.js';
 
 /** Shared challenges service instance — exported for agent integration */
 export const challenges = new ChallengesService();
@@ -75,6 +76,9 @@ export const predictorService = new PredictorService();
 
 /** Shared fee arbitrage service instance — exported for agent integration */
 export const feeArbitrageService = new FeeArbitrageService();
+
+/** Shared memory service instance — persistent agent memory */
+export const memoryService = new MemoryService();
 
 /** Shared contacts service instance */
 const contacts = new ContactsService();
@@ -157,6 +161,7 @@ export function createApiRouter(
         ai: { status: 'ready' },
         rumble: { status: 'active', creatorCount: rumbleService.listCreators().length },
         autonomy: { status: 'active', policyCount: autonomyService.getPolicies('default').length },
+        memory: { status: 'active', memoryCount: memoryService.getAllMemories().length },
         streaming: { status: 'ready' },
         receipts: { status: 'ready' },
         reputation: { status: 'ready' },
@@ -206,6 +211,8 @@ export function createApiRouter(
         predictiveTipping: true,
         feeArbitrage: true,
         rumbleIntegration: true,
+        agentMemory: true,
+        xautGoldToken: true,
         voiceCommands: true,
         multiLanguage: ['en', 'es', 'fr', 'ar', 'zh'],
       },
@@ -3679,6 +3686,38 @@ export function createApiRouter(
 
   router.get('/fees/optimal-timing', (_req, res) => {
     res.json(feeArbitrageService.getOptimalTiming());
+  });
+
+  // ── Agent Memory ─────────────────────────────────────────────
+  router.get('/memory', (_req, res) => {
+    res.json(memoryService.getAllMemories());
+  });
+
+  router.get('/memory/stats', (_req, res) => {
+    res.json(memoryService.getStats());
+  });
+
+  router.get('/memory/search', (req, res) => {
+    const query = req.query.q as string;
+    if (!query) return res.status(400).json({ error: 'q parameter required' });
+    res.json(memoryService.search(query));
+  });
+
+  router.post('/memory', (req, res) => {
+    const { type, key, value, source } = req.body;
+    if (!key || !value) return res.status(400).json({ error: 'key and value required' });
+    const entry = memoryService.remember(type ?? 'fact', key, value, source ?? 'user_said');
+    res.status(201).json(entry);
+  });
+
+  router.get('/memory/conversations', (_req, res) => {
+    res.json(memoryService.getConversationHistory());
+  });
+
+  router.delete('/memory/:id', (req, res) => {
+    const success = memoryService.forget(req.params.id);
+    if (!success) return res.status(404).json({ error: 'Memory not found' });
+    res.json({ success: true });
   });
 
   return router;

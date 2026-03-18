@@ -193,7 +193,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
       if (parsed.amount) setAmount(parsed.amount);
       if (parsed.token) {
         setToken(parsed.token);
-        if (parsed.token === 'usdt') setChain('ethereum-sepolia');
+        if (parsed.token === 'usdt' || parsed.token === 'xaut') setChain('ethereum-sepolia');
       }
       if (parsed.chain) setChain(parsed.chain as ChainId);
       if (parsed.message) setMessage(parsed.message);
@@ -316,7 +316,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
     }
   };
 
-  const presetAmounts = token === 'usdt' ? ['1', '5', '10', '25'] : ['0.001', '0.005', '0.01', '0.05'];
+  const presetAmounts = token === 'usdt' ? ['1', '5', '10', '25'] : token === 'xaut' ? ['0.001', '0.005', '0.01', '0.05'] : ['0.001', '0.005', '0.01', '0.05'];
 
   return (
     <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
@@ -384,7 +384,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
         {/* Token selector */}
         <div>
           <label className="block text-xs text-text-secondary mb-1.5">{t('tip.token')}</label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
             <button
               type="button"
               onClick={() => { setToken('native'); setAmount(''); }}
@@ -409,6 +409,18 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
             >
               <span className="text-xs font-bold">$</span>
               USDT
+            </button>
+            <button
+              type="button"
+              onClick={() => { setToken('xaut'); setAmount(''); setChain('ethereum-sepolia'); }}
+              className={`flex items-center justify-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg border text-xs sm:text-sm font-medium transition-all ${
+                token === 'xaut'
+                  ? 'border-yellow-500 bg-yellow-500/10 text-yellow-400'
+                  : 'border-border bg-surface-2 text-text-secondary hover:border-border-light'
+              }`}
+            >
+              <span className="text-xs font-bold">Au</span>
+              XAU₮
             </button>
           </div>
         </div>
@@ -554,7 +566,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
 
         <div>
           <label className="block text-xs text-text-secondary mb-1.5">
-            {t('tip.amount')} {token === 'usdt' ? '(USDT)' : ''}
+            {t('tip.amount')} {token === 'usdt' ? '(USDT)' : token === 'xaut' ? '(XAU₮)' : ''}
           </label>
           <input
             type="text"
@@ -599,10 +611,10 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
             onChange={(e) => setChain(e.target.value as ChainId | '')}
             aria-label="Blockchain network preference"
             className="w-full px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary focus:outline-none focus:border-accent-border transition-colors"
-            disabled={sending || disabled || token === 'usdt'}
+            disabled={sending || disabled || token === 'usdt' || token === 'xaut'}
           >
-            {token === 'usdt' ? (
-              <option value="ethereum-sepolia">Ethereum Sepolia (USDT)</option>
+            {token === 'usdt' || token === 'xaut' ? (
+              <option value="ethereum-sepolia">Ethereum Sepolia ({token === 'xaut' ? 'XAU₮' : 'USDT'})</option>
             ) : (
               <>
                 <option value="">{t('tip.chainAuto')}</option>

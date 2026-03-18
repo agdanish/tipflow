@@ -182,7 +182,7 @@ JSON:`;
     const recipient = String(parsed.recipient ?? '').trim();
     const amount = String(parsed.amount ?? '').trim();
     const tokenRaw = String(parsed.token ?? 'native').toLowerCase();
-    const token: 'native' | 'usdt' | 'usat' = tokenRaw === 'usdt' ? 'usdt' : tokenRaw === 'usat' ? 'usat' : 'native';
+    const token: 'native' | 'usdt' | 'usat' | 'xaut' = tokenRaw === 'usdt' ? 'usdt' : tokenRaw === 'usat' ? 'usat' : tokenRaw === 'xaut' || tokenRaw === 'gold' ? 'xaut' : 'native';
     const chain = parsed.chain ? String(parsed.chain) : undefined;
     const message = parsed.message ? String(parsed.message) : undefined;
 
@@ -217,7 +217,11 @@ JSON:`;
     // Extract amount: number potentially with decimals, before or after token name
     // Patterns: "0.01 ETH", "send 5 USDT", "tip 0.001", "$10"
     let amount = '';
-    let token: 'native' | 'usdt' | 'usat' = 'native';
+    let token: 'native' | 'usdt' | 'usat' | 'xaut' = 'native';
+
+    // Pattern: "X XAUT" or "X xau₮" or "X gold" or "X tether gold"
+    const xautNameMatch = input.match(/(\d+(?:\.\d+)?)\s*(?:xaut|xau₮|xau|tether\s*gold|gold)/i);
+    const xautNameBeforeMatch = input.match(/(?:xaut|xau₮|xau|tether\s*gold|gold)\s*(\d+(?:\.\d+)?)/i);
 
     // Pattern: "X USAT" or "X usa₮" — Tether's US dollar-backed stablecoin
     const usatNameMatch = input.match(/(\d+(?:\.\d+)?)\s*(?:usat|usa₮)/i);
@@ -228,7 +232,13 @@ JSON:`;
     const usdtNameMatch = input.match(/(\d+(?:\.\d+)?)\s*(?:usdt|tether)/i);
     const usdtNameBeforeMatch = input.match(/(?:usdt|tether)\s*(\d+(?:\.\d+)?)/i);
 
-    if (usatNameMatch) {
+    if (xautNameMatch) {
+      amount = xautNameMatch[1];
+      token = 'xaut';
+    } else if (xautNameBeforeMatch) {
+      amount = xautNameBeforeMatch[1];
+      token = 'xaut';
+    } else if (usatNameMatch) {
       amount = usatNameMatch[1];
       token = 'usat';
     } else if (usatNameBeforeMatch) {
@@ -260,8 +270,8 @@ JSON:`;
     } else if (evmMatch || /\b(?:eth|ethereum|sepolia|evm)\b/i.test(lower)) {
       chain = 'ethereum-sepolia';
     }
-    // USDT/USAT forces ethereum-sepolia (ERC-20 tokens)
-    if (token === 'usdt' || token === 'usat') {
+    // USDT/USAT/XAUT forces ethereum-sepolia (ERC-20 tokens)
+    if (token === 'usdt' || token === 'usat' || token === 'xaut') {
       chain = 'ethereum-sepolia';
     }
 
@@ -283,7 +293,7 @@ JSON:`;
     if (recipient && this.isValidAddress(recipient)) confidence += 40;
     if (amount && !isNaN(parseFloat(amount)) && parseFloat(amount) > 0) confidence += 40;
     if (/\b(?:send|tip|transfer|pay)\b/i.test(lower)) confidence += 10;
-    if (token === 'usdt' || token === 'usat' || /\b(?:eth|ton)\b/i.test(lower)) confidence += 10;
+    if (token === 'usdt' || token === 'usat' || token === 'xaut' || /\b(?:eth|ton)\b/i.test(lower)) confidence += 10;
 
     return {
       recipient,

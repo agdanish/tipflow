@@ -241,7 +241,7 @@ export const api = {
   getTemplates: () =>
     fetchJson<{ templates: TipTemplate[] }>('/templates'),
 
-  createTemplate: (template: { name: string; recipient: string; amount: string; token?: 'native' | 'usdt' | 'usat'; chainId?: string }) =>
+  createTemplate: (template: { name: string; recipient: string; amount: string; token?: 'native' | 'usdt' | 'usat' | 'xaut'; chainId?: string }) =>
     fetchJson<{ template: TipTemplate }>('/templates', {
       method: 'POST',
       body: JSON.stringify(template),
@@ -804,4 +804,28 @@ export const api = {
   // ── Full Health ──
   healthFull: () =>
     fetchJson<Record<string, unknown>>('/health/full'),
+
+  // ── Agent Memory ──
+  memoryAll: () =>
+    fetchJson<Record<string, unknown>[]>('/memory'),
+
+  memoryStats: () =>
+    fetchJson<Record<string, unknown>>('/memory/stats'),
+
+  memorySearch: (q: string) =>
+    fetchJson<Record<string, unknown>[]>(`/memory/search?q=${encodeURIComponent(q)}`),
+
+  memoryStore: (type: string, key: string, value: string) =>
+    fetchJson<Record<string, unknown>>('/memory', {
+      method: 'POST',
+      body: JSON.stringify({ type, key, value }),
+    }),
+
+  memoryConversations: () =>
+    fetchJson<Record<string, unknown>[]>('/memory/conversations'),
+
+  memoryForget: (id: string) =>
+    fetchJson<{ success: boolean }>(`/memory/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    }),
 };

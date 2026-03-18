@@ -1,5 +1,5 @@
 export type ChainId = 'ethereum-sepolia' | 'ton-testnet' | 'tron-nile' | 'ethereum-sepolia-gasless' | 'ton-testnet-gasless';
-export type TokenType = 'native' | 'usdt' | 'usat';
+export type TokenType = 'native' | 'usdt' | 'usat' | 'xaut' | 'xaut';
 
 /** Gasless status returned by the API */
 export interface GaslessStatus {
@@ -140,7 +140,7 @@ export interface AgentStats {
 export interface NLPTipParse {
   recipient: string;
   amount: string;
-  token: 'native' | 'usdt' | 'usat';
+  token: 'native' | 'usdt' | 'usat' | 'xaut';
   chain?: string;
   message?: string;
   confidence: number;
@@ -171,7 +171,7 @@ export interface TipTemplate {
   name: string;
   recipient: string;
   amount: string;
-  token: 'native' | 'usdt' | 'usat';
+  token: 'native' | 'usdt' | 'usat' | 'xaut';
   chainId?: string;
   createdAt: string;
 }
@@ -261,7 +261,7 @@ export interface TipCondition {
   tip: {
     recipient: string;
     amount: string;
-    token: 'native' | 'usdt' | 'usat';
+    token: 'native' | 'usdt' | 'usat' | 'xaut';
     chainId?: string;
   };
   status: 'active' | 'triggered' | 'cancelled';

@@ -537,7 +537,7 @@ export class TipFlowAgent {
     try {
       // Step 1: INTAKE
       this.setState({ status: 'analyzing', currentTip: request });
-      const tokenLabel = token === 'usdt' ? 'USDT' : 'native';
+      const tokenLabel = token === 'usdt' ? 'USDT' : token === 'xaut' ? 'XAU₮' : token === 'usat' ? 'USAT' : 'native';
       addStep('INTAKE', `Received tip request: ${request.amount} ${tokenLabel} to ${request.recipient}`);
       this.addActivity({ type: 'system', message: `Processing tip: ${request.amount} ${tokenLabel} to ${request.recipient.slice(0, 10)}...` });
       this.validateTipRequest(request);
@@ -789,7 +789,7 @@ export class TipFlowAgent {
 
       // Record failed tip in audit log
       if (this.limitsService) {
-        this.limitsService.addAuditEntry('tip_failed', `Failed tip: ${request.amount} ${token === 'usdt' ? 'USDT' : 'native'} to ${request.recipient.slice(0, 10)}... — ${errorMsg}`, 'failure');
+        this.limitsService.addAuditEntry('tip_failed', `Failed tip: ${request.amount} ${token === 'usdt' ? 'USDT' : token === 'xaut' ? 'XAU₮' : token === 'usat' ? 'USAT' : 'native'} to ${request.recipient.slice(0, 10)}... — ${errorMsg}`, 'failure');
       }
 
       // Fire webhook for failed tip
@@ -976,8 +976,8 @@ export class TipFlowAgent {
     if (!request.recipient || request.recipient.trim().length === 0) {
       throw new Error('Recipient address is required');
     }
-    if (request.token === 'usdt' && request.preferredChain === 'ton-testnet') {
-      throw new Error('USDT transfers are only supported on Ethereum Sepolia');
+    if ((request.token === 'usdt' || request.token === 'xaut') && request.preferredChain === 'ton-testnet') {
+      throw new Error(`${request.token.toUpperCase()} transfers are only supported on Ethereum Sepolia`);
     }
   }
 
@@ -987,7 +987,7 @@ export class TipFlowAgent {
     const analyses: ChainAnalysis[] = [];
 
     for (const chainId of chains) {
-      if (request.token === 'usdt' && chainId === 'ton-testnet') {
+      if ((request.token === 'usdt' || request.token === 'xaut') && chainId === 'ton-testnet') {
         continue;
       }
       try {
@@ -1031,7 +1031,7 @@ export class TipFlowAgent {
       chainId,
       chainName: config.name,
       available: parseFloat(balance.nativeBalance) > 0 || true,
-      balance: request.token === 'usdt' ? balance.usdtBalance : balance.nativeBalance,
+      balance: (request.token === 'usdt' || request.token === 'xaut') ? balance.usdtBalance : balance.nativeBalance,
       estimatedFee: feeEstimate.fee,
       estimatedFeeUsd: feeUsd.toFixed(4),
       networkStatus: 'healthy',
@@ -1049,7 +1049,7 @@ export class TipFlowAgent {
   ): number {
     let score = 50;
 
-    if (request.token === 'usdt') {
+    if (request.token === 'usdt' || request.token === 'xaut') {
       const usdtBal = parseFloat(balance.usdtBalance);
       if (usdtBal >= parseFloat(request.amount)) score += 25;
       else if (usdtBal > 0) score += 10;
@@ -1134,7 +1134,7 @@ export class TipFlowAgent {
     request: TipRequest,
     token: TokenType,
   ): Promise<{ hash: string; fee: string }> {
-    if (token === 'usdt' || token === 'usat') {
+    if (token === 'usdt' || token === 'usat' || token === 'xaut') {
       return this.wallet.sendUsdtTransfer(chainId, request.recipient, request.amount);
     }
     return this.wallet.sendTransaction(chainId, request.recipient, request.amount);
@@ -1172,7 +1172,7 @@ export class TipFlowAgent {
         'ethereum-sepolia-gasless': 'Ethereum Sepolia (Gasless)',
         'ton-testnet-gasless': 'TON Testnet (Gasless)',
       };
-      const tokenLabel = result.token === 'usdt' ? 'USDT' : result.chainId.startsWith('ethereum') ? 'ETH' : 'TON';
+      const tokenLabel = result.token === 'usdt' ? 'USDT' : result.token === 'xaut' ? 'XAU₮' : result.token === 'usat' ? 'USAT' : result.chainId.startsWith('ethereum') ? 'ETH' : 'TON';
       return {
         receiptId: `RCP-${result.tipId.slice(0, 8).toUpperCase()}`,
         timestamp: result.confirmedAt ?? result.createdAt,
@@ -1195,7 +1195,7 @@ export class TipFlowAgent {
     if (!entry) return undefined;
 
     const isEth = entry.chainId.startsWith('ethereum');
-    const tokenLabel = entry.token === 'usdt' ? 'USDT' : isEth ? 'ETH' : 'TON';
+    const tokenLabel = entry.token === 'usdt' ? 'USDT' : entry.token === 'xaut' ? 'XAU₮' : entry.token === 'usat' ? 'USAT' : isEth ? 'ETH' : 'TON';
     const explorerBase = isEth
       ? 'https://sepolia.etherscan.io/tx/'
       : 'https://testnet.tonviewer.com/transaction/';

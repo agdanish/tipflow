@@ -70,6 +70,7 @@ import { OrchestratorPanel } from './components/OrchestratorPanel';
 import { PredictorPanel } from './components/PredictorPanel';
 import { FeeArbitragePanel } from './components/FeeArbitragePanel';
 import { EscrowPanel } from './components/EscrowPanel';
+import { HealthDashboard } from './components/HealthDashboard';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useSwipe } from './hooks/useTouchGestures';
@@ -687,6 +688,9 @@ function App() {
               <div className="dashboard-grid-cards">
                 <WalletBackup totalTransactions={stats?.totalTips ?? 0} />
                 <WalletSwitcher onActiveChanged={() => refreshBalances()} />
+              </div>
+              <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                <HealthDashboard />
               </div>
               <TreasuryPanel />
               <BridgePanel />

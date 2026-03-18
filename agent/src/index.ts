@@ -11,7 +11,7 @@ import WDK from '@tetherto/wdk';
 import { WalletService } from './services/wallet.service.js';
 import { AIService } from './services/ai.service.js';
 import { TipFlowAgent } from './core/agent.js';
-import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService, treasuryService, indexerService, bridgeService, lendingService, reputationService, escrowService, orchestratorService, predictorService, feeArbitrageService } from './routes/api.js';
+import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService, treasuryService, indexerService, bridgeService, lendingService, reputationService, escrowService, orchestratorService, predictorService, feeArbitrageService, memoryService } from './routes/api.js';
 import { DemoService } from './services/demo.service.js';
 import { logger } from './utils/logger.js';
 
@@ -104,6 +104,10 @@ async function main(): Promise<void> {
 
   // Log Fee Arbitrage Service
   logger.info(`Fee arbitrage service: ${feeArbitrageService.getCurrentFees().length} chains monitored`);
+
+  // Log Agent Memory Service
+  const memStats = memoryService.getStats();
+  logger.info(`Agent memory service: ${memStats.totalMemories} memories, ${memStats.conversations} conversations`);
 
   // Log Multi-Agent Orchestrator
   const orchStats = orchestratorService.getStats();

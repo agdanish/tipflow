@@ -21,6 +21,14 @@ export const USAT_CONTRACTS: Record<string, string> = {
   'ethereum-sepolia': '0x0000000000000000000000000000000000000000', // Awaiting USAT testnet deployment
 };
 
+/** XAU₮ (Tether Gold) contract addresses on testnets.
+ *  XAU₮ is Tether's gold-backed token — each token represents one troy ounce of gold.
+ *  Same WDK transfer() flow as USDT; the contract address is the only difference.
+ *  XAUT testnet contracts are pending deployment — address will be updated once available. */
+export const XAUT_CONTRACTS: Record<string, string> = {
+  'ethereum-sepolia': '0x0000000000000000000000000000000000000000', // Awaiting XAUT testnet deployment
+};
+
 /** Chain configurations */
 const CHAIN_CONFIGS: Record<ChainId, ChainConfig> = {
   'ethereum-sepolia': {
@@ -557,7 +565,7 @@ export class WalletService {
   async sendGaslessTransaction(
     recipient: string,
     amount: string,
-    token: 'native' | 'usdt' | 'usat' = 'native',
+    token: 'native' | 'usdt' | 'usat' | 'xaut' = 'native',
   ): Promise<{ hash: string; fee: string; gasless: boolean; chainId: ChainId }> {
     this.ensureInitialized();
 
@@ -567,9 +575,9 @@ export class WalletService {
         const account = await this.wdk!.getAccount('ethereum-erc4337', this.activeAccountIndex);
         const gaslessChainId: ChainId = 'ethereum-sepolia-gasless';
 
-        if (token === 'usdt' || token === 'usat') {
+        if (token === 'usdt' || token === 'usat' || token === 'xaut') {
           const usdtContract = USDT_CONTRACTS['ethereum-sepolia'];
-          if (!usdtContract) throw new Error('USDT/USAT contract not configured for gasless chain');
+          if (!usdtContract) throw new Error('USDT/USAT/XAUT contract not configured for gasless chain');
 
           const amountRaw = BigInt(Math.floor(parseFloat(amount) * 1e6));
           logger.info('Sending gasless USDT transfer via ERC-4337', { recipient, amount, amountRaw: amountRaw.toString() });
@@ -621,7 +629,7 @@ export class WalletService {
     // Fallback: regular EVM transaction
     logger.info('Gasless not available, falling back to regular transaction');
     const fallbackChainId: ChainId = 'ethereum-sepolia';
-    if (token === 'usdt' || token === 'usat') {
+    if (token === 'usdt' || token === 'usat' || token === 'xaut') {
       const result = await this.sendUsdtTransfer(fallbackChainId, recipient, amount);
       return { ...result, gasless: false, chainId: fallbackChainId };
     } else {
