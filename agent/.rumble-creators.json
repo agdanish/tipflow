@@ -1,0 +1,79 @@
+{
+  "creators": [
+    {
+      "id": "25ceb1b4-c0d5-44ee-b444-b2e47cd125de",
+      "name": "TechReviewer",
+      "channelUrl": "https://rumble.com/c/TechReviewer",
+      "walletAddress": "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD68",
+      "categories": [
+        "tech",
+        "reviews"
+      ],
+      "totalTipsReceived": 0,
+      "totalTipAmount": 0,
+      "subscriberCount": 0,
+      "registeredAt": "2026-03-18T08:27:26.123Z"
+    },
+    {
+      "id": "676a3424-6a43-4216-8236-f87671f15e99",
+      "name": "CryptoDaily",
+      "channelUrl": "https://rumble.com/c/CryptoDaily",
+      "walletAddress": "0x8ba1f109551bD432803012645Ac136ddd64DBA72",
+      "categories": [
+        "crypto",
+        "finance"
+      ],
+      "totalTipsReceived": 0,
+      "totalTipAmount": 0,
+      "subscriberCount": 0,
+      "registeredAt": "2026-03-18T08:27:26.124Z"
+    },
+    {
+      "id": "4da9746b-c501-4a89-8470-c42b6232e2ca",
+      "name": "GameStreamPro",
+      "channelUrl": "https://rumble.com/c/GameStreamPro",
+      "walletAddress": "UQBanAkpRVoVeUHJVSLbaCjregNDAejcBdKl1VA3ujWMWpOv",
+      "categories": [
+        "gaming",
+        "entertainment"
+      ],
+      "totalTipsReceived": 0,
+      "totalTipAmount": 0,
+      "subscriberCount": 0,
+      "registeredAt": "2026-03-18T08:27:26.125Z"
+    },
+    {
+      "id": "3b71249e-471e-440e-a653-fafae620121a",
+      "name": "NewsAnalyst",
+      "channelUrl": "https://rumble.com/c/NewsAnalyst",
+      "walletAddress": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      "categories": [
+        "news",
+        "politics"
+      ],
+      "totalTipsReceived": 0,
+      "totalTipAmount": 0,
+      "subscriberCount": 0,
+      "registeredAt": "2026-03-18T08:27:26.125Z"
+    },
+    {
+      "id": "5b7c0945-f070-4eb6-884c-e6aec64edb67",
+      "name": "FitnessGuru",
+      "channelUrl": "https://rumble.com/c/FitnessGuru",
+      "walletAddress": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+      "categories": [
+        "fitness",
+        "health"
+      ],
+      "totalTipsReceived": 0,
+      "totalTipAmount": 0,
+      "subscriberCount": 0,
+      "registeredAt": "2026-03-18T08:27:26.125Z"
+    }
+  ],
+  "watchSessions": [],
+  "autoTipRules": [],
+  "tipPools": [],
+  "eventTriggers": [],
+  "collabSplits": []
+}

@@ -39,6 +39,8 @@ import { CreatorAnalyticsService } from '../services/creator-analytics.service.j
 import { TipPolicyService } from '../services/tip-policy.service.js';
 import { X402Service } from '../services/x402.service.js';
 import { AgentIdentityService } from '../services/agent-identity.service.js';
+import { TipQueueService } from '../services/tip-queue.service.js';
+import { PlatformAdapterService } from '../services/platform-adapter.service.js';
 
 /** Shared tip policy service — programmable money engine */
 export const tipPolicyService = new TipPolicyService();
@@ -48,6 +50,12 @@ export const x402Service = new X402Service();
 
 /** Shared agent identity service — cryptographic identity */
 export const agentIdentityService = new AgentIdentityService();
+
+/** Shared tip queue — async event-driven processing */
+export const tipQueueService = new TipQueueService();
+
+/** Shared platform adapter — multi-platform scaling */
+export const platformAdapterService = new PlatformAdapterService();
 
 /** Shared challenges service instance — exported for agent integration */
 export const challenges = new ChallengesService();
@@ -3941,6 +3949,69 @@ export function createApiRouter(
     } catch (err) {
       res.status(400).json({ error: String(err) });
     }
+  });
+
+  // ══════════════════════════════════════════════
+  //  TIP QUEUE — Async Event-Driven Processing
+  // ══════════════════════════════════════════════
+
+  /** POST /api/queue/enqueue — Add a tip to the async queue */
+  router.post('/queue/enqueue', (req, res) => {
+    try {
+      const tip = tipQueueService.enqueue(req.body);
+      res.status(202).json({ tip, message: 'Tip queued for async processing' });
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/queue — Get current queue contents */
+  router.get('/queue', (_req, res) => {
+    res.json({ queue: tipQueueService.getQueue(), stats: tipQueueService.getStats() });
+  });
+
+  /** GET /api/queue/stats — Queue processing statistics */
+  router.get('/queue/stats', (_req, res) => {
+    res.json(tipQueueService.getStats());
+  });
+
+  /** GET /api/queue/dlq — Dead letter queue (failed tips) */
+  router.get('/queue/dlq', (_req, res) => {
+    res.json({ deadLetterQueue: tipQueueService.getDeadLetterQueue() });
+  });
+
+  // ══════════════════════════════════════════════
+  //  PLATFORM ADAPTERS — Multi-Platform Scaling
+  // ══════════════════════════════════════════════
+
+  /** GET /api/platforms — List all registered platform adapters */
+  router.get('/platforms', (_req, res) => {
+    res.json({
+      adapters: platformAdapterService.listAdapters(),
+      stats: platformAdapterService.getCrossPlatformStats(),
+    });
+  });
+
+  /** GET /api/platforms/creators — Get creators across all platforms */
+  router.get('/platforms/creators', (_req, res) => {
+    res.json({ creators: platformAdapterService.getAllCreators() });
+  });
+
+  /** POST /api/platforms/:platform/event — Process event from any platform */
+  router.post('/platforms/:platform/event', (req, res) => {
+    try {
+      const engagement = platformAdapterService.processRawEvent(req.params.platform, req.body);
+      if (!engagement) return res.status(400).json({ error: 'Could not normalize event' });
+      res.json({ engagement });
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/platforms/tips — Cross-platform tip events */
+  router.get('/platforms/tips', (req, res) => {
+    const platform = req.query.platform as string | undefined;
+    res.json({ tips: platformAdapterService.getTipEvents(platform) });
   });
 
   return router;

@@ -1,0 +1,98 @@
+[
+  {
+    "name": "Daily Budget Cap",
+    "type": "budget",
+    "enabled": true,
+    "rules": {
+      "maxDailyTotal": 0.05,
+      "maxPerTip": 0.01,
+      "requireConfirmationAbove": 0.005
+    },
+    "id": "policy-1773822446126-8tko2e",
+    "userId": "default",
+    "createdAt": "2026-03-18T08:27:26.126Z"
+  },
+  {
+    "name": "Trusted Creators Only",
+    "type": "recipient_limit",
+    "enabled": true,
+    "rules": {
+      "allowedRecipients": [
+        "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD68",
+        "0x8ba1f109551bD432803012645Ac136ddd64DBA72",
+        "UQBanAkpRVoVeUHJVSLbaCjregNDAejcBdKl1VA3ujWMWpOv",
+        "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+      ]
+    },
+    "id": "policy-1773822446126-waycue",
+    "userId": "default",
+    "createdAt": "2026-03-18T08:27:26.126Z"
+  },
+  {
+    "name": "Weekly Auto-Tip Schedule",
+    "type": "recurring",
+    "enabled": true,
+    "rules": {
+      "schedule": {
+        "dayOfWeek": [
+          1,
+          3,
+          5
+        ],
+        "hour": 10
+      },
+      "maxPerTip": 0.003
+    },
+    "id": "policy-1773822446126-ivevzo",
+    "userId": "default",
+    "createdAt": "2026-03-18T08:27:26.126Z"
+  },
+  {
+    "name": "Daily Budget Cap",
+    "type": "budget",
+    "enabled": true,
+    "rules": {
+      "maxDailyTotal": 0.05,
+      "maxPerTip": 0.01,
+      "requireConfirmationAbove": 0.005
+    },
+    "id": "policy-1773822483221-fvfv7p",
+    "userId": "default",
+    "createdAt": "2026-03-18T08:28:03.221Z"
+  },
+  {
+    "name": "Trusted Creators Only",
+    "type": "recipient_limit",
+    "enabled": true,
+    "rules": {
+      "allowedRecipients": [
+        "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD68",
+        "0x8ba1f109551bD432803012645Ac136ddd64DBA72",
+        "UQBanAkpRVoVeUHJVSLbaCjregNDAejcBdKl1VA3ujWMWpOv",
+        "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+      ]
+    },
+    "id": "policy-1773822483222-b93h2r",
+    "userId": "default",
+    "createdAt": "2026-03-18T08:28:03.222Z"
+  },
+  {
+    "name": "Weekly Auto-Tip Schedule",
+    "type": "recurring",
+    "enabled": true,
+    "rules": {
+      "schedule": {
+        "dayOfWeek": [
+          1,
+          3,
+          5
+        ],
+        "hour": 10
+      },
+      "maxPerTip": 0.003
+    },
+    "id": "policy-1773822483222-rxg0gt",
+    "userId": "default",
+    "createdAt": "2026-03-18T08:28:03.222Z"
+  }
+]
