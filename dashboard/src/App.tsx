@@ -73,6 +73,11 @@ import { EscrowPanel } from './components/EscrowPanel';
 import { MemoryPanel } from './components/MemoryPanel';
 import { DcaPanel } from './components/DcaPanel';
 import { CreatorAnalyticsPanel } from './components/CreatorAnalyticsPanel';
+import { RiskDashboard } from './components/RiskDashboard';
+import { EngagementPanel } from './components/EngagementPanel';
+import { CreatorDiscoveryPanel } from './components/CreatorDiscoveryPanel';
+import { TipPropagationPanel } from './components/TipPropagationPanel';
+import { ProofOfEngagementPanel } from './components/ProofOfEngagementPanel';
 import { HealthDashboard } from './components/HealthDashboard';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useSpotlight } from './hooks/useSpotlight';
@@ -772,6 +777,26 @@ function App() {
                 </div>
                 <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
                   <CreatorAnalyticsPanel />
+                </div>
+              </div>
+              {/* Innovation panels — making backend innovations VISIBLE */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
+                  <RiskDashboard />
+                </div>
+                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
+                  <EngagementPanel />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
+                  <CreatorDiscoveryPanel />
+                </div>
+                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
+                  <TipPropagationPanel />
+                </div>
+                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
+                  <ProofOfEngagementPanel />
                 </div>
               </div>
             </div>

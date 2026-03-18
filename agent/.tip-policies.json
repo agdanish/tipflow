@@ -890,5 +890,101 @@
       "totalAmountSent": 0,
       "createdAt": "2026-03-18T08:53:38.085Z"
     }
+  },
+  {
+    "id": "dd4e703d-ab34-4d3b-912f-5f35b65c5872",
+    "name": "Test",
+    "description": "test",
+    "enabled": true,
+    "priority": 50,
+    "createdBy": "u1",
+    "trigger": {
+      "type": "watch_time",
+      "threshold": 80
+    },
+    "conditions": [],
+    "action": {
+      "type": "tip",
+      "amount": {
+        "mode": "fixed",
+        "base": 0.01
+      },
+      "chain": "cheapest",
+      "token": "usdt"
+    },
+    "cooldown": {
+      "minIntervalMinutes": 60,
+      "maxPerDay": 10,
+      "maxPerWeek": 50
+    },
+    "stats": {
+      "timesTriggered": 0,
+      "totalAmountSent": 0,
+      "createdAt": "2026-03-18T10:13:37.669Z"
+    }
+  },
+  {
+    "id": "b3e9a1df-3719-448b-934e-652f255a1076",
+    "name": "T",
+    "description": "t",
+    "enabled": true,
+    "priority": 50,
+    "createdBy": "u",
+    "trigger": {
+      "type": "watch_time",
+      "threshold": 80
+    },
+    "conditions": [],
+    "action": {
+      "type": "tip",
+      "amount": {
+        "mode": "fixed",
+        "base": 0.01
+      },
+      "chain": "cheapest",
+      "token": "usdt"
+    },
+    "cooldown": {
+      "minIntervalMinutes": 60,
+      "maxPerDay": 10,
+      "maxPerWeek": 50
+    },
+    "stats": {
+      "timesTriggered": 0,
+      "totalAmountSent": 0,
+      "createdAt": "2026-03-18T10:13:37.673Z"
+    }
+  },
+  {
+    "id": "804b355a-a112-4280-b986-822a99debd57",
+    "name": "T",
+    "description": "t",
+    "enabled": true,
+    "priority": 50,
+    "createdBy": "u",
+    "trigger": {
+      "type": "watch_time",
+      "threshold": 95
+    },
+    "conditions": [],
+    "action": {
+      "type": "tip",
+      "amount": {
+        "mode": "fixed",
+        "base": 0.01
+      },
+      "chain": "cheapest",
+      "token": "usdt"
+    },
+    "cooldown": {
+      "minIntervalMinutes": 60,
+      "maxPerDay": 10,
+      "maxPerWeek": 50
+    },
+    "stats": {
+      "timesTriggered": 0,
+      "totalAmountSent": 0,
+      "createdAt": "2026-03-18T10:13:37.676Z"
+    }
   }
 ]

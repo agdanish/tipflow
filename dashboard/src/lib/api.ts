@@ -860,4 +860,93 @@ export const api = {
 
   platformAnalytics: () =>
     fetchJson<Record<string, unknown>>('/analytics/platform'),
+
+  // ── Risk Engine ──
+  riskAssess: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/risk/assess', { method: 'POST', body: JSON.stringify(params) }),
+
+  // ── Engagement Scoring ──
+  engagementScore: (userId: string, creatorId: string) =>
+    fetchJson<Record<string, unknown>>(`/rumble/engagement/${encodeURIComponent(userId)}/${encodeURIComponent(creatorId)}`),
+
+  engagementTips: (userId: string, baseTip = 0.01) =>
+    fetchJson<Record<string, unknown>>(`/rumble/engagement-tips/${encodeURIComponent(userId)}?baseTip=${baseTip}`),
+
+  // ── Creator Discovery ──
+  discoveryAnalyze: () =>
+    fetchJson<Record<string, unknown>>('/discovery/analyze', { method: 'POST', body: JSON.stringify({}) }),
+
+  discoverySignals: () =>
+    fetchJson<Record<string, unknown>>('/discovery/signals'),
+
+  discoveryRecord: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/discovery/record', { method: 'POST', body: JSON.stringify(params) }),
+
+  // ── Tip Propagation ──
+  propagationWaves: () =>
+    fetchJson<Record<string, unknown>>('/propagation/waves'),
+
+  propagationCreateWave: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/propagation/wave', { method: 'POST', body: JSON.stringify(params) }),
+
+  propagationPools: () =>
+    fetchJson<Record<string, unknown>>('/propagation/pools'),
+
+  propagationCreatePool: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/propagation/pools', { method: 'POST', body: JSON.stringify(params) }),
+
+  // ── Proof-of-Engagement ──
+  poeList: () =>
+    fetchJson<Record<string, unknown>>('/poe'),
+
+  poeCreate: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/poe/attest', { method: 'POST', body: JSON.stringify(params) }),
+
+  poeVerify: (id: string) =>
+    fetchJson<Record<string, unknown>>(`/poe/verify/${encodeURIComponent(id)}`),
+
+  // ── Revenue Smoothing ──
+  smoothingProfiles: () =>
+    fetchJson<Record<string, unknown>>('/smoothing/profiles'),
+
+  smoothingReserve: () =>
+    fetchJson<Record<string, unknown>>('/smoothing/reserve'),
+
+  smoothingEvaluate: () =>
+    fetchJson<Record<string, unknown>>('/smoothing/evaluate', { method: 'POST', body: JSON.stringify({}) }),
+
+  smoothingEnroll: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/smoothing/enroll', { method: 'POST', body: JSON.stringify(params) }),
+
+  // ── Tip Policies ──
+  policiesList: () =>
+    fetchJson<Record<string, unknown>>('/policies'),
+
+  policiesCreate: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/policies', { method: 'POST', body: JSON.stringify(params) }),
+
+  policiesEvaluate: (context: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/policies/evaluate', { method: 'POST', body: JSON.stringify(context) }),
+
+  // ── x402 ──
+  x402Endpoints: () =>
+    fetchJson<Record<string, unknown>>('/x402/endpoints'),
+
+  x402Stats: () =>
+    fetchJson<Record<string, unknown>>('/x402/stats'),
+
+  // ── Agent Identity ──
+  agentIdentity: () =>
+    fetchJson<Record<string, unknown>>('/agent/identity'),
+
+  // ── Platform Adapters ──
+  platforms: () =>
+    fetchJson<Record<string, unknown>>('/platforms'),
+
+  // ── Queue ──
+  queueStats: () =>
+    fetchJson<Record<string, unknown>>('/queue/stats'),
+
+  queueEnqueue: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/queue/enqueue', { method: 'POST', body: JSON.stringify(params) }),
 };
