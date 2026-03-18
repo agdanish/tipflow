@@ -462,6 +462,150 @@ JSON:`;
     return { intent: 'unknown', params: {} };
   }
 
+  /**
+   * Generate a personalized tip message based on context.
+   * Uses LLM to create natural, contextual tip messages for Rumble creators.
+   */
+  async generateTipMessage(
+    creatorName: string,
+    amount: string,
+    token: string,
+    context?: { watchPercent?: number; category?: string; engagementScore?: number },
+  ): Promise<string> {
+    if (!this.available) {
+      return this.ruleBasedTipMessage(creatorName, amount, token, context);
+    }
+
+    try {
+      const prompt = `You are TipFlow, a friendly crypto tipping agent for Rumble creators.
+Generate a SHORT (1 sentence, max 20 words) personalized tip message for this tip:
+- Creator: ${creatorName}
+- Amount: ${amount} ${token.toUpperCase()}
+${context?.watchPercent ? `- Watch completion: ${context.watchPercent}%` : ''}
+${context?.category ? `- Content category: ${context.category}` : ''}
+${context?.engagementScore ? `- Engagement score: ${context.engagementScore}/100` : ''}
+
+Be warm and specific. Reference the content or engagement if context is provided. Do NOT use emojis.
+Message:`;
+
+      const response = await this.ollama.generate({
+        model: this.model,
+        prompt,
+        options: { temperature: 0.7, num_predict: 40 },
+      });
+      const msg = response.response.trim().replace(/^["']|["']$/g, '');
+      return msg.length > 0 && msg.length < 200 ? msg : this.ruleBasedTipMessage(creatorName, amount, token, context);
+    } catch {
+      return this.ruleBasedTipMessage(creatorName, amount, token, context);
+    }
+  }
+
+  /** Rule-based tip message fallback */
+  private ruleBasedTipMessage(
+    creatorName: string,
+    amount: string,
+    token: string,
+    context?: { watchPercent?: number; category?: string; engagementScore?: number },
+  ): string {
+    if (context?.watchPercent && context.watchPercent > 90) {
+      return `Loved watching your content, ${creatorName}! Here's ${amount} ${token.toUpperCase()} for your great work.`;
+    }
+    if (context?.engagementScore && context.engagementScore > 80) {
+      return `Your content consistently delivers value, ${creatorName}. Tipping ${amount} ${token.toUpperCase()}.`;
+    }
+    return `Great content, ${creatorName}! Sending ${amount} ${token.toUpperCase()} your way.`;
+  }
+
+  /**
+   * Generate a risk assessment explanation using LLM.
+   * Takes risk factors and produces a human-readable risk summary.
+   */
+  async generateRiskExplanation(
+    riskScore: number,
+    riskLevel: string,
+    factors: Array<{ name: string; score: number; weight: number; details: string }>,
+  ): Promise<string> {
+    if (!this.available) {
+      return this.ruleBasedRiskExplanation(riskScore, riskLevel, factors);
+    }
+
+    try {
+      const factorSummary = factors
+        .sort((a, b) => (b.score * b.weight) - (a.score * a.weight))
+        .slice(0, 4)
+        .map((f) => `- ${f.name}: score=${f.score}/100 (weight=${f.weight}x) — ${f.details}`)
+        .join('\n');
+
+      const prompt = `You are a financial risk analyst for TipFlow, an autonomous crypto tipping agent.
+Summarize this risk assessment in 2-3 sentences. Be specific about which factors drive the risk.
+
+Overall risk: ${riskScore}/100 (${riskLevel})
+Top risk factors:
+${factorSummary}
+
+Provide actionable risk summary (2-3 sentences, no emojis):`;
+
+      const response = await this.ollama.generate({
+        model: this.model,
+        prompt,
+        options: { temperature: 0.3, num_predict: 100 },
+      });
+      const explanation = response.response.trim();
+      return explanation.length > 0 ? explanation : this.ruleBasedRiskExplanation(riskScore, riskLevel, factors);
+    } catch {
+      return this.ruleBasedRiskExplanation(riskScore, riskLevel, factors);
+    }
+  }
+
+  /** Rule-based risk explanation fallback */
+  private ruleBasedRiskExplanation(
+    riskScore: number,
+    riskLevel: string,
+    factors: Array<{ name: string; score: number; weight: number; details: string }>,
+  ): string {
+    const topFactor = factors.sort((a, b) => (b.score * b.weight) - (a.score * a.weight))[0];
+    if (riskLevel === 'low') {
+      return `Risk assessment: LOW (${riskScore}/100). All risk factors within normal parameters. Transaction is safe to proceed.`;
+    }
+    if (riskLevel === 'medium') {
+      return `Risk assessment: MEDIUM (${riskScore}/100). Primary concern: ${topFactor?.name ?? 'unknown'} (${topFactor?.details ?? ''}). Recommend review before proceeding.`;
+    }
+    return `Risk assessment: ${riskLevel.toUpperCase()} (${riskScore}/100). Critical factor: ${topFactor?.name ?? 'unknown'} — ${topFactor?.details ?? 'elevated risk detected'}. Manual approval strongly recommended.`;
+  }
+
+  /**
+   * Generate autonomous decision explanation.
+   * Explains WHY the agent chose to auto-tip a creator.
+   */
+  async generateAutonomousDecisionExplanation(
+    decision: { recipient: string; amount: string; chain: string; reason: string },
+    profile: { tipCount: number; avgAmount: number; topRecipient: string },
+  ): Promise<string> {
+    if (!this.available) {
+      return `Autonomous tip of ${decision.amount} to ${decision.recipient.slice(0, 10)}... on ${decision.chain}. Reason: ${decision.reason}. Based on ${profile.tipCount} historical tips (avg: ${profile.avgAmount.toFixed(4)}).`;
+    }
+
+    try {
+      const prompt = `You are TipFlow's autonomous decision engine. Explain this auto-tip decision in 2-3 sentences.
+Be transparent about the reasoning — users need to trust autonomous execution.
+
+Decision: Send ${decision.amount} to ${decision.recipient.slice(0, 10)}...${decision.recipient.slice(-4)} on ${decision.chain}
+Agent's reason: ${decision.reason}
+User profile: ${profile.tipCount} tips sent, average ${profile.avgAmount.toFixed(4)}, top recipient: ${profile.topRecipient.slice(0, 10)}...
+
+Explain the autonomous reasoning (2-3 sentences, be specific with numbers):`;
+
+      const response = await this.ollama.generate({
+        model: this.model,
+        prompt,
+        options: { temperature: 0.3, num_predict: 120 },
+      });
+      return response.response.trim() || `Autonomous tip of ${decision.amount} to ${decision.recipient.slice(0, 10)}... — ${decision.reason}`;
+    } catch {
+      return `Autonomous tip of ${decision.amount} to ${decision.recipient.slice(0, 10)}... on ${decision.chain}. Reason: ${decision.reason}. Based on ${profile.tipCount} historical tips.`;
+    }
+  }
+
   /** Generate a summary of agent activity for the dashboard */
   async generateActivitySummary(
     totalTips: number,

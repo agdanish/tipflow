@@ -4314,5 +4314,71 @@ export function createApiRouter(
     res.json(swapService.getHistory());
   });
 
+  // ── LLM-Powered Intelligence Endpoints ────────────────────────────
+
+  /** POST /api/ai/tip-message — Generate LLM-powered personalized tip message */
+  router.post('/ai/tip-message', async (req, res) => {
+    try {
+      const { creatorName, amount, token, context } = req.body;
+      const message = await ai.generateTipMessage(
+        creatorName ?? 'Creator',
+        amount ?? '0.01',
+        token ?? 'USDT',
+        context,
+      );
+      res.json({ message, source: ai.isAvailable() ? 'llm' : 'rule-based' });
+    } catch (err) {
+      res.status(500).json({ error: String(err) });
+    }
+  });
+
+  /** POST /api/ai/risk-explanation — Generate LLM-powered risk assessment explanation */
+  router.post('/ai/risk-explanation', async (req, res) => {
+    try {
+      const { riskScore, riskLevel, factors } = req.body;
+      const explanation = await ai.generateRiskExplanation(
+        riskScore ?? 50,
+        riskLevel ?? 'medium',
+        factors ?? [],
+      );
+      res.json({ explanation, source: ai.isAvailable() ? 'llm' : 'rule-based' });
+    } catch (err) {
+      res.status(500).json({ error: String(err) });
+    }
+  });
+
+  /** POST /api/ai/decision-explanation — Generate LLM-powered autonomous decision explanation */
+  router.post('/ai/decision-explanation', async (req, res) => {
+    try {
+      const { decision, profile } = req.body;
+      const explanation = await ai.generateAutonomousDecisionExplanation(
+        decision ?? { recipient: '0x0', amount: '0.01', chain: 'ethereum-sepolia', reason: 'pattern match' },
+        profile ?? { tipCount: 0, avgAmount: 0, topRecipient: '0x0' },
+      );
+      res.json({ explanation, source: ai.isAvailable() ? 'llm' : 'rule-based' });
+    } catch (err) {
+      res.status(500).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/ai/status — AI service status and capabilities */
+  router.get('/ai/status', (_req, res) => {
+    res.json({
+      available: ai.isAvailable(),
+      model: process.env.OLLAMA_MODEL ?? 'phi3:mini',
+      host: process.env.OLLAMA_HOST ?? 'http://localhost:11434',
+      capabilities: [
+        'Natural language tip parsing',
+        'Chain selection reasoning',
+        'Intent classification',
+        'Personalized tip messages',
+        'Risk assessment explanations',
+        'Autonomous decision explanations',
+        'Activity summarization',
+      ],
+      fallback: 'Rule-based reasoning with weighted scoring',
+    });
+  });
+
   return router;
 }
