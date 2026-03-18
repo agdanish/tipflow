@@ -41,6 +41,14 @@ import { X402Service } from '../services/x402.service.js';
 import { AgentIdentityService } from '../services/agent-identity.service.js';
 import { TipQueueService } from '../services/tip-queue.service.js';
 import { PlatformAdapterService } from '../services/platform-adapter.service.js';
+import { ProofOfEngagementService } from '../services/proof-of-engagement.service.js';
+import { RevenueSmoothingService } from '../services/revenue-smoothing.service.js';
+
+/** Shared proof-of-engagement — cryptographic attestations */
+export const proofOfEngagementService = new ProofOfEngagementService();
+
+/** Shared revenue smoothing — creator income insurance */
+export const revenueSmoothingService = new RevenueSmoothingService();
 
 /** Shared tip policy service — programmable money engine */
 export const tipPolicyService = new TipPolicyService();
@@ -4012,6 +4020,73 @@ export function createApiRouter(
   router.get('/platforms/tips', (req, res) => {
     const platform = req.query.platform as string | undefined;
     res.json({ tips: platformAdapterService.getTipEvents(platform) });
+  });
+
+  // ══════════════════════════════════════════════
+  //  PROOF-OF-ENGAGEMENT — Cryptographic Attestations
+  // ══════════════════════════════════════════════
+
+  /** POST /api/poe/attest — Create a Proof-of-Engagement attestation */
+  router.post('/poe/attest', async (req, res) => {
+    try {
+      const attestation = await proofOfEngagementService.createAttestation(req.body);
+      res.json({ attestation });
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/poe/verify/:id — Verify an attestation */
+  router.get('/poe/verify/:id', async (req, res) => {
+    const result = await proofOfEngagementService.verifyAttestation(req.params.id);
+    res.json(result);
+  });
+
+  /** GET /api/poe — List attestations */
+  router.get('/poe', (req, res) => {
+    const filter = {
+      creator: req.query.creator as string | undefined,
+      viewer: req.query.viewer as string | undefined,
+      platform: req.query.platform as string | undefined,
+    };
+    res.json({ attestations: proofOfEngagementService.getAttestations(filter), stats: proofOfEngagementService.getStats() });
+  });
+
+  // ══════════════════════════════════════════════
+  //  REVENUE SMOOTHING — Creator Income Insurance
+  // ══════════════════════════════════════════════
+
+  /** POST /api/smoothing/enroll — Enroll a creator */
+  router.post('/smoothing/enroll', (req, res) => {
+    try {
+      const { creatorId, walletAddress, smoothingLevel } = req.body;
+      const profile = revenueSmoothingService.enrollCreator(creatorId, walletAddress, smoothingLevel);
+      res.json({ profile });
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/smoothing/profiles — List enrolled creators */
+  router.get('/smoothing/profiles', (_req, res) => {
+    res.json({ profiles: revenueSmoothingService.listProfiles() });
+  });
+
+  /** GET /api/smoothing/reserve — Reserve fund status */
+  router.get('/smoothing/reserve', (_req, res) => {
+    res.json(revenueSmoothingService.getReserveStatus());
+  });
+
+  /** POST /api/smoothing/evaluate — Run smoothing evaluation */
+  router.post('/smoothing/evaluate', (_req, res) => {
+    const actions = revenueSmoothingService.evaluateSmoothing();
+    res.json({ actions, reserve: revenueSmoothingService.getReserveStatus() });
+  });
+
+  /** GET /api/smoothing/history — Smoothing action history */
+  router.get('/smoothing/history', (req, res) => {
+    const creatorId = req.query.creatorId as string | undefined;
+    res.json({ actions: revenueSmoothingService.getActionHistory(creatorId) });
   });
 
   return router;
