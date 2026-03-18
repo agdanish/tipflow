@@ -27,7 +27,7 @@
 
 In January 2026, [Rumble](https://rumble.com) launched its crypto wallet powered by Tether WDK, enabling viewers to tip creators directly with USDT, USAT (USA₮), XAU₮, and BTC. TipFlow extends that foundation with an **autonomous AI agent** that makes tipping smarter, automatic, and community-driven.
 
-TipFlow watches your viewing habits, learns your preferences, and autonomously manages tips to your favorite Rumble creators. Say **"tip my top 3 creators this week"** — the agent identifies them, calculates fair amounts based on watch time, executes transactions via **Tether WDK**, verifies on-chain, and reports back. All through a polished dashboard with 82 components.
+TipFlow watches your viewing habits, learns your preferences, and autonomously manages tips to your favorite Rumble creators. Say **"tip my top 3 creators this week"** — the agent identifies them, calculates fair amounts based on watch time, executes transactions via **Tether WDK**, verifies on-chain, and reports back. All through a polished dashboard with 85 components.
 
 **Key highlights:**
 - **Rumble-native** — Creator profiles, channel management, watch-time tracking, event-triggered tipping
@@ -137,7 +137,7 @@ Open **http://localhost:3001** — serves both the dashboard and API.
 |  UX: Onboarding · i18n (5 langs) · PWA · Keyboard · Touch  |
 |  Data: Export (CSV/JSON/MD) · Templates · Contacts · Tags  |
 +----------------------------+-------------------------------+
-                             | REST API (130 endpoints) + SSE
+                             | REST API (190 endpoints) + SSE
 +----------------------------+-------------------------------+
 |              Node.js Agent Server (21 Services)            |
 |                                                            |
@@ -606,7 +606,7 @@ tipflow/
 ├── agent/                          # Node.js agent server
 │   └── src/
 │       ├── core/agent.ts           # 6-step pipeline + scheduler + conditions
-│       ├── services/               # 30 services
+│       ├── services/               # 32 services
 │       │   ├── wallet.service.ts   # WDK operations + HD derivation + multi-account + gasless
 │       │   ├── ai.service.ts       # Ollama LLM + NLP + intent detection
 │       │   ├── orchestrator.service.ts # Multi-Agent Orchestration (3 sub-agents + consensus)
