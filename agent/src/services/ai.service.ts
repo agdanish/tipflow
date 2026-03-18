@@ -78,14 +78,42 @@ export class AIService {
       `- ${a.chainName}: balance=${a.balance}, fee=${a.estimatedFee} (~$${a.estimatedFeeUsd}), status=${a.networkStatus}, score=${a.score}/100`
     ).join('\n');
 
-    return `You are TipFlow's AI agent. Analyze these blockchain options and explain your chain selection decision in 2-3 sentences. Be concise and technical.
+    const feeToTipRatios = analyses
+      .filter((a) => a.available)
+      .map((a) => `${a.chainName}: fee is ${((parseFloat(a.estimatedFee) / parseFloat(tipAmount)) * 100).toFixed(1)}% of tip`)
+      .join(', ');
 
-Tip: ${tipAmount} to ${recipient}
+    const availableSorted = [...analyses].filter((a) => a.available).sort((a, b) => parseFloat(a.estimatedFee) - parseFloat(b.estimatedFee));
+    const cheapest = availableSorted[0];
+    const mostExpensive = availableSorted[availableSorted.length - 1];
+    const savings = cheapest && mostExpensive && availableSorted.length > 1
+      ? `Cheapest option saves ~$${(parseFloat(mostExpensive.estimatedFee) - parseFloat(cheapest.estimatedFee)).toFixed(6)} vs most expensive`
+      : '';
 
-Chain Analysis:
+    return `You are TipFlow, an autonomous AI tipping agent managing USDT tips for Rumble creators via Tether WDK.
+
+TASK: Select the optimal blockchain for this tip and explain your reasoning.
+
+TIP DETAILS:
+- Amount: ${tipAmount} to ${recipient.slice(0, 10)}...${recipient.slice(-4)}
+- Token: USDT (stablecoin)
+
+CHAIN ANALYSIS:
 ${chainSummaries}
 
-Explain which chain you recommend and why, considering fees, balance, and network health. Start with "Selected [chain] because..."`;
+ECONOMIC CONTEXT:
+- Fee-to-tip ratios: ${feeToTipRatios}
+${savings ? `- ${savings}` : ''}
+- Economic rule: gas should be <50% of tip amount for sound economics
+
+DECISION FACTORS (weighted):
+1. Cost efficiency (40%): minimize gas fees
+2. Transaction speed (20%): faster confirmation is better
+3. Balance adequacy (15%): don't drain the wallet
+4. Historical reliability (15%): avoid chains with recent failures
+5. Address compatibility (10%): recipient format must match chain
+
+Provide a 2-3 sentence technical explanation starting with "Selected [chain] because...". Include specific numbers.`;
   }
 
   /** Deterministic rule-based reasoning as fallback */

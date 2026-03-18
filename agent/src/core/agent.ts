@@ -1255,11 +1255,25 @@ export class TipFlowAgent {
   }
 
   /** Make the chain selection decision with AI reasoning */
+  /**
+   * Multi-criteria decision engine — selects optimal chain using weighted scoring.
+   *
+   * Unlike simple sort-by-score, this evaluates 5 independent criteria:
+   *   1. Cost efficiency (40%) — lowest gas fee wins
+   *   2. Speed (20%) — fastest confirmation time
+   *   3. Balance adequacy (15%) — sufficient funds without draining wallet
+   *   4. Historical success rate (15%) — chains that failed recently are penalized
+   *   5. Recipient compatibility (10%) — does recipient address format match?
+   *
+   * Each criterion produces a 0-100 score. Weighted sum determines the winner.
+   * The decision includes full reasoning chain for transparency and auditability.
+   */
   private async makeDecision(
     analyses: ChainAnalysis[],
     request: TipRequest,
     steps: ReasoningStep[],
   ): Promise<AgentDecision> {
+    // If user specified a preferred chain, honor it (but still explain why)
     if (request.preferredChain) {
       const preferred = analyses.find((a) => a.chainId === request.preferredChain);
       if (preferred && preferred.available) {
@@ -1271,7 +1285,7 @@ export class TipFlowAgent {
         );
         return {
           selectedChain: request.preferredChain,
-          reasoning,
+          reasoning: `User preferred ${request.preferredChain}. ${reasoning}`,
           analyses,
           steps,
           confidence: 90,
@@ -1284,23 +1298,111 @@ export class TipFlowAgent {
       throw new Error('No available chains for this tip');
     }
 
-    available.sort((a, b) => b.score - a.score);
-    const best = available[0];
+    // Multi-criteria weighted scoring
+    const tipAmount = parseFloat(request.amount);
+    const scoredChains = available.map((chain) => {
+      const balance = parseFloat(chain.balance);
+      const chainFee = parseFloat(chain.estimatedFee);
 
-    const reasoning = await this.ai.generateReasoning(
+      // Criterion 1: Cost efficiency (40%) — lower fee = higher score
+      const fees = available.map((c) => parseFloat(c.estimatedFee));
+      const maxFee = Math.max(...fees, 0.0001);
+      const minFee = Math.min(...fees, 0.0001);
+      const feeRange = maxFee - minFee || 0.0001;
+      const costScore = 100 - ((chainFee - minFee) / feeRange) * 100;
+
+      // Criterion 2: Speed (20%) — based on chain type
+      const speedScores: Record<string, number> = {
+        'ton-testnet': 95,        // TON: ~5s
+        'tron-nile': 85,          // TRON: ~3-6s
+        'ethereum-sepolia': 60,   // ETH: ~15s
+        'ton-testnet-gasless': 90, // TON gasless: ~8s
+        'ethereum-sepolia-gasless': 55, // ETH gasless: ~20s
+      };
+      const speedScore = speedScores[chain.chainId] ?? 50;
+
+      // Criterion 3: Balance adequacy (15%) — how much buffer remains
+      const remainingRatio = balance > 0 ? (balance - tipAmount - chainFee) / balance : 0;
+      const balanceScore = Math.max(0, Math.min(100, remainingRatio * 100));
+
+      // Criterion 4: Historical success (15%) — penalize chains with recent failures
+      const recentFails = this.history
+        .filter((h) => h.chainId === chain.chainId && h.status === 'failed')
+        .filter((h) => Date.now() - new Date(h.createdAt).getTime() < 3600000) // Last hour
+        .length;
+      const successScore = Math.max(0, 100 - recentFails * 25);
+
+      // Criterion 5: Recipient compatibility (10%)
+      const recipientScore = this.checkRecipientCompatibility(request.recipient, chain.chainId);
+
+      // Weighted sum
+      const totalScore =
+        costScore * 0.40 +
+        speedScore * 0.20 +
+        balanceScore * 0.15 +
+        successScore * 0.15 +
+        recipientScore * 0.10;
+
+      return {
+        ...chain,
+        multiScore: Math.round(totalScore * 10) / 10,
+        breakdown: {
+          cost: Math.round(costScore),
+          speed: speedScore,
+          balance: Math.round(balanceScore),
+          success: successScore,
+          compatibility: recipientScore,
+        },
+      };
+    });
+
+    // Sort by multi-criteria score
+    scoredChains.sort((a, b) => b.multiScore - a.multiScore);
+    const best = scoredChains[0];
+    const runnerUp = scoredChains[1];
+
+    // Build reasoning
+    const reasoningParts: string[] = [];
+    reasoningParts.push(`Selected ${best.chainName} (score: ${best.multiScore}/100)`);
+    reasoningParts.push(`Cost: ${best.breakdown.cost}/100 (fee: ${best.estimatedFee})`);
+    reasoningParts.push(`Speed: ${best.breakdown.speed}/100`);
+    reasoningParts.push(`Balance: ${best.breakdown.balance}/100 (${best.balance} available)`);
+    reasoningParts.push(`Reliability: ${best.breakdown.success}/100`);
+    if (runnerUp) {
+      reasoningParts.push(`Runner-up: ${runnerUp.chainName} (${runnerUp.multiScore}/100)`);
+    }
+
+    // Generate AI-enhanced reasoning
+    const aiReasoning = await this.ai.generateReasoning(
       analyses,
       best.chainId,
       request.amount,
       request.recipient,
     );
 
+    const fullReasoning = `${reasoningParts.join('. ')}. ${aiReasoning}`;
+
+    // Confidence based on margin between best and runner-up
+    const margin = runnerUp ? best.multiScore - runnerUp.multiScore : 30;
+    const confidence = Math.min(98, Math.max(50, 60 + margin));
+
     return {
       selectedChain: best.chainId,
-      reasoning,
+      reasoning: fullReasoning,
       analyses,
       steps,
-      confidence: Math.min(95, best.score + 10),
+      confidence: Math.round(confidence),
     };
+  }
+
+  /** Check if a recipient address is compatible with a chain */
+  private checkRecipientCompatibility(recipient: string, chainId: string): number {
+    if (chainId.startsWith('ethereum') && recipient.startsWith('0x')) return 100;
+    if (chainId.startsWith('ton') && (recipient.startsWith('UQ') || recipient.startsWith('EQ'))) return 100;
+    if (chainId.startsWith('tron') && recipient.startsWith('T')) return 100;
+    // Cross-chain address — might work but less certain
+    if (recipient.startsWith('0x')) return 70; // EVM address on any chain
+    return 30; // Unknown format
   }
 
   /** Execute the transaction on the selected chain */
