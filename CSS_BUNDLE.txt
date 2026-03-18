@@ -1,3 +1,6 @@
+================================================================
+FILE: index.css — Complete Design System (all animations/classes)
+================================================================
 @import "tailwindcss";
 
 @theme {
@@ -1791,12 +1794,4 @@ html.light .verified-glow {
   .verified-glow {
     animation: none !important;
   }
-}
-
-/* Collapsible section styling */
-details > summary {
-  list-style: none;
-}
-details > summary::-webkit-details-marker {
-  display: none;
 }

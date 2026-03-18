@@ -323,19 +323,19 @@
   },
   {
     "address": "0x742d35cc6634c0532925a3b844bc9e7595f2bd68",
-    "rawScore": 328,
-    "totalReceived": 0.005,
-    "tipCount": 5,
+    "rawScore": 358,
+    "totalReceived": 0.011000000000000003,
+    "tipCount": 11,
     "uniqueTippersList": [
       "0x74118B69ac22FB7e46081400BD5ef9d9a0AC9b62"
     ],
-    "avgTipAmount": 0.001,
+    "avgTipAmount": 0.0010000000000000002,
     "firstTipAt": "2026-03-18T21:04:24.867Z",
-    "lastTipAt": "2026-03-18T21:08:25.824Z",
+    "lastTipAt": "2026-03-18T21:14:36.850Z",
     "scoreHistory": [
       {
         "date": "2026-03-18",
-        "score": 328
+        "score": 358
       }
     ],
     "chains": [

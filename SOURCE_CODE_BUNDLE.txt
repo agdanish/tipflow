@@ -1,0 +1,3642 @@
+================================================================
+FILE: App.tsx (899 lines) — Main Layout & Routing
+================================================================
+// Copyright 2026 Danish A. Licensed under Apache-2.0.
+// TipFlow — AI-Powered Multi-Chain Tipping Agent
+
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Header } from './components/Header';
+import { WalletCard } from './components/WalletCard';
+import { TipForm } from './components/TipForm';
+import { BatchTipForm } from './components/BatchTipForm';
+import { SplitTipForm } from './components/SplitTipForm';
+import { AgentPanel } from './components/AgentPanel';
+import { TipHistory } from './components/TipHistory';
+import { StatsPanel } from './components/StatsPanel';
+import { GasMonitor } from './components/GasMonitor';
+import { CurrencyConverter } from './components/CurrencyConverter';
+import { Leaderboard } from './components/Leaderboard';
+import { Achievements } from './components/Achievements';
+import { Challenges } from './components/Challenges';
+import { ActivityFeed } from './components/ActivityFeed';
+import { QRReceive } from './components/QRReceive';
+import { DecisionTree } from './components/DecisionTree';
+import { TipTemplates } from './components/TipTemplates';
+import { WalletCardSkeleton } from './components/Skeleton';
+import { ToastContainer, useToasts } from './components/Toast';
+import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
+import { OnboardingOverlay, isOnboardingComplete } from './components/OnboardingOverlay';
+import { ChatInterface } from './components/ChatInterface';
+import { SecurityStatus } from './components/SecurityStatus';
+import { ConditionalTips } from './components/ConditionalTips';
+import { WebhookManager } from './components/WebhookManager';
+import { ContactsManager } from './components/ContactsManager';
+import { InstallPrompt } from './components/InstallPrompt';
+import { ApiDocs } from './components/ApiDocs';
+import { NetworkHealth } from './components/NetworkHealth';
+import { TelegramStatus } from './components/TelegramStatus';
+import { useNotifications } from './components/NotificationCenter';
+import { WalletBackup } from './components/WalletBackup';
+import { WalletSwitcher } from './components/WalletSwitcher';
+import { AnalyticsDashboard } from './components/AnalyticsDashboard';
+import { SettingsPanel } from './components/SettingsPanel';
+import { TransactionTimeline } from './components/TransactionTimeline';
+import { ExportPanel } from './components/ExportPanel';
+import { Footer } from './components/Footer';
+import { HelpCenter } from './components/HelpCenter';
+import { SystemInfo } from './components/SystemInfo';
+import { TechStack } from './components/TechStack';
+import { TipLinkCreator } from './components/TipLinkCreator';
+import { ShareCard } from './components/ShareCard';
+import { MobileNav } from './components/MobileNav';
+import { TipCalendar } from './components/TipCalendar';
+import { initAccentColor } from './components/ThemeCustomizer';
+import { ChainComparison } from './components/ChainComparison';
+import { FavoriteRecipients } from './components/FavoriteRecipients';
+import { QuickActions } from './components/QuickActions';
+import { AuditLog } from './components/AuditLog';
+import { TipGoals } from './components/TipGoals';
+import { SpendingLimits } from './components/SpendingLimits';
+import { BatchImport } from './components/BatchImport';
+import { TipReport } from './components/TipReport';
+import { DemoBanner } from './components/DemoBanner';
+import { DemoScenarios } from './components/DemoScenarios';
+import { RumbleIntegration } from './components/RumbleIntegration';
+import { AutonomyPanel } from './components/AutonomyPanel';
+import { TreasuryPanel } from './components/TreasuryPanel';
+import { BridgePanel } from './components/BridgePanel';
+import { LendingPanel } from './components/LendingPanel';
+import { StreamingPanel } from './components/StreamingPanel';
+import { CryptoReceiptPanel } from './components/CryptoReceipt';
+import { ReputationPanel } from './components/ReputationPanel';
+import { OrchestratorPanel } from './components/OrchestratorPanel';
+import { PredictorPanel } from './components/PredictorPanel';
+import { FeeArbitragePanel } from './components/FeeArbitragePanel';
+import { EscrowPanel } from './components/EscrowPanel';
+import { MemoryPanel } from './components/MemoryPanel';
+import { DcaPanel } from './components/DcaPanel';
+import { CreatorAnalyticsPanel } from './components/CreatorAnalyticsPanel';
+import { RiskDashboard } from './components/RiskDashboard';
+import { EngagementPanel } from './components/EngagementPanel';
+import { CreatorDiscoveryPanel } from './components/CreatorDiscoveryPanel';
+import { TipPropagationPanel } from './components/TipPropagationPanel';
+import { ProofOfEngagementPanel } from './components/ProofOfEngagementPanel';
+import { HealthDashboard } from './components/HealthDashboard';
+import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
+import { useSpotlight } from './hooks/useSpotlight';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useSwipe } from './hooks/useTouchGestures';
+import { api } from './lib/api';
+import { playSuccess, playError, playNotification, isSoundEnabled, setSoundEnabled } from './lib/sounds';
+import type { TipResult, ScheduledTip, LeaderboardEntry, Achievement, TipTemplate, SplitTipResult, TipLink } from './types';
+import { DashboardTabs } from './components/DashboardTabs';
+import { CommandPalette, useCommandActions } from './components/CommandPalette';
+import { SuccessCelebration } from './components/SuccessCelebration';
+import { PortfolioSummary } from './components/PortfolioSummary';
+import { TransactionTracker } from './components/TransactionTracker';
+import { PriceTicker } from './components/PriceTicker';
+import { SmartSuggestions } from './components/SmartSuggestions';
+import { FeeOptimizer } from './components/FeeOptimizer';
+import { ActivityHeatmap } from './components/ActivityHeatmap';
+import { FloatingMenu } from './components/FloatingMenu';
+import { InnovationShowcase } from './components/InnovationShowcase';
+import { IndexerPanel } from './components/IndexerPanel';
+import { WdkCapabilities } from './components/WdkCapabilities';
+import { DecisionAuditTrail } from './components/DecisionAuditTrail';
+import { AgentActivityFeed } from './components/AgentActivityFeed';
+import { EconomicsDashboard } from './components/EconomicsDashboard';
+import { PluginRegistry } from './components/PluginRegistry';
+import { DeveloperHub } from './components/DeveloperHub';
+import { ProtocolOverview } from './components/ProtocolOverview';
+import { LiveMetrics } from './components/LiveMetrics';
+import { ApiExplorer } from './components/ApiExplorer';
+import { AgentCapabilities } from './components/AgentCapabilities';
+import { Wallet, Send, Users, Scissors, CalendarClock, X, Clock, CheckCircle2, XCircle, Repeat } from 'lucide-react';
+
+function App() {
+  const { health } = useHealth();
+  const { balances, loading: balancesLoading, refresh: refreshBalances } = useBalances();
+  const agentState = useAgentState();
+  const { history, loading: historyLoading, refresh: refreshHistory } = useHistory();
+  const { stats, refresh: refreshStats } = useStats();
+  const { toasts, addToast, dismissToast } = useToasts();
+  const { notifications, pushNotification, markRead, markAllRead, clearAll } = useNotifications();
+  const [tipMode, setTipMode] = useState<'single' | 'batch' | 'split'>('single');
+  const [scheduledTips, setScheduledTips] = useState<ScheduledTip[]>([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(true);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [achievementsLoading, setAchievementsLoading] = useState(true);
+  const [pendingTemplate, setPendingTemplate] = useState<TipTemplate | null>(null);
+  const [tipLinkPrefill, setTipLinkPrefill] = useState<TipLink | null>(null);
+  const [shareResult, setShareResult] = useState<TipResult | null>(null);
+  const [trackedTx, setTrackedTx] = useState<TipResult | null>(null);
+  const [showOnboarding, setShowOnboarding] = useState(() => !isOnboardingComplete());
+  const [soundOn, setSoundOn] = useState(isSoundEnabled);
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    return (localStorage.getItem('tipflow-theme') as 'dark' | 'light') || 'dark';
+  });
+
+  // Initialize accent color from localStorage
+  useEffect(() => { initAccentColor(); }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('light', theme === 'light');
+    localStorage.setItem('tipflow-theme', theme);
+  }, [theme]);
+
+  // Cursor spotlight effect on main content
+  const spotlightRef = useSpotlight<HTMLElement>();
+
+  // Swipe gesture ref for tip mode tabs
+  const tipTabsRef = useRef<HTMLDivElement>(null);
+  const swipeHandlers = useMemo(() => ({
+    onSwipeLeft: () => setTipMode((prev) => prev === 'single' ? 'batch' : prev === 'batch' ? 'split' : prev),
+    onSwipeRight: () => setTipMode((prev) => prev === 'split' ? 'batch' : prev === 'batch' ? 'single' : prev),
+  }), []);
+  useSwipe(tipTabsRef, swipeHandlers);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  }, []);
+
+  const toggleSound = useCallback(() => {
+    setSoundOn((prev) => {
+      const next = !prev;
+      setSoundEnabled(next);
+      return next;
+    });
+  }, []);
+
+  // Keyboard shortcuts & Command Palette
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  const shortcutActions = useMemo(
+    () => ({
+      submitForm: () => {
+        const form = document.getElementById('tip-form') as HTMLFormElement | null;
+        if (form) form.requestSubmit();
+      },
+      focusNlpInput: () => {
+        setShowCommandPalette(true);
+      },
+      toggleTipMode: () => setTipMode((prev) => prev === 'single' ? 'batch' : prev === 'batch' ? 'split' : 'single'),
+      toggleTheme,
+      showShortcutsHelp: () => setShowShortcuts(true),
+      closeModal: () => { setShowShortcuts(false); setShowCommandPalette(false); },
+    }),
+    [toggleTheme],
+  );
+
+  useKeyboardShortcuts(shortcutActions);
+
+  // Command palette actions with tab navigation via hash
+  const navigateToTab = useCallback((tab: string) => {
+    window.location.hash = tab;
+  }, []);
+
+  const commandActions = useCommandActions({
+    onNavigate: navigateToTab,
+    onToggleTheme: toggleTheme,
+    onToggleSound: toggleSound,
+    onShowShortcuts: () => setShowShortcuts(true),
+    onRefreshBalances: refreshBalances,
+    theme,
+    soundOn,
+  });
+
+  // Request browser notification permission once on mount
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  // Check URL for ?tiplink= param on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const tipLinkId = params.get('tiplink');
+    if (tipLinkId) {
+      api.getTipLink(tipLinkId).then(({ tipLink }) => {
+        setTipLinkPrefill(tipLink);
+        setTipMode('single');
+        // Clean URL without reload
+        const url = new URL(window.location.href);
+        url.searchParams.delete('tiplink');
+        window.history.replaceState({}, '', url.pathname + url.search);
+      }).catch(() => {
+        addToast('error', 'Tip Link Not Found', 'The tip link may have expired or been deleted.');
+      });
+    }
+  }, [addToast]);
+
+  // SSE activity stream -> push to notification center
+  useEffect(() => {
+    let es: EventSource | null = null;
+
+    const connect = () => {
+      es = new EventSource('/api/activity/stream');
+
+      es.onmessage = (msg) => {
+        try {
+          const data = JSON.parse(msg.data);
+          if (data.type === 'activity' && data.event) {
+            const evt = data.event as { type: string; message: string; detail?: string };
+            if (evt.type === 'tip_sent') {
+              pushNotification('tip_sent', evt.message, evt.detail);
+              playNotification();
+            } else if (evt.type === 'tip_failed') {
+              pushNotification('tip_failed', evt.message, evt.detail);
+              playNotification();
+            } else if (evt.type === 'condition_triggered') {
+              pushNotification('condition_triggered', evt.message, evt.detail);
+              playNotification();
+            } else if (evt.type === 'tip_scheduled') {
+              pushNotification('scheduled_executed', evt.message, evt.detail);
+            }
+          }
+        } catch {
+          // Ignore parse errors
+        }
+      };
+
+      es.onerror = () => {
+        es?.close();
+        setTimeout(connect, 5000);
+      };
+    };
+
+    connect();
+
+    return () => {
+      es?.close();
+    };
+  }, [pushNotification]);
+
+  const refreshScheduledTips = useCallback(async () => {
+    try {
+      const { tips } = await api.getScheduledTips();
+      setScheduledTips(tips);
+    } catch {
+      // Keep existing
+    }
+  }, []);
+
+  // Poll scheduled tips every 10 seconds
+  useEffect(() => {
+    refreshScheduledTips();
+    const id = setInterval(refreshScheduledTips, 10_000);
+    return () => clearInterval(id);
+  }, [refreshScheduledTips]);
+
+  const refreshLeaderboard = useCallback(async () => {
+    try {
+      const { leaderboard: lb } = await api.getLeaderboard();
+      setLeaderboard(lb);
+    } catch {
+      // keep existing
+    } finally {
+      setLeaderboardLoading(false);
+    }
+  }, []);
+
+  const refreshAchievements = useCallback(async () => {
+    try {
+      const { achievements: ach } = await api.getAchievements();
+      setAchievements(ach);
+    } catch {
+      // keep existing
+    } finally {
+      setAchievementsLoading(false);
+    }
+  }, []);
+
+  // Fetch leaderboard and achievements on mount
+  useEffect(() => {
+    refreshLeaderboard();
+    refreshAchievements();
+  }, [refreshLeaderboard, refreshAchievements]);
+
+  const handleTipScheduled = () => {
+    addToast('success', 'Tip Scheduled', 'The agent will execute this tip at the scheduled time.');
+    refreshScheduledTips();
+  };
+
+  const handleCancelScheduled = async (id: string) => {
+    try {
+      await api.cancelScheduledTip(id);
+      addToast('success', 'Cancelled', 'Scheduled tip cancelled.');
+      refreshScheduledTips();
+    } catch {
+      addToast('error', 'Error', 'Failed to cancel scheduled tip.');
+    }
+  };
+
+  const handleTipComplete = (result: TipResult) => {
+    if (result.status === 'confirmed') {
+      const msg = `${result.amount} ${result.token === 'usdt' ? 'USDT' : ''} sent to ${result.to.slice(0, 10)}... on ${result.chainId}`;
+      addToast('success', 'Tip Sent!', msg);
+      pushNotification('tip_sent', msg, `TX: ${result.txHash.slice(0, 16)}...`);
+      playSuccess();
+      setShareResult(result);
+      setShowCelebration(true);
+      setTrackedTx(result);
+      // Clear tiplink prefill after successful tip
+      if (tipLinkPrefill) setTipLinkPrefill(null);
+      // Browser notification
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('TipFlow — Tip Sent!', {
+          body: msg,
+          icon: '/favicon.svg',
+        });
+      }
+    } else {
+      const errMsg = result.error ?? 'Transaction failed';
+      addToast('error', 'Tip Failed', errMsg);
+      pushNotification('tip_failed', errMsg);
+      playError();
+    }
+    refreshBalances();
+    refreshHistory();
+    refreshStats();
+    refreshLeaderboard();
+    refreshAchievements();
+  };
+
+  const handleBatchComplete = (results: TipResult[]) => {
+    const succeeded = results.filter((r) => r.status === 'confirmed').length;
+    if (succeeded > 0) {
+      const msg = `${succeeded}/${results.length} tips sent successfully`;
+      addToast('success', 'Batch Complete', msg);
+      pushNotification('tip_sent', `Batch: ${msg}`);
+      playSuccess();
+      setShowCelebration(true);
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('TipFlow — Batch Complete', {
+          body: msg,
+          icon: '/favicon.svg',
+        });
+      }
+    } else {
+      addToast('error', 'Batch Failed', 'All tips in the batch failed');
+      pushNotification('tip_failed', 'Batch failed: all tips failed');
+      playError();
+    }
+    refreshBalances();
+    refreshHistory();
+    refreshStats();
+    refreshLeaderboard();
+    refreshAchievements();
+  };
+
+  const handleSplitComplete = (result: SplitTipResult) => {
+    if (result.successCount > 0) {
+      const msg = `${result.successCount}/${result.results.length} split tips sent (total: ${result.totalAmount})`;
+      addToast('success', 'Split Complete', msg);
+      pushNotification('tip_sent', `Split: ${msg}`);
+      playSuccess();
+      setShowCelebration(true);
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('TipFlow — Split Complete', {
+          body: msg,
+          icon: '/favicon.svg',
+        });
+      }
+    } else {
+      addToast('error', 'Split Failed', 'All split tips failed');
+      pushNotification('tip_failed', 'Split failed: all tips failed');
+      playError();
+    }
+    refreshBalances();
+    refreshHistory();
+    refreshStats();
+    refreshLeaderboard();
+    refreshAchievements();
+  };
+
+  const handleUseTemplate = useCallback((template: TipTemplate) => {
+    setTipMode('single');
+    setPendingTemplate(template);
+    addToast('success', 'Template Loaded', `"${template.name}" loaded into tip form.`);
+  }, [addToast]);
+
+  const isAgentBusy = agentState.status !== 'idle';
+
+  return (
+    <div className="min-h-screen bg-surface relative overflow-hidden dot-grid grain-overlay">
+      {/* Scroll progress bar */}
+      <div className="scroll-progress-bar" aria-hidden="true" />
+
+      {/* Aurora ambient background with morphing blobs */}
+      <div className="aurora-blob-1" aria-hidden="true" />
+      <div className="aurora-blob-2" aria-hidden="true" />
+      <div className="aurora-blob-3" aria-hidden="true" />
+
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:rounded-lg focus:text-sm focus:font-medium">
+        Skip to main content
+      </a>
+      <Header health={health} theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} onShowShortcuts={() => setShowShortcuts(true)} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onClearAll={clearAll} />
+
+      {/* Live price ticker */}
+      <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-2">
+        <PriceTicker />
+      </div>
+
+      <main ref={spotlightRef} id="main-content" role="main" className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {/* Demo Mode Banner */}
+        <DemoBanner />
+
+        {/* Always-visible monitors row */}
+        <section className="mb-4 sm:mb-6 dashboard-grid-monitors">
+          <GasMonitor />
+          <CurrencyConverter />
+          <SecurityStatus />
+          <NetworkHealth />
+          <TelegramStatus />
+          <SystemInfo />
+        </section>
+
+        {/* Quick Actions Bar */}
+        <section className="mb-4 sm:mb-6">
+          <QuickActions
+            onRefreshBalances={refreshBalances}
+            onScrollToCompare={() => {
+              document.getElementById('chain-comparison-section')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            onScrollToTemplates={() => {
+              document.getElementById('tip-templates-section')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            onQuickTip={(amount) => {
+              setTipMode('single');
+              const amountInput = document.querySelector<HTMLInputElement>('[aria-label="Tip amount"], [aria-label="Tip amount in USDT"]');
+              if (amountInput) {
+                amountInput.focus();
+                const nativeEvent = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+                nativeEvent?.call(amountInput, amount);
+                amountInput.dispatchEvent(new Event('input', { bubbles: true }));
+              }
+            }}
+          />
+        </section>
+
+        {/* Tabbed content */}
+        <DashboardTabs
+          dashboardContent={
+            <>
+              {/* Live platform metrics strip */}
+              <LiveMetrics health={health} />
+
+              {/* Demo Scenarios — one-click demos for judges */}
+              <section className="mb-4 sm:mb-6">
+                <DemoScenarios onSetTipMode={setTipMode} onTipComplete={handleTipComplete} />
+              </section>
+
+              {/* Innovation Showcase — judges see patent-worthy features FIRST */}
+              <section className="mb-4 sm:mb-6">
+                <InnovationShowcase onNavigate={navigateToTab} />
+              </section>
+
+              {/* Protocol Architecture — 5-layer stack */}
+              <section className="mb-4 sm:mb-6">
+                <ProtocolOverview />
+              </section>
+
+              {/* Wallets */}
+              <section className="mb-4 sm:mb-6 scroll-reveal" data-onboarding="wallets">
+                <h2 className="text-sm font-medium text-text-secondary mb-3 flex items-center gap-2">
+                  <Wallet className="w-4 h-4" />
+                  Wallets
+                </h2>
+                {balancesLoading ? (
+                  <div className="dashboard-grid-cards">
+                    {[1, 2].map((i) => (
+                      <WalletCardSkeleton key={i} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="dashboard-grid-cards">
+                    {balances.map((b, i) => (
+                      <div key={b.chainId} className="animate-list-item-in" style={{ animationDelay: `${i * 80}ms` }}>
+                        <WalletCard balance={b} />
+                      </div>
+                    ))}
+                    <PortfolioSummary balances={balances} />
+                  </div>
+                )}
+              </section>
+
+              {/* Transaction Tracker — shows after a tip is sent */}
+              {trackedTx && (
+                <section className="mb-4 sm:mb-6">
+                  <TransactionTracker result={trackedTx} onDismiss={() => setTrackedTx(null)} />
+                </section>
+              )}
+
+              {/* Smart Suggestions — AI-powered recommendations */}
+              <section className="mb-4 sm:mb-6">
+                <SmartSuggestions onNavigate={navigateToTab} tipCount={stats?.totalTips ?? 0} />
+              </section>
+
+              {/* Main grid: Tip Form + Agent | Activity */}
+              <div className="dashboard-grid-main">
+                {/* Left column: Tip Form + Agent */}
+                <div className="space-y-4 sm:space-y-6">
+                  {/* Tip mode tabs */}
+                  <div ref={tipTabsRef} className="flex gap-1 p-1 rounded-lg bg-surface-2 border border-border" data-onboarding="tip-form">
+                    <button
+                      onClick={() => setTipMode('single')}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all btn-press ${
+                        tipMode === 'single'
+                          ? 'bg-surface-3 text-text-primary shadow-sm'
+                          : 'text-text-secondary hover:text-text-primary'
+                      }`}
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      Single Tip
+                    </button>
+                    <button
+                      onClick={() => setTipMode('batch')}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all btn-press ${
+                        tipMode === 'batch'
+                          ? 'bg-surface-3 text-text-primary shadow-sm'
+                          : 'text-text-secondary hover:text-text-primary'
+                      }`}
+                    >
+                      <Users className="w-3.5 h-3.5" />
+                      Batch Tip
+                    </button>
+                    <button
+                      onClick={() => setTipMode('split')}
+                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all btn-press ${
+                        tipMode === 'split'
+                          ? 'bg-surface-3 text-text-primary shadow-sm'
+                          : 'text-text-secondary hover:text-text-primary'
+                      }`}
+                    >
+                      <Scissors className="w-3.5 h-3.5" />
+                      Split
+                    </button>
+                  </div>
+
+                  {/* Swipe hint — mobile only */}
+                  <p className="text-[10px] text-text-muted text-center mt-1 sm:hidden">Swipe to switch tip mode</p>
+
+                  {/* Tip Link banner */}
+                  {tipLinkPrefill && (
+                    <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-4 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-cyan-400">Tip Link Loaded</p>
+                        <button
+                          onClick={() => setTipLinkPrefill(null)}
+                          className="p-1 rounded-md text-text-muted hover:text-text-primary transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <p className="text-xs text-text-secondary">
+                        You&apos;re about to tip <span className="font-semibold text-text-primary">{tipLinkPrefill.amount} {tipLinkPrefill.token === 'usdt' ? 'USDT' : 'Native'}</span> to{' '}
+                        <span className="font-mono text-[11px]">{tipLinkPrefill.recipient.slice(0, 10)}...{tipLinkPrefill.recipient.slice(-6)}</span>
+                      </p>
+                      {tipLinkPrefill.message && (
+                        <p className="text-[11px] text-text-muted italic">&ldquo;{tipLinkPrefill.message}&rdquo;</p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Favorite Recipients — quick-tip shortcuts */}
+                  <FavoriteRecipients
+                    history={history}
+                    onQuickTip={(address) => {
+                      setTipMode('single');
+                      const recipientInput = document.querySelector<HTMLInputElement>('[aria-label="Recipient wallet address or ENS name"]');
+                      if (recipientInput) {
+                        const nativeSet = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+                        nativeSet?.call(recipientInput, address);
+                        recipientInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        recipientInput.focus();
+                      }
+                    }}
+                  />
+
+                  {tipMode === 'single' && (
+                    <TipForm
+                      onTipComplete={handleTipComplete}
+                      onTipScheduled={handleTipScheduled}
+                      disabled={isAgentBusy}
+                      prefillTemplate={pendingTemplate}
+                      onTemplatePrefilled={() => setPendingTemplate(null)}
+                      prefillTipLink={tipLinkPrefill}
+                      onTipLinkPrefilled={() => setTipLinkPrefill(null)}
+                    />
+                  )}
+                  {tipMode === 'batch' && (
+                    <BatchTipForm onBatchComplete={handleBatchComplete} disabled={isAgentBusy} />
+                  )}
+                  {tipMode === 'split' && (
+                    <SplitTipForm onSplitComplete={handleSplitComplete} disabled={isAgentBusy} />
+                  )}
+                  <BatchImport />
+                  <div id="tip-templates-section">
+                    <TipTemplates onUseTemplate={handleUseTemplate} />
+                  </div>
+                  <TipLinkCreator />
+                  <ConditionalTips />
+                  <ContactsManager />
+                  <QRReceive />
+                </div>
+
+                {/* Right column: Agent + Activity + Scheduled */}
+                <div className="space-y-4 sm:space-y-6">
+                  <div data-onboarding="agent-panel">
+                    <AgentPanel state={agentState} />
+                  </div>
+                  {agentState.currentDecision && (
+                    <DecisionTree decision={agentState.currentDecision} agentStatus={agentState.status} />
+                  )}
+                  <FeeOptimizer />
+                  <StreamingPanel />
+                  <AutonomyPanel />
+                  <ReputationPanel />
+                  <ActivityFeed />
+                  <TipGoals />
+                  {/* Scheduled Tips */}
+                  {scheduledTips.length > 0 && (
+                    <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                      <h2 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
+                        <CalendarClock className="w-4 h-4 text-amber-400" />
+                        Scheduled Tips
+                        <span className="ml-auto text-xs font-normal text-text-muted">
+                          {scheduledTips.filter((t) => t.status === 'scheduled').length} pending
+                        </span>
+                      </h2>
+                      <div className="space-y-2">
+                        {scheduledTips.map((tip) => (
+                          <div
+                            key={tip.id}
+                            className={`flex items-center gap-3 p-3 rounded-lg border ${
+                              tip.status === 'scheduled'
+                                ? 'bg-amber-500/5 border-amber-500/20'
+                                : tip.status === 'executed'
+                                ? 'bg-green-500/5 border-green-500/20'
+                                : 'bg-red-500/5 border-red-500/20'
+                            }`}
+                          >
+                            <div className="shrink-0">
+                              {tip.status === 'scheduled' && <Clock className="w-4 h-4 text-amber-400" />}
+                              {tip.status === 'executed' && <CheckCircle2 className="w-4 h-4 text-green-400" />}
+                              {tip.status === 'failed' && <XCircle className="w-4 h-4 text-red-400" />}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 text-sm flex-wrap">
+                                <span className="font-medium text-text-primary">
+                                  {tip.amount} {tip.token === 'usdt' ? 'USDT' : tip.chain === 'ton-testnet' ? 'TON' : 'ETH'}
+                                </span>
+                                <span className="text-text-muted">to</span>
+                                <span className="font-mono text-xs text-text-secondary truncate">
+                                  {tip.recipient.slice(0, 8)}...{tip.recipient.slice(-6)}
+                                </span>
+                                {tip.recurring && (
+                                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-purple-500/15 border border-purple-500/20 text-[10px] font-medium text-purple-400">
+                                    <Repeat className="w-2.5 h-2.5" />
+                                    {tip.interval}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-[11px] text-text-muted mt-0.5">
+                                {tip.status === 'scheduled' ? (
+                                  <>Fires {new Date(tip.scheduledAt).toLocaleString()}</>
+                                ) : tip.status === 'executed' ? (
+                                  <>Executed {new Date(tip.executedAt!).toLocaleString()}</>
+                                ) : (
+                                  <>Failed {tip.executedAt ? new Date(tip.executedAt).toLocaleString() : ''}</>
+                                )}
+                                {tip.recurring && tip.lastExecuted && (
+                                  <> &middot; Last: {new Date(tip.lastExecuted).toLocaleString()}</>
+                                )}
+                                {tip.message && <> &middot; "{tip.message}"</>}
+                              </div>
+                            </div>
+                            {tip.status === 'scheduled' && (
+                              <button
+                                onClick={() => handleCancelScheduled(tip.id)}
+                                className="shrink-0 p-1.5 rounded-md text-text-muted hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                                title="Cancel scheduled tip"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <TipCalendar onCancelTip={handleCancelScheduled} />
+                  <AgentActivityFeed />
+                  <DecisionAuditTrail />
+                </div>
+              </div>
+            </>
+          }
+          analyticsContent={
+            <div className="space-y-4 sm:space-y-6">
+              <EconomicsDashboard />
+              <StatsPanel stats={stats} />
+              <div id="chain-comparison-section">
+                <ChainComparison />
+              </div>
+              <AnalyticsDashboard />
+              <ActivityHeatmap history={history} />
+              <TipReport history={history} />
+              <Leaderboard entries={leaderboard} loading={leaderboardLoading} />
+              <div className="dashboard-grid-cards">
+                <Achievements achievements={achievements} loading={achievementsLoading} />
+                <Challenges />
+              </div>
+              <TechStack />
+            </div>
+          }
+          historyContent={
+            <div className="space-y-4 sm:space-y-6">
+              <TipHistory history={history} loading={historyLoading} />
+              <ExportPanel historyCount={history.length} />
+              <TransactionTimeline history={history} loading={historyLoading} />
+            </div>
+          }
+          rumbleContent={
+            <RumbleIntegration />
+          }
+          aiContent={
+            <div className="space-y-4 sm:space-y-6">
+              <AgentCapabilities />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 spotlight-grid">
+                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
+                  <OrchestratorPanel />
+                </div>
+                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
+                  <PredictorPanel />
+                </div>
+                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
+                  <FeeArbitragePanel />
+                </div>
+              </div>
+              <div className="dashboard-grid-cards">
+                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
+                  <EscrowPanel />
+                </div>
+                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
+                  <MemoryPanel />
+                </div>
+              </div>
+              <div className="dashboard-grid-cards">
+                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
+                  <DcaPanel />
+                </div>
+                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
+                  <CreatorAnalyticsPanel />
+                </div>
+              </div>
+              {/* Innovation panels — making backend innovations VISIBLE */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
+                  <RiskDashboard />
+                </div>
+                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
+                  <EngagementPanel />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
+                  <CreatorDiscoveryPanel />
+                </div>
+                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
+                  <TipPropagationPanel />
+                </div>
+                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
+                  <ProofOfEngagementPanel />
+                </div>
+              </div>
+            </div>
+          }
+          settingsContent={
+            <div className="space-y-4 sm:space-y-6">
+              <SettingsPanel theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} />
+              <div className="dashboard-grid-cards">
+                <WalletBackup totalTransactions={stats?.totalTips ?? 0} />
+                <WalletSwitcher onActiveChanged={() => refreshBalances()} />
+              </div>
+              <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                <HealthDashboard />
+              </div>
+              <TreasuryPanel />
+              <BridgePanel />
+              <LendingPanel />
+              <WdkCapabilities />
+              <CryptoReceiptPanel />
+              <IndexerPanel />
+              <SpendingLimits />
+              <WebhookManager />
+              <AuditLog />
+              <ApiDocs />
+              <DeveloperHub />
+              <PluginRegistry />
+              <ApiExplorer />
+            </div>
+          }
+        />
+      </main>
+
+      {/* Help Center */}
+      <HelpCenter />
+
+      {/* Footer */}
+      <Footer />
+
+      <ChatInterface />
+      <InstallPrompt />
+      {shareResult && (
+        <ShareCard result={shareResult} onClose={() => setShareResult(null)} />
+      )}
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+      <KeyboardShortcutsModal open={showShortcuts} onClose={() => setShowShortcuts(false)} />
+      <CommandPalette
+        open={showCommandPalette}
+        onClose={() => setShowCommandPalette(false)}
+        actions={commandActions}
+      />
+      <SuccessCelebration
+        show={showCelebration}
+        onComplete={() => setShowCelebration(false)}
+      />
+
+      {/* Onboarding overlay — first visit only */}
+      {showOnboarding && (
+        <OnboardingOverlay onComplete={() => setShowOnboarding(false)} />
+      )}
+
+      <MobileNav />
+
+      {/* Floating Quick Action Menu */}
+      <FloatingMenu
+        onSingleTip={() => {
+          navigateToTab('dashboard');
+          setTipMode('single');
+          setTimeout(() => document.getElementById('nlp-input')?.focus(), 200);
+        }}
+        onBatchTip={() => {
+          navigateToTab('dashboard');
+          setTipMode('batch');
+        }}
+        onSplitTip={() => {
+          navigateToTab('dashboard');
+          setTipMode('split');
+        }}
+        onRefresh={refreshBalances}
+        onCommandPalette={() => setShowCommandPalette(true)}
+      />
+    </div>
+  );
+}
+
+export default App;
+
+================================================================
+FILE: components/DashboardTabs.tsx — Tab Navigation
+================================================================
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import { LayoutDashboard, BarChart3, History, Settings, Tv, Brain } from 'lucide-react';
+import { t } from '../lib/i18n';
+import { useLocale } from '../hooks/useLocale';
+
+export type TabId = 'dashboard' | 'analytics' | 'history' | 'rumble' | 'ai' | 'settings';
+
+interface TabDef {
+  id: TabId;
+  labelKey: string;
+  icon: ReactNode;
+}
+
+const tabDefs: TabDef[] = [
+  { id: 'dashboard', labelKey: 'nav.dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+  { id: 'analytics', labelKey: 'nav.analytics', icon: <BarChart3 className="w-4 h-4" /> },
+  { id: 'history',   labelKey: 'nav.history',   icon: <History className="w-4 h-4" /> },
+  { id: 'rumble',    labelKey: 'nav.rumble',    icon: <Tv className="w-4 h-4" /> },
+  { id: 'ai',        labelKey: 'nav.ai',        icon: <Brain className="w-4 h-4" /> },
+  { id: 'settings',  labelKey: 'nav.settings',  icon: <Settings className="w-4 h-4" /> },
+];
+
+function getTabFromHash(): TabId {
+  const hash = window.location.hash.replace('#', '') as TabId;
+  if (tabDefs.some((td) => td.id === hash)) return hash;
+  return (localStorage.getItem('tipflow-active-tab') as TabId) || 'dashboard';
+}
+
+interface DashboardTabsProps {
+  dashboardContent: ReactNode;
+  analyticsContent: ReactNode;
+  historyContent: ReactNode;
+  rumbleContent: ReactNode;
+  aiContent: ReactNode;
+  settingsContent: ReactNode;
+  /** Tab IDs that have unread/new data */
+  tabsWithUpdates?: TabId[];
+}
+
+export function DashboardTabs({ dashboardContent, analyticsContent, historyContent, rumbleContent, aiContent, settingsContent, tabsWithUpdates = [] }: DashboardTabsProps) {
+  // Re-render on locale change so tab labels update
+  useLocale();
+
+  const [activeTab, setActiveTab] = useState<TabId>(getTabFromHash);
+
+  // Sync hash on mount and on popstate
+  useEffect(() => {
+    const onHashChange = () => {
+      const tab = getTabFromHash();
+      setActiveTab(tab);
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  const switchTab = useCallback((id: TabId) => {
+    setActiveTab(id);
+    localStorage.setItem('tipflow-active-tab', id);
+    window.location.hash = id;
+  }, []);
+
+  const contentMap: Record<TabId, ReactNode> = {
+    dashboard: dashboardContent,
+    analytics: analyticsContent,
+    history: historyContent,
+    rumble: rumbleContent,
+    ai: aiContent,
+    settings: settingsContent,
+  };
+
+  return (
+    <div>
+      {/* Tab bar */}
+      <div className="mb-4 sm:mb-6">
+        <div className="flex gap-1 p-1 rounded-xl glass-card overflow-x-auto">
+          {tabDefs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => switchTab(tab.id)}
+              className={`
+                relative flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap min-w-0 btn-press
+                ${activeTab === tab.id
+                  ? 'bg-accent/10 text-accent border border-accent-border shadow-sm'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'
+                }
+              `}
+              aria-selected={activeTab === tab.id}
+              role="tab"
+            >
+              {tab.icon}
+              <span className="hidden sm:inline">{t(tab.labelKey)}</span>
+              {tabsWithUpdates.includes(tab.id) && activeTab !== tab.id && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border border-surface-1 animate-pulse" />
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Tab content */}
+      <div className="animate-tab-content-in" key={activeTab}>
+        {contentMap[activeTab]}
+      </div>
+    </div>
+  );
+}
+
+================================================================
+FILE: components/Header.tsx — Top Header
+================================================================
+import { useState, useEffect } from 'react';
+import { Activity, Zap, Github, Sun, Moon, Volume2, VolumeX, Keyboard, Clock } from 'lucide-react';
+import { NotificationCenter } from './NotificationCenter';
+import { ThemeCustomizer } from './ThemeCustomizer';
+import { ConnectionStatus } from './ConnectionStatus';
+import { LanguageSelector } from './LanguageSelector';
+import { t } from '../lib/i18n';
+import { useLocale } from '../hooks/useLocale';
+import type { AppNotification } from './NotificationCenter';
+import type { HealthResponse } from '../types';
+
+interface HeaderProps {
+  health: HealthResponse | null;
+  theme: 'dark' | 'light';
+  onToggleTheme: () => void;
+  soundOn: boolean;
+  onToggleSound: () => void;
+  onShowShortcuts: () => void;
+  notifications: AppNotification[];
+  onMarkRead: (id: string) => void;
+  onMarkAllRead: () => void;
+  onClearAll: () => void;
+}
+
+export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, onShowShortcuts, notifications, onMarkRead, onMarkAllRead, onClearAll }: HeaderProps) {
+  // Subscribe so component re-renders on locale change
+  useLocale();
+
+  // Live clock
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <header role="banner" aria-label="TipFlow main navigation" className="border-b border-white/[0.07] glass-elevated sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-accent/20 flex items-center justify-center glow-accent">
+            <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
+          </div>
+          <div>
+            <h1 className="text-base sm:text-lg font-bold leading-none tracking-tight gradient-text-animated">{t('app.title')}</h1>
+            <p className="text-[10px] sm:text-[11px] text-text-muted mt-0.5 hidden xs:block">{t('app.subtitle')}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 sm:gap-3">
+          {health && (
+            <>
+              <div className="hidden sm:flex items-center gap-2 text-xs text-text-secondary">
+                <span className={`px-2.5 py-1 rounded-full border text-[11px] font-medium ${
+                  health.ai === 'llm'
+                    ? 'bg-purple-500/10 border-purple-500/20 text-purple-400'
+                    : 'bg-surface-3 border-border text-text-secondary'
+                }`}>
+                  {health.ai === 'llm' ? t('nav.llmActive') : t('nav.ruleBased')}
+                </span>
+              </div>
+              <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-accent-dim border border-accent-border">
+                <span className="relative w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-accent status-dot-ping" />
+                <span className="text-[10px] sm:text-[11px] text-accent font-semibold">{t('nav.online')}</span>
+              </div>
+              <div className="hidden md:flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-2 border border-border">
+                <Clock className="w-3 h-3 text-text-muted" />
+                <span className="text-[10px] text-text-secondary font-mono tabular-nums">
+                  {now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                </span>
+              </div>
+            </>
+          )}
+          {!health && (
+            <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-error/10 border border-error/20">
+              <Activity className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-error" />
+              <span className="text-[10px] sm:text-[11px] text-error font-semibold">{t('nav.offline')}</span>
+            </div>
+          )}
+          <ConnectionStatus />
+          <NotificationCenter
+            notifications={notifications}
+            onMarkRead={onMarkRead}
+            onMarkAllRead={onMarkAllRead}
+            onClearAll={onClearAll}
+          />
+          <button
+            onClick={onShowShortcuts}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-secondary hover:bg-surface-3 transition-all"
+            title={t('shortcuts.title')}
+            aria-label={t('shortcuts.title')}
+          >
+            <Keyboard className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onToggleSound}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-secondary hover:bg-surface-3 transition-all"
+            title={soundOn ? t('sound.mute') : t('sound.enable')}
+            aria-label={soundOn ? t('sound.mute') : t('sound.enable')}
+            aria-pressed={soundOn}
+          >
+            {soundOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+          </button>
+          <LanguageSelector />
+          <div className="hidden sm:block">
+            <ThemeCustomizer />
+          </div>
+          <button
+            onClick={onToggleTheme}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-secondary hover:bg-surface-3 transition-all"
+            title={theme === 'dark' ? t('theme.dark') : t('theme.light')}
+            aria-label={theme === 'dark' ? t('theme.dark') : t('theme.light')}
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+          <a
+            href="https://github.com/agdanish/tipflow"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-text-secondary hover:bg-surface-3 transition-all"
+            aria-label="View TipFlow on GitHub"
+          >
+            <Github className="w-4 h-4" />
+          </a>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+================================================================
+FILE: components/MobileNav.tsx — Mobile Bottom Navigation
+================================================================
+import { useState, useEffect } from 'react';
+
+type NavTab = 'home' | 'history' | 'analytics' | 'settings';
+
+const TABS: Array<{ id: NavTab; label: string }> = [
+  { id: 'home', label: 'Home' },
+  { id: 'history', label: 'History' },
+  { id: 'analytics', label: 'Analytics' },
+  { id: 'settings', label: 'Settings' },
+];
+
+/** SVG icons rendered inline to avoid extra dependencies */
+function TabIcon({ id, active }: { id: NavTab; active: boolean }) {
+  const color = active ? 'var(--color-accent)' : 'var(--color-text-muted)';
+
+  switch (id) {
+    case 'home':
+      return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
+        </svg>
+      );
+    case 'history':
+      return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      );
+    case 'analytics':
+      return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+      );
+    case 'settings':
+      return (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      );
+  }
+}
+
+/** Hash-based tab navigation matching DashboardTabs */
+const TAB_HASH_MAP: Record<NavTab, string> = {
+  home: 'dashboard',
+  history: 'history',
+  analytics: 'analytics',
+  settings: 'settings',
+};
+
+function hashToNavTab(): NavTab {
+  const hash = window.location.hash.replace('#', '');
+  if (hash === 'history') return 'history';
+  if (hash === 'analytics') return 'analytics';
+  if (hash === 'settings') return 'settings';
+  return 'home';
+}
+
+export function MobileNav() {
+  const [active, setActive] = useState<NavTab>(hashToNavTab);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Sync with hash changes (from DashboardTabs, CommandPalette, etc.)
+  useEffect(() => {
+    const onHashChange = () => setActive(hashToNavTab());
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  // Only render on mobile
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const handleChange = (e: MediaQueryListEvent | MediaQueryList) => setIsMobile(e.matches);
+    handleChange(mq);
+    mq.addEventListener('change', handleChange as (e: MediaQueryListEvent) => void);
+    return () => mq.removeEventListener('change', handleChange as (e: MediaQueryListEvent) => void);
+  }, []);
+
+  if (!isMobile) return null;
+
+  const handleTabClick = (tab: NavTab) => {
+    setActive(tab);
+    // Use hash-based navigation (same as DashboardTabs)
+    window.location.hash = TAB_HASH_MAP[tab];
+    // Scroll to top of main content
+    document.getElementById('main-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  return (
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-surface-1/95 backdrop-blur-md"
+      aria-label="Mobile navigation"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+    >
+      <div className="flex items-stretch justify-around h-14">
+        {TABS.map((tab) => {
+          const isActive = active === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => handleTabClick(tab.id)}
+              className="flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors"
+              aria-label={tab.label}
+              aria-current={isActive ? 'page' : undefined}
+            >
+              <TabIcon id={tab.id} active={isActive} />
+              <span
+                className="text-[10px] font-medium transition-colors"
+                style={{ color: isActive ? 'var(--color-accent)' : 'var(--color-text-muted)' }}
+              >
+                {tab.label}
+              </span>
+              {isActive && (
+                <span
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full"
+                  style={{ backgroundColor: 'var(--color-accent)' }}
+                />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
+================================================================
+FILE: components/Footer.tsx — Footer
+================================================================
+import { Zap, Github, ExternalLink } from 'lucide-react';
+
+export function Footer() {
+  return (
+    <footer className="mt-12 border-t border-border bg-surface-1/50 backdrop-blur-sm">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
+          {/* Brand */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center">
+                <Zap className="w-4 h-4 text-accent" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-text-primary">TipFlow</h3>
+                <p className="text-[10px] text-text-muted">v1.0.0</p>
+              </div>
+            </div>
+            <p className="text-xs text-text-secondary leading-relaxed">
+              AI-Powered Multi-Chain Tipping Agent. Send tips across Ethereum and TON
+              with intelligent chain selection and fee optimization.
+            </p>
+          </div>
+
+          {/* Built With */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-semibold text-text-primary uppercase tracking-wider">Built With</h4>
+            <ul className="space-y-1.5 text-xs text-text-secondary">
+              <li className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
+                Tether WDK
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                React + TypeScript
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                Tailwind CSS
+              </li>
+              <li className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                Node.js + Express
+              </li>
+            </ul>
+          </div>
+
+          {/* Links */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-semibold text-text-primary uppercase tracking-wider">Links</h4>
+            <ul className="space-y-1.5 text-xs">
+              <li>
+                <a
+                  href="https://github.com/agdanish/tipflow"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-text-secondary hover:text-accent transition-colors"
+                >
+                  <Github className="w-3.5 h-3.5" />
+                  GitHub Repository
+                  <ExternalLink className="w-3 h-3 opacity-50" />
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://github.com/agdanish/tipflow/blob/main/LICENSE"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-text-secondary hover:text-accent transition-colors"
+                >
+                  <span className="w-3.5 h-3.5 flex items-center justify-center text-[10px] font-bold">AP</span>
+                  Apache 2.0 License
+                  <ExternalLink className="w-3 h-3 opacity-50" />
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://wdk.tether.io"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-text-secondary hover:text-accent transition-colors"
+                >
+                  <Zap className="w-3.5 h-3.5" />
+                  Tether WDK Docs
+                  <ExternalLink className="w-3 h-3 opacity-50" />
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Bottom bar */}
+        <div className="mt-6 pt-4 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div className="flex items-center gap-3">
+            <p className="text-[11px] text-text-muted text-center sm:text-left flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+              </span>
+              System Online
+            </p>
+            <span className="px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-[10px] font-medium text-accent tabular-nums">
+              228+ API endpoints
+            </span>
+          </div>
+          <p className="text-[11px] text-text-muted">
+            &copy; 2026 TipFlow &middot; Built for <span className="text-accent font-medium">Tether Hackathon Galactica</span>
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+================================================================
+FILE: lib/api.ts — All API Client Methods
+================================================================
+import type {
+  WalletBalance,
+  WalletReceiveInfo,
+  TipResult,
+  TipReceipt,
+  TipHistoryEntry,
+  GaslessStatus,
+  GaslessTipResult,
+  AgentState,
+  AgentStats,
+  AnalyticsData,
+  HealthResponse,
+  ChainId,
+  ChainConfig,
+  TokenType,
+  BatchTipResult,
+  NLPTipParse,
+  ScheduledTip,
+  Contact,
+  GasPricesResponse,
+  ActivityEvent,
+  LeaderboardEntry,
+  Achievement,
+  ChatMessage,
+  PriceData,
+  TipTemplate,
+  SplitRecipient,
+  SplitTipResult,
+  TipCondition,
+  ConditionType,
+  WebhookConfig,
+  NetworkHealthResponse,
+  ChainGasSpeeds,
+  DerivedWallet,
+  TelegramBotStatus,
+  SystemInfoData,
+  AgentSettings,
+  PersonalityDefinition,
+  PersonalityType,
+  TipLink,
+  ENSResolveResult,
+  ENSReverseResult,
+  AddressTag,
+  Challenge,
+  StreakData,
+  CalendarResponse,
+  ContactImportResult,
+  ChainAnalyticsResponse,
+  SpendingLimit,
+  SpendingTotals,
+  AuditEntry,
+  CSVImportResult,
+  TipGoal,
+  TipProfile,
+  AutonomyPolicy,
+  AutonomousDecision,
+  TreasuryStatus,
+  YieldOpportunity,
+  YieldStrategy,
+  TreasuryAllocation,
+  TreasuryAnalytics,
+  EconomicReport,
+  IndexerHealthResult,
+  IndexerChainsResult,
+  IndexerBalanceResult,
+  IndexerTransfersResult,
+  BridgeRoute,
+  BridgeQuote,
+  BridgeHistoryEntry,
+  LendingRate,
+  LendingPosition,
+  LendingAction,
+  TipStream,
+  StreamStats,
+  CryptoReceipt,
+  ReceiptVerification,
+  CreatorReputation,
+  ReputationRecommendation,
+} from '../types';
+
+const BASE = '/api';
+
+async function fetchJson<T>(path: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error((body as { error?: string }).error ?? `HTTP ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
+
+/** Trigger a file download from a fetch response */
+async function downloadBlob(url: string, fallbackName: string): Promise<void> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Export failed: HTTP ${res.status}`);
+  const blob = await res.blob();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  // Extract filename from Content-Disposition header, or use fallback
+  const disposition = res.headers.get('Content-Disposition');
+  const match = disposition?.match(/filename="?([^"]+)"?/);
+  a.download = match?.[1] ?? fallbackName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
+export const api = {
+  health: () =>
+    fetchJson<HealthResponse>('/health'),
+
+  getAddresses: () =>
+    fetchJson<{ addresses: Record<ChainId, string> }>('/wallet/addresses'),
+
+  getBalances: () =>
+    fetchJson<{ balances: WalletBalance[] }>('/wallet/balances'),
+
+  getReceiveInfo: () =>
+    fetchJson<{ wallets: WalletReceiveInfo[] }>('/wallet/receive'),
+
+  getSeed: () =>
+    fetchJson<{ seed: string }>('/wallet/seed'),
+
+  sendTip: (recipient: string, amount: string, token?: TokenType, preferredChain?: ChainId, message?: string) =>
+    fetchJson<{ result: TipResult }>('/tip', {
+      method: 'POST',
+      body: JSON.stringify({ recipient, amount, token: token ?? 'native', preferredChain, message }),
+    }),
+
+  sendBatchTip: (recipients: Array<{ address: string; amount: string; message?: string }>, token?: TokenType, preferredChain?: ChainId) =>
+    fetchJson<{ result: BatchTipResult }>('/tip/batch', {
+      method: 'POST',
+      body: JSON.stringify({ recipients, token: token ?? 'native', preferredChain }),
+    }),
+
+  splitTip: (recipients: SplitRecipient[], totalAmount: string, token?: TokenType, chainId?: string) =>
+    fetchJson<{ result: SplitTipResult }>('/tip/split', {
+      method: 'POST',
+      body: JSON.stringify({ recipients, totalAmount, token: token ?? 'native', chainId }),
+    }),
+
+  parseTipInput: (input: string) =>
+    fetchJson<{ parsed: NLPTipParse; source: 'llm' | 'regex' }>('/tip/parse', {
+      method: 'POST',
+      body: JSON.stringify({ input }),
+    }),
+
+  estimateFees: (recipient: string, amount: string) =>
+    fetchJson<{ estimates: Array<{ chainId: ChainId; fee: string }> }>(
+      `/tip/estimate?recipient=${encodeURIComponent(recipient)}&amount=${encodeURIComponent(amount)}`,
+    ),
+
+  getAgentState: () =>
+    fetchJson<{ state: AgentState }>('/agent/state'),
+
+  getHistory: (filters?: { search?: string; chain?: string; status?: string; dateFrom?: string; dateTo?: string }) => {
+    const params = new URLSearchParams();
+    if (filters?.search) params.set('search', filters.search);
+    if (filters?.chain) params.set('chain', filters.chain);
+    if (filters?.status) params.set('status', filters.status);
+    if (filters?.dateFrom) params.set('dateFrom', filters.dateFrom);
+    if (filters?.dateTo) params.set('dateTo', filters.dateTo);
+    const qs = params.toString();
+    return fetchJson<{ history: TipHistoryEntry[]; total: number }>(`/agent/history${qs ? `?${qs}` : ''}`);
+  },
+
+  getGasSpeeds: () =>
+    fetchJson<{ speeds: ChainGasSpeeds[] }>('/gas/speeds'),
+
+  getStats: () =>
+    fetchJson<{ stats: AgentStats }>('/agent/stats'),
+
+  getChains: () =>
+    fetchJson<{ chains: ChainConfig[] }>('/chains'),
+
+  scheduleTip: (recipient: string, amount: string, scheduledAt: string, token?: TokenType, chain?: ChainId, message?: string, recurring?: boolean, interval?: 'daily' | 'weekly' | 'monthly') =>
+    fetchJson<{ tip: ScheduledTip }>('/tip/schedule', {
+      method: 'POST',
+      body: JSON.stringify({ recipient, amount, scheduledAt, token: token ?? 'native', chain, message, recurring, interval }),
+    }),
+
+  getScheduledTips: () =>
+    fetchJson<{ tips: ScheduledTip[] }>('/tip/scheduled'),
+
+  cancelScheduledTip: (id: string) =>
+    fetchJson<{ cancelled: boolean; id: string }>(`/tip/schedule/${id}`, {
+      method: 'DELETE',
+    }),
+
+  // Address Book
+  getContacts: (group?: string) => {
+    const qs = group ? `?group=${encodeURIComponent(group)}` : '';
+    return fetchJson<{ contacts: Contact[] }>(`/contacts${qs}`);
+  },
+
+  addContact: (name: string, address: string, chain?: ChainId, group?: string) =>
+    fetchJson<{ contact: Contact }>('/contacts', {
+      method: 'POST',
+      body: JSON.stringify({ name, address, chain, group }),
+    }),
+
+  updateContact: (id: string, updates: { name?: string; group?: string }) =>
+    fetchJson<{ contact: Contact }>(`/contacts/${encodeURIComponent(id)}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    }),
+
+  deleteContact: (id: string) =>
+    fetchJson<{ deleted: boolean; id: string }>(`/contacts/${id}`, {
+      method: 'DELETE',
+    }),
+
+  getContactGroups: () =>
+    fetchJson<{ groups: string[] }>('/contacts/groups'),
+
+  exportContacts: () =>
+    fetchJson<Contact[]>('/contacts/export'),
+
+  importContacts: (contactsData: Array<{ name: string; address: string; chain?: ChainId; group?: string }>) =>
+    fetchJson<ContactImportResult>('/contacts/import', {
+      method: 'POST',
+      body: JSON.stringify(contactsData),
+    }),
+
+  // Gas Prices
+  getGasPrices: () =>
+    fetchJson<GasPricesResponse>('/gas'),
+
+  // Leaderboard & Achievements
+  getLeaderboard: () =>
+    fetchJson<{ leaderboard: LeaderboardEntry[] }>('/leaderboard'),
+
+  getAchievements: () =>
+    fetchJson<{ achievements: Achievement[] }>('/achievements'),
+
+  // Tip Templates
+  getTemplates: () =>
+    fetchJson<{ templates: TipTemplate[] }>('/templates'),
+
+  createTemplate: (template: { name: string; recipient: string; amount: string; token?: 'native' | 'usdt' | 'usat' | 'xaut'; chainId?: string }) =>
+    fetchJson<{ template: TipTemplate }>('/templates', {
+      method: 'POST',
+      body: JSON.stringify(template),
+    }),
+
+  deleteTemplate: (id: string) =>
+    fetchJson<{ deleted: boolean; id: string }>(`/templates/${id}`, {
+      method: 'DELETE',
+    }),
+
+  // Prices
+  getPrices: () =>
+    fetchJson<PriceData>('/prices'),
+
+  // Activity Feed
+  getActivity: () =>
+    fetchJson<{ activity: ActivityEvent[] }>('/activity'),
+
+  // Chat
+  sendChatMessage: (message: string) =>
+    fetchJson<{ message: ChatMessage }>('/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message }),
+    }),
+
+  // Export
+  exportHistory: (format: 'csv' | 'json' | 'markdown' | 'summary' = 'csv') => {
+    const extMap: Record<string, string> = { csv: 'csv', json: 'json', markdown: 'md', summary: 'txt' };
+    return downloadBlob(`${BASE}/agent/history/export?format=${format}`, `tipflow-history.${extMap[format] ?? format}`);
+  },
+
+  // Receipt
+  getReceipt: (tipId: string) =>
+    fetchJson<{ receipt: TipReceipt }>(`/tip/${encodeURIComponent(tipId)}/receipt`),
+
+  // Conditional Tips
+  getConditions: () =>
+    fetchJson<{ conditions: TipCondition[] }>('/conditions'),
+
+  createCondition: (type: ConditionType, params: TipCondition['params'], tip: TipCondition['tip']) =>
+    fetchJson<{ condition: TipCondition }>('/conditions', {
+      method: 'POST',
+      body: JSON.stringify({ type, params, tip }),
+    }),
+
+  cancelCondition: (id: string) =>
+    fetchJson<{ cancelled: boolean; id: string }>(`/conditions/${id}`, {
+      method: 'DELETE',
+    }),
+
+  // Gasless / ERC-4337
+  getGaslessStatus: () =>
+    fetchJson<GaslessStatus>('/gasless/status'),
+
+  sendGaslessTip: (recipient: string, amount: string, token?: TokenType, message?: string) =>
+    fetchJson<{ result: GaslessTipResult }>('/tip/gasless', {
+      method: 'POST',
+      body: JSON.stringify({ recipient, amount, token: token ?? 'native', message }),
+    }),
+
+  // Webhooks
+  getWebhooks: () =>
+    fetchJson<{ webhooks: WebhookConfig[] }>('/webhooks'),
+
+  registerWebhook: (url: string, events: string[]) =>
+    fetchJson<{ webhook: WebhookConfig }>('/webhooks', {
+      method: 'POST',
+      body: JSON.stringify({ url, events }),
+    }),
+
+  deleteWebhook: (id: string) =>
+    fetchJson<{ deleted: boolean; id: string }>(`/webhooks/${id}`, {
+      method: 'DELETE',
+    }),
+
+  testWebhooks: () =>
+    fetchJson<{ sent: boolean; webhookCount: number }>('/webhooks/test', {
+      method: 'POST',
+    }),
+
+  // OpenAPI Docs
+  getOpenApiSpec: () =>
+    fetchJson<Record<string, unknown>>('/docs'),
+
+  // Multi-Wallet (HD Derivation)
+  listWallets: (chain?: string, count?: number) => {
+    const params = new URLSearchParams();
+    if (chain) params.set('chain', chain);
+    if (count) params.set('count', String(count));
+    const qs = params.toString();
+    return fetchJson<{ wallets: DerivedWallet[]; activeIndex: number }>(`/wallets${qs ? `?${qs}` : ''}`);
+  },
+
+  getWalletByIndex: (index: number, chain?: string) => {
+    const params = chain ? `?chain=${encodeURIComponent(chain)}` : '';
+    return fetchJson<{ wallet: DerivedWallet }>(`/wallets/${index}${params}`);
+  },
+
+  setActiveWallet: (index: number) =>
+    fetchJson<{ activeIndex: number }>('/wallets/active', {
+      method: 'POST',
+      body: JSON.stringify({ index }),
+    }),
+
+  // Network Health
+  getNetworkHealth: () =>
+    fetchJson<NetworkHealthResponse>('/network/health'),
+
+  // Analytics
+  getAnalytics: () =>
+    fetchJson<AnalyticsData>('/agent/analytics'),
+
+  // Telegram Bot
+  getTelegramStatus: () =>
+    fetchJson<TelegramBotStatus>('/telegram/status'),
+
+  // System Info
+  getSystemInfo: () =>
+    fetchJson<SystemInfoData>('/system/info'),
+
+  // Settings
+  getSettings: () =>
+    fetchJson<{ settings: AgentSettings }>('/settings'),
+
+  updateSettings: (settings: Partial<AgentSettings>) =>
+    fetchJson<{ settings: AgentSettings }>('/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    }),
+
+  // Personality
+  getPersonalities: () =>
+    fetchJson<{ active: PersonalityType; personalities: PersonalityDefinition[] }>('/personality'),
+
+  setPersonality: (type: PersonalityType) =>
+    fetchJson<{ active: PersonalityType; definition: PersonalityDefinition }>('/personality', {
+      method: 'PUT',
+      body: JSON.stringify({ type }),
+    }),
+
+  // Tip Links
+  createTipLink: (recipient: string, amount: string, token?: TokenType, message?: string, chainId?: ChainId) =>
+    fetchJson<{ tipLink: TipLink }>('/tiplinks', {
+      method: 'POST',
+      body: JSON.stringify({ recipient, amount, token: token ?? 'native', message, chainId }),
+    }),
+
+  getTipLinks: () =>
+    fetchJson<{ tipLinks: TipLink[] }>('/tiplinks'),
+
+  getTipLink: (id: string) =>
+    fetchJson<{ tipLink: TipLink }>(`/tiplinks/${encodeURIComponent(id)}`),
+
+  deleteTipLink: (id: string) =>
+    fetchJson<{ deleted: boolean; id: string }>(`/tiplinks/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    }),
+
+  // ENS Resolution
+  resolveENS: (name: string) =>
+    fetchJson<ENSResolveResult>(`/ens/resolve?name=${encodeURIComponent(name)}`),
+
+  reverseENS: (address: string) =>
+    fetchJson<ENSReverseResult>(`/ens/reverse?address=${encodeURIComponent(address)}`),
+
+  // Address Tags
+  getTags: () =>
+    fetchJson<{ tags: AddressTag[] }>('/tags'),
+
+  getTag: (address: string) =>
+    fetchJson<{ tag: AddressTag }>(`/tags/${encodeURIComponent(address)}`),
+
+  addTag: (address: string, label: string, color?: string) =>
+    fetchJson<{ tag: AddressTag }>('/tags', {
+      method: 'POST',
+      body: JSON.stringify({ address, label, color }),
+    }),
+
+  deleteTag: (address: string) =>
+    fetchJson<{ deleted: boolean; address: string }>(`/tags/${encodeURIComponent(address)}`, {
+      method: 'DELETE',
+    }),
+
+  // Challenges & Streaks
+  getChallenges: () =>
+    fetchJson<{ daily: Challenge[]; weekly: Challenge[]; streak: StreakData }>('/challenges'),
+
+  refreshChallenges: () =>
+    fetchJson<{ daily: Challenge[]; weekly: Challenge[]; streak: StreakData }>('/challenges/refresh', {
+      method: 'POST',
+    }),
+
+  // Calendar
+  getCalendar: (month: number, year: number) =>
+    fetchJson<CalendarResponse>(`/calendar?month=${month}&year=${year}`),
+
+  // Chain Analytics (Cross-Chain Comparison)
+  getChainAnalytics: () =>
+    fetchJson<ChainAnalyticsResponse>('/analytics/chains'),
+
+  // Spending Limits
+  getLimits: () =>
+    fetchJson<{ spending: SpendingTotals }>('/limits'),
+
+  updateLimits: (limits: Partial<SpendingLimit>) =>
+    fetchJson<{ limits: SpendingLimit }>('/limits', {
+      method: 'PUT',
+      body: JSON.stringify(limits),
+    }),
+
+  // Audit Log
+  getAuditLog: (filters?: { eventType?: string; dateFrom?: string; dateTo?: string; search?: string }) => {
+    const params = new URLSearchParams();
+    if (filters?.eventType) params.set('eventType', filters.eventType);
+    if (filters?.dateFrom) params.set('dateFrom', filters.dateFrom);
+    if (filters?.dateTo) params.set('dateTo', filters.dateTo);
+    if (filters?.search) params.set('search', filters.search);
+    const qs = params.toString();
+    return fetchJson<{ entries: AuditEntry[] }>(`/audit${qs ? `?${qs}` : ''}`);
+  },
+
+  // CSV Import
+  importCSV: (csv: string) =>
+    fetchJson<CSVImportResult>('/tip/import', {
+      method: 'POST',
+      body: JSON.stringify({ csv }),
+    }),
+
+  // Goals (Fundraising Targets)
+  getGoals: () =>
+    fetchJson<{ goals: TipGoal[] }>('/goals'),
+
+  createGoal: (goal: { title: string; description?: string; targetAmount: number; token: string; recipient?: string; deadline?: string }) =>
+    fetchJson<{ goal: TipGoal }>('/goals', {
+      method: 'POST',
+      body: JSON.stringify(goal),
+    }),
+
+  updateGoal: (id: string, updates: Partial<{ title: string; description: string; targetAmount: number; deadline: string; recipient: string }>) =>
+    fetchJson<{ goal: TipGoal }>(`/goals/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    }),
+
+  deleteGoal: (id: string) =>
+    fetchJson<{ success: boolean }>(`/goals/${id}`, {
+      method: 'DELETE',
+    }),
+
+  // === Rumble Integration ===
+  rumbleRegisterCreator: (name: string, channelUrl: string, walletAddress: string, categories: string[]) =>
+    fetchJson<{ creator: Record<string, unknown> }>('/rumble/creators', {
+      method: 'POST',
+      body: JSON.stringify({ name, channelUrl, walletAddress, categories }),
+    }),
+
+  rumbleGetCreators: () =>
+    fetchJson<{ creators: Array<Record<string, unknown>> }>('/rumble/creators'),
+
+  rumbleGetCreator: (id: string) =>
+    fetchJson<{ creator: Record<string, unknown> }>(`/rumble/creators/${encodeURIComponent(id)}`),
+
+  rumbleRecordWatch: (creatorId: string, videoId: string, watchPercent: number, userId: string) =>
+    fetchJson<{ session: Record<string, unknown> }>('/rumble/watch', {
+      method: 'POST',
+      body: JSON.stringify({ creatorId, videoId, watchPercent, userId }),
+    }),
+
+  rumbleGetAutoTipRecommendations: (userId: string) =>
+    fetchJson<{ recommendations: Array<Record<string, unknown>> }>(`/rumble/auto-tip/recommendations/${encodeURIComponent(userId)}`),
+
+  rumbleSetAutoTipRules: (userId: string, rules: Array<{ minWatchPercent: number; tipAmount: number; maxTipsPerDay: number; enabledCategories: string[]; enabled: boolean }>) =>
+    fetchJson<{ rules: Array<Record<string, unknown>> }>('/rumble/auto-tip/rules', {
+      method: 'POST',
+      body: JSON.stringify({ userId, rules }),
+    }),
+
+  rumbleGetAutoTipRules: (userId: string) =>
+    fetchJson<{ rules: Array<Record<string, unknown>> }>(`/rumble/auto-tip/rules/${encodeURIComponent(userId)}`),
+
+  rumbleCreatePool: (creatorId: string, goalAmount: number, title: string, deadline?: string) =>
+    fetchJson<{ pool: Record<string, unknown> }>('/rumble/pools', {
+      method: 'POST',
+      body: JSON.stringify({ creatorId, goalAmount, title, deadline }),
+    }),
+
+  rumbleContributeToPool: (poolId: string, amount: number, contributor: string) =>
+    fetchJson<{ success: boolean }>(`/rumble/pools/${encodeURIComponent(poolId)}/contribute`, {
+      method: 'POST',
+      body: JSON.stringify({ amount, contributor }),
+    }),
+
+  rumbleGetPools: () =>
+    fetchJson<{ pools: Array<Record<string, unknown>> }>('/rumble/pools'),
+
+  rumbleRegisterEventTrigger: (creatorId: string, event: string, tipAmount: number) =>
+    fetchJson<{ trigger: Record<string, unknown> }>('/rumble/events/triggers', {
+      method: 'POST',
+      body: JSON.stringify({ creatorId, event, tipAmount }),
+    }),
+
+  rumbleProcessEvent: (creatorId: string, event: string, metadata?: Record<string, unknown>) =>
+    fetchJson<{ triggered: boolean; trigger: Record<string, unknown> | null }>('/rumble/events/process', {
+      method: 'POST',
+      body: JSON.stringify({ creatorId, event, metadata }),
+    }),
+
+  rumbleGetLeaderboard: (timeframe?: string) =>
+    fetchJson<{ leaderboard: Array<Record<string, unknown>> }>(`/rumble/leaderboard${timeframe ? `?timeframe=${timeframe}` : ''}`),
+
+  rumbleCreateCollabSplit: (videoId: string, creators: Array<{ creatorId: string; percentage: number }>) =>
+    fetchJson<{ split: Record<string, unknown> }>('/rumble/collab-splits', {
+      method: 'POST',
+      body: JSON.stringify({ videoId, creators }),
+    }),
+
+  // Autonomy Intelligence
+  getAutonomyProfile: () =>
+    fetchJson<{ profile: TipProfile }>('/autonomy/profile'),
+
+  getAutonomyRecommendations: () =>
+    fetchJson<{ recommendations: AutonomousDecision[]; profile: TipProfile }>('/autonomy/recommendations'),
+
+  getAutonomyPolicies: () =>
+    fetchJson<{ policies: AutonomyPolicy[] }>('/autonomy/policies'),
+
+  createAutonomyPolicy: (policy: { name: string; type: string; enabled?: boolean; rules?: Record<string, unknown> }) =>
+    fetchJson<{ policy: AutonomyPolicy }>('/autonomy/policies', {
+      method: 'POST',
+      body: JSON.stringify(policy),
+    }),
+
+  deleteAutonomyPolicy: (id: string) =>
+    fetchJson<{ deleted: boolean; id: string }>(`/autonomy/policies/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    }),
+
+  getAutonomyDecisions: () =>
+    fetchJson<{ decisions: AutonomousDecision[] }>('/autonomy/decisions'),
+
+  approveAutonomyDecision: (id: string) =>
+    fetchJson<{ decision: AutonomousDecision }>(`/autonomy/decisions/${encodeURIComponent(id)}/approve`, {
+      method: 'POST',
+    }),
+
+  rejectAutonomyDecision: (id: string) =>
+    fetchJson<{ decision: AutonomousDecision }>(`/autonomy/decisions/${encodeURIComponent(id)}/reject`, {
+      method: 'POST',
+    }),
+
+  evaluateAutonomy: () =>
+    fetchJson<{ proposals: AutonomousDecision[]; count: number }>('/autonomy/evaluate', {
+      method: 'POST',
+    }),
+
+  // Demo Mode
+  getDemoScenarios: () =>
+    fetchJson<{ scenarios: Array<{ id: string; name: string; description: string; feature: string; action: string }>; addresses: Record<string, string> }>('/demo/scenarios'),
+
+  demoSelfTip: () =>
+    fetchJson<{ result: TipResult; demoInfo: { selfAddress: string; amount: string; purpose: string } }>('/demo/self-tip', {
+      method: 'POST',
+    }),
+
+  // === Treasury Management ===
+  getTreasuryStatus: () =>
+    fetchJson<{ status: TreasuryStatus }>('/treasury/status'),
+
+  getTreasuryYields: () =>
+    fetchJson<{ yields: YieldOpportunity[] }>('/treasury/yields'),
+
+  setTreasuryStrategy: (strategy: YieldStrategy) =>
+    fetchJson<{ strategy: YieldStrategy }>('/treasury/strategy', {
+      method: 'POST',
+      body: JSON.stringify(strategy),
+    }),
+
+  getTreasuryStrategy: () =>
+    fetchJson<{ strategy: YieldStrategy | null }>('/treasury/strategy'),
+
+  setTreasuryAllocation: (allocation: TreasuryAllocation) =>
+    fetchJson<{ allocation: TreasuryAllocation }>('/treasury/allocation', {
+      method: 'POST',
+      body: JSON.stringify(allocation),
+    }),
+
+  getTreasuryAllocation: () =>
+    fetchJson<{ allocation: TreasuryAllocation }>('/treasury/allocation'),
+
+  getTreasuryAnalytics: () =>
+    fetchJson<{ analytics: TreasuryAnalytics }>('/treasury/analytics'),
+
+  getTreasuryReport: () =>
+    fetchJson<{ report: EconomicReport }>('/treasury/report'),
+
+  // === WDK Indexer (Unified Cross-Chain Data) ===
+  getIndexerHealth: () =>
+    fetchJson<IndexerHealthResult>('/indexer/health'),
+
+  getIndexerChains: () =>
+    fetchJson<IndexerChainsResult>('/indexer/chains'),
+
+  getIndexerBalance: (blockchain: string, token: string, address: string) =>
+    fetchJson<IndexerBalanceResult>(
+      `/indexer/balances/${encodeURIComponent(blockchain)}/${encodeURIComponent(token)}/${encodeURIComponent(address)}`,
+    ),
+
+  getIndexerTransfers: (blockchain: string, token: string, address: string) =>
+    fetchJson<IndexerTransfersResult>(
+      `/indexer/transfers/${encodeURIComponent(blockchain)}/${encodeURIComponent(token)}/${encodeURIComponent(address)}`,
+    ),
+
+  batchIndexerBalances: (queries: Array<{ blockchain: string; token: string; address: string }>) =>
+    fetchJson<{ data: Array<{ balance: string; blockchain: string; token: string; address: string }> | null; isAvailable: boolean }>(
+      '/indexer/batch/balances',
+      { method: 'POST', body: JSON.stringify(queries) },
+    ),
+
+  // === Cross-Chain Bridge (USDT0) ===
+  getBridgeRoutes: () =>
+    fetchJson<{ routes: BridgeRoute[]; available: boolean }>('/bridge/routes'),
+
+  getBridgeQuote: (fromChain: string, toChain: string, amount: string) =>
+    fetchJson<{ quote: BridgeQuote }>('/bridge/quote', {
+      method: 'POST',
+      body: JSON.stringify({ fromChain, toChain, amount }),
+    }),
+
+  executeBridge: (fromChain: string, toChain: string, amount: string, recipient?: string) =>
+    fetchJson<{ bridge: BridgeHistoryEntry; note: string }>('/bridge/execute', {
+      method: 'POST',
+      body: JSON.stringify({ fromChain, toChain, amount, recipient }),
+    }),
+
+  getBridgeHistory: () =>
+    fetchJson<{ history: BridgeHistoryEntry[] }>('/bridge/history'),
+
+  // === DeFi Lending (Aave V3) ===
+  getLendingRates: () =>
+    fetchJson<{ rates: LendingRate[]; available: boolean }>('/lending/rates'),
+
+  getLendingPosition: () =>
+    fetchJson<{ position: LendingPosition | null; available: boolean }>('/lending/position'),
+
+  lendingSupply: (chain: string, amount: string, asset?: string) =>
+    fetchJson<{ action: LendingAction; note: string }>('/lending/supply', {
+      method: 'POST',
+      body: JSON.stringify({ chain, amount, asset }),
+    }),
+
+  lendingWithdraw: (chain: string, amount: string, asset?: string) =>
+    fetchJson<{ action: LendingAction; note: string }>('/lending/withdraw', {
+      method: 'POST',
+      body: JSON.stringify({ chain, amount, asset }),
+    }),
+
+  // ── Tip Streaming ──
+  startStream: (config: { recipient: string; amountPerTick: string; intervalSeconds?: number; token?: string; chainId?: string; maxBudget?: string }) =>
+    fetchJson<{ stream: TipStream }>('/stream/start', { method: 'POST', body: JSON.stringify(config) }),
+
+  pauseStream: (id: string) =>
+    fetchJson<{ stream: TipStream }>(`/stream/${id}/pause`, { method: 'POST' }),
+
+  resumeStream: (id: string) =>
+    fetchJson<{ stream: TipStream }>(`/stream/${id}/resume`, { method: 'POST' }),
+
+  stopStream: (id: string) =>
+    fetchJson<{ stream: TipStream }>(`/stream/${id}/stop`, { method: 'POST' }),
+
+  getActiveStreams: () =>
+    fetchJson<{ streams: TipStream[]; stats: StreamStats }>('/stream/active'),
+
+  getStreamHistory: () =>
+    fetchJson<{ streams: TipStream[] }>('/stream/history'),
+
+  // ── Cryptographic Receipts ──
+  getAllReceipts: () =>
+    fetchJson<{ receipts: CryptoReceipt[]; total: number }>('/receipts'),
+
+  getCryptoReceipt: (tipId: string) =>
+    fetchJson<{ receipt: CryptoReceipt }>(`/receipt/${tipId}`),
+
+  verifyReceipt: (receipt: CryptoReceipt) =>
+    fetchJson<{ verification: ReceiptVerification }>('/receipt/verify', { method: 'POST', body: JSON.stringify({ receipt }) }),
+
+  // ── Reputation Engine ──
+  getReputationLeaderboard: (limit = 20) =>
+    fetchJson<{ leaderboard: CreatorReputation[]; total: number }>(`/reputation/leaderboard?limit=${limit}`),
+
+  getReputation: (address: string) =>
+    fetchJson<{ reputation: CreatorReputation }>(`/reputation/${address}`),
+
+  getReputationRecommendations: (budget = 0.01, count = 5) =>
+    fetchJson<{ recommendations: ReputationRecommendation[] }>(`/reputation/recommendations?budget=${budget}&count=${count}`),
+
+  // ── Orchestrator ──
+  orchestratorPropose: (type: string, params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/orchestrator/propose', { method: 'POST', body: JSON.stringify({ type, params }) }),
+
+  orchestratorHistory: () =>
+    fetchJson<Record<string, unknown>[]>('/orchestrator/history'),
+
+  orchestratorStats: () =>
+    fetchJson<Record<string, unknown>>('/orchestrator/stats'),
+
+  orchestratorConfig: (config: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/orchestrator/config', { method: 'POST', body: JSON.stringify(config) }),
+
+  // ── Predictions ──
+  predictionsGenerate: () =>
+    fetchJson<Record<string, unknown>>('/predictions/generate', { method: 'POST', body: JSON.stringify({}) }),
+
+  predictionsPending: () =>
+    fetchJson<Record<string, unknown>[]>('/predictions'),
+
+  predictionsAll: () =>
+    fetchJson<Record<string, unknown>[]>('/predictions/all'),
+
+  predictionsStats: () =>
+    fetchJson<Record<string, unknown>>('/predictions/stats'),
+
+  predictionAccept: (id: string) =>
+    fetchJson<Record<string, unknown>>(`/predictions/${id}/accept`, { method: 'POST', body: JSON.stringify({}) }),
+
+  predictionDismiss: (id: string) =>
+    fetchJson<Record<string, unknown>>(`/predictions/${id}/dismiss`, { method: 'POST', body: JSON.stringify({}) }),
+
+  // ── Fee Arbitrage ──
+  feesCompare: (amount: string, token?: string) =>
+    fetchJson<Record<string, unknown>>(`/fees/compare?amount=${amount}&token=${token ?? 'usdt'}`),
+
+  feesCurrent: () =>
+    fetchJson<Record<string, unknown>>('/fees/current'),
+
+  feesHistory: () =>
+    fetchJson<Record<string, unknown>[]>('/fees/history'),
+
+  feesOptimalTiming: () =>
+    fetchJson<Record<string, unknown>>('/fees/optimal-timing'),
+
+  // ── Escrow ──
+  escrowCreate: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/escrow', { method: 'POST', body: JSON.stringify(params) }),
+
+  escrowList: () =>
+    fetchJson<Record<string, unknown>[]>('/escrow'),
+
+  escrowActive: () =>
+    fetchJson<Record<string, unknown>[]>('/escrow/active'),
+
+  escrowStats: () =>
+    fetchJson<Record<string, unknown>>('/escrow/stats'),
+
+  escrowRelease: (id: string, txHash?: string) =>
+    fetchJson<Record<string, unknown>>(`/escrow/${id}/release`, { method: 'POST', body: JSON.stringify({ txHash }) }),
+
+  escrowRefund: (id: string, reason?: string) =>
+    fetchJson<Record<string, unknown>>(`/escrow/${id}/refund`, { method: 'POST', body: JSON.stringify({ reason }) }),
+
+  escrowDispute: (id: string, reason: string) =>
+    fetchJson<Record<string, unknown>>(`/escrow/${id}/dispute`, { method: 'POST', body: JSON.stringify({ reason }) }),
+
+  // ── Full Health ──
+  healthFull: () =>
+    fetchJson<Record<string, unknown>>('/health/full'),
+
+  // ── Agent Memory ──
+  memoryAll: () =>
+    fetchJson<Record<string, unknown>[]>('/memory'),
+
+  memoryStats: () =>
+    fetchJson<Record<string, unknown>>('/memory/stats'),
+
+  memorySearch: (q: string) =>
+    fetchJson<Record<string, unknown>[]>(`/memory/search?q=${encodeURIComponent(q)}`),
+
+  memoryStore: (type: string, key: string, value: string) =>
+    fetchJson<Record<string, unknown>>('/memory', {
+      method: 'POST',
+      body: JSON.stringify({ type, key, value }),
+    }),
+
+  memoryConversations: () =>
+    fetchJson<Record<string, unknown>[]>('/memory/conversations'),
+
+  memoryForget: (id: string) =>
+    fetchJson<{ success: boolean }>(`/memory/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+    }),
+
+  // DCA
+  dcaCreate: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/dca', { method: 'POST', body: JSON.stringify(params) }),
+
+  dcaAll: () =>
+    fetchJson<Record<string, unknown>[]>('/dca'),
+
+  dcaActive: () =>
+    fetchJson<Record<string, unknown>[]>('/dca/active'),
+
+  dcaStats: () =>
+    fetchJson<Record<string, unknown>>('/dca/stats'),
+
+  dcaPause: (id: string) =>
+    fetchJson<Record<string, unknown>>(`/dca/${id}/pause`, { method: 'POST', body: JSON.stringify({}) }),
+
+  dcaResume: (id: string) =>
+    fetchJson<Record<string, unknown>>(`/dca/${id}/resume`, { method: 'POST', body: JSON.stringify({}) }),
+
+  dcaCancel: (id: string) =>
+    fetchJson<Record<string, unknown>>(`/dca/${id}/cancel`, { method: 'POST', body: JSON.stringify({}) }),
+
+  // Creator Analytics
+  creatorIncome: (address: string) =>
+    fetchJson<Record<string, unknown>>(`/analytics/creators/${encodeURIComponent(address)}`),
+
+  platformAnalytics: () =>
+    fetchJson<Record<string, unknown>>('/analytics/platform'),
+
+  // ── Risk Engine ──
+  riskAssess: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/risk/assess', { method: 'POST', body: JSON.stringify(params) }),
+
+  // ── Engagement Scoring ──
+  engagementScore: (userId: string, creatorId: string) =>
+    fetchJson<Record<string, unknown>>(`/rumble/engagement/${encodeURIComponent(userId)}/${encodeURIComponent(creatorId)}`),
+
+  engagementTips: (userId: string, baseTip = 0.01) =>
+    fetchJson<Record<string, unknown>>(`/rumble/engagement-tips/${encodeURIComponent(userId)}?baseTip=${baseTip}`),
+
+  // ── Creator Discovery ──
+  discoveryAnalyze: () =>
+    fetchJson<Record<string, unknown>>('/discovery/analyze', { method: 'POST', body: JSON.stringify({}) }),
+
+  discoverySignals: () =>
+    fetchJson<Record<string, unknown>>('/discovery/signals'),
+
+  discoveryRecord: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/discovery/record', { method: 'POST', body: JSON.stringify(params) }),
+
+  // ── Tip Propagation ──
+  propagationWaves: () =>
+    fetchJson<Record<string, unknown>>('/propagation/waves'),
+
+  propagationCreateWave: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/propagation/wave', { method: 'POST', body: JSON.stringify(params) }),
+
+  propagationPools: () =>
+    fetchJson<Record<string, unknown>>('/propagation/pools'),
+
+  propagationCreatePool: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/propagation/pools', { method: 'POST', body: JSON.stringify(params) }),
+
+  // ── Proof-of-Engagement ──
+  poeList: () =>
+    fetchJson<Record<string, unknown>>('/poe'),
+
+  poeCreate: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/poe/attest', { method: 'POST', body: JSON.stringify(params) }),
+
+  poeVerify: (id: string) =>
+    fetchJson<Record<string, unknown>>(`/poe/verify/${encodeURIComponent(id)}`),
+
+  // ── Revenue Smoothing ──
+  smoothingProfiles: () =>
+    fetchJson<Record<string, unknown>>('/smoothing/profiles'),
+
+  smoothingReserve: () =>
+    fetchJson<Record<string, unknown>>('/smoothing/reserve'),
+
+  smoothingEvaluate: () =>
+    fetchJson<Record<string, unknown>>('/smoothing/evaluate', { method: 'POST', body: JSON.stringify({}) }),
+
+  smoothingEnroll: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/smoothing/enroll', { method: 'POST', body: JSON.stringify(params) }),
+
+  // ── Tip Policies ──
+  policiesList: () =>
+    fetchJson<Record<string, unknown>>('/policies'),
+
+  policiesCreate: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/policies', { method: 'POST', body: JSON.stringify(params) }),
+
+  policiesEvaluate: (context: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/policies/evaluate', { method: 'POST', body: JSON.stringify(context) }),
+
+  // ── x402 ──
+  x402Endpoints: () =>
+    fetchJson<Record<string, unknown>>('/x402/endpoints'),
+
+  x402Stats: () =>
+    fetchJson<Record<string, unknown>>('/x402/stats'),
+
+  // ── Agent Identity ──
+  agentIdentity: () =>
+    fetchJson<Record<string, unknown>>('/agent/identity'),
+
+  // ── Platform Adapters ──
+  platforms: () =>
+    fetchJson<Record<string, unknown>>('/platforms'),
+
+  // ── Queue ──
+  queueStats: () =>
+    fetchJson<Record<string, unknown>>('/queue/stats'),
+
+  queueEnqueue: (params: Record<string, unknown>) =>
+    fetchJson<Record<string, unknown>>('/queue/enqueue', { method: 'POST', body: JSON.stringify(params) }),
+};
+
+================================================================
+FILE: lib/utils.ts — Utility Functions
+================================================================
+import type { ChainId } from '../types';
+
+/** Shorten an address for display */
+export function shortenAddress(address: string, chars = 6): string {
+  if (address.length <= chars * 2 + 2) return address;
+  return `${address.slice(0, chars + 2)}...${address.slice(-chars)}`;
+}
+
+/** Format a timestamp to a relative time string */
+export function timeAgo(timestamp: string): string {
+  const diff = Date.now() - new Date(timestamp).getTime();
+  const seconds = Math.floor(diff / 1000);
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
+
+/** Get chain display name */
+export function chainName(chainId: ChainId): string {
+  const names: Partial<Record<ChainId, string>> = {
+    'ethereum-sepolia': 'Ethereum Sepolia',
+    'ton-testnet': 'TON Testnet',
+    'tron-nile': 'Tron Nile',
+    'bitcoin-testnet': 'Bitcoin Testnet',
+    'solana-devnet': 'Solana Devnet',
+    'plasma': 'Plasma',
+    'stable': 'Stable',
+  };
+  return names[chainId] ?? chainId;
+}
+
+/** Get chain color */
+export function chainColor(chainId: ChainId): string {
+  if (chainId.startsWith('ethereum')) return '#627eea';
+  if (chainId.startsWith('ton')) return '#0098ea';
+  if (chainId.startsWith('tron')) return '#eb0029';
+  if (chainId.startsWith('bitcoin')) return '#f7931a';
+  if (chainId.startsWith('solana')) return '#9945ff';
+  if (chainId === 'plasma') return '#00d4aa';
+  if (chainId === 'stable') return '#4a90d9';
+  return '#22c55e';
+}
+
+/** Get chain icon label */
+export function chainIcon(chainId: ChainId): string {
+  if (chainId.startsWith('ethereum')) return 'ETH';
+  if (chainId.startsWith('ton')) return 'TON';
+  if (chainId.startsWith('tron')) return 'TRX';
+  if (chainId.startsWith('bitcoin')) return 'BTC';
+  if (chainId.startsWith('solana')) return 'SOL';
+  if (chainId === 'plasma') return 'PLS';
+  if (chainId === 'stable') return 'STB';
+  return '?';
+}
+
+/** Copy text to clipboard */
+export async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Format number with commas */
+export function formatNumber(num: number | string, decimals = 4): string {
+  const n = typeof num === 'string' ? parseFloat(num) : num;
+  if (isNaN(n)) return '0';
+  return n.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: decimals,
+  });
+}
+
+================================================================
+FILE: types/index.ts — TypeScript Interfaces
+================================================================
+export type ChainId = 'ethereum-sepolia' | 'ton-testnet' | 'tron-nile' | 'ethereum-sepolia-gasless' | 'ton-testnet-gasless' | 'bitcoin-testnet' | 'solana-devnet' | 'plasma' | 'stable';
+export type TokenType = 'native' | 'usdt' | 'usat' | 'xaut' | 'xaut';
+
+/** Gasless status returned by the API */
+export interface GaslessStatus {
+  gaslessAvailable: boolean;
+  evmErc4337: {
+    available: boolean;
+    chainId: ChainId;
+    chainName: string;
+    bundlerUrl: string;
+    paymasterUrl: string;
+    reason?: string;
+  };
+  tonGasless: {
+    available: boolean;
+    chainId: ChainId;
+    chainName: string;
+    reason?: string;
+  };
+}
+
+/** Gasless tip result */
+export interface GaslessTipResult {
+  hash: string;
+  fee: string;
+  gasless: boolean;
+  chainId: ChainId;
+  explorerUrl: string;
+  recipient: string;
+  amount: string;
+  token: TokenType;
+  message?: string;
+}
+
+export interface WalletBalance {
+  chainId: ChainId;
+  address: string;
+  nativeBalance: string;
+  nativeCurrency: string;
+  usdtBalance: string;
+}
+
+export interface ReasoningStep {
+  step: number;
+  action: string;
+  detail: string;
+  timestamp: string;
+}
+
+export interface ChainAnalysis {
+  chainId: ChainId;
+  chainName: string;
+  available: boolean;
+  balance: string;
+  estimatedFee: string;
+  estimatedFeeUsd: string;
+  networkStatus: 'healthy' | 'congested' | 'down';
+  score: number;
+  reason: string;
+}
+
+export interface AgentDecision {
+  selectedChain: ChainId;
+  reasoning: string;
+  analyses: ChainAnalysis[];
+  steps: ReasoningStep[];
+  confidence: number;
+  feeComparison?: FeeComparison[];
+  feeSavings?: string;
+}
+
+export interface TipResult {
+  id: string;
+  tipId: string;
+  status: 'pending' | 'confirmed' | 'failed';
+  chainId: ChainId;
+  txHash: string;
+  from: string;
+  to: string;
+  amount: string;
+  token: TokenType;
+  fee: string;
+  explorerUrl: string;
+  decision: AgentDecision;
+  createdAt: string;
+  confirmedAt?: string;
+  error?: string;
+  retryCount?: number;
+  memo?: string;
+}
+
+export interface TipHistoryEntry {
+  id: string;
+  recipient: string;
+  amount: string;
+  token: TokenType;
+  chainId: ChainId;
+  txHash: string;
+  status: 'confirmed' | 'failed';
+  fee: string;
+  createdAt: string;
+  reasoning: string;
+  memo?: string;
+}
+
+export interface AgentState {
+  status: 'idle' | 'analyzing' | 'reasoning' | 'executing' | 'confirming';
+  currentTip?: { id: string; recipient: string; amount: string };
+  currentDecision?: AgentDecision;
+  lastError?: string;
+}
+
+/** Fee comparison result for cross-chain cost optimization */
+export interface FeeComparison {
+  chainId: ChainId;
+  chainName: string;
+  estimatedFee: string;
+  estimatedFeeUsd: string;
+  savingsVsHighest: string;
+  rank: number;
+}
+
+export interface AgentStats {
+  totalTips: number;
+  totalAmount: string;
+  totalFeesSaved: string;
+  avgTipAmount: string;
+  chainDistribution: Record<ChainId, number>;
+  tipsByDay: Array<{ date: string; count: number; volume: string }>;
+  tipsByChain: Array<{ chainId: ChainId; chainName: string; count: number; volume: string; percentage: number }>;
+  tipsByToken: Array<{ token: TokenType; count: number; volume: string; percentage: number }>;
+  averageConfirmationTime: number;
+  totalFeePaid: string;
+  totalFeeSaved: string;
+  successRate: number;
+}
+
+/** Natural language tip parse result */
+export interface NLPTipParse {
+  recipient: string;
+  amount: string;
+  token: 'native' | 'usdt' | 'usat' | 'xaut';
+  chain?: string;
+  message?: string;
+  confidence: number;
+  rawInput: string;
+}
+
+/** Scheduled tip — a tip that will be executed at a future time */
+export interface ScheduledTip {
+  id: string;
+  recipient: string;
+  amount: string;
+  token: TokenType;
+  chain?: ChainId;
+  message?: string;
+  scheduledAt: string;
+  status: 'scheduled' | 'executed' | 'failed';
+  createdAt: string;
+  executedAt?: string;
+  result?: TipResult;
+  recurring?: boolean;
+  interval?: 'daily' | 'weekly' | 'monthly';
+  lastExecuted?: string;
+}
+
+/** Reusable tip template — saved tip configurations */
+export interface TipTemplate {
+  id: string;
+  name: string;
+  recipient: string;
+  amount: string;
+  token: 'native' | 'usdt' | 'usat' | 'xaut';
+  chainId?: string;
+  createdAt: string;
+  useCount?: number;
+}
+
+/** Address book contact */
+export interface Contact {
+  id: string;
+  name: string;
+  address: string;
+  chain?: ChainId;
+  group?: string;
+  tipCount: number;
+  lastTipped?: string;
+}
+
+/** Contact import result summary */
+export interface ContactImportResult {
+  added: number;
+  skipped: number;
+  errors: string[];
+}
+
+/** Leaderboard entry — top tip recipients */
+export interface LeaderboardEntry {
+  address: string;
+  totalTips: number;
+  totalVolume: string;
+  rank: number;
+}
+
+/** Achievement — gamification badge with progress tracking */
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  unlockedAt?: string;
+  progress: number;
+  target: number;
+}
+
+export interface HealthResponse {
+  status: string;
+  agent: string;
+  ai: string;
+  chains: ChainId[];
+  timestamp: string;
+}
+
+export interface ChainConfig {
+  id: ChainId;
+  name: string;
+  blockchain: string;
+  isTestnet: boolean;
+  nativeCurrency: string;
+  explorerUrl: string;
+}
+
+/** Real-time gas price data for a single chain */
+export interface GasPriceInfo {
+  chainId: ChainId;
+  chainName: string;
+  gasPrice: string;
+  gasPriceGwei: string;
+  status: 'low' | 'medium' | 'high';
+  lastUpdated: string;
+}
+
+/** Gas prices response from the API */
+export interface GasPricesResponse {
+  chains: GasPriceInfo[];
+}
+
+/** Condition types for smart conditional tipping */
+export type ConditionType = 'gas_below' | 'balance_above' | 'time_of_day';
+
+/** A conditional tip — executes automatically when conditions are met */
+export interface TipCondition {
+  id: string;
+  type: ConditionType;
+  params: {
+    threshold?: string;
+    currency?: string;
+    timeStart?: string;
+    timeEnd?: string;
+  };
+  tip: {
+    recipient: string;
+    amount: string;
+    token: 'native' | 'usdt' | 'usat' | 'xaut';
+    chainId?: string;
+  };
+  status: 'active' | 'triggered' | 'cancelled';
+  createdAt: string;
+  triggeredAt?: string;
+}
+
+/** Activity event types for live tip feed */
+export type ActivityEventType =
+  | 'tip_sent'
+  | 'tip_failed'
+  | 'tip_scheduled'
+  | 'chain_selected'
+  | 'fee_optimized'
+  | 'nlp_parsed'
+  | 'contact_saved'
+  | 'batch_started'
+  | 'condition_triggered'
+  | 'condition_created'
+  | 'tip_retrying'
+  | 'system';
+
+/** Activity event for real-time activity feed */
+export interface ActivityEvent {
+  id: string;
+  type: ActivityEventType;
+  message: string;
+  detail?: string;
+  timestamp: string;
+  chainId?: ChainId;
+}
+
+export interface BatchTipResult {
+  id: string;
+  total: number;
+  succeeded: number;
+  failed: number;
+  results: TipResult[];
+  totalAmount: string;
+  totalFees: string;
+  createdAt: string;
+}
+
+/** Split tip recipient with percentage allocation */
+export interface SplitRecipient {
+  address: string;
+  percentage: number;
+  name?: string;
+}
+
+/** Split tip result — aggregate results from all split transfers */
+export interface SplitTipResult {
+  totalAmount: string;
+  results: Array<{
+    recipient: string;
+    amount: string;
+    percentage: number;
+    hash?: string;
+    status: 'success' | 'failed';
+    error?: string;
+  }>;
+  successCount: number;
+  failCount: number;
+}
+
+/** Webhook configuration for external notifications */
+export interface WebhookConfig {
+  id: string;
+  url: string;
+  events: string[];
+  createdAt: string;
+  lastTriggered?: string;
+  failCount: number;
+}
+
+/** Price data for currency conversion */
+export interface PriceData {
+  prices: Record<string, number>;
+  lastUpdated: string;
+  note?: string;
+}
+
+/** Chat message for conversational interface */
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'agent';
+  content: string;
+  timestamp: string;
+  action?: {
+    type: 'tip_executed' | 'balance_check' | 'fee_estimate' | 'address_lookup';
+    data?: Record<string, unknown>;
+  };
+}
+
+/** Gas speed option for transaction speed selection */
+export interface GasSpeedOption {
+  level: 'slow' | 'normal' | 'fast';
+  label: string;
+  gasPriceGwei: string;
+  estimatedFee: string;
+  estimatedTime: string;
+}
+
+/** Gas speeds for a chain */
+export interface ChainGasSpeeds {
+  chainId: string;
+  chainName: string;
+  speeds: GasSpeedOption[];
+}
+
+/** Tip receipt for shareable/printable receipt */
+export interface TipReceipt {
+  receiptId: string;
+  timestamp: string;
+  from: string;
+  to: string;
+  amount: string;
+  token: string;
+  chain: string;
+  chainName: string;
+  txHash: string;
+  fee: string;
+  status: 'confirmed' | 'pending';
+  blockNumber?: number;
+  explorerUrl: string;
+  memo?: string;
+}
+
+/** Wallet receive info for QR code display */
+export interface WalletReceiveInfo {
+  chainId: ChainId;
+  chainName: string;
+  address: string;
+  qrCodeUrl: string;
+  explorerUrl: string;
+  nativeCurrency: string;
+}
+
+/** Network health status for a single chain */
+export interface NetworkHealthStatus {
+  chainId: string;
+  chainName: string;
+  status: 'healthy' | 'degraded' | 'down';
+  latencyMs: number;
+  blockNumber?: number;
+}
+
+/** Network health response from the API */
+export interface NetworkHealthResponse {
+  chains: NetworkHealthStatus[];
+}
+
+/** Derived wallet from HD path */
+export interface DerivedWallet {
+  index: number;
+  address: string;
+  chainId: ChainId;
+  chainName: string;
+  isActive: boolean;
+}
+
+/** Analytics daily volume entry */
+export interface AnalyticsDailyVolume {
+  date: string;
+  count: number;
+  volume: number;
+}
+
+/** Analytics cumulative data point */
+export interface AnalyticsCumulativePoint {
+  date: string;
+  totalTips: number;
+  totalVolume: number;
+}
+
+/** Analytics trends */
+export interface AnalyticsTrends {
+  tipsToday: number;
+  tipsYesterday: number;
+  tipsThisWeek: number;
+  tipsLastWeek: number;
+  avgTipSize: number;
+  largestTip: number;
+  busiestHour: number;
+  mostActiveChain: string;
+}
+
+/** Analytics overview KPIs */
+export interface AnalyticsOverview {
+  totalTips: number;
+  totalVolume: number;
+  successRate: number;
+  avgFee: number;
+  totalFees: number;
+  uniqueRecipients: number;
+}
+
+/** Chain distribution entry with percentage */
+export interface ChainDistEntry {
+  chain: string;
+  count: number;
+  percentage: number;
+}
+
+/** Token distribution entry with percentage */
+export interface TokenDistEntry {
+  token: string;
+  count: number;
+  percentage: number;
+}
+
+/** Hourly heatmap entry */
+export interface HourlyHeatmapEntry {
+  hour: number;
+  count: number;
+}
+
+/** Top recipient entry */
+export interface TopRecipientEntry {
+  address: string;
+  count: number;
+  volume: number;
+}
+
+/** Tip streaks */
+export interface TipStreaks {
+  current: number;
+  longest: number;
+}
+
+/** Full analytics response from GET /api/agent/analytics */
+export interface AnalyticsData {
+  overview: AnalyticsOverview;
+  dailyVolume: AnalyticsDailyVolume[];
+  hourlyDistribution: number[];
+  hourlyHeatmap: HourlyHeatmapEntry[];
+  tokenDistribution: { native: number; usdt: number };
+  chainDistribution: Record<string, number>;
+  chainDist: ChainDistEntry[];
+  tokenDist: TokenDistEntry[];
+  topRecipients: TopRecipientEntry[];
+  recentTrend: 'up' | 'down' | 'stable';
+  streaks: TipStreaks;
+  trends: AnalyticsTrends;
+  cumulativeData: AnalyticsCumulativePoint[];
+  successRate: number;
+  totalTips: number;
+}
+
+/** System info returned by GET /api/system/info */
+export interface SystemInfoData {
+  uptime: number;
+  nodeVersion: string;
+  wdkVersion: string;
+  apiEndpoints: number;
+  startTime: string;
+  memoryUsage: { heapUsed: number; heapTotal: number };
+  platform: string;
+  environment: string;
+}
+
+/** A fundraising/tipping goal */
+export interface TipGoal {
+  id: string;
+  title: string;
+  description: string;
+  targetAmount: number;
+  currentAmount: number;
+  token: string;
+  recipient?: string;
+  deadline?: string;
+  createdAt: string;
+  completed: boolean;
+}
+
+/** Shareable tip link — pre-filled tip request URL */
+export interface TipLink {
+  id: string;
+  recipient: string;
+  amount: string;
+  token: TokenType;
+  message?: string;
+  chainId?: ChainId;
+  url: string;
+  createdAt: string;
+}
+
+/** Agent personality types */
+export type PersonalityType = 'professional' | 'friendly' | 'pirate' | 'emoji' | 'minimal';
+
+/** Message types the personality system can format */
+export type MessageType = 'greeting' | 'tip_confirmed' | 'tip_failed' | 'balance_report' | 'fee_comparison' | 'help' | 'unknown_intent';
+
+/** A single personality definition */
+export interface PersonalityDefinition {
+  id: PersonalityType;
+  name: string;
+  description: string;
+  templates: Record<MessageType, string>;
+}
+
+/** Agent settings */
+export interface AgentSettings {
+  personality: PersonalityType;
+  defaultChain: ChainId | '';
+  defaultToken: TokenType;
+  autoConfirmThreshold: string;
+  autoConfirmEnabled: boolean;
+  notifications: {
+    tipSent: boolean;
+    tipFailed: boolean;
+    conditionTriggered: boolean;
+    scheduledExecuted: boolean;
+  };
+}
+
+/** ENS resolution result */
+export interface ENSResolveResult {
+  name: string;
+  address: string | null;
+  resolved: boolean;
+}
+
+/** ENS reverse lookup result */
+export interface ENSReverseResult {
+  address: string;
+  name: string | null;
+  resolved: boolean;
+}
+
+/** Address tag — custom label for a wallet address */
+export interface AddressTag {
+  address: string;
+  label: string;
+  color?: string;
+  createdAt: string;
+}
+
+/** A gamified challenge with progress tracking */
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  type: 'daily' | 'weekly';
+  target: number;
+  progress: number;
+  reward: string;
+  expiresAt: string;
+  completed: boolean;
+  icon: string;
+}
+
+/** Streak tracking data */
+export interface StreakData {
+  currentStreak: number;
+  longestStreak: number;
+  lastTipDate: string | null;
+  streakMilestones: Array<{
+    days: number;
+    icon: string;
+    label: string;
+    reached: boolean;
+  }>;
+}
+
+/** Calendar event — a day's worth of scheduled/recurring tips */
+export interface CalendarEvent {
+  date: string;
+  tips: Array<{
+    id: string;
+    recipient: string;
+    amount: string;
+    token: TokenType;
+    chain?: ChainId;
+    message?: string;
+    recurring: boolean;
+    interval?: 'daily' | 'weekly' | 'monthly';
+    scheduledAt: string;
+    status: 'scheduled' | 'executed' | 'failed';
+  }>;
+}
+
+/** Calendar response from GET /api/calendar */
+export interface CalendarResponse {
+  month: number;
+  year: number;
+  events: CalendarEvent[];
+}
+
+/** Per-chain analytics for cross-chain comparison */
+export interface ChainAnalyticsEntry {
+  chainId: string;
+  name: string;
+  totalTips: number;
+  totalVolume: string;
+  avgFee: string;
+  successRate: number;
+  balance: string;
+  avgConfirmationTime: number;
+  gasPrice: string;
+}
+
+/** Chain analytics response from GET /api/analytics/chains */
+export interface ChainAnalyticsResponse {
+  chains: ChainAnalyticsEntry[];
+  recommendation: {
+    lowestFee: string;
+    fastest: string;
+  };
+}
+
+/** Favorite recipient stored in localStorage */
+export interface FavoriteRecipient {
+  address: string;
+  name?: string;
+  tipCount: number;
+  lastTipped?: string;
+  starred: boolean;
+  order: number;
+}
+
+/** Spending limit configuration */
+export interface SpendingLimit {
+  dailyLimit: number;
+  weeklyLimit: number;
+  perTipLimit: number;
+  currency: string;
+}
+
+/** Current spending totals */
+export interface SpendingTotals {
+  dailySpent: number;
+  weeklySpent: number;
+  dailyRemaining: number;
+  weeklyRemaining: number;
+  limits: SpendingLimit;
+  dailyPercentage: number;
+  weeklyPercentage: number;
+}
+
+/** Audit log entry */
+export interface AuditEntry {
+  id: string;
+  timestamp: string;
+  eventType: 'tip_sent' | 'tip_failed' | 'login' | 'settings_changed' | 'limit_exceeded' | 'webhook_fired';
+  details: string;
+  ip?: string;
+  status: 'success' | 'failure' | 'warning';
+  metadata?: Record<string, string>;
+}
+
+/** Telegram bot status */
+export interface TelegramBotStatus {
+  connected: boolean;
+  username: string | null;
+  messageCount: number;
+  startedAt: string | null;
+}
+
+/** Tip profile built from historical tip analysis */
+export interface TipProfile {
+  userId: string;
+  frequentRecipients: {
+    address: string;
+    count: number;
+    avgAmount: number;
+    lastTip: string;
+  }[];
+  tipPatterns: {
+    dayOfWeek: number;
+    hour: number;
+    frequency: number;
+  }[];
+  totalTipped: number;
+  avgTipAmount: number;
+  preferredChain: string;
+  activeDays: number;
+  firstTipDate: string;
+  lastTipDate: string;
+}
+
+/** Autonomy policy — high-level rules the agent follows */
+export interface AutonomyPolicy {
+  id: string;
+  userId: string;
+  name: string;
+  type: 'recurring' | 'budget' | 'recipient_limit' | 'custom';
+  enabled: boolean;
+  rules: {
+    maxPerTip?: number;
+    maxDailyTotal?: number;
+    allowedRecipients?: string[];
+    blockedRecipients?: string[];
+    preferredChain?: string;
+    schedule?: {
+      dayOfWeek?: number[];
+      hour?: number;
+    };
+    requireConfirmationAbove?: number;
+  };
+  createdAt: string;
+}
+
+/** Autonomous decision with full reasoning chain */
+export interface AutonomousDecision {
+  id: string;
+  timestamp: string;
+  recipient: string;
+  amount: number;
+  chain: string;
+  reasoning: {
+    trigger: string;
+    recipientReason: string;
+    amountReason: string;
+    timingReason: string;
+    confidenceScore: number;
+  };
+  status: 'proposed' | 'approved' | 'executed' | 'rejected';
+  policyCompliance: {
+    withinDailyLimit: boolean;
+    withinPerTipLimit: boolean;
+    knownRecipient: boolean;
+  };
+}
+
+// ── Treasury Management Types ────────────────────────────────────
+
+export interface TreasuryStatus {
+  totalBalance: number;
+  tippingReserve: number;
+  yieldDeployed: number;
+  gasBuffer: number;
+  idleFunds: number;
+  lastRebalance: string;
+}
+
+export interface YieldOpportunity {
+  protocol: string;
+  asset: string;
+  apy: number;
+  chain: string;
+  risk: 'low' | 'medium' | 'high';
+  minDeposit: number;
+  tvl: number;
+  isLive: boolean;
+}
+
+export interface YieldStrategy {
+  enabled: boolean;
+  minIdleThreshold: number;
+  targetProtocol: string;
+  maxAllocationPercent: number;
+  autoRebalance: boolean;
+  rebalanceIntervalHours: number;
+}
+
+export interface TreasuryAllocation {
+  tippingReservePercent: number;
+  yieldPercent: number;
+  gasBufferPercent: number;
+}
+
+export interface TreasuryAnalytics {
+  projectedMonthlyYield: number;
+  avgCostPerTip: number;
+  gasEfficiency: number;
+  totalGasSpent: number;
+  totalTipped: number;
+  yieldEarned: number;
+  netCost: number;
+}
+
+export interface EconomicReport {
+  period: string;
+  totalBalance: number;
+  allocation: TreasuryAllocation;
+  analytics: TreasuryAnalytics;
+  topYieldOpportunities: YieldOpportunity[];
+  strategy: YieldStrategy | null;
+  sustainability: {
+    score: number;
+    label: string;
+    details: string;
+  };
+  recommendations: string[];
+}
+
+/** CSV import result from POST /api/tip/import */
+export interface CSVImportResult {
+  total: number;
+  success: number;
+  failed: number;
+  results: Array<{
+    row: number;
+    recipient: string;
+    amount: string;
+    status: 'success' | 'failed';
+    txHash?: string;
+    error?: string;
+    memo?: string;
+  }>;
+}
+
+/** WDK Indexer health check result */
+export interface IndexerHealthResult {
+  isAvailable: boolean;
+  latencyMs: number;
+  status?: string;
+  error?: string;
+}
+
+/** Indexer chain/token info */
+export interface IndexerChainsResult {
+  data: { chains: Array<{ token: string; blockchain: string; [key: string]: unknown }> } | null;
+  isAvailable: boolean;
+}
+
+/** Indexer balance result */
+export interface IndexerBalanceResult {
+  data: { balance: string; blockchain: string; token: string; address: string; [key: string]: unknown } | null;
+  isAvailable: boolean;
+}
+
+/** Indexer transfers result */
+export interface IndexerTransfersResult {
+  data: Array<{ txHash: string; from: string; to: string; value: string; blockchain: string; token: string; [key: string]: unknown }> | null;
+  isAvailable: boolean;
+}
+
+// ── Cross-Chain Bridge (USDT0) Types ─────────────────────────────
+
+export interface BridgeRoute {
+  fromChain: string;
+  toChain: string;
+  asset: string;
+  estimatedFee: string;
+  estimatedTime: string;
+  available: boolean;
+}
+
+export interface BridgeQuote {
+  fromChain: string;
+  toChain: string;
+  amount: string;
+  fee: string;
+  estimatedTime: string;
+  exchangeRate: string;
+}
+
+export interface BridgeHistoryEntry {
+  id: string;
+  fromChain: string;
+  toChain: string;
+  amount: string;
+  fee: string;
+  status: 'pending' | 'completed' | 'failed';
+  txHash?: string;
+  createdAt: string;
+  completedAt?: string;
+  error?: string;
+}
+
+// ── DeFi Lending (Aave V3) Types ─────────────────────────────────
+
+export interface LendingRate {
+  asset: string;
+  chain: string;
+  protocol: string;
+  supplyApy: number;
+  borrowApy: number;
+  totalSupply: string;
+  totalBorrow: string;
+  utilizationRate: number;
+  lastUpdated: string;
+}
+
+export interface LendingPosition {
+  asset: string;
+  chain: string;
+  supplied: string;
+  earned: string;
+  apy: number;
+  healthFactor: string;
+  enteredAt: string;
+}
+
+export interface LendingAction {
+  id: string;
+  type: 'supply' | 'withdraw';
+  asset: string;
+  chain: string;
+  amount: string;
+  status: 'pending' | 'completed' | 'failed';
+  txHash?: string;
+  createdAt: string;
+  completedAt?: string;
+  error?: string;
+}
+
+/** Tip Stream — continuous micro-tipping */
+export interface TipStream {
+  id: string;
+  recipient: string;
+  microTipAmount: string;
+  intervalMs: number;
+  token: string;
+  chainId: string;
+  status: 'active' | 'paused' | 'stopped' | 'error';
+  totalStreamed: string;
+  totalTransactions: number;
+  totalFees: string;
+  startedAt: string;
+  stoppedAt?: string;
+  lastTipAt?: string;
+  lastTxHash?: string;
+  maxBudget?: string;
+  elapsedSeconds: number;
+  error?: string;
+}
+
+/** Stream statistics */
+export interface StreamStats {
+  activeStreams: number;
+  totalStreamsCreated: number;
+  totalAmountStreamed: string;
+  totalTransactionsSent: number;
+}
+
+/** Cryptographic tip receipt (Proof-of-Tip) */
+export interface CryptoReceipt {
+  version: string;
+  receiptId: string;
+  tipId: string;
+  from: string;
+  to: string;
+  amount: string;
+  token: string;
+  chainId: string;
+  txHash: string;
+  blockNumber?: number;
+  fee: string;
+  memo?: string;
+  timestamp: string;
+  senderPublicKey: string;
+  signature: string;
+  messageHash: string;
+}
+
+/** Receipt verification result */
+export interface ReceiptVerification {
+  valid: boolean;
+  receipt: CryptoReceipt;
+  verifiedAt: string;
+  signerAddress: string;
+  reason?: string;
+}
+
+/** Creator reputation profile */
+export interface CreatorReputation {
+  address: string;
+  name?: string;
+  score: number;
+  rawScore: number;
+  tier: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
+  totalReceived: number;
+  tipCount: number;
+  uniqueTippers: number;
+  avgTipAmount: number;
+  firstTipAt: string;
+  lastTipAt: string;
+  scoreHistory: Array<{ date: string; score: number }>;
+  chains: string[];
+}
+
+/** Reputation-based tip recommendation */
+export interface ReputationRecommendation {
+  address: string;
+  name?: string;
+  score: number;
+  tier: string;
+  reason: string;
+  suggestedAmount: string;
+  confidence: number;
+}
+
+================================================================
+FILE: hooks/useApi.ts — Data Fetching Hooks
+================================================================
+import { useState, useEffect, useCallback } from 'react';
+import { api } from '../lib/api';
+import type {
+  WalletBalance,
+  TipHistoryEntry,
+  AgentState,
+  AgentStats,
+  HealthResponse,
+} from '../types';
+
+/** Hook for polling agent health */
+export function useHealth(interval = 5000) {
+  const [health, setHealth] = useState<HealthResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    const poll = async () => {
+      try {
+        const data = await api.health();
+        if (mounted) { setHealth(data); setError(null); }
+      } catch (err) {
+        if (mounted) setError(String(err));
+      }
+    };
+    poll();
+    const id = setInterval(poll, interval);
+    return () => { mounted = false; clearInterval(id); };
+  }, [interval]);
+
+  return { health, error };
+}
+
+/** Hook for wallet balances with polling */
+export function useBalances(interval = 10000) {
+  const [balances, setBalances] = useState<WalletBalance[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = useCallback(async () => {
+    try {
+      const { balances: b } = await api.getBalances();
+      setBalances(b);
+    } catch {
+      // Keep existing balances on error
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    refresh();
+    const id = setInterval(refresh, interval);
+    return () => clearInterval(id);
+  }, [refresh, interval]);
+
+  return { balances, loading, refresh };
+}
+
+/** Hook for agent state via SSE (real-time) with polling fallback */
+export function useAgentState() {
+  const [state, setState] = useState<AgentState>({ status: 'idle' });
+
+  useEffect(() => {
+    let es: EventSource | null = null;
+    let fallbackId: ReturnType<typeof setInterval> | null = null;
+
+    const connectSSE = () => {
+      es = new EventSource('/api/agent/events');
+      es.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'state' && data.state) {
+            setState(data.state);
+          }
+        } catch {
+          // Ignore parse errors
+        }
+      };
+      es.onerror = () => {
+        es?.close();
+        // Fallback to polling on SSE failure
+        if (!fallbackId) {
+          fallbackId = setInterval(async () => {
+            try {
+              const { state: s } = await api.getAgentState();
+              setState(s);
+            } catch {
+              // Ignore
+            }
+          }, 2000);
+        }
+      };
+    };
+
+    connectSSE();
+
+    return () => {
+      es?.close();
+      if (fallbackId) clearInterval(fallbackId);
+    };
+  }, []);
+
+  return state;
+}
+
+/** Hook for tip history */
+export function useHistory(interval = 5000) {
+  const [history, setHistory] = useState<TipHistoryEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = useCallback(async () => {
+    try {
+      const { history: h } = await api.getHistory();
+      setHistory(h);
+    } catch {
+      // Keep existing
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    refresh();
+    const id = setInterval(refresh, interval);
+    return () => clearInterval(id);
+  }, [refresh, interval]);
+
+  return { history, loading, refresh };
+}
+
+/** Hook for agent stats */
+export function useStats(interval = 10000) {
+  const [stats, setStats] = useState<AgentStats | null>(null);
+
+  const refresh = useCallback(async () => {
+    try {
+      const { stats: s } = await api.getStats();
+      setStats(s);
+    } catch {
+      // Keep existing
+    }
+  }, []);
+
+  useEffect(() => {
+    refresh();
+    const id = setInterval(refresh, interval);
+    return () => clearInterval(id);
+  }, [refresh, interval]);
+
+  return { stats, refresh };
+}

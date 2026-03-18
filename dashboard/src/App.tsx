@@ -436,148 +436,61 @@ function App() {
       </a>
       <Header health={health} theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} onShowShortcuts={() => setShowShortcuts(true)} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onClearAll={clearAll} />
 
-      {/* Live price ticker */}
-      <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-2">
-        <PriceTicker />
-      </div>
-
-      <main ref={spotlightRef} id="main-content" role="main" className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <main ref={spotlightRef} id="main-content" role="main" className="relative z-10 max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Demo Mode Banner */}
         <DemoBanner />
-
-        {/* Always-visible monitors row */}
-        <section className="mb-4 sm:mb-6 dashboard-grid-monitors">
-          <GasMonitor />
-          <CurrencyConverter />
-          <SecurityStatus />
-          <NetworkHealth />
-          <TelegramStatus />
-          <SystemInfo />
-        </section>
-
-        {/* Quick Actions Bar */}
-        <section className="mb-4 sm:mb-6">
-          <QuickActions
-            onRefreshBalances={refreshBalances}
-            onScrollToCompare={() => {
-              document.getElementById('chain-comparison-section')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-            onScrollToTemplates={() => {
-              document.getElementById('tip-templates-section')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-            onQuickTip={(amount) => {
-              setTipMode('single');
-              const amountInput = document.querySelector<HTMLInputElement>('[aria-label="Tip amount"], [aria-label="Tip amount in USDT"]');
-              if (amountInput) {
-                amountInput.focus();
-                const nativeEvent = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
-                nativeEvent?.call(amountInput, amount);
-                amountInput.dispatchEvent(new Event('input', { bubbles: true }));
-              }
-            }}
-          />
-        </section>
 
         {/* Tabbed content */}
         <DashboardTabs
           dashboardContent={
             <>
-              {/* Live platform metrics strip */}
-              <LiveMetrics health={health} />
+              {/* Price ticker — full width */}
+              <div className="mb-4">
+                <PriceTicker />
+              </div>
 
-              {/* Demo Scenarios — one-click demos for judges */}
-              <section className="mb-4 sm:mb-6">
-                <DemoScenarios onSetTipMode={setTipMode} onTipComplete={handleTipComplete} />
-              </section>
+              {/* LiveMetrics strip */}
+              <div className="mb-4">
+                <LiveMetrics health={health} />
+              </div>
 
-              {/* Innovation Showcase — judges see patent-worthy features FIRST */}
-              <section className="mb-4 sm:mb-6">
-                <InnovationShowcase onNavigate={navigateToTab} />
-              </section>
+              {/* === MAIN BENTO GRID === */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 mb-6">
 
-              {/* Protocol Architecture — 5-layer stack */}
-              <section className="mb-4 sm:mb-6">
-                <ProtocolOverview />
-              </section>
+                {/* LEFT COLUMN: Tip Form — spans 5 cols */}
+                <div className="lg:col-span-5 space-y-4">
+                  <QuickActions
+                    onRefreshBalances={refreshBalances}
+                    onScrollToCompare={() => {
+                      document.getElementById('chain-comparison-section')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    onScrollToTemplates={() => {
+                      document.getElementById('tip-templates-section')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    onQuickTip={(amount) => {
+                      setTipMode('single');
+                      const amountInput = document.querySelector<HTMLInputElement>('[aria-label="Tip amount"], [aria-label="Tip amount in USDT"]');
+                      if (amountInput) {
+                        amountInput.focus();
+                        const nativeEvent = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+                        nativeEvent?.call(amountInput, amount);
+                        amountInput.dispatchEvent(new Event('input', { bubbles: true }));
+                      }
+                    }}
+                  />
 
-              {/* Wallets */}
-              <section className="mb-4 sm:mb-6 scroll-reveal" data-onboarding="wallets">
-                <h2 className="text-sm font-medium text-text-secondary mb-3 flex items-center gap-2">
-                  <Wallet className="w-4 h-4" />
-                  Wallets
-                </h2>
-                {balancesLoading ? (
-                  <div className="dashboard-grid-cards">
-                    {[1, 2].map((i) => (
-                      <WalletCardSkeleton key={i} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="dashboard-grid-cards">
-                    {balances.map((b, i) => (
-                      <div key={b.chainId} className="animate-list-item-in" style={{ animationDelay: `${i * 80}ms` }}>
-                        <WalletCard balance={b} />
-                      </div>
-                    ))}
-                    <PortfolioSummary balances={balances} />
-                  </div>
-                )}
-              </section>
-
-              {/* Transaction Tracker — shows after a tip is sent */}
-              {trackedTx && (
-                <section className="mb-4 sm:mb-6">
-                  <TransactionTracker result={trackedTx} onDismiss={() => setTrackedTx(null)} />
-                </section>
-              )}
-
-              {/* Smart Suggestions — AI-powered recommendations */}
-              <section className="mb-4 sm:mb-6">
-                <SmartSuggestions onNavigate={navigateToTab} tipCount={stats?.totalTips ?? 0} />
-              </section>
-
-              {/* Main grid: Tip Form + Agent | Activity */}
-              <div className="dashboard-grid-main">
-                {/* Left column: Tip Form + Agent */}
-                <div className="space-y-4 sm:space-y-6">
                   {/* Tip mode tabs */}
                   <div ref={tipTabsRef} className="flex gap-1 p-1 rounded-lg bg-surface-2 border border-border" data-onboarding="tip-form">
-                    <button
-                      onClick={() => setTipMode('single')}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all btn-press ${
-                        tipMode === 'single'
-                          ? 'bg-surface-3 text-text-primary shadow-sm'
-                          : 'text-text-secondary hover:text-text-primary'
-                      }`}
-                    >
-                      <Send className="w-3.5 h-3.5" />
-                      Single Tip
+                    <button onClick={() => setTipMode('single')} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all btn-press ${tipMode === 'single' ? 'bg-surface-3 text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}>
+                      <Send className="w-3.5 h-3.5" />Single Tip
                     </button>
-                    <button
-                      onClick={() => setTipMode('batch')}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all btn-press ${
-                        tipMode === 'batch'
-                          ? 'bg-surface-3 text-text-primary shadow-sm'
-                          : 'text-text-secondary hover:text-text-primary'
-                      }`}
-                    >
-                      <Users className="w-3.5 h-3.5" />
-                      Batch Tip
+                    <button onClick={() => setTipMode('batch')} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all btn-press ${tipMode === 'batch' ? 'bg-surface-3 text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}>
+                      <Users className="w-3.5 h-3.5" />Batch Tip
                     </button>
-                    <button
-                      onClick={() => setTipMode('split')}
-                      className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all btn-press ${
-                        tipMode === 'split'
-                          ? 'bg-surface-3 text-text-primary shadow-sm'
-                          : 'text-text-secondary hover:text-text-primary'
-                      }`}
-                    >
-                      <Scissors className="w-3.5 h-3.5" />
-                      Split
+                    <button onClick={() => setTipMode('split')} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all btn-press ${tipMode === 'split' ? 'bg-surface-3 text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}>
+                      <Scissors className="w-3.5 h-3.5" />Split
                     </button>
                   </div>
-
-                  {/* Swipe hint — mobile only */}
                   <p className="text-[10px] text-text-muted text-center mt-1 sm:hidden">Swipe to switch tip mode</p>
 
                   {/* Tip Link banner */}
@@ -585,101 +498,70 @@ function App() {
                     <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-4 space-y-2">
                       <div className="flex items-center justify-between">
                         <p className="text-sm font-medium text-cyan-400">Tip Link Loaded</p>
-                        <button
-                          onClick={() => setTipLinkPrefill(null)}
-                          className="p-1 rounded-md text-text-muted hover:text-text-primary transition-colors"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
+                        <button onClick={() => setTipLinkPrefill(null)} className="p-1 rounded-md text-text-muted hover:text-text-primary transition-colors"><X className="w-4 h-4" /></button>
                       </div>
-                      <p className="text-xs text-text-secondary">
-                        You&apos;re about to tip <span className="font-semibold text-text-primary">{tipLinkPrefill.amount} {tipLinkPrefill.token === 'usdt' ? 'USDT' : 'Native'}</span> to{' '}
-                        <span className="font-mono text-[11px]">{tipLinkPrefill.recipient.slice(0, 10)}...{tipLinkPrefill.recipient.slice(-6)}</span>
-                      </p>
-                      {tipLinkPrefill.message && (
-                        <p className="text-[11px] text-text-muted italic">&ldquo;{tipLinkPrefill.message}&rdquo;</p>
-                      )}
+                      <p className="text-xs text-text-secondary">You&apos;re about to tip <span className="font-semibold text-text-primary">{tipLinkPrefill.amount} {tipLinkPrefill.token === 'usdt' ? 'USDT' : 'Native'}</span> to <span className="font-mono text-[11px]">{tipLinkPrefill.recipient.slice(0, 10)}...{tipLinkPrefill.recipient.slice(-6)}</span></p>
+                      {tipLinkPrefill.message && <p className="text-[11px] text-text-muted italic">&ldquo;{tipLinkPrefill.message}&rdquo;</p>}
                     </div>
                   )}
 
-                  {/* Favorite Recipients — quick-tip shortcuts */}
-                  <FavoriteRecipients
-                    history={history}
-                    onQuickTip={(address) => {
-                      setTipMode('single');
-                      const recipientInput = document.querySelector<HTMLInputElement>('[aria-label="Recipient wallet address or ENS name"]');
-                      if (recipientInput) {
-                        const nativeSet = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
-                        nativeSet?.call(recipientInput, address);
-                        recipientInput.dispatchEvent(new Event('input', { bubbles: true }));
-                        recipientInput.focus();
-                      }
-                    }}
-                  />
+                  <FavoriteRecipients history={history} onQuickTip={(address) => { setTipMode('single'); const recipientInput = document.querySelector<HTMLInputElement>('[aria-label="Recipient wallet address or ENS name"]'); if (recipientInput) { const nativeSet = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set; nativeSet?.call(recipientInput, address); recipientInput.dispatchEvent(new Event('input', { bubbles: true })); recipientInput.focus(); } }} />
 
-                  {tipMode === 'single' && (
-                    <TipForm
-                      onTipComplete={handleTipComplete}
-                      onTipScheduled={handleTipScheduled}
-                      disabled={isAgentBusy}
-                      prefillTemplate={pendingTemplate}
-                      onTemplatePrefilled={() => setPendingTemplate(null)}
-                      prefillTipLink={tipLinkPrefill}
-                      onTipLinkPrefilled={() => setTipLinkPrefill(null)}
-                    />
-                  )}
-                  {tipMode === 'batch' && (
-                    <BatchTipForm onBatchComplete={handleBatchComplete} disabled={isAgentBusy} />
-                  )}
-                  {tipMode === 'split' && (
-                    <SplitTipForm onSplitComplete={handleSplitComplete} disabled={isAgentBusy} />
-                  )}
-                  <BatchImport />
-                  <div id="tip-templates-section">
-                    <TipTemplates onUseTemplate={handleUseTemplate} />
-                  </div>
-                  <TipLinkCreator />
-                  <ConditionalTips />
-                  <ContactsManager />
-                  <QRReceive />
+                  {tipMode === 'single' && <TipForm onTipComplete={handleTipComplete} onTipScheduled={handleTipScheduled} disabled={isAgentBusy} prefillTemplate={pendingTemplate} onTemplatePrefilled={() => setPendingTemplate(null)} prefillTipLink={tipLinkPrefill} onTipLinkPrefilled={() => setTipLinkPrefill(null)} />}
+                  {tipMode === 'batch' && <BatchTipForm onBatchComplete={handleBatchComplete} disabled={isAgentBusy} />}
+                  {tipMode === 'split' && <SplitTipForm onSplitComplete={handleSplitComplete} disabled={isAgentBusy} />}
+
+                  {/* Collapsible: Templates & Links */}
+                  <details className="group">
+                    <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-text-secondary hover:text-text-primary py-2 transition-colors">Templates &amp; Links<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
+                    <div className="space-y-4 pt-2 animate-slide-down">
+                      <div id="tip-templates-section"><TipTemplates onUseTemplate={handleUseTemplate} /></div>
+                      <TipLinkCreator />
+                      <BatchImport />
+                    </div>
+                  </details>
+
+                  {/* Collapsible: Contacts & Receiving */}
+                  <details className="group">
+                    <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-text-secondary hover:text-text-primary py-2 transition-colors">Contacts &amp; Receiving<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
+                    <div className="space-y-4 pt-2 animate-slide-down">
+                      <ContactsManager />
+                      <QRReceive />
+                      <ConditionalTips />
+                    </div>
+                  </details>
                 </div>
 
-                {/* Right column: Agent + Activity + Scheduled */}
-                <div className="space-y-4 sm:space-y-6">
-                  <div data-onboarding="agent-panel">
+                {/* CENTER COLUMN: Agent Intelligence — spans 4 cols */}
+                <div className="lg:col-span-4 space-y-4">
+                  <div data-onboarding="agent-panel" className="glass-card shadow-depth glow-hover tilt-card p-4 sm:p-5">
                     <AgentPanel state={agentState} />
                   </div>
                   {agentState.currentDecision && (
-                    <DecisionTree decision={agentState.currentDecision} agentStatus={agentState.status} />
+                    <div className="glass-card glow-hover p-4 sm:p-5 scroll-reveal">
+                      <DecisionTree decision={agentState.currentDecision} agentStatus={agentState.status} />
+                    </div>
                   )}
-                  <FeeOptimizer />
-                  <StreamingPanel />
-                  <AutonomyPanel />
-                  <ReputationPanel />
-                  <ActivityFeed />
-                  <TipGoals />
-                  {/* Scheduled Tips */}
+                  <div className="glass-card glow-hover p-4 sm:p-5 scroll-reveal"><FeeOptimizer /></div>
+                  <div className="glass-card glow-hover p-4 sm:p-5 scroll-reveal"><StreamingPanel /></div>
+                  <div className="glass-card glow-hover p-4 sm:p-5 scroll-reveal"><AutonomyPanel /></div>
+                </div>
+
+                {/* RIGHT COLUMN: Activity & Status — spans 3 cols */}
+                <div className="lg:col-span-3 space-y-4">
+                  {trackedTx && <div className="scroll-reveal"><TransactionTracker result={trackedTx} onDismiss={() => setTrackedTx(null)} /></div>}
+                  <div className="glass-card p-4 sm:p-5 scroll-reveal"><ReputationPanel /></div>
+                  <div className="glass-card p-4 sm:p-5 scroll-reveal"><ActivityFeed /></div>
+                  <div className="glass-card p-4 sm:p-5 scroll-reveal"><TipGoals /></div>
                   {scheduledTips.length > 0 && (
-                    <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                    <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5 scroll-reveal">
                       <h2 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
-                        <CalendarClock className="w-4 h-4 text-amber-400" />
-                        Scheduled Tips
-                        <span className="ml-auto text-xs font-normal text-text-muted">
-                          {scheduledTips.filter((t) => t.status === 'scheduled').length} pending
-                        </span>
+                        <CalendarClock className="w-4 h-4 text-amber-400" />Scheduled Tips
+                        <span className="ml-auto text-xs font-normal text-text-muted">{scheduledTips.filter((t) => t.status === 'scheduled').length} pending</span>
                       </h2>
                       <div className="space-y-2">
                         {scheduledTips.map((tip) => (
-                          <div
-                            key={tip.id}
-                            className={`flex items-center gap-3 p-3 rounded-lg border ${
-                              tip.status === 'scheduled'
-                                ? 'bg-amber-500/5 border-amber-500/20'
-                                : tip.status === 'executed'
-                                ? 'bg-green-500/5 border-green-500/20'
-                                : 'bg-red-500/5 border-red-500/20'
-                            }`}
-                          >
+                          <div key={tip.id} className={`flex items-center gap-3 p-3 rounded-lg border ${tip.status === 'scheduled' ? 'bg-amber-500/5 border-amber-500/20' : tip.status === 'executed' ? 'bg-green-500/5 border-green-500/20' : 'bg-red-500/5 border-red-500/20'}`}>
                             <div className="shrink-0">
                               {tip.status === 'scheduled' && <Clock className="w-4 h-4 text-amber-400" />}
                               {tip.status === 'executed' && <CheckCircle2 className="w-4 h-4 text-green-400" />}
@@ -687,78 +569,88 @@ function App() {
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 text-sm flex-wrap">
-                                <span className="font-medium text-text-primary">
-                                  {tip.amount} {tip.token === 'usdt' ? 'USDT' : tip.chain === 'ton-testnet' ? 'TON' : 'ETH'}
-                                </span>
+                                <span className="font-medium text-text-primary">{tip.amount} {tip.token === 'usdt' ? 'USDT' : tip.chain === 'ton-testnet' ? 'TON' : 'ETH'}</span>
                                 <span className="text-text-muted">to</span>
-                                <span className="font-mono text-xs text-text-secondary truncate">
-                                  {tip.recipient.slice(0, 8)}...{tip.recipient.slice(-6)}
-                                </span>
-                                {tip.recurring && (
-                                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-purple-500/15 border border-purple-500/20 text-[10px] font-medium text-purple-400">
-                                    <Repeat className="w-2.5 h-2.5" />
-                                    {tip.interval}
-                                  </span>
-                                )}
+                                <span className="font-mono text-xs text-text-secondary truncate">{tip.recipient.slice(0, 8)}...{tip.recipient.slice(-6)}</span>
+                                {tip.recurring && <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-purple-500/15 border border-purple-500/20 text-[10px] font-medium text-purple-400"><Repeat className="w-2.5 h-2.5" />{tip.interval}</span>}
                               </div>
                               <div className="text-[11px] text-text-muted mt-0.5">
-                                {tip.status === 'scheduled' ? (
-                                  <>Fires {new Date(tip.scheduledAt).toLocaleString()}</>
-                                ) : tip.status === 'executed' ? (
-                                  <>Executed {new Date(tip.executedAt!).toLocaleString()}</>
-                                ) : (
-                                  <>Failed {tip.executedAt ? new Date(tip.executedAt).toLocaleString() : ''}</>
-                                )}
-                                {tip.recurring && tip.lastExecuted && (
-                                  <> &middot; Last: {new Date(tip.lastExecuted).toLocaleString()}</>
-                                )}
-                                {tip.message && <> &middot; "{tip.message}"</>}
+                                {tip.status === 'scheduled' ? <>Fires {new Date(tip.scheduledAt).toLocaleString()}</> : tip.status === 'executed' ? <>Executed {new Date(tip.executedAt!).toLocaleString()}</> : <>Failed {tip.executedAt ? new Date(tip.executedAt).toLocaleString() : ''}</>}
+                                {tip.recurring && tip.lastExecuted && <> &middot; Last: {new Date(tip.lastExecuted).toLocaleString()}</>}
+                                {tip.message && <> &middot; &ldquo;{tip.message}&rdquo;</>}
                               </div>
                             </div>
-                            {tip.status === 'scheduled' && (
-                              <button
-                                onClick={() => handleCancelScheduled(tip.id)}
-                                className="shrink-0 p-1.5 rounded-md text-text-muted hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                                title="Cancel scheduled tip"
-                              >
-                                <X className="w-4 h-4" />
-                              </button>
-                            )}
+                            {tip.status === 'scheduled' && <button onClick={() => handleCancelScheduled(tip.id)} className="shrink-0 p-1.5 rounded-md text-text-muted hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Cancel scheduled tip"><X className="w-4 h-4" /></button>}
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
-                  <TipCalendar onCancelTip={handleCancelScheduled} />
-                  <AgentActivityFeed />
-                  <DecisionAuditTrail />
+                  <div className="glass-card p-4 sm:p-5 scroll-reveal"><TipCalendar onCancelTip={handleCancelScheduled} /></div>
+                  <details className="group">
+                    <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-text-secondary hover:text-text-primary py-2 transition-colors">Agent Logs<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
+                    <div className="space-y-4 pt-2 animate-slide-down"><AgentActivityFeed /><DecisionAuditTrail /></div>
+                  </details>
                 </div>
               </div>
+
+              {/* BOTTOM: Wallets */}
+              <section className="mb-4 scroll-reveal" data-onboarding="wallets">
+                <h2 className="text-sm font-medium text-text-secondary mb-3 flex items-center gap-2"><Wallet className="w-4 h-4" />Wallets</h2>
+                {balancesLoading ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">{[1, 2].map((i) => <WalletCardSkeleton key={i} />)}</div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {balances.map((b, i) => <div key={b.chainId} className="animate-list-item-in scroll-reveal" style={{ animationDelay: `${i * 80}ms` }}><WalletCard balance={b} /></div>)}
+                    <PortfolioSummary balances={balances} />
+                  </div>
+                )}
+              </section>
+
+              <div className="mb-4 scroll-reveal"><SmartSuggestions onNavigate={navigateToTab} tipCount={stats?.totalTips ?? 0} /></div>
+
+              {/* Collapsible: Demo & Showcase */}
+              <details className="group mb-4">
+                <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-text-secondary hover:text-text-primary py-2 transition-colors">Demo Scenarios &amp; Innovation Showcase<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
+                <div className="space-y-4 pt-2 animate-slide-down">
+                  <DemoScenarios onSetTipMode={setTipMode} onTipComplete={handleTipComplete} />
+                  <InnovationShowcase onNavigate={navigateToTab} />
+                  <ProtocolOverview />
+                </div>
+              </details>
             </>
           }
           analyticsContent={
             <div className="space-y-4 sm:space-y-6">
-              <EconomicsDashboard />
-              <StatsPanel stats={stats} />
-              <div id="chain-comparison-section">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="glass-card p-4 sm:p-5 scroll-reveal"><EconomicsDashboard /></div>
+                <div className="glass-card p-4 sm:p-5 scroll-reveal"><StatsPanel stats={stats} /></div>
+              </div>
+              <div id="chain-comparison-section" className="glass-card p-4 sm:p-5 scroll-reveal">
                 <ChainComparison />
               </div>
-              <AnalyticsDashboard />
-              <ActivityHeatmap history={history} />
-              <TipReport history={history} />
-              <Leaderboard entries={leaderboard} loading={leaderboardLoading} />
-              <div className="dashboard-grid-cards">
-                <Achievements achievements={achievements} loading={achievementsLoading} />
-                <Challenges />
+              <div className="glass-card p-4 sm:p-5 scroll-reveal"><AnalyticsDashboard /></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="glass-card p-4 sm:p-5 scroll-reveal"><ActivityHeatmap history={history} /></div>
+                <div className="glass-card p-4 sm:p-5 scroll-reveal"><TipReport history={history} /></div>
               </div>
-              <TechStack />
+              <div className="glass-card p-4 sm:p-5 scroll-reveal"><Leaderboard entries={leaderboard} loading={leaderboardLoading} /></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="glass-card p-4 sm:p-5 scroll-reveal"><Achievements achievements={achievements} loading={achievementsLoading} /></div>
+                <div className="glass-card p-4 sm:p-5 scroll-reveal"><Challenges /></div>
+              </div>
+              <div className="glass-card p-4 sm:p-5 scroll-reveal"><TechStack /></div>
             </div>
           }
           historyContent={
-            <div className="space-y-4 sm:space-y-6">
-              <TipHistory history={history} loading={historyLoading} />
-              <ExportPanel historyCount={history.length} />
-              <TransactionTimeline history={history} loading={historyLoading} />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              <div className="lg:col-span-9 space-y-4">
+                <TipHistory history={history} loading={historyLoading} />
+                <TransactionTimeline history={history} loading={historyLoading} />
+              </div>
+              <div className="lg:col-span-3 space-y-4 lg:sticky lg:top-4 lg:self-start">
+                <ExportPanel historyCount={history.length} />
+              </div>
             </div>
           }
           rumbleContent={
@@ -819,26 +711,57 @@ function App() {
           settingsContent={
             <div className="space-y-4 sm:space-y-6">
               <SettingsPanel theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} />
-              <div className="dashboard-grid-cards">
-                <WalletBackup totalTransactions={stats?.totalTips ?? 0} />
-                <WalletSwitcher onActiveChanged={() => refreshBalances()} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="glass-card p-4 sm:p-5 scroll-reveal"><WalletBackup totalTransactions={stats?.totalTips ?? 0} /></div>
+                <div className="glass-card p-4 sm:p-5 scroll-reveal"><WalletSwitcher onActiveChanged={() => refreshBalances()} /></div>
               </div>
               <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
                 <HealthDashboard />
               </div>
-              <TreasuryPanel />
-              <BridgePanel />
-              <LendingPanel />
-              <WdkCapabilities />
-              <CryptoReceiptPanel />
-              <IndexerPanel />
-              <SpendingLimits />
-              <WebhookManager />
-              <AuditLog />
-              <ApiDocs />
-              <DeveloperHub />
-              <PluginRegistry />
-              <ApiExplorer />
+
+              {/* Monitors */}
+              <details className="group" open>
+                <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-text-secondary hover:text-text-primary py-2 transition-colors">Monitors &amp; Status<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2 animate-slide-down">
+                  <div className="glass-card p-4 sm:p-5"><GasMonitor /></div>
+                  <div className="glass-card p-4 sm:p-5"><CurrencyConverter /></div>
+                  <div className="glass-card p-4 sm:p-5"><SecurityStatus /></div>
+                  <div className="glass-card p-4 sm:p-5"><NetworkHealth /></div>
+                  <div className="glass-card p-4 sm:p-5"><TelegramStatus /></div>
+                  <div className="glass-card p-4 sm:p-5"><SystemInfo /></div>
+                </div>
+              </details>
+
+              {/* Integrations */}
+              <details className="group">
+                <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-text-secondary hover:text-text-primary py-2 transition-colors">Integrations &amp; Finance<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
+                <div className="space-y-4 pt-2 animate-slide-down">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="glass-card p-4 sm:p-5"><TreasuryPanel /></div>
+                    <div className="glass-card p-4 sm:p-5"><BridgePanel /></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="glass-card p-4 sm:p-5"><LendingPanel /></div>
+                    <div className="glass-card p-4 sm:p-5"><CryptoReceiptPanel /></div>
+                  </div>
+                  <WdkCapabilities />
+                  <IndexerPanel />
+                  <SpendingLimits />
+                </div>
+              </details>
+
+              {/* Developer Tools */}
+              <details className="group">
+                <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-text-secondary hover:text-text-primary py-2 transition-colors">Developer Tools<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
+                <div className="space-y-4 pt-2 animate-slide-down">
+                  <WebhookManager />
+                  <AuditLog />
+                  <ApiDocs />
+                  <DeveloperHub />
+                  <PluginRegistry />
+                  <ApiExplorer />
+                </div>
+              </details>
             </div>
           }
         />
