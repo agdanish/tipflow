@@ -36,6 +36,10 @@ import { FeeArbitrageService } from '../services/fee-arbitrage.service.js';
 import { MemoryService } from '../services/memory.service.js';
 import { DcaService } from '../services/dca.service.js';
 import { CreatorAnalyticsService } from '../services/creator-analytics.service.js';
+import { TipPolicyService } from '../services/tip-policy.service.js';
+
+/** Shared tip policy service — programmable money engine */
+export const tipPolicyService = new TipPolicyService();
 
 /** Shared challenges service instance — exported for agent integration */
 export const challenges = new ChallengesService();
@@ -3815,6 +3819,53 @@ export function createApiRouter(
 
   router.get('/analytics/platform', (_req, res) => {
     res.json(creatorAnalyticsService.getPlatformAnalytics());
+  });
+
+  // ══════════════════════════════════════════════
+  //  TIP POLICY ENGINE — Programmable Money
+  // ══════════════════════════════════════════════
+
+  /** GET /api/policies — List all tip policies */
+  router.get('/policies', (_req, res) => {
+    res.json({ policies: tipPolicyService.listPolicies(), stats: tipPolicyService.getStats() });
+  });
+
+  /** POST /api/policies — Create a new tip policy */
+  router.post('/policies', (req, res) => {
+    try {
+      const policy = tipPolicyService.createPolicy(req.body);
+      res.json({ policy });
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/policies/:id — Get a specific policy */
+  router.get('/policies/:id', (req, res) => {
+    const policy = tipPolicyService.getPolicy(req.params.id);
+    if (!policy) return res.status(404).json({ error: 'Policy not found' });
+    res.json({ policy });
+  });
+
+  /** PUT /api/policies/:id/toggle — Enable/disable a policy */
+  router.put('/policies/:id/toggle', (req, res) => {
+    const policy = tipPolicyService.togglePolicy(req.params.id, req.body.enabled);
+    if (!policy) return res.status(404).json({ error: 'Policy not found' });
+    res.json({ policy });
+  });
+
+  /** DELETE /api/policies/:id — Delete a policy */
+  router.delete('/policies/:id', (req, res) => {
+    const result = tipPolicyService.deletePolicy(req.params.id);
+    if (!result) return res.status(404).json({ error: 'Policy not found' });
+    res.json({ deleted: true });
+  });
+
+  /** POST /api/policies/evaluate — Evaluate all policies against context */
+  router.post('/policies/evaluate', (req, res) => {
+    const evaluations = tipPolicyService.evaluatePolicies(req.body);
+    const triggered = evaluations.filter((e) => e.conditionsMet && e.cooldownOk);
+    res.json({ evaluations, triggered, totalEvaluated: evaluations.length });
   });
 
   return router;
