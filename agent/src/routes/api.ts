@@ -37,9 +37,13 @@ import { MemoryService } from '../services/memory.service.js';
 import { DcaService } from '../services/dca.service.js';
 import { CreatorAnalyticsService } from '../services/creator-analytics.service.js';
 import { TipPolicyService } from '../services/tip-policy.service.js';
+import { X402Service } from '../services/x402.service.js';
 
 /** Shared tip policy service — programmable money engine */
 export const tipPolicyService = new TipPolicyService();
+
+/** Shared x402 payment protocol — agent-to-agent commerce */
+export const x402Service = new X402Service();
 
 /** Shared challenges service instance — exported for agent integration */
 export const challenges = new ChallengesService();
@@ -3866,6 +3870,34 @@ export function createApiRouter(
     const evaluations = tipPolicyService.evaluatePolicies(req.body);
     const triggered = evaluations.filter((e) => e.conditionsMet && e.cooldownOk);
     res.json({ evaluations, triggered, totalEvaluated: evaluations.length });
+  });
+
+  // ══════════════════════════════════════════════
+  //  x402 PAYMENT PROTOCOL — Agent-to-Agent Commerce
+  // ══════════════════════════════════════════════
+
+  /** GET /api/x402/endpoints — List all monetized x402 endpoints */
+  router.get('/x402/endpoints', (_req, res) => {
+    res.json({ endpoints: x402Service.getEndpoints(), stats: x402Service.getStats() });
+  });
+
+  /** POST /api/x402/pay — Submit payment proof for a 402 requirement */
+  router.post('/x402/pay', (req, res) => {
+    try {
+      const proof = req.body as { requirementId: string; txHash: string; chainId: string; amount: string; payer: string };
+      const result = x402Service.verifyPayment({
+        ...proof,
+        paidAt: new Date().toISOString(),
+      });
+      res.json(result);
+    } catch (err) {
+      res.status(400).json({ error: String(err) });
+    }
+  });
+
+  /** GET /api/x402/stats — x402 revenue and payment statistics */
+  router.get('/x402/stats', (_req, res) => {
+    res.json(x402Service.getStats());
   });
 
   return router;
