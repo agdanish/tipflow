@@ -102,6 +102,9 @@ import { WdkCapabilities } from './components/WdkCapabilities';
 import { DecisionAuditTrail } from './components/DecisionAuditTrail';
 import { AgentActivityFeed } from './components/AgentActivityFeed';
 import { EconomicsDashboard } from './components/EconomicsDashboard';
+import { PluginRegistry } from './components/PluginRegistry';
+import { ApiExplorer } from './components/ApiExplorer';
+import { AgentCapabilities } from './components/AgentCapabilities';
 import { Wallet, Send, Users, Scissors, CalendarClock, X, Clock, CheckCircle2, XCircle, Repeat } from 'lucide-react';
 
 function App() {
@@ -752,6 +755,7 @@ function App() {
           }
           aiContent={
             <div className="space-y-4 sm:space-y-6">
+              <AgentCapabilities />
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 spotlight-grid">
                 <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
                   <OrchestratorPanel />
@@ -821,6 +825,8 @@ function App() {
               <WebhookManager />
               <AuditLog />
               <ApiDocs />
+              <PluginRegistry />
+              <ApiExplorer />
             </div>
           }
         />

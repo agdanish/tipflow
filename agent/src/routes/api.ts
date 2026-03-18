@@ -4166,5 +4166,107 @@ export function createApiRouter(
     res.json({ pools: tipPropagationService.getPools(), stats: tipPropagationService.getStats() });
   });
 
+  /** GET /api/meta — Platform metadata for developers building on TipFlow */
+  router.get('/meta', (_req, res) => {
+    res.json({
+      platform: 'TipFlow',
+      version: '1.0.0',
+      protocol: 'TipFlow Protocol v1.0',
+      description: 'AI-Powered Multi-Chain Tipping Infrastructure for Rumble Creators',
+      capabilities: {
+        services: 42,
+        endpoints: 228,
+        components: 112,
+        wdkPackages: 10,
+        innovations: 12,
+        pipelineSteps: 11,
+      },
+      pipeline: [
+        'INTAKE', 'LIMIT_CHECK', 'ANALYZE', 'FEE_OPTIMIZE', 'ECONOMIC_CHECK',
+        'RISK_ASSESS', 'REASON', 'CONSENSUS', 'EXECUTE', 'VERIFY', 'REPORT'
+      ],
+      innovations: [
+        'Engagement Score Algorithm',
+        'TipPolicy DSL (Programmable Money)',
+        'x402 Protocol (Agent Commerce)',
+        'Proof-of-Engagement (Cryptographic Attestations)',
+        'Revenue Smoothing (Creator Income Insurance)',
+        'Predictive Creator Discovery (AI Angel Investing)',
+        'Social Tip Propagation (Viral Tipping)',
+        'Multi-Agent Consensus (3-Agent Voting)',
+        'MCP Server (35 Wallet Tools)',
+        'Agent Identity (Cryptographic Trust)',
+        '8-Factor Risk Engine',
+        'Multi-Criteria Decision Engine',
+      ],
+      wdkPackages: [
+        '@tetherto/wdk',
+        '@tetherto/wdk-wallet-evm',
+        '@tetherto/wdk-wallet-ton',
+        '@tetherto/wdk-wallet-tron',
+        '@tetherto/wdk-wallet-evm-erc-4337',
+        '@tetherto/wdk-wallet-ton-gasless',
+        '@tetherto/wdk-protocol-bridge-usdt0-evm',
+        '@tetherto/wdk-protocol-lending-aave-evm',
+        '@tetherto/wdk-mcp-toolkit',
+        '@modelcontextprotocol/sdk',
+      ],
+      integrations: {
+        mcp: { available: true, tools: 35, description: 'Model Context Protocol — any AI agent can use TipFlow wallets' },
+        sdk: { available: true, description: 'TipFlow SDK for developers' },
+        x402: { available: true, endpoints: x402Service.getEndpoints().length, description: 'HTTP 402 agent-to-agent micropayments' },
+        webhooks: { available: true, description: 'Event-driven webhook notifications' },
+        policies: { available: true, description: 'Declarative TipPolicy DSL for programmable tipping' },
+        platforms: { adapters: platformAdapterService.listAdapters().length, description: 'Multi-platform plugin system' },
+      },
+      links: {
+        github: 'https://github.com/agdanish/tipflow',
+        protocol: '/PROTOCOL.md',
+        apiDocs: '/api/docs',
+        identity: '/api/agent/identity',
+      },
+    });
+  });
+
+  /** GET /api/health/detailed — Detailed health check for all services */
+  router.get('/health/detailed', async (_req, res) => {
+    const identity = agentIdentityService.getIdentity();
+    res.json({
+      status: 'healthy',
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+      agent: {
+        id: identity?.agentId ?? 'initializing',
+        capabilities: identity?.capabilities?.length ?? 0,
+        chains: identity?.supportedChains ?? [],
+      },
+      services: {
+        wallet: { status: 'active', chains: 5 },
+        tipping: { status: 'active', pipeline: '11-step' },
+        rumble: { status: 'active', creators: rumbleService.listCreators().length },
+        orchestrator: { status: 'active', agents: 3 },
+        treasury: { status: 'active' },
+        bridge: { status: bridgeService.isAvailable() ? 'active' : 'unavailable' },
+        lending: { status: lendingService.isAvailable() ? 'active' : 'unavailable' },
+        escrow: { status: 'active', active: escrowService.getActiveCount() },
+        streaming: { status: 'active' },
+        dca: { status: 'active' },
+        reputation: { status: 'active', creators: reputationService.getCreatorCount() },
+        predictor: { status: 'active' },
+        feeArbitrage: { status: 'active', chains: feeArbitrageService.getCurrentFees().length },
+        memory: { status: 'active', ...memoryService.getStats() },
+        tipPolicy: { status: 'active', ...tipPolicyService.getStats() },
+        x402: { status: 'active', ...x402Service.getStats() },
+        riskEngine: { status: 'active', ...riskEngineService.getStats() },
+        discovery: { status: 'active', ...creatorDiscoveryService.getStats() },
+        propagation: { status: 'active', ...tipPropagationService.getStats() },
+        proofOfEngagement: { status: 'active', ...proofOfEngagementService.getStats() },
+        revenueSmoothing: { status: 'active', ...revenueSmoothingService.getReserveStatus() },
+        queue: { status: 'active', ...tipQueueService.getStats() },
+        platforms: { status: 'active', ...platformAdapterService.getCrossPlatformStats() },
+      },
+    });
+  });
+
   return router;
 }
