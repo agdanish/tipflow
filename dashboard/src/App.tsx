@@ -103,6 +103,9 @@ import { DecisionAuditTrail } from './components/DecisionAuditTrail';
 import { AgentActivityFeed } from './components/AgentActivityFeed';
 import { EconomicsDashboard } from './components/EconomicsDashboard';
 import { PluginRegistry } from './components/PluginRegistry';
+import { DeveloperHub } from './components/DeveloperHub';
+import { ProtocolOverview } from './components/ProtocolOverview';
+import { LiveMetrics } from './components/LiveMetrics';
 import { ApiExplorer } from './components/ApiExplorer';
 import { AgentCapabilities } from './components/AgentCapabilities';
 import { Wallet, Send, Users, Scissors, CalendarClock, X, Clock, CheckCircle2, XCircle, Repeat } from 'lucide-react';
@@ -479,6 +482,9 @@ function App() {
         <DashboardTabs
           dashboardContent={
             <>
+              {/* Live platform metrics strip */}
+              <LiveMetrics health={health} />
+
               {/* Demo Scenarios — one-click demos for judges */}
               <section className="mb-4 sm:mb-6">
                 <DemoScenarios onSetTipMode={setTipMode} onTipComplete={handleTipComplete} />
@@ -487,6 +493,11 @@ function App() {
               {/* Innovation Showcase — judges see patent-worthy features FIRST */}
               <section className="mb-4 sm:mb-6">
                 <InnovationShowcase onNavigate={navigateToTab} />
+              </section>
+
+              {/* Protocol Architecture — 5-layer stack */}
+              <section className="mb-4 sm:mb-6">
+                <ProtocolOverview />
               </section>
 
               {/* Wallets */}
@@ -825,6 +836,7 @@ function App() {
               <WebhookManager />
               <AuditLog />
               <ApiDocs />
+              <DeveloperHub />
               <PluginRegistry />
               <ApiExplorer />
             </div>
