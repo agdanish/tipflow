@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Shield, Brain, Coins, RefreshCw } from 'lucide-react';
 import { api } from '../lib/api';
+import { Skeleton } from './Skeleton';
 
 interface AgentVote {
   agent: string;
@@ -92,7 +93,19 @@ export function OrchestratorPanel() {
     setTesting(false);
   };
 
-  if (loading) return <div className="p-4 text-text-secondary text-sm">Loading orchestrator...</div>;
+  if (loading) return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <Skeleton variant="text-line" width="180px" height="16px" />
+        <Skeleton variant="text-line" width="80px" height="28px" />
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {[1,2,3].map(i => <Skeleton key={i} variant="card" height="100px" />)}
+      </div>
+      <Skeleton variant="card" height="40px" />
+      <Skeleton variant="card" height="70px" />
+    </div>
+  );
 
   return (
     <div className="space-y-4">
@@ -101,7 +114,7 @@ export function OrchestratorPanel() {
           <Shield className="w-4 h-4 text-accent" />
           Multi-Agent Orchestration
         </h3>
-        <button onClick={testOrchestration} disabled={testing} className="text-xs px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors disabled:opacity-50 flex items-center gap-1">
+        <button onClick={testOrchestration} disabled={testing} className="text-xs px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors disabled:opacity-50 flex items-center gap-1 btn-press">
           <RefreshCw className={`w-3 h-3 ${testing ? 'animate-spin' : ''}`} />
           {testing ? 'Testing...' : 'Test Vote'}
         </button>
@@ -109,11 +122,11 @@ export function OrchestratorPanel() {
 
       {/* Agent Cards */}
       <div className="grid grid-cols-3 gap-2">
-        {stats?.agentPerformance.map((agent) => {
+        {stats?.agentPerformance.map((agent, i) => {
           const Icon = agentIcons[agent.role] ?? Shield;
           const color = agentColors[agent.role] ?? 'text-accent';
           return (
-            <div key={agent.role} className="p-3 rounded-lg bg-surface-2 border border-border">
+            <div key={agent.role} className="p-3 rounded-lg bg-surface-2 border border-border card-hover animate-list-item-in" style={{ animationDelay: `${i * 80}ms` }}>
               <div className="flex items-center gap-1.5 mb-2">
                 <Icon className={`w-3.5 h-3.5 ${color}`} />
                 <span className="text-xs font-medium text-text-primary">{agentNames[agent.role] ?? agent.role}</span>
@@ -144,8 +157,8 @@ export function OrchestratorPanel() {
       {history.length > 0 && (
         <div className="space-y-2">
           <h4 className="text-xs font-medium text-text-secondary">Recent Decisions</h4>
-          {history.map((action) => (
-            <div key={action.id} className="p-2.5 rounded-lg bg-surface-2 border border-border">
+          {history.map((action, i) => (
+            <div key={action.id} className="p-2.5 rounded-lg bg-surface-2 border border-border card-hover animate-list-item-in" style={{ animationDelay: `${i * 60}ms` }}>
               <div className="flex items-center justify-between mb-1.5">
                 <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
                   action.consensus === 'approved' ? 'bg-green-500/10 text-green-400' :

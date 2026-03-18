@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Sparkles, Check, X, TrendingUp, Clock, Users, Award, Flame } from 'lucide-react';
 import { api } from '../lib/api';
+import { Skeleton } from './Skeleton';
 
 interface Prediction {
   id: string;
@@ -73,7 +74,17 @@ export function PredictorPanel() {
     try { await api.predictionDismiss(id); await load(); } catch { /* ignore */ }
   };
 
-  if (loading) return <div className="p-4 text-text-secondary text-sm">Loading predictions...</div>;
+  if (loading) return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <Skeleton variant="text-line" width="150px" height="16px" />
+        <Skeleton variant="text-line" width="70px" height="28px" />
+      </div>
+      <Skeleton variant="card" height="40px" />
+      <Skeleton variant="card" height="80px" />
+      <Skeleton variant="card" height="80px" />
+    </div>
+  );
 
   return (
     <div className="space-y-4">
@@ -82,7 +93,7 @@ export function PredictorPanel() {
           <Sparkles className="w-4 h-4 text-accent" />
           Predictive Intelligence
         </h3>
-        <button onClick={generate} disabled={generating} className="text-xs px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors disabled:opacity-50">
+        <button onClick={generate} disabled={generating} className="text-xs px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors disabled:opacity-50 btn-press">
           {generating ? 'Generating...' : 'Generate'}
         </button>
       </div>
@@ -99,14 +110,18 @@ export function PredictorPanel() {
 
       {/* Predictions */}
       {predictions.length === 0 ? (
-        <p className="text-xs text-text-secondary p-3 text-center">No pending predictions. Click Generate to create new ones.</p>
+        <div className="text-center py-6 animate-fade-in">
+          <Sparkles className="w-8 h-8 text-text-muted/30 mx-auto mb-2" />
+          <p className="text-xs text-text-muted mb-2">No pending predictions</p>
+          <button onClick={generate} disabled={generating} className="text-xs text-accent hover:text-accent-light font-medium btn-press">Generate Predictions</button>
+        </div>
       ) : (
         <div className="space-y-2">
-          {predictions.map((pred) => {
+          {predictions.map((pred, i) => {
             const Icon = categoryIcons[pred.category] ?? Sparkles;
             const color = categoryColors[pred.category] ?? 'text-accent';
             return (
-              <div key={pred.id} className="p-3 rounded-lg bg-surface-2 border border-border">
+              <div key={pred.id} className="p-3 rounded-lg bg-surface-2 border border-border card-hover animate-list-item-in" style={{ animationDelay: `${i * 60}ms` }}>
                 <div className="flex items-start justify-between mb-1.5">
                   <div className="flex items-center gap-1.5">
                     <Icon className={`w-3.5 h-3.5 ${color}`} />

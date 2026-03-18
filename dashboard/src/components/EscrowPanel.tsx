@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Lock, Unlock, RotateCcw, Clock } from 'lucide-react';
 import { api } from '../lib/api';
+import { Skeleton } from './Skeleton';
 
 interface EscrowTip {
   id: string;
@@ -50,7 +51,19 @@ export function EscrowPanel() {
     try { await api.escrowRefund(id, 'User requested refund'); await load(); } catch { /* ignore */ }
   };
 
-  if (loading) return <div className="p-4 text-text-secondary text-sm">Loading escrow...</div>;
+  if (loading) return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <Skeleton variant="text-line" width="140px" height="16px" />
+        <Skeleton variant="text-line" width="50px" height="14px" />
+      </div>
+      <div className="grid grid-cols-3 gap-2">
+        {[1,2,3].map(i => <Skeleton key={i} variant="card" height="56px" />)}
+      </div>
+      <Skeleton variant="card" height="90px" />
+      <Skeleton variant="card" height="90px" />
+    </div>
+  );
 
   return (
     <div className="space-y-4">
@@ -82,11 +95,15 @@ export function EscrowPanel() {
 
       {/* Active Escrows */}
       {escrows.length === 0 ? (
-        <p className="text-xs text-text-secondary p-3 text-center">No active escrows. Tips are released directly.</p>
+        <div className="text-center py-6 animate-fade-in">
+          <Lock className="w-8 h-8 text-text-muted/30 mx-auto mb-2" />
+          <p className="text-xs text-text-muted">No active escrows</p>
+          <p className="text-[10px] text-text-muted/60 mt-1">Tips are released directly</p>
+        </div>
       ) : (
         <div className="space-y-2">
-          {escrows.map((escrow) => (
-            <div key={escrow.id} className="p-3 rounded-lg bg-surface-2 border border-border">
+          {escrows.map((escrow, i) => (
+            <div key={escrow.id} className="p-3 rounded-lg bg-surface-2 border border-border card-hover animate-list-item-in" style={{ animationDelay: `${i * 60}ms` }}>
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-medium text-text-primary">{escrow.amount} {escrow.token.toUpperCase()}</span>
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-500/10 text-yellow-400 flex items-center gap-1">

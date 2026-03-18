@@ -122,7 +122,7 @@ export function ReputationPanel() {
             const isExpanded = expandedAddr === creator.address;
 
             return (
-              <div key={creator.address} className="rounded-lg bg-surface-2 border border-border overflow-hidden">
+              <div key={creator.address} className="rounded-lg bg-surface-2 border border-border overflow-hidden animate-list-item-in" style={{ animationDelay: `${index * 50}ms` }}>
                 <button
                   onClick={() => setExpandedAddr(isExpanded ? null : creator.address)}
                   className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-white/[0.02] transition-colors"
@@ -152,7 +152,7 @@ export function ReputationPanel() {
                 </button>
 
                 {isExpanded && (
-                  <div className="px-3 pb-3 border-t border-border pt-2">
+                  <div className="px-3 pb-3 border-t border-border pt-2 animate-slide-down">
                     <div className="grid grid-cols-3 gap-3 text-center">
                       <div>
                         <div className="text-sm font-bold text-text-primary">{creator.tipCount}</div>
@@ -222,13 +222,13 @@ export function ReputationPanel() {
                 No recommendations available. More tipping data needed.
               </p>
             ) : (
-              recommendations.map((rec) => {
+              recommendations.map((rec, i) => {
                 const tierKey = rec.tier as CreatorReputation['tier'];
                 const config = TIER_CONFIG[tierKey] ?? TIER_CONFIG.bronze;
                 const confidencePct = Math.round(rec.confidence * 100);
 
                 return (
-                  <div key={rec.address} className="flex items-start gap-3 p-3 rounded-lg bg-surface-2 border border-border">
+                  <div key={rec.address} className="flex items-start gap-3 p-3 rounded-lg bg-surface-2 border border-border card-hover animate-list-item-in" style={{ animationDelay: `${i * 60}ms` }}>
                     <div className="shrink-0 mt-0.5">
                       <Star className="w-4 h-4" style={{ color: config.barColor }} />
                     </div>

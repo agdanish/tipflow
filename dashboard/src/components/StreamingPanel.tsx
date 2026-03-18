@@ -254,7 +254,7 @@ export function StreamingPanel() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent/90 transition-colors disabled:opacity-50"
+            className="w-full py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent/90 transition-colors disabled:opacity-50 btn-press"
           >
             {submitting ? 'Starting...' : 'Start Stream'}
           </button>
@@ -264,14 +264,16 @@ export function StreamingPanel() {
       {/* Active streams */}
       {streams.length === 0 ? (
         <div className="text-center py-6 text-text-muted text-sm">
-          No active streams. Create one to get started.
+          <Radio className="w-8 h-8 text-text-muted/30 mx-auto mb-2" />
+          <p className="text-xs text-text-muted mb-2">No active streams</p>
+          <button onClick={() => setShowForm(true)} className="text-xs text-accent hover:text-accent-light font-medium btn-press">+ Start Your First Stream</button>
         </div>
       ) : (
         <div className="space-y-2">
-          {streams.map((stream) => {
+          {streams.map((stream, i) => {
             const colors = STATUS_COLORS[stream.status];
             return (
-              <div key={stream.id} className="p-3 rounded-lg bg-surface-2 border border-border">
+              <div key={stream.id} className={`p-3 rounded-lg bg-surface-2 border card-hover animate-list-item-in ${stream.status === 'active' ? 'border-accent/30 stream-active-glow' : 'border-border'}`} style={{ animationDelay: `${i * 60}ms` }}>
                 <div className="flex items-center gap-2 mb-2">
                   <div className={`w-2 h-2 rounded-full ${colors.dot} ${stream.status === 'active' ? 'animate-pulse' : ''}`} />
                   <span className="font-mono text-xs text-text-primary">{truncateAddress(stream.recipient)}</span>
@@ -296,7 +298,7 @@ export function StreamingPanel() {
                   <div className="mb-2">
                     <div className="h-1.5 rounded-full bg-surface-1 overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-accent transition-all"
+                        className={`h-full rounded-full bg-accent transition-all ${stream.status === 'active' ? 'progress-shimmer' : ''}`}
                         style={{ width: `${Math.min(100, (parseFloat(stream.totalStreamed) / parseFloat(stream.maxBudget)) * 100)}%` }}
                       />
                     </div>

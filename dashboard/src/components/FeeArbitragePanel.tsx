@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Zap, TrendingDown, TrendingUp, Minus, RefreshCw } from 'lucide-react';
 import { api } from '../lib/api';
+import { Skeleton } from './Skeleton';
 
 interface ChainFee {
   chainId: string;
@@ -58,7 +59,18 @@ export function FeeArbitragePanel() {
     await load();
   };
 
-  if (loading && !comparison) return <div className="p-4 text-text-secondary text-sm">Loading fees...</div>;
+  if (loading && !comparison) return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <Skeleton variant="text-line" width="180px" height="16px" />
+        <Skeleton variant="text-line" width="70px" height="28px" />
+      </div>
+      <Skeleton variant="text-line" width="120px" height="28px" />
+      <Skeleton variant="card" height="64px" />
+      <Skeleton variant="card" height="64px" />
+      <Skeleton variant="card" height="64px" />
+    </div>
+  );
 
   return (
     <div className="space-y-4">
@@ -67,7 +79,7 @@ export function FeeArbitragePanel() {
           <Zap className="w-4 h-4 text-accent" />
           Cross-Chain Fee Arbitrage
         </h3>
-        <button onClick={refresh} className="text-xs px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors flex items-center gap-1">
+        <button onClick={refresh} className="text-xs px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors flex items-center gap-1 btn-press">
           <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </button>
@@ -91,9 +103,9 @@ export function FeeArbitragePanel() {
       {comparison && (
         <div className="space-y-2">
           {[...comparison.chains].sort((a, b) => a.feeUsd - b.feeUsd).map((chain, idx) => (
-            <div key={chain.chainId} className={`p-3 rounded-lg border ${
+            <div key={chain.chainId} className={`p-3 rounded-lg border card-hover animate-list-item-in ${
               idx === 0 ? 'bg-accent/5 border-accent/30' : 'bg-surface-2 border-border'
-            }`}>
+            }`} style={{ animationDelay: `${idx * 80}ms` }}>
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                   {idx === 0 && <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 text-accent font-medium">BEST</span>}

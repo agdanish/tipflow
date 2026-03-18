@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Brain, Search, Trash2 } from 'lucide-react';
 import { api } from '../lib/api';
+import { Skeleton } from './Skeleton';
 
 interface MemoryEntry {
   id: string;
@@ -61,7 +62,19 @@ export function MemoryPanel() {
     try { await api.memoryForget(id); await load(); } catch { /* ignore */ }
   };
 
-  if (loading) return <div className="p-4 text-text-secondary text-sm">Loading memories...</div>;
+  if (loading) return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <Skeleton variant="text-line" width="120px" height="16px" />
+        <Skeleton variant="text-line" width="140px" height="12px" />
+      </div>
+      <div className="grid grid-cols-4 gap-1.5">
+        {[1,2,3,4].map(i => <Skeleton key={i} variant="card" height="48px" />)}
+      </div>
+      <Skeleton variant="text-line" width="100%" height="32px" />
+      {[1,2,3].map(i => <Skeleton key={i} variant="card" height="44px" />)}
+    </div>
+  );
 
   return (
     <div className="space-y-4">
@@ -103,18 +116,22 @@ export function MemoryPanel() {
             className="w-full pl-7 pr-2 py-1.5 rounded-lg bg-surface-2 border border-border text-text-primary text-xs placeholder:text-text-secondary"
           />
         </div>
-        <button onClick={search} className="px-2.5 py-1.5 rounded-lg bg-accent/10 text-accent text-xs hover:bg-accent/20 transition-colors">Search</button>
+        <button onClick={search} className="px-2.5 py-1.5 rounded-lg bg-accent/10 text-accent text-xs hover:bg-accent/20 transition-colors btn-press" aria-label="Search memories">Search</button>
       </div>
 
       {/* Memory List */}
       {memories.length === 0 ? (
-        <p className="text-xs text-text-secondary p-3 text-center">No memories yet. The agent learns from your interactions.</p>
+        <div className="text-center py-6 animate-fade-in">
+          <Brain className="w-8 h-8 text-text-muted/30 mx-auto mb-2" />
+          <p className="text-xs text-text-muted">No memories yet</p>
+          <p className="text-[10px] text-text-muted/60 mt-1">The agent learns from your interactions</p>
+        </div>
       ) : (
         <div className="space-y-1.5 max-h-64 overflow-y-auto">
-          {memories.slice(0, 15).map((mem) => {
+          {memories.slice(0, 15).map((mem, i) => {
             const color = typeColors[mem.type] ?? 'text-accent bg-accent/10';
             return (
-              <div key={mem.id} className="p-2.5 rounded-lg bg-surface-2 border border-border flex items-start gap-2">
+              <div key={mem.id} className="p-2.5 rounded-lg bg-surface-2 border border-border flex items-start gap-2 card-hover animate-list-item-in" style={{ animationDelay: `${i * 40}ms` }}>
                 <span className={`text-[9px] px-1.5 py-0.5 rounded ${color} mt-0.5`}>
                   {mem.type}
                 </span>

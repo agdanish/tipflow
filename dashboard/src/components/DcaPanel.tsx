@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Repeat, Play, Pause, XCircle, Plus, TrendingUp, Clock } from 'lucide-react';
 import { api } from '../lib/api';
+import { Skeleton } from './Skeleton';
 
 interface DcaPlan {
   id: string;
@@ -65,7 +66,19 @@ export function DcaPanel() {
   const resume = async (id: string) => { try { await api.dcaResume(id); await load(); } catch { /* */ } };
   const cancel = async (id: string) => { try { await api.dcaCancel(id); await load(); } catch { /* */ } };
 
-  if (loading) return <div className="p-4 text-text-secondary text-sm">Loading DCA...</div>;
+  if (loading) return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <Skeleton variant="text-line" width="120px" height="16px" />
+        <Skeleton variant="circle" width="28px" />
+      </div>
+      <div className="grid grid-cols-4 gap-2">
+        {[1,2,3,4].map(i => <Skeleton key={i} variant="card" height="48px" />)}
+      </div>
+      <Skeleton variant="card" height="90px" />
+      <Skeleton variant="card" height="90px" />
+    </div>
+  );
 
   const statusColor = (s: string) =>
     s === 'active' ? 'text-green-400 bg-green-500/10 border-green-500/20' :
@@ -80,7 +93,7 @@ export function DcaPanel() {
           <Repeat className="w-4 h-4 text-purple-400" />
           DCA Tipping
         </h3>
-        <button onClick={() => setShowCreate(!showCreate)} className="p-1.5 rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 transition-colors">
+        <button onClick={() => setShowCreate(!showCreate)} className="p-1.5 rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 transition-colors btn-press" aria-label="Create DCA plan">
           <Plus className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -138,7 +151,7 @@ export function DcaPanel() {
               <option value="tron-nile">TRON</option>
             </select>
           </div>
-          <button onClick={create} disabled={!form.recipient} className="w-full py-1.5 rounded-lg bg-purple-500 text-white text-xs font-medium hover:bg-purple-600 disabled:opacity-50 transition-colors">
+          <button onClick={create} disabled={!form.recipient} className="w-full py-1.5 rounded-lg bg-purple-500 text-white text-xs font-medium hover:bg-purple-600 disabled:opacity-50 transition-colors btn-press">
             Create DCA Plan
           </button>
         </div>
@@ -147,12 +160,16 @@ export function DcaPanel() {
       {/* Plans */}
       <div className="space-y-2">
         {plans.length === 0 && (
-          <p className="text-xs text-text-muted text-center py-4">No DCA plans yet. Create one to spread tips over time.</p>
+          <div className="text-center py-6 animate-fade-in">
+            <Repeat className="w-8 h-8 text-text-muted/30 mx-auto mb-2" />
+            <p className="text-xs text-text-muted mb-2">No DCA plans yet</p>
+            <button onClick={() => setShowCreate(true)} className="text-xs text-purple-400 hover:text-purple-300 font-medium btn-press">+ Create Your First Plan</button>
+          </div>
         )}
-        {plans.map((p) => {
+        {plans.map((p, index) => {
           const progress = p.installments > 0 ? (p.completedInstallments / p.installments) * 100 : 0;
           return (
-            <div key={p.id} className="p-3 rounded-lg border border-border bg-surface-2 space-y-2">
+            <div key={p.id} className="p-3 rounded-lg border border-border bg-surface-2 space-y-2 card-hover animate-list-item-in" style={{ animationDelay: `${index * 60}ms` }}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium border ${statusColor(p.status)}`}>
@@ -190,7 +207,7 @@ export function DcaPanel() {
               </div>
               {/* Progress bar */}
               <div className="h-1.5 rounded-full bg-surface-3 overflow-hidden">
-                <div className="h-full rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-500 transition-all" style={{ width: `${progress}%` }} />
+                <div className={`h-full rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-500 transition-all ${p.status === 'active' ? 'progress-shimmer' : ''}`} style={{ width: `${progress}%` }} />
               </div>
               <div className="text-[10px] text-text-muted flex justify-between">
                 <span>{p.completedInstallments}/{p.installments} installments</span>

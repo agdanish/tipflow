@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { BarChart3, Users, TrendingUp, TrendingDown, Search, DollarSign, Layers } from 'lucide-react';
 import { api } from '../lib/api';
+import { Skeleton } from './Skeleton';
 
 interface PlatformAnalytics {
   totalTipsProcessed: number;
@@ -56,7 +57,16 @@ export function CreatorAnalyticsPanel() {
     setSearching(false);
   };
 
-  if (loading) return <div className="p-4 text-text-secondary text-sm">Loading analytics...</div>;
+  if (loading) return (
+    <div className="space-y-4">
+      <Skeleton variant="text-line" width="140px" height="16px" />
+      <div className="grid grid-cols-4 gap-2">
+        {[1,2,3,4].map(i => <Skeleton key={i} variant="card" height="56px" />)}
+      </div>
+      <Skeleton variant="card" height="60px" />
+      <Skeleton variant="card" height="40px" />
+    </div>
+  );
 
   const chainColors: Record<string, string> = {
     'ethereum-sepolia': 'bg-blue-500',
@@ -87,8 +97,8 @@ export function CreatorAnalyticsPanel() {
               { label: 'Volume', value: `$${platform.totalVolume.toFixed(2)}`, icon: DollarSign },
               { label: 'Tippers', value: platform.uniqueTippers, icon: Users },
               { label: 'Growth', value: `${platform.growthRate > 0 ? '+' : ''}${platform.growthRate.toFixed(0)}%`, icon: platform.growthRate >= 0 ? TrendingUp : TrendingDown },
-            ].map((s) => (
-              <div key={s.label} className="text-center p-2 rounded-lg bg-surface-2">
+            ].map((s, i) => (
+              <div key={s.label} className="text-center p-2 rounded-lg bg-surface-2 animate-list-item-in" style={{ animationDelay: `${i * 50}ms` }}>
                 <s.icon className="w-3 h-3 mx-auto mb-1 text-emerald-400" />
                 <div className="text-xs font-bold text-text-primary">{s.value}</div>
                 <div className="text-[10px] text-text-muted">{s.label}</div>
@@ -147,13 +157,13 @@ export function CreatorAnalyticsPanel() {
             className="flex-1 px-3 py-1.5 rounded-lg bg-surface-2 border border-border text-text-primary text-xs focus:border-emerald-500 focus:outline-none"
             onKeyDown={(e) => e.key === 'Enter' && searchCreator()}
           />
-          <button onClick={searchCreator} disabled={searching || !creatorAddress.trim()} className="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs font-medium hover:bg-emerald-500/20 disabled:opacity-50 transition-colors">
+          <button onClick={searchCreator} disabled={searching || !creatorAddress.trim()} className="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-xs font-medium hover:bg-emerald-500/20 disabled:opacity-50 transition-colors btn-press" aria-label="Search creator">
             <Search className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {creator && (
-          <div className="p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 space-y-3">
+          <div className="p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 space-y-3 animate-fade-in-up">
             <div className="flex justify-between items-center">
               <span className="font-mono text-xs text-text-secondary">{creator.creatorAddress.slice(0, 10)}...{creator.creatorAddress.slice(-6)}</span>
               <div className="flex gap-2 text-[10px]">

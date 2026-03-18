@@ -105,7 +105,7 @@ function ReceiptCard({ receipt }: { receipt: CryptoReceiptData }) {
   const date = new Date(receipt.timestamp);
 
   return (
-    <div className="rounded-lg bg-surface-2 border border-border overflow-hidden">
+    <div className="rounded-lg bg-surface-2 border border-border overflow-hidden card-hover">
       {/* Summary row */}
       <button
         onClick={() => setExpanded((prev) => !prev)}
@@ -204,7 +204,7 @@ function ReceiptCard({ receipt }: { receipt: CryptoReceiptData }) {
           {verifyResult && (
             <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
               verifyResult.valid
-                ? 'bg-green-500/10 border-green-500/20'
+                ? 'bg-green-500/10 border-green-500/20 animate-verify-flash'
                 : 'bg-red-500/10 border-red-500/20'
             }`}>
               {verifyResult.valid ? (
@@ -228,14 +228,14 @@ function ReceiptCard({ receipt }: { receipt: CryptoReceiptData }) {
             <button
               onClick={handleVerify}
               disabled={verifying}
-              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-accent/10 text-accent text-xs font-medium hover:bg-accent/20 transition-colors disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-accent/10 text-accent text-xs font-medium hover:bg-accent/20 transition-colors disabled:opacity-50 btn-press"
             >
               <Shield className="w-3.5 h-3.5" />
               {verifying ? 'Verifying...' : 'Verify'}
             </button>
             <button
               onClick={handleDownload}
-              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-surface-1 border border-border text-text-secondary text-xs font-medium hover:bg-white/[0.03] transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-surface-1 border border-border text-text-secondary text-xs font-medium hover:bg-white/[0.03] transition-colors btn-press"
             >
               <Download className="w-3.5 h-3.5" />
               Download Proof
@@ -287,13 +287,17 @@ export function CryptoReceiptPanel() {
       </div>
 
       {receipts.length === 0 ? (
-        <div className="text-center py-8 text-text-muted text-sm">
-          No receipts yet. Send a tip to generate cryptographic proof.
+        <div className="text-center py-8 text-text-muted text-sm animate-fade-in">
+          <Shield className="w-8 h-8 text-text-muted/30 mx-auto mb-2" />
+          <p className="text-xs text-text-muted">No receipts yet</p>
+          <p className="text-[10px] text-text-muted/60 mt-1">Send a tip to generate cryptographic proof</p>
         </div>
       ) : (
         <div className="space-y-2">
-          {receipts.map((receipt) => (
-            <ReceiptCard key={receipt.receiptId} receipt={receipt} />
+          {receipts.map((receipt, i) => (
+            <div key={receipt.receiptId} className="animate-list-item-in" style={{ animationDelay: `${i * 60}ms` }}>
+              <ReceiptCard receipt={receipt} />
+            </div>
           ))}
         </div>
       )}
