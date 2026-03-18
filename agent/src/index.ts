@@ -11,7 +11,7 @@ import WDK from '@tetherto/wdk';
 import { WalletService } from './services/wallet.service.js';
 import { AIService } from './services/ai.service.js';
 import { TipFlowAgent } from './core/agent.js';
-import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService, treasuryService, indexerService, bridgeService, lendingService, reputationService, escrowService, orchestratorService, predictorService, feeArbitrageService, memoryService, dcaService, creatorAnalyticsService, agentIdentityService, x402Service } from './routes/api.js';
+import { createApiRouter, webhooks, challenges, limitsService, goalsService, rumbleService, autonomyService, treasuryService, indexerService, bridgeService, lendingService, reputationService, escrowService, orchestratorService, predictorService, feeArbitrageService, memoryService, dcaService, creatorAnalyticsService, agentIdentityService, x402Service, riskEngineService, proofOfEngagementService } from './routes/api.js';
 import { DemoService } from './services/demo.service.js';
 import { logger } from './utils/logger.js';
 
@@ -71,6 +71,8 @@ async function main(): Promise<void> {
   agent.setOrchestratorService(orchestratorService);
   agent.setTreasuryService(treasuryService);
   agent.setRumbleService(rumbleService);
+  agent.setRiskEngine(riskEngineService);
+  proofOfEngagementService.setWalletService(walletService);
 
   // Log Rumble integration
   logger.info(`Rumble integration loaded: ${rumbleService.listCreators().length} creators registered`);

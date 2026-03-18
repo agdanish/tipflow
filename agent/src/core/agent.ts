@@ -16,6 +16,7 @@ import type { AutonomyService } from '../services/autonomy.service.js';
 import type { OrchestratorService } from '../services/orchestrator.service.js';
 import type { TreasuryService } from '../services/treasury.service.js';
 import type { RumbleService } from '../services/rumble.service.js';
+import type { RiskEngineService } from '../services/risk-engine.service.js';
 import type { TelegramBotStatus } from '../services/telegram.service.js';
 import { logger } from '../utils/logger.js';
 import type {
@@ -75,6 +76,7 @@ export class TipFlowAgent {
   private orchestratorService: OrchestratorService | null = null;
   private treasuryService: TreasuryService | null = null;
   private rumbleService: RumbleService | null = null;
+  private riskEngine: RiskEngineService | null = null;
   private tipResults: Map<string, TipResult> = new Map();
   private static readonly MAX_ACTIVITY = 100;
 
@@ -141,6 +143,11 @@ export class TipFlowAgent {
   /** Set the Rumble service for engagement-driven auto-tipping */
   setRumbleService(service: RumbleService): void {
     this.rumbleService = service;
+  }
+
+  /** Set the risk engine for transaction-level risk assessment */
+  setRiskEngine(service: RiskEngineService): void {
+    this.riskEngine = service;
   }
 
   /** Start Telegram bot if TELEGRAM_BOT_TOKEN is set. Optional — everything works without it. */
@@ -719,6 +726,37 @@ export class TipFlowAgent {
           addStep('ECONOMIC_CHECK', `Gas fee is ${(feeToTipRatio * 100).toFixed(0)}% of tip amount — consider gasless mode for better economics`);
         } else {
           addStep('ECONOMIC_CHECK', `Fee-to-tip ratio: ${(feeToTipRatio * 100).toFixed(1)}% — economically sound`);
+        }
+      }
+
+      // Step 2.7: RISK ASSESSMENT
+      if (this.riskEngine && cheapest) {
+        const gasFee = parseFloat(cheapest.estimatedFeeUsd.replace(/[^0-9.]/g, '')) || 0;
+        const balance = parseFloat(analyses[0]?.balance ?? '0');
+        const risk = this.riskEngine.assessRisk({
+          recipient: request.recipient,
+          amount: parseFloat(request.amount),
+          chainId: cheapest.chainId,
+          walletBalance: balance,
+          gasFee,
+          token: token,
+        });
+        addStep('RISK_ASSESS', `Risk: ${risk.level.toUpperCase()} (${risk.score}/100) — ${risk.reasoning[0]}`);
+        if (risk.level === 'critical') {
+          addStep('RISK_ASSESS', `BLOCKED: ${risk.reasoning.join('; ')}`);
+          this.setState({ status: 'idle', currentTip: undefined, lastError: 'Blocked by risk engine' });
+          const failResult: TipResult = {
+            id: tipId, tipId, status: 'failed', chainId: cheapest.chainId,
+            txHash: '', from: '', to: request.recipient, amount: request.amount,
+            token, fee: '0', explorerUrl: '',
+            decision: { selectedChain: cheapest.chainId, reasoning: `Blocked: ${risk.reasoning.join('; ')}`, analyses, steps, confidence: 0 },
+            createdAt: new Date().toISOString(), error: `Risk engine blocked: ${risk.reasoning[0]}`,
+          };
+          this.tipResults.set(tipId, failResult);
+          return failResult;
+        }
+        if (risk.level === 'high') {
+          addStep('RISK_ASSESS', `⚠ High risk — proceeding with caution: ${risk.reasoning.slice(0, 3).join('; ')}`);
         }
       }
 

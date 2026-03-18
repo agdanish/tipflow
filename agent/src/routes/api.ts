@@ -46,6 +46,10 @@ import { RevenueSmoothingService } from '../services/revenue-smoothing.service.j
 
 import { CreatorDiscoveryService } from '../services/creator-discovery.service.js';
 import { TipPropagationService } from '../services/tip-propagation.service.js';
+import { RiskEngineService } from '../services/risk-engine.service.js';
+
+/** Shared risk engine — transaction risk assessment */
+export const riskEngineService = new RiskEngineService();
 
 /** Shared proof-of-engagement — cryptographic attestations */
 export const proofOfEngagementService = new ProofOfEngagementService();
