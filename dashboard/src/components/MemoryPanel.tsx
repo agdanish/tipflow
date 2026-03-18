@@ -1,6 +1,6 @@
 // Copyright 2026 Danish A. Licensed under Apache-2.0.
 import { useState, useEffect } from 'react';
-import { Brain, Search, Trash2 } from 'lucide-react';
+import { Brain, Search, Trash2, Plus, X, Save } from 'lucide-react';
 import { api } from '../lib/api';
 import { Skeleton } from './Skeleton';
 
@@ -38,6 +38,26 @@ export function MemoryPanel() {
   const [stats, setStats] = useState<MemoryStats | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // Teach agent form
+  const [showStore, setShowStore] = useState(false);
+  const [storeType, setStoreType] = useState('preference');
+  const [storeKey, setStoreKey] = useState('');
+  const [storeValue, setStoreValue] = useState('');
+  const [storing, setStoring] = useState(false);
+
+  const handleStore = async () => {
+    if (!storeKey.trim() || !storeValue.trim()) return;
+    setStoring(true);
+    try {
+      await api.memoryStore(storeType, storeKey.trim(), storeValue.trim());
+      setShowStore(false);
+      setStoreKey('');
+      setStoreValue('');
+      await load();
+    } catch { /* ignore */ }
+    setStoring(false);
+  };
 
   const load = async () => {
     try {
@@ -83,8 +103,59 @@ export function MemoryPanel() {
           <Brain className="w-4 h-4 text-accent" />
           Agent Memory
         </h3>
-        {stats && <span className="text-[10px] text-text-secondary">{stats.totalMemories} memories | {stats.avgConfidence}% avg confidence</span>}
+        <div className="flex items-center gap-2">
+          {stats && <span className="text-[10px] text-text-secondary hidden sm:inline">{stats.totalMemories} memories</span>}
+          <button
+            onClick={() => setShowStore(!showStore)}
+            className="text-[10px] px-2 py-1 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors flex items-center gap-1 btn-press"
+          >
+            {showStore ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+            {showStore ? 'Cancel' : 'Teach Agent'}
+          </button>
+        </div>
       </div>
+
+      {/* ── TEACH AGENT FORM ── */}
+      {showStore && (
+        <div className="p-3 rounded-lg border border-purple-500/20 bg-purple-500/5 space-y-2 animate-slide-down">
+          <h4 className="text-[10px] font-semibold text-purple-400 uppercase tracking-wider flex items-center gap-1">
+            <Brain className="w-3 h-3" /> Teach Agent a New Memory
+          </h4>
+          <select
+            value={storeType}
+            onChange={e => setStoreType(e.target.value)}
+            className="w-full px-2.5 py-1.5 rounded-lg bg-surface-2 border border-border text-xs text-text-primary focus:outline-none focus:border-accent-border transition-colors"
+          >
+            <option value="preference">Preference</option>
+            <option value="fact">Fact</option>
+            <option value="context">Context</option>
+            <option value="correction">Correction</option>
+          </select>
+          <input
+            type="text"
+            value={storeKey}
+            onChange={e => setStoreKey(e.target.value)}
+            placeholder="What to remember (key)..."
+            className="w-full px-2.5 py-1.5 rounded-lg bg-surface-2 border border-border text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border transition-colors"
+          />
+          <input
+            type="text"
+            value={storeValue}
+            onChange={e => setStoreValue(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleStore()}
+            placeholder="The information (value)..."
+            className="w-full px-2.5 py-1.5 rounded-lg bg-surface-2 border border-border text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border transition-colors"
+          />
+          <button
+            onClick={handleStore}
+            disabled={storing || !storeKey.trim() || !storeValue.trim()}
+            className="w-full py-2 rounded-lg bg-purple-600 text-white text-xs font-medium hover:bg-purple-500 disabled:opacity-40 transition-colors flex items-center justify-center gap-1.5 btn-press"
+          >
+            <Save className="w-3 h-3" />
+            {storing ? 'Storing...' : 'Store Memory'}
+          </button>
+        </div>
+      )}
 
       {/* Stats */}
       {stats && stats.totalMemories > 0 && (

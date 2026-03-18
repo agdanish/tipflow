@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Send, Loader2, AlertCircle, Coins, Sparkles, Wand2, Clock, CalendarClock, BookUser, UserPlus, X, Trash2, BookMarked, Repeat, Zap, CheckCircle2, XCircle, ScanLine } from 'lucide-react';
+import { Send, Loader2, AlertCircle, Coins, Sparkles, Wand2, Clock, CalendarClock, BookUser, UserPlus, X, Trash2, BookMarked, Repeat, Zap, CheckCircle2, XCircle, ScanLine, Save } from 'lucide-react';
 import { api } from '../lib/api';
 import { t } from '../lib/i18n';
 import { useLocale } from '../hooks/useLocale';
@@ -35,6 +35,8 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
   const [gaslessMode, setGaslessMode] = useState(false);
   const [gaslessResult, setGaslessResult] = useState<{ gasless: boolean; fee: string } | null>(null);
   const [speed, setSpeed] = useState<SpeedLevel>('normal');
+  const [formShake, setFormShake] = useState(false);
+  const [successPulse, setSuccessPulse] = useState(false);
 
   // Schedule state
   const [scheduleMode, setScheduleMode] = useState(false);
@@ -231,11 +233,15 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
     if (scheduleMode) {
       if (!scheduledAt) {
         setError('Please select a date and time for the scheduled tip');
+        setFormShake(true);
+        setTimeout(() => setFormShake(false), 500);
         return;
       }
       const scheduledDate = new Date(scheduledAt);
       if (scheduledDate.getTime() <= Date.now()) {
         setError('Scheduled time must be in the future');
+        setFormShake(true);
+        setTimeout(() => setFormShake(false), 500);
         return;
       }
     }
@@ -309,8 +315,14 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
       setRecurring(false);
       setEnsResolved(null);
       setEnsFailed(false);
+      // Success pulse on button
+      setSuccessPulse(true);
+      setTimeout(() => setSuccessPulse(false), 700);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
+      // Shake the form on error
+      setFormShake(true);
+      setTimeout(() => setFormShake(false), 500);
     } finally {
       setSending(false);
     }
@@ -320,10 +332,19 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
 
   return (
     <div className="animated-border shadow-depth spotlight-card"><div className="p-4 sm:p-5">
-      <h2 className="text-base font-semibold text-text-primary mb-3 sm:mb-4 flex items-center gap-2">
-        <Send className="w-4 h-4 text-accent" />
-        {t('tip.send')}
-      </h2>
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <h2 className="text-base font-semibold text-text-primary flex items-center gap-2">
+          <Send className="w-4 h-4 text-accent" />
+          {t('tip.send')}
+        </h2>
+        {/* Auto-save draft indicator */}
+        {(recipient.trim() || amount.trim()) && (
+          <span className="inline-flex items-center gap-1 text-[10px] text-text-muted autosave-saved">
+            <Save className="w-3 h-3" />
+            Draft saved
+          </span>
+        )}
+      </div>
 
       {/* NLP Natural Language Input */}
       <div className="mb-3 sm:mb-4">
@@ -380,7 +401,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
         </div>
       </div>
 
-      <form id="tip-form" onSubmit={handleSubmit} role="form" aria-label="Send tip form" className="space-y-3 sm:space-y-4">
+      <form id="tip-form" onSubmit={handleSubmit} role="form" aria-label="Send tip form" className={`space-y-3 sm:space-y-4 ${formShake ? 'animate-form-shake' : ''}`}>
         {/* Token selector */}
         <div>
           <label className="block text-xs text-text-secondary mb-1.5">{t('tip.token')}</label>
@@ -448,7 +469,13 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
               placeholder={token === 'usdt' ? '0x... or name.eth' : '0x..., UQ..., or name.eth'}
               aria-label="Recipient wallet address or ENS name"
               aria-required="true"
-              className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border focus:ring-1 focus:ring-accent-border transition-colors font-mono"
+              className={`flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border focus:ring-1 focus:ring-accent-border transition-colors font-mono ${
+                recipient.trim() && (recipient.startsWith('0x') || recipient.startsWith('UQ') || recipient.endsWith('.eth'))
+                  ? 'input-valid'
+                  : recipient.trim() && recipient.length > 4
+                    ? 'input-invalid'
+                    : ''
+              }`}
               disabled={sending || disabled}
             />
             <ClipboardPaste
@@ -824,7 +851,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
         <button
           type="submit"
           disabled={!recipient || !amount || sending || disabled || (scheduleMode && !scheduledAt)}
-          className={`w-full py-3 rounded-lg font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 ${
+          className={`w-full py-3 rounded-lg font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 btn-press ${successPulse ? 'animate-success-pulse' : ''} ${
             scheduleMode
               ? 'bg-amber-500 text-white hover:bg-amber-400'
               : gaslessMode

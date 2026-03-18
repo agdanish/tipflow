@@ -1,8 +1,18 @@
 // Copyright 2026 Danish A. Licensed under Apache-2.0.
 import { useState, useEffect } from 'react';
-import { Zap, TrendingDown, TrendingUp, Minus, RefreshCw } from 'lucide-react';
+import { Zap, TrendingDown, TrendingUp, Minus, RefreshCw, BarChart3 } from 'lucide-react';
 import { api } from '../lib/api';
 import { Skeleton } from './Skeleton';
+import { Sparkline } from './Sparkline';
+
+interface FeeHistoryEntry {
+  chainId: string;
+  fees: Array<{ timestamp: string; feeUsd: number }>;
+  avgFee: number;
+  minFee: number;
+  maxFee: number;
+  trend: 'rising' | 'falling' | 'stable';
+}
 
 interface ChainFee {
   chainId: string;
@@ -40,14 +50,21 @@ const congestionColors: Record<string, string> = {
 export function FeeArbitragePanel() {
   const [comparison, setComparison] = useState<FeeComparison | null>(null);
   const [timing, setTiming] = useState<OptimalTiming | null>(null);
+  const [feeHistory, setFeeHistory] = useState<FeeHistoryEntry[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
   const [amount, setAmount] = useState('0.01');
   const [loading, setLoading] = useState(true);
 
   const load = async () => {
     try {
-      const [c, t] = await Promise.all([api.feesCompare(amount), api.feesOptimalTiming()]);
-      setComparison(c as unknown as FeeComparison);
-      setTiming(t as unknown as OptimalTiming);
+      const [c, t, h] = await Promise.allSettled([
+        api.feesCompare(amount),
+        api.feesOptimalTiming(),
+        api.feesHistory(),
+      ]);
+      if (c.status === 'fulfilled') setComparison(c.value as unknown as FeeComparison);
+      if (t.status === 'fulfilled') setTiming(t.value as unknown as OptimalTiming);
+      if (h.status === 'fulfilled') setFeeHistory((h.value as unknown as FeeHistoryEntry[]) ?? []);
     } catch { /* ignore */ }
     setLoading(false);
   };
@@ -155,6 +172,54 @@ export function FeeArbitragePanel() {
             <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${comparison.optimizationScore}%` }} />
           </div>
           <span className="text-xs text-text-secondary">{comparison.optimizationScore}% optimal</span>
+        </div>
+      )}
+
+      {/* Fee History Sparklines — Feature 3 */}
+      <button
+        onClick={() => setShowHistory(!showHistory)}
+        className="w-full flex items-center justify-between p-2 rounded-lg bg-surface-2/50 hover:bg-surface-2 border border-border text-xs text-text-secondary transition-colors"
+      >
+        <span className="flex items-center gap-1.5">
+          <BarChart3 className="w-3 h-3" />
+          Fee Trends
+        </span>
+        {showHistory ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+      </button>
+
+      {showHistory && feeHistory.length > 0 && (
+        <div className="space-y-2 animate-slide-down">
+          {feeHistory.map((chain) => {
+            const dataPoints = chain.fees.map(f => f.feeUsd);
+            const chainName = chain.chainId.includes('ethereum') ? 'Ethereum' : chain.chainId.includes('ton') ? 'TON' : chain.chainId;
+            const trendIcon = chain.trend === 'falling' ? <TrendingDown className="w-3 h-3 text-green-400" /> :
+                              chain.trend === 'rising' ? <TrendingUp className="w-3 h-3 text-red-400" /> :
+                              <Minus className="w-3 h-3 text-text-muted" />;
+            const sparkColor = chain.trend === 'falling' ? '#22c55e' : chain.trend === 'rising' ? '#ef4444' : '#8a8b9e';
+
+            return (
+              <div key={chain.chainId} className="flex items-center gap-3 p-2.5 rounded-lg bg-surface-2 border border-border">
+                <span className="text-xs text-text-primary font-medium w-20 shrink-0">{chainName}</span>
+                <Sparkline
+                  data={dataPoints.length > 1 ? dataPoints : [0, 0]}
+                  width={80}
+                  height={20}
+                  strokeColor={sparkColor}
+                  fillColor={sparkColor}
+                  strokeWidth={1.5}
+                />
+                <div className="flex-1 text-[10px] text-text-muted text-right space-y-0.5">
+                  <div className="flex items-center justify-end gap-1">
+                    {trendIcon}
+                    <span>{chain.trend}</span>
+                  </div>
+                  <div className="tabular-nums">
+                    ${chain.minFee.toFixed(6)} — ${chain.maxFee.toFixed(6)}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

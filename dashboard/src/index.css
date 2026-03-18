@@ -1152,3 +1152,469 @@ html.light .glass-input:focus {
 .animate-verify-flash {
   animation: verify-flash 0.6s ease-out;
 }
+
+/* ── Functional UX 2026 — Command Palette, Shake, Ripple, Focus ── */
+
+/* Command palette entrance */
+@keyframes command-palette-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.command-palette-enter {
+  animation: command-palette-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Error shake — applied to form inputs on validation error */
+@keyframes input-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 50%, 90% { transform: translateX(-4px); }
+  30%, 70% { transform: translateX(4px); }
+}
+.animate-shake {
+  animation: input-shake 0.4s ease-in-out;
+}
+
+/* Error shake for entire form */
+.animate-form-shake {
+  animation: input-shake 0.5s ease-in-out;
+}
+
+/* Ripple effect on buttons */
+@keyframes ripple-expand {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.btn-ripple .ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(0);
+  animation: ripple-expand 0.5s ease-out forwards;
+  pointer-events: none;
+}
+
+/* Focus-visible ring — keyboard navigation indicator */
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Enhanced focus ring for interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
+}
+
+/* Skip focus outline for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Toast progress bar */
+@keyframes toast-progress {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+.toast-progress {
+  animation: toast-progress linear forwards;
+}
+
+/* Toast exit animation */
+@keyframes toast-exit {
+  to {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+.toast-exit {
+  animation: toast-exit 0.25s ease-in forwards;
+}
+
+/* Success pulse — brief green glow on the submit button after success */
+@keyframes success-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+.animate-success-pulse {
+  animation: success-pulse 0.7s ease-out;
+}
+
+/* Number morphing — smooth digit transitions */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s ease;
+}
+
+/* Inline validation states */
+.input-valid {
+  border-color: rgba(34, 197, 94, 0.5) !important;
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.15);
+}
+.input-invalid {
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.15);
+}
+
+/* List item staggered entrance (reusable) */
+@keyframes list-item-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-list-item-in {
+  animation: list-item-in 0.3s ease-out both;
+}
+
+/* Connection status breathing dot */
+@keyframes connection-breathe {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+.connection-dot-breathe {
+  animation: connection-breathe 2s ease-in-out infinite;
+}
+
+/* Smooth content transitions between tabs */
+@keyframes tab-content-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-tab-content-in {
+  animation: tab-content-in 0.25s ease-out forwards;
+}
+
+/* Tooltip entrance */
+@keyframes tooltip-in {
+  from { opacity: 0; transform: translateY(4px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-tooltip-in {
+  animation: tooltip-in 0.15s ease-out forwards;
+}
+
+/* Value change highlight flash */
+@keyframes value-change-flash {
+  0% { color: var(--color-accent); }
+  100% { color: inherit; }
+}
+.animate-value-change {
+  animation: value-change-flash 1s ease-out;
+}
+
+/* Skeleton with shimmer gradient */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-3) 25%,
+    var(--color-border) 37%,
+    var(--color-surface-3) 63%
+  );
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+html.light .skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #e2e8f0 25%,
+    #f1f5f9 37%,
+    #e2e8f0 63%
+  );
+  background-size: 400% 100%;
+}
+
+/* Smooth scroll for anchor navigation */
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+/* Selection color */
+::selection {
+  background: rgba(34, 197, 94, 0.3);
+  color: var(--color-text-primary);
+}
+
+/* ── Advanced UI/UX 2026: Sparklines, FAB, Neon, Glass Modals ── */
+
+/* Sparkline animations */
+@keyframes sparkline-draw {
+  from { stroke-dashoffset: 200; }
+  to { stroke-dashoffset: 0; }
+}
+.sparkline-line-enter {
+  stroke-dasharray: 200;
+  animation: sparkline-draw 0.8s ease-out forwards;
+}
+.sparkline-area-enter {
+  opacity: 0;
+  animation: fade-in 0.6s ease-out 0.3s forwards;
+}
+@keyframes sparkline-dot-pulse {
+  0% { r: 0; opacity: 0; }
+  50% { r: 4; opacity: 1; }
+  100% { r: 2.5; opacity: 1; }
+}
+.sparkline-dot-enter {
+  animation: sparkline-dot-pulse 0.5s ease-out 0.6s both;
+}
+
+/* Floating action button items */
+@keyframes floating-item-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.floating-item-enter {
+  animation: floating-item-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Neon glow text effect for key values */
+.neon-glow {
+  text-shadow: 0 0 7px rgba(34, 197, 94, 0.3), 0 0 20px rgba(34, 197, 94, 0.15);
+}
+html.light .neon-glow {
+  text-shadow: none;
+}
+
+/* Glassmorphic modal overlay */
+.glass-modal {
+  background: rgba(18, 19, 26, 0.85);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+}
+html.light .glass-modal {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* Frosted glass card variant */
+.glass-frosted {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+html.light .glass-frosted {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Gradient mesh background for hero sections */
+.gradient-mesh-hero {
+  background:
+    radial-gradient(at 0% 0%, rgba(34, 197, 94, 0.08) 0, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.06) 0, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(168, 85, 247, 0.05) 0, transparent 50%);
+}
+
+/* Animated gradient border for active/focused cards */
+@keyframes gradient-border-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.gradient-border-active {
+  position: relative;
+}
+.gradient-border-active::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22c55e, #3b82f6, #a855f7, #22c55e);
+  background-size: 300% 100%;
+  animation: gradient-border-flow 3s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.gradient-border-active:hover::before,
+.gradient-border-active:focus-within::before {
+  opacity: 1;
+}
+
+/* Smooth number transitions for stat values */
+.stat-value-transition {
+  transition: color 0.5s ease, text-shadow 0.5s ease;
+}
+
+/* Chip/badge with subtle glow */
+.chip-glow {
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Pulsing notification badge */
+@keyframes badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+.badge-pulse {
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
+/* Text gradient shimmer (for loading labels) */
+@keyframes text-shimmer {
+  from { background-position: -200% center; }
+  to { background-position: 200% center; }
+}
+.text-shimmer {
+  background: linear-gradient(90deg, var(--color-text-muted), var(--color-text-primary), var(--color-text-muted));
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: text-shimmer 2s linear infinite;
+}
+
+/* Data table row hover with left accent */
+.row-accent-hover {
+  position: relative;
+  transition: background 0.15s ease;
+}
+.row-accent-hover::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--color-accent);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+@media (hover: hover) {
+  .row-accent-hover:hover {
+    background: rgba(255, 255, 255, 0.02);
+  }
+  .row-accent-hover:hover::before {
+    opacity: 1;
+  }
+  html.light .row-accent-hover:hover {
+    background: rgba(0, 0, 0, 0.02);
+  }
+}
+
+/* Circular progress ring */
+.progress-ring-animate {
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Interactive card press-and-hold effect */
+.card-pressable {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+.card-pressable:active {
+  transform: scale(0.98) translateY(1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Scroll snap for horizontal card scrolling */
+.scroll-snap-x {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.scroll-snap-x::-webkit-scrollbar { display: none; }
+.scroll-snap-item {
+  scroll-snap-align: start;
+}
+
+/* Reduced motion: disable all custom animations */
+@media (prefers-reduced-motion: reduce) {
+  .sparkline-line-enter,
+  .sparkline-area-enter,
+  .sparkline-dot-enter,
+  .floating-item-enter,
+  .neon-glow,
+  .badge-pulse,
+  .text-shimmer,
+  .gradient-border-active::before,
+  .bottom-sheet-enter {
+    animation: none !important;
+    text-shadow: none !important;
+  }
+}
+
+/* ── Bottom Sheet slide-up ── */
+@keyframes bottom-sheet-slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.bottom-sheet-enter {
+  animation: bottom-sheet-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Auto-save status indicator */
+@keyframes autosave-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.autosave-indicator {
+  animation: autosave-pulse 1.5s ease-in-out infinite;
+}
+.autosave-saved {
+  color: var(--color-accent);
+  animation: fade-in 0.2s ease-out;
+}
+
+/* Swipe action reveal */
+@keyframes swipe-reveal {
+  from { max-height: 0; opacity: 0; }
+  to { max-height: 48px; opacity: 1; }
+}
+.swipe-action-reveal {
+  animation: swipe-reveal 0.2s ease-out forwards;
+  overflow: hidden;
+}
+
+/* Content morph transition — smooth layout shifts */
+.morph-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Pulse highlight for newly updated values */
+@keyframes highlight-new {
+  0% { background-color: rgba(34, 197, 94, 0.15); }
+  100% { background-color: transparent; }
+}
+.highlight-new {
+  animation: highlight-new 1.5s ease-out;
+}
+
+/* Elastic bounce for interactive elements */
+@keyframes elastic-bounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(0.95); }
+  50% { transform: scale(1.02); }
+  70% { transform: scale(0.99); }
+  100% { transform: scale(1); }
+}
+.elastic-bounce {
+  animation: elastic-bounce 0.4s ease-out;
+}
+
+/* Stagger delay utility classes */
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+.stagger-5 { animation-delay: 250ms; }
+.stagger-6 { animation-delay: 300ms; }

@@ -135,9 +135,11 @@ export function createApiRouter(
 ): Router {
   const router = Router();
 
-  // Receipt & Streaming services (need walletService reference)
+  // Receipt & Streaming & DCA services (need walletService reference)
   const receiptService = new ReceiptService(wallet);
   const streamingService = new StreamingService(wallet);
+  dcaService.setWalletService(wallet);
+  escrowService.setWalletService(wallet);
 
   // Wire receipt and reputation services to agent
   agent.setReceiptService(receiptService);
@@ -3282,7 +3284,7 @@ export function createApiRouter(
   });
 
   /** POST /api/bridge/quote — Get bridge fee quote */
-  router.post('/bridge/quote', (req, res) => {
+  router.post('/bridge/quote', async (req, res) => {
     try {
       const { fromChain, toChain, amount } = req.body as {
         fromChain: string;
@@ -3295,7 +3297,7 @@ export function createApiRouter(
         return;
       }
 
-      const quote = bridgeService.quoteBridge(fromChain, toChain, amount);
+      const quote = await bridgeService.quoteBridge(fromChain, toChain, amount);
       if (!quote) {
         res.status(404).json({ error: `No bridge route found from ${fromChain} to ${toChain}` });
         return;
@@ -3308,8 +3310,8 @@ export function createApiRouter(
     }
   });
 
-  /** POST /api/bridge/execute — Execute cross-chain bridge (testnet — logs intent) */
-  router.post('/bridge/execute', (req, res) => {
+  /** POST /api/bridge/execute — Execute cross-chain bridge via WDK USDT0 Protocol */
+  router.post('/bridge/execute', async (req, res) => {
     try {
       const { fromChain, toChain, amount, recipient } = req.body as {
         fromChain: string;
@@ -3323,8 +3325,8 @@ export function createApiRouter(
         return;
       }
 
-      const entry = bridgeService.executeBridge(fromChain, toChain, amount, recipient);
-      res.json({ bridge: entry, note: 'Testnet mode — bridge intent logged. Real execution requires USDT0 on mainnet.' });
+      const entry = await bridgeService.executeBridge(fromChain, toChain, amount, recipient);
+      res.json({ bridge: entry, note: entry.txHash ? 'Bridge executed via WDK Usdt0ProtocolEvm' : 'Bridge attempted — USDT0 contracts may not be deployed on testnet' });
     } catch (err) {
       logger.error('Failed to execute bridge', { error: String(err) });
       res.status(500).json({ error: 'Failed to execute bridge' });
@@ -3366,8 +3368,8 @@ export function createApiRouter(
     }
   });
 
-  /** POST /api/lending/supply — Supply funds to Aave V3 */
-  router.post('/lending/supply', (req, res) => {
+  /** POST /api/lending/supply — Supply funds to Aave V3 via WDK */
+  router.post('/lending/supply', async (req, res) => {
     try {
       const { chain, amount, asset } = req.body as {
         chain: string;
@@ -3380,16 +3382,16 @@ export function createApiRouter(
         return;
       }
 
-      const action = lendingService.supply(chain, amount, asset);
-      res.json({ action, note: 'Testnet mode — supply intent logged. Real execution requires Aave V3 on mainnet.' });
+      const action = await lendingService.supply(chain, amount, asset);
+      res.json({ action, note: action.txHash ? 'Supply executed via WDK AaveProtocolEvm' : 'Supply attempted — Aave V3 may not be available on testnet' });
     } catch (err) {
       logger.error('Failed to supply to lending', { error: String(err) });
       res.status(500).json({ error: 'Failed to supply to lending protocol' });
     }
   });
 
-  /** POST /api/lending/withdraw — Withdraw from Aave V3 */
-  router.post('/lending/withdraw', (req, res) => {
+  /** POST /api/lending/withdraw — Withdraw from Aave V3 via WDK */
+  router.post('/lending/withdraw', async (req, res) => {
     try {
       const { chain, amount, asset } = req.body as {
         chain: string;
@@ -3402,8 +3404,8 @@ export function createApiRouter(
         return;
       }
 
-      const action = lendingService.withdraw(chain, amount, asset);
-      res.json({ action, note: 'Testnet mode — withdraw intent logged.' });
+      const action = await lendingService.withdraw(chain, amount, asset);
+      res.json({ action, note: action.txHash ? 'Withdraw executed via WDK AaveProtocolEvm' : 'Withdraw attempted — Aave V3 may not be available on testnet' });
     } catch (err) {
       logger.error('Failed to withdraw from lending', { error: String(err) });
       res.status(500).json({ error: 'Failed to withdraw from lending protocol' });
@@ -3583,11 +3585,15 @@ export function createApiRouter(
     res.json(escrow);
   });
 
-  /** POST /api/escrow/:id/release — Release escrowed tip to recipient */
-  router.post('/escrow/:id/release', (req, res) => {
-    const escrow = escrowService.releaseEscrow(req.params.id, req.body.txHash);
-    if (!escrow) return res.status(404).json({ error: 'Cannot release escrow' });
-    res.json(escrow);
+  /** POST /api/escrow/:id/release — Release escrowed tip to recipient (sends real TX via WDK) */
+  router.post('/escrow/:id/release', async (req, res) => {
+    try {
+      const escrow = await escrowService.releaseEscrow(req.params.id, req.body.txHash);
+      if (!escrow) return res.status(404).json({ error: 'Cannot release escrow' });
+      res.json(escrow);
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : 'Release failed' });
+    }
   });
 
   /** POST /api/escrow/:id/refund — Refund escrowed tip to sender */

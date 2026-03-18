@@ -337,7 +337,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
         </div>
       ) : (
         <div className="space-y-2" role="list" aria-label="Transaction history list">
-          {filtered.map((entry) => {
+          {filtered.map((entry, idx) => {
             const isExpanded = expandedId === entry.id;
             const explorerBase = entry.chainId.startsWith('ethereum')
               ? 'https://sepolia.etherscan.io/tx/'
@@ -348,11 +348,12 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
               <div
                 key={entry.id}
                 role="listitem"
-                className={`rounded-lg border overflow-hidden transition-colors ${
+                className={`rounded-lg border overflow-hidden transition-colors card-hover animate-list-item-in ${
                   isExpanded
                     ? 'border-border-light bg-surface-2'
                     : 'border-border bg-surface-2'
                 }`}
+                style={{ animationDelay: `${idx * 40}ms` }}
               >
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : entry.id)}

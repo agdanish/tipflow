@@ -1,7 +1,9 @@
 // Copyright 2026 Danish A. Licensed under Apache-2.0.
 // TipFlow — AI-Powered Multi-Chain Tipping Agent
 
+import AaveProtocolEvm from '@tetherto/wdk-protocol-lending-aave-evm';
 import { logger } from '../utils/logger.js';
+import type { WalletService } from './wallet.service.js';
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -25,11 +27,15 @@ export interface LendingPosition {
   apy: number;
   healthFactor: string;
   enteredAt: string;
+  // Real Aave V3 account data (when available)
+  totalCollateral?: string;
+  totalDebt?: string;
+  availableBorrows?: string;
 }
 
 export interface LendingAction {
   id: string;
-  type: 'supply' | 'withdraw';
+  type: 'supply' | 'withdraw' | 'borrow' | 'repay';
   asset: string;
   chain: string;
   amount: string;
@@ -85,6 +91,16 @@ const STATIC_RATES: LendingRate[] = [
   },
 ];
 
+// ── USDT token addresses for Aave V3 ────────────────────────────
+
+const AAVE_TOKEN_ADDRESSES: Record<string, string> = {
+  'ethereum': '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+  'arbitrum': '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+  'optimism': '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
+  'polygon': '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
+  'ethereum-sepolia': '0x7169D38820dfd117C3FA1f22a697dBA58d90BA06',
+};
+
 // ── DeFi Llama rate fetcher ──────────────────────────────────────
 
 interface DefiLlamaPool {
@@ -117,7 +133,6 @@ async function fetchRatesFromDefiLlama(): Promise<LendingRate[]> {
 
     const json = await res.json() as { data: DefiLlamaPool[] };
 
-    // Filter for Aave V3 USDT and ETH pools
     const aavePools = json.data.filter((p: DefiLlamaPool) => {
       const symbol = (p.symbol ?? '').toUpperCase();
       return (
@@ -171,15 +186,24 @@ function formatLargeNumber(n: number): string {
 // ── Service ──────────────────────────────────────────────────────
 
 /**
- * LendingService — Wraps the Aave V3 lending protocol for supply/withdraw.
- * Gracefully degrades if the WDK protocol fails to register.
+ * LendingService — Wraps the WDK Aave V3 lending protocol for supply/withdraw.
+ *
+ * Uses `@tetherto/wdk-protocol-lending-aave-evm` for REAL onchain Aave V3 interactions.
+ * The lending protocol is registered per-account via WDK's `registerProtocol()` method.
+ *
+ * On testnet (Sepolia), Aave V3 may behave differently, so the service
+ * gracefully falls back to simulated tracking when real execution fails.
  */
 export class LendingService {
+  private walletService: WalletService | null = null;
   private available = false;
+  private protocolRegistered = false;
   private position: LendingPosition | null = null;
   private actionHistory: LendingAction[] = [];
 
-  constructor() {
+  /** Provide the WalletService reference so we can get WDK accounts for protocol registration */
+  setWalletService(ws: WalletService): void {
+    this.walletService = ws;
     this.tryInitialize();
   }
 
@@ -187,14 +211,30 @@ export class LendingService {
 
   private tryInitialize(): void {
     try {
-      // Attempt to register the Aave V3 lending protocol with WDK.
-      // On testnet, Aave contracts may behave differently, so we catch
-      // any initialization errors and mark the service as unavailable.
       this.available = true;
-      logger.info('Lending service initialized (Aave V3 protocol loaded)');
+      logger.info('Lending service initialized (Aave V3 protocol loaded, WDK integration ready)');
     } catch (err) {
-      logger.warn('Aave V3 protocol registration failed — service unavailable', { error: String(err) });
+      logger.warn('Aave V3 protocol initialization failed — service unavailable', { error: String(err) });
       this.available = false;
+    }
+  }
+
+  /**
+   * Register the Aave V3 lending protocol on a WDK account.
+   * Called lazily before the first lending operation.
+   */
+  private async registerProtocol(): Promise<void> {
+    if (this.protocolRegistered || !this.walletService) return;
+
+    try {
+      const account = await (this.walletService as any).getWdkAccount('ethereum-sepolia');
+      if (account && typeof account.registerProtocol === 'function') {
+        account.registerProtocol('aave-v3', AaveProtocolEvm, {});
+        this.protocolRegistered = true;
+        logger.info('Aave V3 lending protocol registered on WDK account');
+      }
+    } catch (err) {
+      logger.warn('Could not register Aave V3 protocol on WDK account (non-critical)', { error: String(err) });
     }
   }
 
@@ -217,8 +257,13 @@ export class LendingService {
     return data;
   }
 
-  /** Supply funds to Aave V3 (testnet — logs intent) */
-  supply(chain: string, amount: string, asset = 'USDT'): LendingAction {
+  /**
+   * Supply funds to Aave V3 via WDK lending protocol.
+   *
+   * Attempts REAL onchain Aave V3 supply via `@tetherto/wdk-protocol-lending-aave-evm`.
+   * Falls back to simulated position tracking if Aave contracts are unavailable on testnet.
+   */
+  async supply(chain: string, amount: string, asset = 'USDT'): Promise<LendingAction> {
     const id = `lend-supply-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
     const action: LendingAction = {
@@ -231,11 +276,46 @@ export class LendingService {
       createdAt: new Date().toISOString(),
     };
 
-    logger.info('Lending supply requested (testnet — logged intent)', {
-      id, chain, amount, asset,
-    });
+    // Attempt REAL Aave V3 supply via WDK
+    try {
+      await this.registerProtocol();
 
-    // Update position (simulated for testnet)
+      if (this.protocolRegistered && this.walletService) {
+        const account = await (this.walletService as any).getWdkAccount('ethereum-sepolia');
+        if (account) {
+          const aaveProtocol = account.getLendingProtocol('aave-v3');
+          const tokenAddr = AAVE_TOKEN_ADDRESSES[chain.toLowerCase()] ?? AAVE_TOKEN_ADDRESSES['ethereum-sepolia'];
+          const amountBigInt = BigInt(Math.floor(parseFloat(amount) * 1e6)); // 6 decimals for USDT
+
+          logger.info('Executing REAL WDK Aave V3 supply', { id, chain, amount, asset, token: tokenAddr });
+
+          const result = await aaveProtocol.supply({
+            token: tokenAddr,
+            amount: amountBigInt,
+          });
+
+          action.txHash = result.hash;
+          action.status = 'completed';
+          action.completedAt = new Date().toISOString();
+
+          logger.info('WDK Aave V3 supply completed', { id, txHash: result.hash });
+
+          // Refresh real account data
+          await this.refreshPosition(account);
+
+          this.actionHistory.unshift(action);
+          if (this.actionHistory.length > 100) this.actionHistory = this.actionHistory.slice(0, 100);
+          return action;
+        }
+      }
+    } catch (err) {
+      logger.warn('WDK Aave V3 supply failed (Aave may not be available on testnet)', {
+        id, chain, amount, asset, error: String(err),
+      });
+      action.error = `Aave V3 supply attempted via WDK AaveProtocolEvm — ${String(err)}`;
+    }
+
+    // Fallback: simulated position tracking (for testnet where Aave may not exist)
     const currentSupplied = parseFloat(this.position?.supplied ?? '0');
     const rate = STATIC_RATES.find((r) => r.chain.toLowerCase() === chain.toLowerCase() && r.asset === asset);
 
@@ -250,15 +330,18 @@ export class LendingService {
     };
 
     this.actionHistory.unshift(action);
-    if (this.actionHistory.length > 100) {
-      this.actionHistory = this.actionHistory.slice(0, 100);
-    }
+    if (this.actionHistory.length > 100) this.actionHistory = this.actionHistory.slice(0, 100);
 
     return action;
   }
 
-  /** Withdraw funds from Aave V3 (testnet — logs intent) */
-  withdraw(chain: string, amount: string, asset = 'USDT'): LendingAction {
+  /**
+   * Withdraw funds from Aave V3 via WDK lending protocol.
+   *
+   * Attempts REAL onchain Aave V3 withdraw via `@tetherto/wdk-protocol-lending-aave-evm`.
+   * Falls back to simulated position tracking if Aave contracts are unavailable on testnet.
+   */
+  async withdraw(chain: string, amount: string, asset = 'USDT'): Promise<LendingAction> {
     const id = `lend-withdraw-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
     const action: LendingAction = {
@@ -271,30 +354,84 @@ export class LendingService {
       createdAt: new Date().toISOString(),
     };
 
-    logger.info('Lending withdraw requested (testnet — logged intent)', {
-      id, chain, amount, asset,
-    });
+    // Attempt REAL Aave V3 withdraw via WDK
+    try {
+      await this.registerProtocol();
 
-    // Update position (simulated for testnet)
+      if (this.protocolRegistered && this.walletService) {
+        const account = await (this.walletService as any).getWdkAccount('ethereum-sepolia');
+        if (account) {
+          const aaveProtocol = account.getLendingProtocol('aave-v3');
+          const tokenAddr = AAVE_TOKEN_ADDRESSES[chain.toLowerCase()] ?? AAVE_TOKEN_ADDRESSES['ethereum-sepolia'];
+          const amountBigInt = BigInt(Math.floor(parseFloat(amount) * 1e6));
+
+          logger.info('Executing REAL WDK Aave V3 withdraw', { id, chain, amount, asset, token: tokenAddr });
+
+          const result = await aaveProtocol.withdraw({
+            token: tokenAddr,
+            amount: amountBigInt,
+          });
+
+          action.txHash = result.hash;
+          action.status = 'completed';
+          action.completedAt = new Date().toISOString();
+
+          logger.info('WDK Aave V3 withdraw completed', { id, txHash: result.hash });
+
+          await this.refreshPosition(account);
+
+          this.actionHistory.unshift(action);
+          if (this.actionHistory.length > 100) this.actionHistory = this.actionHistory.slice(0, 100);
+          return action;
+        }
+      }
+    } catch (err) {
+      logger.warn('WDK Aave V3 withdraw failed (Aave may not be available on testnet)', {
+        id, chain, amount, asset, error: String(err),
+      });
+      action.error = `Aave V3 withdraw attempted via WDK AaveProtocolEvm — ${String(err)}`;
+    }
+
+    // Fallback: simulated position tracking
     if (this.position) {
       const currentSupplied = parseFloat(this.position.supplied);
       const newSupplied = Math.max(0, currentSupplied - parseFloat(amount));
       if (newSupplied <= 0) {
         this.position = null;
       } else {
-        this.position = {
-          ...this.position,
-          supplied: newSupplied.toFixed(6),
-        };
+        this.position = { ...this.position, supplied: newSupplied.toFixed(6) };
       }
     }
 
     this.actionHistory.unshift(action);
-    if (this.actionHistory.length > 100) {
-      this.actionHistory = this.actionHistory.slice(0, 100);
-    }
+    if (this.actionHistory.length > 100) this.actionHistory = this.actionHistory.slice(0, 100);
 
     return action;
+  }
+
+  /**
+   * Refresh position from real Aave V3 account data via WDK.
+   */
+  private async refreshPosition(account: any): Promise<void> {
+    try {
+      const aaveProtocol = account.getLendingProtocol('aave-v3');
+      const accountData = await aaveProtocol.getAccountData();
+
+      this.position = {
+        asset: 'USDT',
+        chain: 'Ethereum',
+        supplied: (Number(accountData.totalCollateralBase ?? 0n) / 1e8).toFixed(6),
+        earned: '0.000000',
+        apy: STATIC_RATES[0]?.supplyApy ?? 4.0,
+        healthFactor: accountData.healthFactor ? (Number(accountData.healthFactor) / 1e18).toFixed(2) : 'N/A',
+        enteredAt: this.position?.enteredAt ?? new Date().toISOString(),
+        totalCollateral: (Number(accountData.totalCollateralBase ?? 0n) / 1e8).toFixed(6),
+        totalDebt: (Number(accountData.totalDebtBase ?? 0n) / 1e8).toFixed(6),
+        availableBorrows: (Number(accountData.availableBorrowsBase ?? 0n) / 1e8).toFixed(6),
+      };
+    } catch (err) {
+      logger.debug('Could not refresh Aave V3 position from chain', { error: String(err) });
+    }
   }
 
   /** Get current lending position */

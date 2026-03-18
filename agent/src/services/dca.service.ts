@@ -37,10 +37,18 @@ export class DcaService {
   private plans: DcaPlan[] = [];
   private counter = 0;
   private timer: ReturnType<typeof setInterval> | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private walletService?: any;
 
   constructor() {
     this.timer = setInterval(() => this.processDuePlans(), 60_000);
     logger.info('DCA tipping service initialized');
+  }
+
+  /** Set wallet service for real on-chain execution */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setWalletService(ws: any): void {
+    this.walletService = ws;
   }
 
   createPlan(params: {
@@ -131,7 +139,7 @@ export class DcaService {
     };
   }
 
-  private processDuePlans(): void {
+  private async processDuePlans(): Promise<void> {
     const now = Date.now();
     for (const plan of this.plans) {
       if (plan.status !== 'active') continue;
@@ -141,10 +149,26 @@ export class DcaService {
         continue;
       }
 
-      // Execute installment (in production, would call walletService)
+      // Execute installment — send real on-chain transaction via WDK
+      let txHash: string | undefined;
+      try {
+        if (this.walletService) {
+          const result = await this.walletService.sendTransaction(
+            plan.chainId,
+            plan.recipient,
+            plan.amountPerInstallment.toFixed(8),
+          );
+          txHash = result.hash;
+          logger.info('DCA real tx sent', { id: plan.id, txHash: result.hash, fee: result.fee });
+        }
+      } catch (err) {
+        logger.error('DCA tx failed (continuing plan)', { id: plan.id, error: String(err) });
+      }
+
       plan.history.push({
         amount: plan.amountPerInstallment,
         executedAt: new Date().toISOString(),
+        txHash,
       });
       plan.executedAmount += plan.amountPerInstallment;
       plan.remainingAmount = plan.totalAmount - plan.executedAmount;

@@ -226,6 +226,16 @@ export class WalletService {
     return Array.from(this.registeredChains);
   }
 
+  /**
+   * Get the raw WDK account for a chain — used by bridge/lending services
+   * to register and invoke WDK protocols (bridge, lending, swap).
+   */
+  async getWdkAccount(chainId: ChainId): Promise<any> {
+    this.ensureInitialized();
+    const blockchain = this.getBlockchain(chainId);
+    return this.wdk!.getAccount(blockchain, this.activeAccountIndex);
+  }
+
   /** Get wallet address for a specific chain */
   async getAddress(chainId: ChainId): Promise<string> {
     this.ensureInitialized();

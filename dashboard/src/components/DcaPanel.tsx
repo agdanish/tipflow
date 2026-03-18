@@ -151,6 +151,42 @@ export function DcaPanel() {
               <option value="tron-nile">TRON</option>
             </select>
           </div>
+          {/* Payout schedule preview */}
+          {parseFloat(form.totalAmount) > 0 && parseInt(form.installments) > 0 && (
+            <div className="p-2.5 rounded-lg bg-purple-500/5 border border-purple-500/15 space-y-1.5">
+              <p className="text-[10px] font-semibold text-purple-400 uppercase tracking-wider">Payout Schedule Preview</p>
+              <div className="grid grid-cols-2 gap-2 text-[10px]">
+                <div>
+                  <span className="text-text-muted">Per installment:</span>
+                  <span className="ml-1 font-bold text-text-primary tabular-nums">
+                    {(parseFloat(form.totalAmount) / parseInt(form.installments)).toFixed(6)} {form.token.toUpperCase()}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-text-muted">Duration:</span>
+                  <span className="ml-1 font-bold text-text-primary tabular-nums">
+                    {(parseInt(form.installments) * parseInt(form.intervalHours))} hours
+                    {parseInt(form.installments) * parseInt(form.intervalHours) >= 24 && (
+                      <span className="text-text-muted"> ({(parseInt(form.installments) * parseInt(form.intervalHours) / 24).toFixed(1)} days)</span>
+                    )}
+                  </span>
+                </div>
+              </div>
+              {/* Mini timeline */}
+              <div className="flex items-center gap-0.5 overflow-hidden">
+                {Array.from({ length: Math.min(parseInt(form.installments) || 0, 12) }, (_, i) => (
+                  <div
+                    key={i}
+                    className="flex-1 h-1.5 rounded-full bg-purple-400/30"
+                    title={`Installment ${i + 1}: +${parseInt(form.intervalHours) * (i + 1)}h`}
+                  />
+                ))}
+                {parseInt(form.installments) > 12 && (
+                  <span className="text-[9px] text-text-muted ml-1">+{parseInt(form.installments) - 12} more</span>
+                )}
+              </div>
+            </div>
+          )}
           <button onClick={create} disabled={!form.recipient} className="w-full py-1.5 rounded-lg bg-purple-500 text-white text-xs font-medium hover:bg-purple-600 disabled:opacity-50 transition-colors btn-press">
             Create DCA Plan
           </button>

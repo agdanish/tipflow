@@ -1,6 +1,15 @@
 import { BarChart3, TrendingUp, Coins, Shield, Zap, Activity, Clock, CircleDollarSign } from 'lucide-react';
 import type { AgentStats } from '../types';
 import { formatNumber, chainColor, chainName } from '../lib/utils';
+import { useAnimatedValue } from '../hooks/useAnimatedNumber';
+import { Sparkline } from './Sparkline';
+
+/** Animated stat value component with counting effect */
+function AnimatedStat({ value, format }: { value: number; format?: (n: number) => string }) {
+  const animated = useAnimatedValue(value, 900);
+  const display = format ? format(animated) : Math.round(animated).toString();
+  return <>{display}</>;
+}
 
 interface StatsPanelProps {
   stats: AgentStats | null;
@@ -27,28 +36,32 @@ export function StatsPanel({ stats }: StatsPanelProps) {
   const statCards = [
     {
       label: 'Total Tips',
-      value: stats.totalTips.toString(),
+      rawValue: stats.totalTips,
+      displayFn: (n: number) => Math.round(n).toString(),
       icon: TrendingUp,
       color: 'text-accent',
       bgClass: 'stat-card-green',
     },
     {
       label: 'Total Sent',
-      value: formatNumber(stats.totalAmount),
+      rawValue: parseFloat(stats.totalAmount) || 0,
+      displayFn: (n: number) => formatNumber(n),
       icon: Coins,
       color: 'text-warning',
       bgClass: 'stat-card-amber',
     },
     {
       label: 'Success Rate',
-      value: `${stats.successRate}%`,
+      rawValue: stats.successRate,
+      displayFn: (n: number) => `${Math.round(n)}%`,
       icon: Shield,
       color: 'text-info',
       bgClass: 'stat-card-blue',
     },
     {
       label: 'Fees Saved',
-      value: formatNumber(stats.totalFeeSaved),
+      rawValue: parseFloat(stats.totalFeeSaved) || 0,
+      displayFn: (n: number) => formatNumber(n),
       icon: Zap,
       color: 'text-purple-400',
       bgClass: 'stat-card-purple',
@@ -83,7 +96,9 @@ export function StatsPanel({ stats }: StatsPanelProps) {
                   {card.label}
                 </span>
               </div>
-              <p className="text-lg sm:text-xl font-bold text-text-primary tracking-tight tabular-nums">{card.value}</p>
+              <p className="text-lg sm:text-xl font-bold text-text-primary tracking-tight tabular-nums">
+                <AnimatedStat value={card.rawValue} format={card.displayFn} />
+              </p>
             </div>
           );
         })}
@@ -96,9 +111,19 @@ export function StatsPanel({ stats }: StatsPanelProps) {
             <Clock className="w-3 h-3" />
             Tips — Last 7 Days
           </p>
-          <p className="text-[10px] text-text-muted">
-            {stats.tipsByDay.reduce((s, d) => s + d.count, 0)} total
-          </p>
+          <div className="flex items-center gap-2">
+            <Sparkline
+              data={stats.tipsByDay.map(d => d.count)}
+              width={60}
+              height={16}
+              strokeColor="#22c55e"
+              fillColor="#22c55e"
+              strokeWidth={1.5}
+            />
+            <p className="text-[10px] text-text-muted">
+              {stats.tipsByDay.reduce((s, d) => s + d.count, 0)} total
+            </p>
+          </div>
         </div>
         <div className="flex items-end gap-1.5 h-28 px-1">
           {stats.tipsByDay.map((day) => {

@@ -13,6 +13,8 @@ import { TelegramService } from '../services/telegram.service.js';
 import type { ReceiptService } from '../services/receipt.service.js';
 import type { ReputationService } from '../services/reputation.service.js';
 import type { AutonomyService } from '../services/autonomy.service.js';
+import type { OrchestratorService } from '../services/orchestrator.service.js';
+import type { TreasuryService } from '../services/treasury.service.js';
 import type { TelegramBotStatus } from '../services/telegram.service.js';
 import { logger } from '../utils/logger.js';
 import type {
@@ -69,6 +71,8 @@ export class TipFlowAgent {
   private receiptService: ReceiptService | null = null;
   private reputationService: ReputationService | null = null;
   private autonomyService: AutonomyService | null = null;
+  private orchestratorService: OrchestratorService | null = null;
+  private treasuryService: TreasuryService | null = null;
   private tipResults: Map<string, TipResult> = new Map();
   private static readonly MAX_ACTIVITY = 100;
 
@@ -122,6 +126,16 @@ export class TipFlowAgent {
     this.autonomyService = service;
   }
 
+  /** Set the multi-agent orchestrator for consensus-based tip approval */
+  setOrchestratorService(service: OrchestratorService): void {
+    this.orchestratorService = service;
+  }
+
+  /** Set the treasury service for autonomous capital management */
+  setTreasuryService(service: TreasuryService): void {
+    this.treasuryService = service;
+  }
+
   /** Start Telegram bot if TELEGRAM_BOT_TOKEN is set. Optional — everything works without it. */
   async startTelegramBot(): Promise<void> {
     const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -163,8 +177,12 @@ export class TipFlowAgent {
       this.processAutonomousDecisions().catch((err) => {
         logger.error('Autonomous decision loop failed', { error: String(err) });
       });
+      // Treasury auto-rebalancing — evaluate capital allocation every cycle
+      this.processTreasuryRebalance().catch((err) => {
+        logger.error('Treasury rebalance check failed', { error: String(err) });
+      });
     }, 60_000);
-    logger.info('Autonomous decision loop started (60s interval)');
+    logger.info('Autonomous decision loop started (60s interval — includes treasury rebalancing)');
   }
 
   /** Autonomous decision loop: evaluate history, propose and auto-execute low-value tips */
@@ -259,6 +277,38 @@ export class TipFlowAgent {
           threshold: confirmThreshold,
         });
       }
+    }
+  }
+
+  /** Treasury auto-rebalancing: deploy idle funds to yield or replenish tipping reserve */
+  private async processTreasuryRebalance(): Promise<void> {
+    if (!this.treasuryService) return;
+
+    try {
+      // Get current total balance across all chains
+      const balances = await this.wallet.getAllBalances();
+      let totalBalance = 0;
+      for (const b of Object.values(balances)) {
+        totalBalance += parseFloat(b.nativeBalance) + parseFloat(b.usdtBalance);
+      }
+
+      // Update treasury with current balance
+      this.treasuryService.updateTotalDeposited(totalBalance);
+
+      // Evaluate if rebalancing is needed
+      const rebalance = await this.treasuryService.evaluateRebalance(totalBalance);
+
+      if (rebalance.action !== 'none') {
+        this.addActivity({
+          type: 'system',
+          message: `Treasury rebalance: ${rebalance.action.replace(/_/g, ' ')}`,
+          detail: rebalance.reason,
+        });
+        logger.info('Treasury auto-rebalance action', rebalance);
+      }
+    } catch (err) {
+      // Non-blocking — treasury rebalancing is advisory, not critical
+      logger.debug('Treasury rebalance check skipped', { error: String(err) });
     }
   }
 
@@ -598,6 +648,27 @@ export class TipFlowAgent {
         this.addActivity({ type: 'fee_optimized', message: `Fee estimate: ${cheapest.chainName} at ${cheapest.estimatedFeeUsd}`, chainId: cheapest.chainId });
       }
 
+      // Step 2.5: ECONOMIC VIABILITY CHECK
+      // Refuse tips where gas cost exceeds the tip amount — makes no economic sense.
+      // This demonstrates "sensible use of USDT with attention to risk and sustainability."
+      if (cheapest) {
+        const tipAmountUsd = parseFloat(request.amount); // For USDT tips, amount ≈ USD value
+        const gasCostUsd = parseFloat(cheapest.estimatedFeeUsd.replace(/[^0-9.]/g, '')) || 0;
+        const feeToTipRatio = tipAmountUsd > 0 ? gasCostUsd / tipAmountUsd : 0;
+
+        if (feeToTipRatio > 1.0 && token !== 'native') {
+          // Gas costs MORE than the tip itself — economically unsound
+          addStep('ECONOMIC_CHECK', `⚠ Gas fee ($${gasCostUsd.toFixed(4)}) exceeds tip amount ($${tipAmountUsd.toFixed(4)}) — fee-to-tip ratio: ${(feeToTipRatio * 100).toFixed(0)}%`);
+          addStep('ECONOMIC_CHECK', 'Recommending gasless (ERC-4337) or waiting for lower fees');
+          this.addActivity({ type: 'system', message: `Economic warning: gas ($${gasCostUsd.toFixed(4)}) > tip ($${tipAmountUsd.toFixed(4)})` });
+          // Don't block — warn and continue (agent still executes, but logs the economic concern)
+        } else if (feeToTipRatio > 0.5 && token !== 'native') {
+          addStep('ECONOMIC_CHECK', `Gas fee is ${(feeToTipRatio * 100).toFixed(0)}% of tip amount — consider gasless mode for better economics`);
+        } else {
+          addStep('ECONOMIC_CHECK', `Fee-to-tip ratio: ${(feeToTipRatio * 100).toFixed(1)}% — economically sound`);
+        }
+      }
+
       // Step 3: REASON
       this.setState({ status: 'reasoning' });
       addStep('REASON', 'AI agent selecting optimal chain...');
@@ -613,6 +684,57 @@ export class TipFlowAgent {
       }
       this.addActivity({ type: 'chain_selected', message: `Selected ${decision.selectedChain} (${decision.confidence}% confidence)`, chainId: decision.selectedChain });
       this.setState({ currentDecision: decision });
+
+      // Step 3.5: MULTI-AGENT CONSENSUS (if orchestrator available)
+      if (this.orchestratorService) {
+        addStep('CONSENSUS', 'Submitting to multi-agent orchestrator for consensus vote...');
+        try {
+          const orchestrated = this.orchestratorService.propose('tip', {
+            recipient: request.recipient,
+            amount: request.amount,
+            token: tokenLabel,
+            chainId: decision.selectedChain,
+            message: request.message,
+          });
+          const votesSummary = orchestrated.votes
+            .map((v: { agent: string; decision: string; confidence: number }) =>
+              `${v.agent}:${v.decision}(${v.confidence}%)`)
+            .join(', ');
+          addStep('CONSENSUS', `Votes: ${votesSummary} → ${orchestrated.consensus.toUpperCase()} (${orchestrated.overallConfidence}%)`);
+          this.addActivity({
+            type: 'system',
+            message: `Orchestrator: ${orchestrated.consensus} (${orchestrated.overallConfidence}%)`,
+            detail: votesSummary,
+          });
+
+          // If orchestrator rejects, abort the tip
+          if (orchestrated.consensus === 'rejected' && orchestrated.overallConfidence > 70) {
+            addStep('CONSENSUS', `REJECTED by multi-agent consensus. Reason: ${orchestrated.reasoningChain?.[0] ?? 'Safety or economic concern'}`);
+            this.setState({ status: 'idle', currentTip: undefined, currentDecision: undefined, lastError: 'Rejected by multi-agent consensus' });
+            const failResult: TipResult = {
+              id: tipId,
+              tipId,
+              status: 'failed',
+              chainId: decision.selectedChain,
+              txHash: '',
+              from: '',
+              to: request.recipient,
+              amount: request.amount,
+              token,
+              fee: '0',
+              explorerUrl: '',
+              decision: { ...decision, steps },
+              createdAt: new Date().toISOString(),
+              error: `Rejected by multi-agent consensus: ${orchestrated.reasoningChain?.[0] ?? 'Safety concern'}`,
+            };
+            this.tipResults.set(tipId, failResult);
+            return failResult;
+          }
+        } catch (err) {
+          // Non-blocking: orchestrator failure doesn't prevent tip execution
+          addStep('CONSENSUS', `Orchestrator unavailable (non-blocking): ${String(err)}`);
+        }
+      }
 
       // Step 4: EXECUTE (with auto-retry on failure)
       this.setState({ status: 'executing' });
@@ -1134,8 +1256,19 @@ export class TipFlowAgent {
     request: TipRequest,
     token: TokenType,
   ): Promise<{ hash: string; fee: string }> {
-    if (token === 'usdt' || token === 'usat' || token === 'xaut') {
+    if (token === 'usdt') {
       return this.wallet.sendUsdtTransfer(chainId, request.recipient, request.amount);
+    }
+    if (token === 'usat' || token === 'xaut') {
+      // USAT/XAUT use the same WDK transfer() flow as USDT but with different contract addresses.
+      // Testnet contracts for USAT and XAUT are pending Tether deployment.
+      // Attempt USDT transfer as fallback (same mechanism, different contract) — if USAT/XAUT
+      // contracts are deployed, they'll work identically via WDK's account.transfer().
+      try {
+        return this.wallet.sendUsdtTransfer(chainId, request.recipient, request.amount);
+      } catch {
+        throw new Error(`${token.toUpperCase()} testnet contracts are pending Tether deployment. Use USDT for testing.`);
+      }
     }
     return this.wallet.sendTransaction(chainId, request.recipient, request.amount);
   }

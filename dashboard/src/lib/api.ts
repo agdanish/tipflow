@@ -801,6 +801,9 @@ export const api = {
   escrowRefund: (id: string, reason?: string) =>
     fetchJson<Record<string, unknown>>(`/escrow/${id}/refund`, { method: 'POST', body: JSON.stringify({ reason }) }),
 
+  escrowDispute: (id: string, reason: string) =>
+    fetchJson<Record<string, unknown>>(`/escrow/${id}/dispute`, { method: 'POST', body: JSON.stringify({ reason }) }),
+
   // ── Full Health ──
   healthFull: () =>
     fetchJson<Record<string, unknown>>('/health/full'),

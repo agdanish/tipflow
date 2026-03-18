@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Copy, Check, ExternalLink } from 'lucide-react';
 import type { WalletBalance } from '../types';
 import { shortenAddress, copyToClipboard, formatNumber, chainColor } from '../lib/utils';
+import { useAnimatedValue } from '../hooks/useAnimatedNumber';
 
 interface WalletCardProps {
   balance: WalletBalance;
@@ -29,8 +30,12 @@ export function WalletCard({ balance }: WalletCardProps) {
 
   const hasUsdt = balance.usdtBalance !== '0.000000' && balance.usdtBalance !== '0';
 
+  // Animated balance values
+  const animatedNative = useAnimatedValue(parseFloat(balance.nativeBalance) || 0, 1000);
+  const animatedUsdt = useAnimatedValue(parseFloat(balance.usdtBalance) || 0, 1000);
+
   return (
-    <div className={`rounded-xl border border-border bg-surface-1 p-4 sm:p-5 card-hover ${isEth ? 'chain-gradient-eth' : isTron ? 'chain-gradient-tron' : 'chain-gradient-ton'}`}>
+    <div className={`rounded-xl border border-border bg-surface-1 p-4 sm:p-5 card-hover card-pressable gradient-border-active ${isEth ? 'chain-gradient-eth' : isTron ? 'chain-gradient-tron' : 'chain-gradient-ton'}`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <div
@@ -62,8 +67,8 @@ export function WalletCard({ balance }: WalletCardProps) {
       <div className="space-y-3">
         <div>
           <p className="text-[11px] text-text-muted mb-1 uppercase tracking-wider">Native Balance</p>
-          <p className="text-xl sm:text-2xl font-bold text-text-primary tracking-tight tabular-nums">
-            {formatNumber(balance.nativeBalance)}{' '}
+          <p className="text-xl sm:text-2xl font-bold text-text-primary tracking-tight tabular-nums neon-glow">
+            {formatNumber(animatedNative)}{' '}
             <span className="text-sm font-medium text-text-secondary">{balance.nativeCurrency}</span>
           </p>
         </div>
@@ -71,7 +76,7 @@ export function WalletCard({ balance }: WalletCardProps) {
         <div>
           <p className="text-[11px] text-text-muted mb-1 uppercase tracking-wider">USDT Balance</p>
           <p className={`text-lg font-semibold tabular-nums ${hasUsdt ? 'text-accent value-glow-accent' : 'text-text-muted'}`}>
-            {hasUsdt ? formatNumber(balance.usdtBalance, 2) : '0.00'}{' '}
+            {hasUsdt ? formatNumber(animatedUsdt, 2) : '0.00'}{' '}
             <span className="text-sm font-medium">USDT</span>
           </p>
         </div>

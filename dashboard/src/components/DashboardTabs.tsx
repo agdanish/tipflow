@@ -93,7 +93,7 @@ export function DashboardTabs({ dashboardContent, analyticsContent, historyConte
       </div>
 
       {/* Tab content */}
-      <div className="animate-fade-in" key={activeTab}>
+      <div className="animate-tab-content-in" key={activeTab}>
         {contentMap[activeTab]}
       </div>
     </div>

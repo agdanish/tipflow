@@ -1,134 +1,143 @@
-# TipFlow Demo Video Script (3-5 minutes)
+# TipFlow Demo Video Script (5 minutes)
 
 ## Pre-Recording Setup
-1. Start the agent: `cd agent && npm run dev`
+1. Start the agent: `cd agent && npm start`
 2. Start the dashboard: `cd dashboard && npm run dev`
 3. Open browser to `http://localhost:5173`
-4. Make sure Sepolia testnet has some ETH (use faucet if needed)
-5. Use OBS Studio or Windows Game Bar (Win+G) to record
+4. Ensure testnet has funds (ETH Sepolia faucet + TON testnet faucet)
+5. Pre-send 2-3 tips so dashboard has data
+6. Screen: 1920x1080, browser full-screen, dark mode
+
+## Pre-Recording Checklist
+- [ ] Agent backend running
+- [ ] Dashboard running
+- [ ] 2-3 existing tips in history
+- [ ] Testnet ETH funded
+- [ ] Ollama running OR rule-based mode
+- [ ] 1080p screen recording
+- [ ] Microphone tested
+- [ ] No notifications/popups visible
 
 ---
 
-## INTRO (0:00 - 0:30)
+## INTRO (0:00 - 0:30) — "What is TipFlow?"
 
-**[Show TipFlow dashboard landing page]**
+**Show:** Dashboard homepage with Innovation Showcase carousel
 
-> "Hi, I'm Danish, and this is TipFlow — an AI-powered multi-chain tipping agent built for Rumble creators, using Tether's Wallet Development Kit."
->
-> "TipFlow lets creators receive automated, intelligent tips based on watch time, community pools, and event triggers — all powered by real blockchain transactions on Ethereum and TON."
+**Say:**
+> "TipFlow is an AI-powered tipping agent for Rumble creators, built on Tether WDK. It extends Rumble's existing crypto wallet with autonomous intelligence — the agent watches your behavior, learns your preferences, and autonomously manages tips across Ethereum, TON, and TRON. Same wallet, same keys, same addresses as Rumble's native wallet."
 
----
-
-## SECTION 1: Wallet & WDK Integration (0:30 - 1:15)
-
-**[Show wallet cards on dashboard]**
-
-> "TipFlow uses WDK to create deterministic HD wallets from a single seed phrase. Here you can see our EVM and TON wallet addresses with real balances."
-
-**[Click on wallet — show balances loading]**
-
-> "Balances are fetched in real-time. We also have live gas monitoring and a currency converter powered by Bitfinex's public API — that's Tether's own exchange."
-
-**[Show Gas Monitor widget]**
+**Action:** Scroll the Innovation Showcase carousel to show all 10 patent-worthy innovations.
 
 ---
 
-## SECTION 2: Send a Real Tip (1:15 - 2:00)
+## DEMO 1 (0:30 - 1:30) — "AI Agent Pipeline — Real Transaction"
 
-**[Navigate to the Demo Scenarios section]**
+**Show:** Tip Form with NLP input
 
-> "Let me send a real testnet transaction. I'll use our one-click demo to send a self-tip on Ethereum Sepolia."
+**Say:**
+> "Let me send a real tip with a natural language command."
 
-**[Click "Quick Tip" demo button — wait for transaction]**
+**Action:**
+1. Type in NLP: `send 0.001 ETH to [your address]`
+2. Click "Parse" — show AI parsing with confidence %
+3. Click "Send Tip"
+4. **KEY MOMENT:** Show 6-step Agent Pipeline: INTAKE → ANALYZE → REASON → EXECUTE → VERIFY → REPORT
+5. Show AI Decision panel — chain scores, fee comparison, reasoning
+6. Show Transaction Tracker: Submitted → Propagating → Confirming → Confirmed
+7. Show confetti + toast
 
-> "That just sent 0.0001 ETH through our full 6-step agent pipeline: Intake, Analyze, Reason, Execute, Verify, Report."
-
-**[Show the Agent Panel with pipeline steps]**
-
-> "Every transaction goes through the agent's reasoning engine. You can see the full decision tree right here."
-
-**[Show Transaction History with the new tip]**
-
----
-
-## SECTION 3: NLP & AI Agent (2:00 - 2:30)
-
-**[Click on Chat tab]**
-
-> "TipFlow understands natural language. Watch this..."
-
-**[Type: "send 0.0001 ETH to 0x742d35Cc..." in chat]**
-
-> "The agent parses natural language commands, extracts recipient, amount, and chain — then executes the transaction autonomously."
-
-**[Show the NLP parsing result]**
+**Say:**
+> "The agent analyzed fees across all chains, selected the optimal one, executed the transaction, verified on-chain, and generated a cryptographic receipt — all autonomously. The AI decided which chain, not me."
 
 ---
 
-## SECTION 4: Rumble Creator Integration (2:30 - 3:15)
+## DEMO 2 (1:30 - 2:15) — "Multi-Agent Consensus"
 
-**[Click Rumble tab]**
+**Show:** AI tab → Orchestrator Panel
 
-> "This is our Rumble integration — the core of the Tipping Bot track. Creators register their channels, and fans can set up automated tipping rules."
+**Say:**
+> "Every tip goes through multi-agent consensus. Three independent AI agents vote."
 
-**[Show Creator registration form — add a creator]**
+**Action:**
+1. Click "Test Vote"
+2. Watch 3 agents vote sequentially:
+   - TipExecutor: validates feasibility
+   - Guardian: enforces safety (has VETO power)
+   - TreasuryOptimizer: optimizes economics
+3. Show confidence bars and reasoning bullets
+4. Show consensus result
 
-> "Watch-time auto-tipping: when a fan watches 80% or more of a video, the agent automatically tips the creator. No manual action needed."
-
-**[Show Auto-Tip rules configuration]**
-
-> "Community pools let fans collectively fund creator goals. Event triggers automatically tip when a creator publishes a new video or hits a subscriber milestone."
-
-**[Show Community Pools and Events tabs]**
-
----
-
-## SECTION 5: Autonomous Intelligence (3:15 - 3:45)
-
-**[Show Autonomy Panel on dashboard]**
-
-> "What makes TipFlow truly agentic is autonomous intelligence. The agent learns tipping patterns, recommends who to tip and when, and explains every decision with full reasoning transparency."
-
-**[Show decision log with reasoning chains]**
-
-> "Users set high-level policies — like budget caps and preferred chains — and the agent operates independently within those guardrails."
+**Say:**
+> "The Guardian has veto power. This is responsible autonomy — every decision logged with full reasoning chain."
 
 ---
 
-## SECTION 6: Features Showcase (3:45 - 4:15)
+## DEMO 3 (2:15 - 2:50) — "Autonomous Intelligence"
 
-**[Quick scroll through features — 3-5 seconds each]**
+**Show:** Agent Autonomous Activity feed + Predictor Panel
 
-> "TipFlow also includes:"
+**Say:**
+> "The agent thinks autonomously every 60 seconds."
 
-- Batch tips and split tips
-- Spending limits and audit logs
-- Telegram bot integration
-- Multi-language support (5 languages including RTL Arabic)
-- Keyboard shortcuts and voice commands
-- CSV export and import
-- ENS name resolution
-- PWA support with offline mode
-- Docker one-command deployment
+**Action:**
+1. Show AgentActivityFeed with AUTO-tagged events
+2. Navigate to Predictor → click "Generate"
+3. Expand a prediction to show reasoning, category, confidence breakdown
+4. Show autonomous auto-tip proposal
 
----
-
-## CLOSING (4:15 - 4:45)
-
-**[Show the full dashboard one more time]**
-
-> "TipFlow is 71 React components, 115 API endpoints, 17 backend services, and 55 automated tests — all built with TypeScript, real WDK integration, and zero budget."
->
-> "Check out the GitHub repo in the description. Thank you!"
-
-**[Show GitHub repo URL on screen]**
+**Say:**
+> "The agent detected I tip this creator every Tuesday. It proactively suggests a tip with confidence scoring. That's real agent intelligence — it learns, it predicts, it acts."
 
 ---
 
-## Recording Tips
-- Speak slowly and clearly
-- Pause on each screen for 2-3 seconds so viewers can read
-- If a transaction takes time, narrate what's happening
-- Keep the browser window clean (no other tabs)
-- Record at 1080p if possible
-- Upload as "Unlisted" on YouTube
+## DEMO 4 (2:50 - 3:30) — "Advanced Payment Flows"
+
+**Show:** Streaming + Escrow + DCA panels
+
+**Action:**
+1. StreamingPanel: select "Micro-tip" preset → show rate preview → start stream
+2. EscrowPanel: click "New Escrow" → select "Creator Confirm" → create
+3. DcaPanel: create plan → show payout schedule preview
+
+**Say:**
+> "Tip streams send real on-chain transactions every 30 seconds. Escrow holds tips until conditions are met. DCA spreads tips over time for consistent creator income. All execute real blockchain transactions."
+
+---
+
+## DEMO 5 (3:30 - 4:15) — "WDK Integration Depth"
+
+**Show:** Settings → WDK Capabilities + Indexer + Economics
+
+**Action:**
+1. Expand WDK Capabilities — show 8 packages
+2. Show HD derivation paths + ERC-4337 status
+3. Query Indexer for a balance
+4. Show Economics Dashboard — fees saved, gas efficiency
+5. Show Cryptographic Receipt verification
+
+**Say:**
+> "8 WDK packages. Every transaction cryptographically signed. The Economics Dashboard shows the agent saved real fees through intelligent chain selection."
+
+---
+
+## DEMO 6 (4:15 - 4:45) — "Rumble Creator Economy"
+
+**Show:** Rumble tab + Reputation Engine
+
+**Action:**
+1. Show creators, pools, auto-tip rules
+2. Search a creator in Reputation Engine
+3. Show tier system (Bronze → Diamond)
+
+**Say:**
+> "Creators register channels. Viewers set auto-tip rules. Community pools crowdfund creator goals. The reputation engine scores creators with time-decaying scores."
+
+---
+
+## CLOSING (4:45 - 5:00)
+
+**Say:**
+> "TipFlow: autonomous AI tipping for Rumble creators. 8 WDK packages, 3 chains, multi-agent consensus, predictive intelligence, cryptographic receipts, tip streaming, escrow, DCA. All real testnets, zero mocked calls. Built for Hackathon Galactica. Thank you."
+
+**Action:** Press Cmd+K to show Command Palette as closing flourish.

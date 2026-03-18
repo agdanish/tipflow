@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Fuel, TrendingDown, TrendingUp, Minus } from 'lucide-react';
 import { api } from '../lib/api';
+import { LiveIndicator } from './LiveIndicator';
 import type { GasPriceInfo } from '../types';
 
 const STATUS_COLORS: Record<GasPriceInfo['status'], { dot: string; bg: string; text: string; label: string }> = {
@@ -113,11 +114,7 @@ export function GasMonitor() {
           <Fuel className="w-4 h-4" />
           Gas Prices
         </h3>
-        {lastRefresh && (
-          <span className="text-[10px] text-text-muted">
-            Updated {lastRefresh.toLocaleTimeString()}
-          </span>
-        )}
+        <LiveIndicator lastUpdated={lastRefresh} loading={loading} onRefresh={fetchGas} compact />
       </div>
 
       <div className="space-y-2">

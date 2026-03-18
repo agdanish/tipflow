@@ -14,10 +14,14 @@ import {
 import { api } from '../lib/api';
 import type { CSVImportResult } from '../types';
 
-const SAMPLE_CSV = `recipient,amount,token,chain,memo
-0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18,0.001,native,ethereum-sepolia,Great work on PR #42
-0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199,0.002,native,,Thanks for the code review
-0x1234567890abcdef1234567890abcdef12345678,5,usdt,ethereum-sepolia,Monthly contributor reward`;
+/** Generate sample CSV with user's own address for self-tip demo */
+function buildSampleCsv(userAddress?: string): string {
+  const addr = userAddress || '0x_YOUR_ADDRESS_HERE';
+  return `recipient,amount,token,chain,memo
+${addr},0.001,native,ethereum-sepolia,Great work on PR #42
+${addr},0.002,native,,Thanks for the code review
+${addr},5,usdt,ethereum-sepolia,Monthly contributor reward`;
+}
 
 interface ParsedRow {
   recipient: string;
@@ -38,6 +42,15 @@ export function BatchImport() {
   const [, setExecuting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<CSVImportResult | null>(null);
+  const [userAddress, setUserAddress] = useState('');
+
+  // Fetch user address for sample CSV
+  useState(() => {
+    api.getAddresses().then(({ addresses }) => {
+      const addr = addresses['ethereum-sepolia'] ?? Object.values(addresses)[0] ?? '';
+      if (addr) setUserAddress(addr);
+    }).catch(() => {});
+  });
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -166,7 +179,7 @@ export function BatchImport() {
   };
 
   const handleDownloadTemplate = () => {
-    const blob = new Blob([SAMPLE_CSV], { type: 'text/csv' });
+    const blob = new Blob([buildSampleCsv(userAddress)], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

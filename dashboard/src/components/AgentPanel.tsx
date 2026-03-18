@@ -1,4 +1,4 @@
-import { Brain, Cpu, Search, Rocket, CheckCircle2, Sparkles, TrendingDown, DollarSign, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Brain, Cpu, Search, Rocket, CheckCircle2, Sparkles, TrendingDown, DollarSign, RefreshCw, AlertTriangle, Inbox, FileText } from 'lucide-react';
 import type { AgentState, FeeComparison, ActivityEvent } from '../types';
 
 interface AgentPanelProps {
@@ -9,13 +9,15 @@ interface AgentPanelProps {
 }
 
 const PIPELINE_STEPS = [
-  { key: 'analyzing', label: 'Analyze Chains', icon: Search },
-  { key: 'reasoning', label: 'AI Reasoning', icon: Brain },
-  { key: 'executing', label: 'Execute Tx', icon: Rocket },
-  { key: 'confirming', label: 'Confirm', icon: CheckCircle2 },
+  { key: 'intake', label: 'Intake', icon: Inbox },
+  { key: 'analyzing', label: 'Analyze', icon: Search },
+  { key: 'reasoning', label: 'Reason', icon: Brain },
+  { key: 'executing', label: 'Execute', icon: Rocket },
+  { key: 'confirming', label: 'Verify', icon: CheckCircle2 },
+  { key: 'reporting', label: 'Report', icon: FileText },
 ] as const;
 
-const STATUS_ORDER = ['analyzing', 'reasoning', 'executing', 'confirming'] as const;
+const STATUS_ORDER = ['intake', 'analyzing', 'reasoning', 'executing', 'confirming', 'reporting'] as const;
 
 function getStepState(
   currentStatus: AgentState['status'],

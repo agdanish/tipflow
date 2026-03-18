@@ -79,6 +79,16 @@ function ActionCard({ action }: { action: NonNullable<ChatMessage['action']> }) 
         <div className="text-text-muted">
           Fee: {String(data.fee)} &middot; Chain: {String(data.chainId).startsWith('ethereum') ? 'Ethereum Sepolia' : 'TON Testnet'}
         </div>
+        {/* AI Decision Reasoning */}
+        {data.decision ? (
+          <div className="mt-2 p-2 rounded-md bg-purple-500/5 border border-purple-500/15">
+            <div className="text-[10px] font-semibold text-purple-400 mb-1">AI Decision</div>
+            <div className="text-[10px] text-text-secondary">{String((data.decision as Record<string, string>).reasoning ?? '')}</div>
+            {(data.decision as Record<string, number>).confidence ? (
+              <div className="text-[10px] text-text-muted mt-1">Confidence: {String((data.decision as Record<string, number>).confidence)}%</div>
+            ) : null}
+          </div>
+        ) : null}
         {!!data.explorerUrl && (
           <a
             href={String(data.explorerUrl)}

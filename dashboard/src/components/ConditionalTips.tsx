@@ -299,9 +299,9 @@ export function ConditionalTips() {
 
       {/* Conditions list */}
       {loading ? (
-        <div className="flex items-center justify-center py-6 text-text-muted text-sm">
-          <Loader2 className="w-4 h-4 animate-spin mr-2" />
-          Loading...
+        <div className="space-y-2">
+          <div className="skeleton h-12 rounded-lg" />
+          <div className="skeleton h-12 rounded-lg" />
         </div>
       ) : conditions.length === 0 ? (
         <div className="text-center py-6 text-text-muted text-sm">

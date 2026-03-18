@@ -68,6 +68,8 @@ async function main(): Promise<void> {
   agent.setLimitsService(limitsService);
   agent.setGoalsService(goalsService);
   agent.setAutonomyService(autonomyService);
+  agent.setOrchestratorService(orchestratorService);
+  agent.setTreasuryService(treasuryService);
 
   // Log Rumble integration
   logger.info(`Rumble integration loaded: ${rumbleService.listCreators().length} creators registered`);
@@ -86,6 +88,11 @@ async function main(): Promise<void> {
   }).catch(() => {
     logger.warn('WDK Indexer API health check failed (non-fatal)');
   });
+
+  // Wire WDK wallet service into bridge and lending for real protocol execution
+  bridgeService.setWalletService(walletService);
+  lendingService.setWalletService(walletService);
+  logger.info('Bridge + Lending services wired to WDK wallet for REAL protocol execution');
 
   // Log new patent-level features
   logger.info(`Reputation engine: ${reputationService.getCreatorCount()} creators tracked`);

@@ -46,17 +46,32 @@ function TabIcon({ id, active }: { id: NavTab; active: boolean }) {
   }
 }
 
-/** Section IDs that correspond to each nav tab */
-const SECTION_MAP: Record<NavTab, string> = {
-  home: 'main-content',
-  history: 'section-history',
-  analytics: 'section-analytics',
-  settings: 'section-settings',
+/** Hash-based tab navigation matching DashboardTabs */
+const TAB_HASH_MAP: Record<NavTab, string> = {
+  home: 'dashboard',
+  history: 'history',
+  analytics: 'analytics',
+  settings: 'settings',
 };
 
+function hashToNavTab(): NavTab {
+  const hash = window.location.hash.replace('#', '');
+  if (hash === 'history') return 'history';
+  if (hash === 'analytics') return 'analytics';
+  if (hash === 'settings') return 'settings';
+  return 'home';
+}
+
 export function MobileNav() {
-  const [active, setActive] = useState<NavTab>('home');
+  const [active, setActive] = useState<NavTab>(hashToNavTab);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Sync with hash changes (from DashboardTabs, CommandPalette, etc.)
+  useEffect(() => {
+    const onHashChange = () => setActive(hashToNavTab());
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
 
   // Only render on mobile
   useEffect(() => {
@@ -71,11 +86,10 @@ export function MobileNav() {
 
   const handleTabClick = (tab: NavTab) => {
     setActive(tab);
-    const sectionId = SECTION_MAP[tab];
-    const el = document.getElementById(sectionId);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    // Use hash-based navigation (same as DashboardTabs)
+    window.location.hash = TAB_HASH_MAP[tab];
+    // Scroll to top of main content
+    document.getElementById('main-content')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   return (

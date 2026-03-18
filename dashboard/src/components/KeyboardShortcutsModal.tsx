@@ -11,7 +11,7 @@ const modKey = isMac ? '\u2318' : 'Ctrl';
 
 const shortcuts = [
   { keys: [`${modKey}`, 'Enter'], description: 'Submit the tip form' },
-  { keys: [`${modKey}`, 'K'], description: 'Focus NLP input field' },
+  { keys: [`${modKey}`, 'K'], description: 'Open command palette' },
   { keys: ['Ctrl', 'B'], description: 'Toggle Single / Batch mode' },
   { keys: ['Ctrl', 'D'], description: 'Toggle dark / light theme' },
   { keys: ['?'], description: 'Show this help' },

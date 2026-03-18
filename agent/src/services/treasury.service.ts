@@ -478,6 +478,97 @@ export class TreasuryService {
     return { ...DEFAULT_CONFIG };
   }
 
+  // ── Auto-Rebalancing Engine ────────────────────────────────────
+
+  /**
+   * Autonomous rebalancing — evaluates whether idle funds should be
+   * deployed to yield, or if the tipping reserve needs replenishing.
+   *
+   * Called periodically by the agent's background scheduler.
+   * Returns actionable rebalancing decisions with reasoning.
+   */
+  async evaluateRebalance(currentBalance: number): Promise<{
+    action: 'deploy_to_yield' | 'withdraw_from_yield' | 'none';
+    amount: number;
+    reason: string;
+    targetProtocol?: string;
+    targetApy?: number;
+  }> {
+    const status = this.getTreasuryStatus(currentBalance);
+    const strategy = this.config.strategy;
+
+    // No strategy configured — skip
+    if (!strategy?.enabled || !strategy.autoRebalance) {
+      return { action: 'none', amount: 0, reason: 'Auto-rebalance disabled or no strategy configured' };
+    }
+
+    // Check if enough time has passed since last rebalance
+    const hoursSinceLastRebalance = (Date.now() - new Date(this.config.lastRebalance).getTime()) / (1000 * 60 * 60);
+    if (hoursSinceLastRebalance < strategy.rebalanceIntervalHours) {
+      return { action: 'none', amount: 0, reason: `Next rebalance in ${Math.ceil(strategy.rebalanceIntervalHours - hoursSinceLastRebalance)}h` };
+    }
+
+    const alloc = this.config.allocation;
+    const targetYieldAmount = currentBalance * (alloc.yieldPercent / 100);
+    const maxYieldAmount = currentBalance * (strategy.maxAllocationPercent / 100);
+    const currentYield = this.config.yieldDeployed;
+
+    // Case 1: Idle funds above threshold — deploy to yield
+    if (status.idleFunds > strategy.minIdleThreshold && currentYield < maxYieldAmount) {
+      const deployAmount = Math.min(
+        status.idleFunds - strategy.minIdleThreshold * 0.5, // Keep 50% of threshold as buffer
+        maxYieldAmount - currentYield,
+        targetYieldAmount - currentYield,
+      );
+
+      if (deployAmount > 0.001) {
+        const yields = await this.getYieldOpportunities();
+        const bestLowRisk = yields.find(y => y.risk === 'low' && y.protocol === strategy.targetProtocol) ?? yields.find(y => y.risk === 'low');
+
+        this.config.yieldDeployed += deployAmount;
+        this.config.lastRebalance = new Date().toISOString();
+        this.save();
+
+        logger.info('Treasury auto-rebalance: deploying idle funds to yield', {
+          amount: deployAmount, protocol: bestLowRisk?.protocol, apy: bestLowRisk?.apy,
+        });
+
+        return {
+          action: 'deploy_to_yield',
+          amount: Math.round(deployAmount * 1e6) / 1e6,
+          reason: `Deploying ${deployAmount.toFixed(4)} idle USDT to ${bestLowRisk?.protocol ?? strategy.targetProtocol} at ${bestLowRisk?.apy ?? 0}% APY`,
+          targetProtocol: bestLowRisk?.protocol ?? strategy.targetProtocol,
+          targetApy: bestLowRisk?.apy,
+        };
+      }
+    }
+
+    // Case 2: Tipping reserve depleted — withdraw from yield
+    const tippingReserveTarget = currentBalance * (alloc.tippingReservePercent / 100);
+    const actualTippingReserve = currentBalance - currentYield - status.gasBuffer;
+
+    if (actualTippingReserve < tippingReserveTarget * 0.3 && currentYield > 0) {
+      // Reserve below 30% of target — critical, withdraw from yield
+      const withdrawAmount = Math.min(currentYield, tippingReserveTarget * 0.5);
+
+      this.config.yieldDeployed = Math.max(0, this.config.yieldDeployed - withdrawAmount);
+      this.config.lastRebalance = new Date().toISOString();
+      this.save();
+
+      logger.info('Treasury auto-rebalance: withdrawing from yield to replenish tipping reserve', {
+        amount: withdrawAmount, reserveLevel: `${((actualTippingReserve / tippingReserveTarget) * 100).toFixed(0)}%`,
+      });
+
+      return {
+        action: 'withdraw_from_yield',
+        amount: Math.round(withdrawAmount * 1e6) / 1e6,
+        reason: `Tipping reserve at ${((actualTippingReserve / tippingReserveTarget) * 100).toFixed(0)}% — withdrawing ${withdrawAmount.toFixed(4)} from yield to replenish`,
+      };
+    }
+
+    return { action: 'none', amount: 0, reason: 'Treasury balanced — no rebalance needed' };
+  }
+
   private save(): void {
     try {
       writeFileSync(TREASURY_FILE, JSON.stringify(this.config, null, 2), 'utf-8');

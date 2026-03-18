@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Star, Trophy, Lightbulb, TrendingUp, Users, ChevronDown, ChevronUp } from 'lucide-react';
+import { Star, Trophy, Lightbulb, TrendingUp, Users, ChevronDown, ChevronUp, Search, X } from 'lucide-react';
 import { api } from '../lib/api';
 
 interface CreatorReputation {
@@ -70,6 +70,9 @@ export function ReputationPanel() {
   const [loading, setLoading] = useState(true);
   const [showRecs, setShowRecs] = useState(true);
   const [expandedAddr, setExpandedAddr] = useState<string | null>(null);
+  const [searchAddr, setSearchAddr] = useState('');
+  const [searchResult, setSearchResult] = useState<CreatorReputation | null>(null);
+  const [searching, setSearching] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -109,6 +112,76 @@ export function ReputationPanel() {
         </h2>
         <span className="text-xs text-text-muted">{total} creators</span>
       </div>
+
+      {/* Creator search */}
+      <div className="flex gap-1.5 mb-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-text-muted" />
+          <input
+            type="text"
+            value={searchAddr}
+            onChange={e => setSearchAddr(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && searchAddr.trim()) {
+                setSearching(true);
+                api.getReputation(searchAddr.trim())
+                  .then(d => setSearchResult(d.reputation))
+                  .catch(() => setSearchResult(null))
+                  .finally(() => setSearching(false));
+              }
+            }}
+            placeholder="Look up creator by address..."
+            className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-surface-2 border border-border text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border transition-colors font-mono"
+          />
+          {searchAddr && (
+            <button onClick={() => { setSearchAddr(''); setSearchResult(null); }} className="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary">
+              <X className="w-3 h-3" />
+            </button>
+          )}
+        </div>
+        <button
+          onClick={() => {
+            if (!searchAddr.trim()) return;
+            setSearching(true);
+            api.getReputation(searchAddr.trim())
+              .then(d => setSearchResult(d.reputation))
+              .catch(() => setSearchResult(null))
+              .finally(() => setSearching(false));
+          }}
+          disabled={searching || !searchAddr.trim()}
+          className="px-2.5 py-1.5 rounded-lg bg-accent/10 text-accent text-xs hover:bg-accent/20 transition-colors disabled:opacity-40 btn-press"
+        >
+          {searching ? '...' : 'Search'}
+        </button>
+      </div>
+
+      {/* Search result card */}
+      {searchResult && (
+        <div className="p-3 rounded-lg border border-yellow-500/20 bg-yellow-500/5 mb-4 animate-fade-in">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <TierBadge tier={searchResult.tier} />
+              <span className="text-xs font-mono text-text-primary">{truncateAddress(searchResult.address)}</span>
+            </div>
+            <span className="text-sm font-bold text-text-primary tabular-nums neon-glow">{searchResult.score}</span>
+          </div>
+          <ScoreBar score={searchResult.score / 10} tier={searchResult.tier} />
+          <div className="grid grid-cols-3 gap-2 mt-2 text-[10px]">
+            <div className="text-center">
+              <div className="font-bold text-text-primary">{searchResult.tipCount}</div>
+              <div className="text-text-muted">Tips</div>
+            </div>
+            <div className="text-center">
+              <div className="font-bold text-text-primary">{searchResult.uniqueTippers}</div>
+              <div className="text-text-muted">Supporters</div>
+            </div>
+            <div className="text-center">
+              <div className="font-bold text-text-primary">{searchResult.totalReceived.toFixed(4)}</div>
+              <div className="text-text-muted">Total</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Leaderboard */}
       {leaderboard.length === 0 ? (

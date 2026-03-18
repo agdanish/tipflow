@@ -264,7 +264,16 @@ export function LendingPanel() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] text-text-muted mb-1">Amount</label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] text-text-muted">Amount</label>
+                      <div className="flex gap-1">
+                        {['0.01', '0.05', '0.1', '1'].map(v => (
+                          <button key={v} type="button" onClick={() => setAmount(v)} className={`px-1.5 py-0.5 rounded text-[9px] border transition-colors btn-press ${
+                            amount === v ? 'border-accent bg-accent/10 text-accent' : 'border-border bg-surface-3 text-text-muted hover:text-text-secondary'
+                          }`}>{v}</button>
+                        ))}
+                      </div>
+                    </div>
                     <input
                       type="number"
                       value={amount}

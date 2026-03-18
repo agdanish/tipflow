@@ -187,7 +187,32 @@ export function StreamingPanel() {
 
       {/* New stream form */}
       {showForm && (
-        <form onSubmit={handleStart} className="mb-4 p-3 rounded-lg bg-surface-2 border border-border space-y-3">
+        <form onSubmit={handleStart} className="mb-4 p-3 rounded-lg bg-surface-2 border border-border space-y-3 animate-slide-down">
+          {/* Preset templates */}
+          <div>
+            <label className="block text-[10px] text-text-muted uppercase tracking-wider mb-1.5">Quick Presets</label>
+            <div className="grid grid-cols-3 gap-1.5">
+              {[
+                { label: 'Micro-tip', amount: '0.001', interval: '30', desc: '$0.001 every 30s' },
+                { label: 'Hourly', amount: '0.01', interval: '3600', desc: '$0.01 per hour' },
+                { label: 'Daily', amount: '0.1', interval: '86400', desc: '$0.10 per day' },
+              ].map(p => (
+                <button
+                  key={p.label}
+                  type="button"
+                  onClick={() => { setAmountPerTick(p.amount); setIntervalSeconds(p.interval); }}
+                  className={`p-2 rounded-lg border text-[10px] text-left transition-all btn-press ${
+                    amountPerTick === p.amount && intervalSeconds === p.interval
+                      ? 'border-accent bg-accent/10 text-accent'
+                      : 'border-border bg-surface-1 text-text-secondary hover:border-border-light'
+                  }`}
+                >
+                  <div className="font-medium">{p.label}</div>
+                  <div className="text-text-muted mt-0.5">{p.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
           <div>
             <label className="block text-[11px] text-text-muted mb-1">Recipient Address</label>
             <input
@@ -250,6 +275,31 @@ export function StreamingPanel() {
               />
             </div>
           </div>
+          {/* Rate preview calculator */}
+          {parseFloat(amountPerTick) > 0 && parseInt(intervalSeconds) > 0 && (
+            <div className="p-2.5 rounded-lg bg-accent/5 border border-accent/15 space-y-1">
+              <p className="text-[10px] font-semibold text-accent uppercase tracking-wider">Stream Rate Preview</p>
+              <div className="grid grid-cols-3 gap-2 text-[10px]">
+                <div className="text-center">
+                  <div className="font-bold text-text-primary tabular-nums">{(parseFloat(amountPerTick) * (3600 / parseInt(intervalSeconds))).toFixed(4)}</div>
+                  <div className="text-text-muted">per hour</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-bold text-text-primary tabular-nums">{(parseFloat(amountPerTick) * (86400 / parseInt(intervalSeconds))).toFixed(4)}</div>
+                  <div className="text-text-muted">per day</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-bold text-text-primary tabular-nums">{(parseFloat(amountPerTick) * (604800 / parseInt(intervalSeconds))).toFixed(2)}</div>
+                  <div className="text-text-muted">per week</div>
+                </div>
+              </div>
+              {maxBudget && parseFloat(maxBudget) > 0 && (
+                <div className="pt-1 border-t border-accent/10 text-[10px] text-text-muted text-center">
+                  Budget lasts ~{Math.floor((parseFloat(maxBudget) / parseFloat(amountPerTick)) * parseInt(intervalSeconds) / 3600)} hours ({Math.floor(parseFloat(maxBudget) / parseFloat(amountPerTick))} ticks)
+                </div>
+              )}
+            </div>
+          )}
           {error && <p className="text-xs text-red-400">{error}</p>}
           <button
             type="submit"
