@@ -188,7 +188,7 @@ export function ActivityFeed() {
         <div className="flex items-center gap-2">
           <Zap className="w-4 h-4 text-accent" />
           <h2 className="text-sm font-semibold text-text-primary">Live Activity Feed</h2>
-          <span className="text-[10px] text-text-muted bg-surface-2 px-1.5 py-0.5 rounded-full">
+          <span className="text-xs text-text-muted bg-surface-2 px-1.5 py-0.5 rounded-full">
             {events.length}
           </span>
         </div>
@@ -198,7 +198,7 @@ export function ActivityFeed() {
               isLive ? 'bg-green-400 animate-pulse' : 'bg-red-400'
             }`}
           />
-          <span className="text-[10px] text-text-muted">
+          <span className="text-xs text-text-muted">
             {isLive ? 'LIVE' : 'RECONNECTING'}
           </span>
         </div>
@@ -243,7 +243,7 @@ export function ActivityFeed() {
                       {event.message}
                     </p>
                     {event.detail && (
-                      <p className="text-[11px] text-text-muted mt-0.5 truncate">
+                      <p className="text-sm text-text-muted mt-0.5 truncate">
                         {event.detail}
                       </p>
                     )}
@@ -251,12 +251,12 @@ export function ActivityFeed() {
 
                   {/* Right side: chain badge + time */}
                   <div className="shrink-0 flex flex-col items-end gap-1">
-                    <span className="text-[10px] text-text-muted whitespace-nowrap">
+                    <span className="text-xs text-text-muted whitespace-nowrap">
                       {relativeTime(event.timestamp)}
                     </span>
                     {chainBadge && (
                       <span
-                        className={`text-[9px] font-medium px-1.5 py-0.5 rounded border ${chainBadge.className}`}
+                        className={`text-xs font-medium px-1.5 py-0.5 rounded border ${chainBadge.className}`}
                       >
                         {chainBadge.label}
                       </span>

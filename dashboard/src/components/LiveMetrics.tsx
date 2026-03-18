@@ -96,7 +96,7 @@ export function LiveMetrics({ health }: LiveMetricsProps) {
               <div className="absolute inset-0 rounded-full bg-green-400 animate-ping opacity-30" />
             )}
           </div>
-          <span className="text-[10px] font-medium text-text-muted uppercase tracking-wider">Live</span>
+          <span className="text-xs font-medium text-text-muted uppercase tracking-wider">Live</span>
         </div>
 
         <div className="w-px h-4 bg-border shrink-0" />
@@ -109,18 +109,18 @@ export function LiveMetrics({ health }: LiveMetricsProps) {
             style={{ animationDelay: `${i * 50}ms` }}
           >
             <span className={`${m.color} opacity-70`}>{m.icon}</span>
-            <span className="text-[10px] text-text-muted hidden sm:inline">{m.label}</span>
+            <span className="text-xs text-text-muted hidden sm:inline">{m.label}</span>
             {m.badge ? (
-              <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold ${m.color} bg-surface-2 border border-border`}>
+              <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-bold ${m.color} bg-surface-2 border border-border`}>
                 {m.value}
               </span>
             ) : m.dot ? (
-              <span className="text-[11px] font-mono font-medium text-text-primary flex items-center gap-1">
+              <span className="text-sm font-mono font-medium text-text-primary flex items-center gap-1">
                 <span className={`w-1.5 h-1.5 rounded-full ${isHealthy ? 'bg-green-400' : 'bg-amber-400'}`} />
                 {m.value}
               </span>
             ) : (
-              <span className="text-[11px] font-mono font-medium text-text-primary">{m.value}</span>
+              <span className="text-sm font-mono font-medium text-text-primary">{m.value}</span>
             )}
 
             {i < metrics.length - 1 && <div className="w-px h-3 bg-border/50 ml-1 shrink-0 hidden sm:block" />}

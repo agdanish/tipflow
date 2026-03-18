@@ -205,7 +205,7 @@ export function SplitTipForm({ onSplitComplete, disabled }: SplitTipFormProps) {
               const pct = parseFloat(r.percentage) || 0;
               const share = totalAmountNum > 0 ? ((totalAmountNum * pct) / 100).toFixed(6) : '0';
               return (
-                <div key={r.id} className="flex items-center gap-1 text-[10px] text-text-muted animate-fade-in">
+                <div key={r.id} className="flex items-center gap-1 text-xs text-text-muted animate-fade-in">
                   <div className={`w-2 h-2 rounded-full ${COLORS[i % COLORS.length]}`} />
                   <span className="font-medium text-text-secondary">{r.name || `#${i + 1}`}</span>
                   <span className="font-mono tabular-nums">{share}</span>
@@ -216,7 +216,7 @@ export function SplitTipForm({ onSplitComplete, disabled }: SplitTipFormProps) {
           </div>
           {/* Summary bar */}
           {totalAmountNum > 0 && pctValid && (
-            <div className="mt-2 flex items-center justify-between px-2.5 py-1.5 rounded-md bg-accent/5 border border-accent-border/20 text-[10px]">
+            <div className="mt-2 flex items-center justify-between px-2.5 py-1.5 rounded-md bg-accent/5 border border-accent-border/20 text-xs">
               <span className="text-text-muted">Split Summary</span>
               <span className="font-medium text-text-primary tabular-nums value-glow-accent">
                 {totalAmountNum} {token === 'usdt' ? 'USDT' : 'Native'} ÷ {recipients.filter(r => r.address.trim()).length} recipients
@@ -250,7 +250,7 @@ export function SplitTipForm({ onSplitComplete, disabled }: SplitTipFormProps) {
                   </div>
                   <div className="flex items-center gap-2">
                     {share && (
-                      <span className="text-[10px] font-mono text-text-muted">
+                      <span className="text-xs font-mono text-text-muted">
                         = {share} {token === 'usdt' ? 'USDT' : ''}
                       </span>
                     )}
@@ -326,7 +326,7 @@ export function SplitTipForm({ onSplitComplete, disabled }: SplitTipFormProps) {
             </p>
             <div className="space-y-1">
               {result.results.map((r, i) => (
-                <div key={i} className="flex items-center gap-2 text-[11px]">
+                <div key={i} className="flex items-center gap-2 text-sm">
                   {r.status === 'success' ? (
                     <CheckCircle2 className="w-3 h-3 text-green-400 shrink-0" />
                   ) : (

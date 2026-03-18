@@ -215,7 +215,7 @@ export function OnboardingOverlay({ onComplete }: OnboardingOverlayProps) {
         </div>
 
         {/* Step indicator */}
-        <div className="absolute top-3 left-4 text-[10px] text-text-muted font-medium tabular-nums">
+        <div className="absolute top-3 left-4 text-xs text-text-muted font-medium tabular-nums">
           Step {step + 1} of {STEPS.length}
         </div>
 
@@ -253,7 +253,7 @@ export function OnboardingOverlay({ onComplete }: OnboardingOverlayProps) {
                 }`}
               />
             ))}
-            <span className="text-[11px] text-text-muted ml-2">
+            <span className="text-sm text-text-muted ml-2">
               {step + 1}/{STEPS.length}
             </span>
           </div>

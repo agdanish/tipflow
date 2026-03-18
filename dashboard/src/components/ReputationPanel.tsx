@@ -57,7 +57,7 @@ function ScoreBar({ score, tier }: { score: number; tier: CreatorReputation['tie
 function TierBadge({ tier }: { tier: CreatorReputation['tier'] }) {
   const config = TIER_CONFIG[tier];
   return (
-    <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded ${config.bg} ${config.color} border ${config.border}`}>
+    <span className={`inline-flex items-center gap-1 text-xs font-semibold px-1.5 py-0.5 rounded ${config.bg} ${config.color} border ${config.border}`}>
       {config.emoji} {tier.charAt(0).toUpperCase() + tier.slice(1)}
     </span>
   );
@@ -166,7 +166,7 @@ export function ReputationPanel() {
             <span className="text-sm font-bold text-text-primary tabular-nums neon-glow">{searchResult.score}</span>
           </div>
           <ScoreBar score={searchResult.score / 10} tier={searchResult.tier} />
-          <div className="grid grid-cols-3 gap-2 mt-2 text-[10px]">
+          <div className="grid grid-cols-3 gap-2 mt-2 text-xs">
             <div className="text-center">
               <div className="font-bold text-text-primary">{searchResult.tipCount}</div>
               <div className="text-text-muted">Tips</div>
@@ -217,7 +217,7 @@ export function ReputationPanel() {
                     </div>
                     <div className="mt-1.5 flex items-center gap-2">
                       <ScoreBar score={creator.score} tier={creator.tier} />
-                      <span className="text-[10px] text-text-muted whitespace-nowrap">{creator.score.toFixed(0)}</span>
+                      <span className="text-xs text-text-muted whitespace-nowrap">{creator.score.toFixed(0)}</span>
                     </div>
                   </div>
 
@@ -229,20 +229,20 @@ export function ReputationPanel() {
                     <div className="grid grid-cols-3 gap-3 text-center">
                       <div>
                         <div className="text-sm font-bold text-text-primary">{creator.tipCount}</div>
-                        <div className="text-[10px] text-text-muted">Tips Received</div>
+                        <div className="text-xs text-text-muted">Tips Received</div>
                       </div>
                       <div>
                         <div className="text-sm font-bold text-text-primary flex items-center justify-center gap-1">
                           <Users className="w-3 h-3" />{creator.uniqueTippers}
                         </div>
-                        <div className="text-[10px] text-text-muted">Unique Tippers</div>
+                        <div className="text-xs text-text-muted">Unique Tippers</div>
                       </div>
                       <div>
                         <div className="text-sm font-bold text-text-primary">{creator.avgTipAmount.toFixed(4)}</div>
-                        <div className="text-[10px] text-text-muted">Avg Amount</div>
+                        <div className="text-xs text-text-muted">Avg Amount</div>
                       </div>
                     </div>
-                    <div className="mt-2 flex items-center justify-between text-[10px] text-text-muted">
+                    <div className="mt-2 flex items-center justify-between text-xs text-text-muted">
                       <span>Total: {creator.totalReceived.toFixed(4)} USDT</span>
                       <span>Raw: {creator.rawScore.toFixed(1)}</span>
                     </div>
@@ -314,10 +314,10 @@ export function ReputationPanel() {
                         )}
                         <TierBadge tier={tierKey} />
                       </div>
-                      <p className="text-[11px] text-text-muted leading-relaxed">{rec.reason}</p>
+                      <p className="text-sm text-text-muted leading-relaxed">{rec.reason}</p>
                       <div className="mt-1.5 flex items-center gap-3">
                         <span className="text-xs font-semibold text-accent">{rec.suggestedAmount} USDT</span>
-                        <div className="flex items-center gap-1.5 text-[10px] text-text-muted">
+                        <div className="flex items-center gap-1.5 text-xs text-text-muted">
                           <TrendingUp className="w-3 h-3" />
                           {confidencePct}% confidence
                           <div className="w-12 h-1.5 rounded-full bg-surface-1 overflow-hidden">

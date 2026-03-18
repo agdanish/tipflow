@@ -105,7 +105,7 @@ export function ConnectionStatus() {
         ) : (
           <span className={`w-2 h-2 rounded-full ${dotColor} ${status === 'connected' ? 'animate-pulse' : ''}`} />
         )}
-        <span className="text-[10px] sm:text-[11px] font-medium text-text-secondary hidden sm:inline">
+        <span className="text-xs sm:text-sm font-medium text-text-secondary hidden sm:inline">
           {label}
         </span>
       </div>
@@ -117,7 +117,7 @@ export function ConnectionStatus() {
             <Wifi className="w-3.5 h-3.5" />
             API Connection
           </div>
-          <div className="text-[11px] text-text-secondary space-y-1">
+          <div className="text-sm text-text-secondary space-y-1">
             <div className="flex justify-between">
               <span>Status:</span>
               <span

@@ -78,17 +78,17 @@ function ConfidenceBreakdown({ confidence, category }: { confidence: number; cat
 
   return (
     <div className="space-y-1.5 mt-2">
-      <p className="text-[9px] font-semibold text-text-muted uppercase tracking-wider">Confidence Breakdown</p>
+      <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">Confidence Breakdown</p>
       {factors.map((f) => (
         <div key={f.label} className="flex items-center gap-2">
-          <span className="text-[10px] text-text-secondary w-24 shrink-0">{f.label}</span>
+          <span className="text-xs text-text-secondary w-24 shrink-0">{f.label}</span>
           <div className="flex-1 h-1 rounded-full bg-surface-3 overflow-hidden">
             <div
               className="h-full rounded-full bg-accent transition-all duration-500"
               style={{ width: `${f.pct}%` }}
             />
           </div>
-          <span className="text-[9px] text-text-muted tabular-nums w-8 text-right">{f.pct}%</span>
+          <span className="text-xs text-text-muted tabular-nums w-8 text-right">{f.pct}%</span>
         </div>
       ))}
     </div>
@@ -187,7 +187,7 @@ export function PredictorPanel() {
                     <div className="flex items-center gap-1.5">
                       <Icon className={`w-3.5 h-3.5 ${color}`} />
                       <span className="text-xs font-medium text-text-primary">{pred.category.replace(/_/g, ' ')}</span>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                      <span className={`text-xs px-1.5 py-0.5 rounded-full ${
                         pred.confidence >= 70 ? 'bg-green-500/10 text-green-400' :
                         pred.confidence >= 50 ? 'bg-yellow-500/10 text-yellow-400' :
                         'bg-red-500/10 text-red-400'
@@ -202,8 +202,8 @@ export function PredictorPanel() {
                       </button>
                     </div>
                   </div>
-                  <p className="text-[11px] text-text-secondary mb-1">{pred.reason}</p>
-                  <div className="flex items-center gap-2 text-[10px] text-text-secondary">
+                  <p className="text-sm text-text-secondary mb-1">{pred.reason}</p>
+                  <div className="flex items-center gap-2 text-xs text-text-secondary">
                     <span className="tabular-nums">{pred.amount} USDT</span>
                     <span>&rarr; {pred.recipient.slice(0, 8)}...{pred.recipient.slice(-4)}</span>
                     <span className="ml-auto">{pred.chainId}</span>
@@ -212,7 +212,7 @@ export function PredictorPanel() {
                   {/* Expand toggle */}
                   <button
                     onClick={() => setExpandedId(isExpanded ? null : pred.id)}
-                    className="mt-2 w-full flex items-center justify-center gap-1 text-[10px] text-text-muted hover:text-text-secondary transition-colors"
+                    className="mt-2 w-full flex items-center justify-center gap-1 text-xs text-text-muted hover:text-text-secondary transition-colors"
                   >
                     <Brain className="w-3 h-3" />
                     {isExpanded ? 'Hide Reasoning' : 'Show Reasoning'}
@@ -227,22 +227,22 @@ export function PredictorPanel() {
                     <div className="flex items-start gap-2">
                       <Target className={`w-4 h-4 ${color} shrink-0 mt-0.5`} />
                       <div>
-                        <p className="text-[11px] font-semibold text-text-primary">{explanation.label}</p>
-                        <p className="text-[10px] text-text-muted mt-0.5">{explanation.basis}</p>
+                        <p className="text-sm font-semibold text-text-primary">{explanation.label}</p>
+                        <p className="text-xs text-text-muted mt-0.5">{explanation.basis}</p>
                       </div>
                     </div>
 
                     {/* How the prediction was made */}
                     <div className="p-2.5 rounded-lg bg-surface-2 border border-border">
-                      <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-1">How This Was Generated</p>
-                      <p className="text-[10px] text-text-secondary leading-relaxed">{explanation.description}</p>
+                      <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">How This Was Generated</p>
+                      <p className="text-xs text-text-secondary leading-relaxed">{explanation.description}</p>
                     </div>
 
                     {/* Confidence breakdown */}
                     <ConfidenceBreakdown confidence={pred.confidence} category={pred.category} />
 
                     {/* Prediction metadata */}
-                    <div className="grid grid-cols-3 gap-2 text-[10px]">
+                    <div className="grid grid-cols-3 gap-2 text-xs">
                       <div className="p-2 rounded bg-surface-2 border border-border text-center">
                         <p className="text-text-muted">Category</p>
                         <p className={`font-medium ${color}`}>{pred.category.replace(/_/g, ' ')}</p>

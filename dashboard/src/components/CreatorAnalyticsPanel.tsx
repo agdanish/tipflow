@@ -90,7 +90,7 @@ export function CreatorAnalyticsPanel() {
       {/* Platform overview */}
       {platform && (
         <div className="space-y-3">
-          <p className="text-[10px] text-text-muted uppercase tracking-wider font-medium">Platform Overview</p>
+          <p className="text-xs text-text-muted uppercase tracking-wider font-medium">Platform Overview</p>
           <div className="grid grid-cols-4 gap-2">
             {[
               { label: 'Tips', value: platform.totalTipsProcessed, icon: Layers },
@@ -101,7 +101,7 @@ export function CreatorAnalyticsPanel() {
               <div key={s.label} className="text-center p-2 rounded-lg bg-surface-2 animate-list-item-in" style={{ animationDelay: `${i * 50}ms` }}>
                 <s.icon className="w-3 h-3 mx-auto mb-1 text-emerald-400" />
                 <div className="text-xs font-bold text-text-primary">{s.value}</div>
-                <div className="text-[10px] text-text-muted">{s.label}</div>
+                <div className="text-xs text-text-muted">{s.label}</div>
               </div>
             ))}
           </div>
@@ -109,7 +109,7 @@ export function CreatorAnalyticsPanel() {
           {/* Chain distribution */}
           {platform.chainDistribution.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-[10px] text-text-muted">Chain Distribution</p>
+              <p className="text-xs text-text-muted">Chain Distribution</p>
               {platform.chainDistribution.map((c) => (
                 <div key={c.chainId} className="flex items-center gap-2 text-xs">
                   <span className="w-16 text-text-secondary truncate">{chainLabels[c.chainId] ?? c.chainId}</span>
@@ -125,7 +125,7 @@ export function CreatorAnalyticsPanel() {
           {/* Token distribution */}
           {platform.tokenDistribution.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-[10px] text-text-muted">Token Distribution</p>
+              <p className="text-xs text-text-muted">Token Distribution</p>
               {platform.tokenDistribution.map((t) => (
                 <div key={t.token} className="flex items-center gap-2 text-xs">
                   <span className="w-16 text-text-secondary uppercase">{t.token}</span>
@@ -138,7 +138,7 @@ export function CreatorAnalyticsPanel() {
             </div>
           )}
 
-          <div className="flex gap-3 text-[10px] text-text-muted">
+          <div className="flex gap-3 text-xs text-text-muted">
             <span>Avg tip: ${platform.avgTipSize.toFixed(4)}</span>
             <span>Median: ${platform.medianTipSize.toFixed(4)}</span>
             <span>Peak hour: {platform.peakHour}:00</span>
@@ -148,7 +148,7 @@ export function CreatorAnalyticsPanel() {
 
       {/* Creator Lookup */}
       <div className="space-y-2">
-        <p className="text-[10px] text-text-muted uppercase tracking-wider font-medium">Creator Lookup</p>
+        <p className="text-xs text-text-muted uppercase tracking-wider font-medium">Creator Lookup</p>
         <div className="flex gap-2">
           <input
             value={creatorAddress}
@@ -166,7 +166,7 @@ export function CreatorAnalyticsPanel() {
           <div className="p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 space-y-3 animate-fade-in-up">
             <div className="flex justify-between items-center">
               <span className="font-mono text-xs text-text-secondary">{creator.creatorAddress.slice(0, 10)}...{creator.creatorAddress.slice(-6)}</span>
-              <div className="flex gap-2 text-[10px]">
+              <div className="flex gap-2 text-xs">
                 <span className={`flex items-center gap-0.5 ${creator.weeklyTrend >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                   {creator.weeklyTrend >= 0 ? <TrendingUp className="w-2.5 h-2.5" /> : <TrendingDown className="w-2.5 h-2.5" />}
                   {creator.weeklyTrend > 0 ? '+' : ''}{creator.weeklyTrend.toFixed(0)}% wk
@@ -185,7 +185,7 @@ export function CreatorAnalyticsPanel() {
               ].map((s) => (
                 <div key={s.label} className="text-center p-1.5 rounded bg-surface-2">
                   <div className="text-xs font-bold text-text-primary">{s.value}</div>
-                  <div className="text-[10px] text-text-muted">{s.label}</div>
+                  <div className="text-xs text-text-muted">{s.label}</div>
                 </div>
               ))}
             </div>
@@ -193,7 +193,7 @@ export function CreatorAnalyticsPanel() {
             {/* Top supporters */}
             {creator.topSupporters.length > 0 && (
               <div className="space-y-1">
-                <p className="text-[10px] text-text-muted">Top Supporters</p>
+                <p className="text-xs text-text-muted">Top Supporters</p>
                 {creator.topSupporters.slice(0, 3).map((s, i) => (
                   <div key={s.address} className="flex items-center gap-2 text-xs">
                     <span className="w-4 text-text-muted">{['🥇','🥈','🥉'][i]}</span>
@@ -208,7 +208,7 @@ export function CreatorAnalyticsPanel() {
             {/* Daily income sparkline */}
             {creator.dailyIncome.length > 0 && (
               <div className="space-y-1">
-                <p className="text-[10px] text-text-muted">Daily Income (last {creator.dailyIncome.length} days)</p>
+                <p className="text-xs text-text-muted">Daily Income (last {creator.dailyIncome.length} days)</p>
                 <div className="flex items-end gap-px h-8">
                   {(() => {
                     const max = Math.max(...creator.dailyIncome.map((d) => d.amount), 0.001);

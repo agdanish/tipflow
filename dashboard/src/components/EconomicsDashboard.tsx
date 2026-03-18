@@ -100,7 +100,7 @@ export function EconomicsDashboard() {
           <DollarSign className="w-4 h-4 text-accent" />
           Economic Intelligence
         </h2>
-        <span className="text-[10px] text-text-muted">Agent-optimized</span>
+        <span className="text-xs text-text-muted">Agent-optimized</span>
       </div>
 
       {/* Key economic metrics */}
@@ -110,7 +110,7 @@ export function EconomicsDashboard() {
           <div className="text-sm font-bold text-green-400 tabular-nums neon-glow">
             ${animatedSaved.toFixed(4)}
           </div>
-          <div className="text-[9px] text-text-muted">Fees Saved</div>
+          <div className="text-xs text-text-muted">Fees Saved</div>
         </div>
 
         <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/15 text-center">
@@ -118,7 +118,7 @@ export function EconomicsDashboard() {
           <div className="text-sm font-bold text-blue-400 tabular-nums">
             {animatedEfficiency.toFixed(1)}x
           </div>
-          <div className="text-[9px] text-text-muted">Gas Efficiency</div>
+          <div className="text-xs text-text-muted">Gas Efficiency</div>
         </div>
 
         <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/15 text-center">
@@ -126,7 +126,7 @@ export function EconomicsDashboard() {
           <div className="text-sm font-bold text-purple-400 tabular-nums">
             ${data.avgCostPerTip.toFixed(6)}
           </div>
-          <div className="text-[9px] text-text-muted">Avg Cost/Tip</div>
+          <div className="text-xs text-text-muted">Avg Cost/Tip</div>
         </div>
 
         <div className="p-3 rounded-lg bg-accent/5 border border-accent/15 text-center">
@@ -134,7 +134,7 @@ export function EconomicsDashboard() {
           <div className="text-sm font-bold text-accent tabular-nums">
             {data.successRate}%
           </div>
-          <div className="text-[9px] text-text-muted">Success Rate</div>
+          <div className="text-xs text-text-muted">Success Rate</div>
         </div>
       </div>
 
@@ -143,7 +143,7 @@ export function EconomicsDashboard() {
         <div className="flex items-center gap-3 p-3 rounded-lg bg-surface-2/50 border border-border mb-3">
           <BarChart3 className="w-4 h-4 text-text-muted shrink-0" />
           <div className="flex-1">
-            <p className="text-[10px] text-text-muted mb-1">Tipping Activity (7 days)</p>
+            <p className="text-xs text-text-muted mb-1">Tipping Activity (7 days)</p>
             <Sparkline
               data={feeHistory}
               width={200}
@@ -155,13 +155,13 @@ export function EconomicsDashboard() {
           </div>
           <div className="text-right shrink-0">
             <div className="text-xs font-bold text-text-primary tabular-nums">{data.tipCount}</div>
-            <div className="text-[9px] text-text-muted">total tips</div>
+            <div className="text-xs text-text-muted">total tips</div>
           </div>
         </div>
       )}
 
       {/* Economic summary */}
-      <div className="space-y-1.5 text-[11px]">
+      <div className="space-y-1.5 text-sm">
         <div className="flex items-center justify-between p-2 rounded bg-surface-2/30">
           <span className="text-text-muted flex items-center gap-1.5">
             <PieChart className="w-3 h-3" /> Total Tipped

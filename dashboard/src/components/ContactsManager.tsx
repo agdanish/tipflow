@@ -233,7 +233,7 @@ export function ContactsManager() {
           <div className="flex flex-wrap gap-1.5">
             <button
               onClick={() => setActiveGroup(null)}
-              className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
+              className={`px-2.5 py-1 rounded-full text-sm font-medium transition-colors ${
                 activeGroup === null
                   ? 'bg-accent text-white'
                   : 'bg-surface-2 text-text-secondary hover:text-text-primary border border-border'
@@ -245,7 +245,7 @@ export function ContactsManager() {
               <button
                 key={g}
                 onClick={() => setActiveGroup(activeGroup === g ? null : g)}
-                className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors ${
+                className={`px-2.5 py-1 rounded-full text-sm font-medium transition-colors ${
                   activeGroup === g
                     ? 'bg-accent text-white'
                     : 'bg-surface-2 text-text-secondary hover:text-text-primary border border-border'
@@ -341,13 +341,13 @@ export function ContactsManager() {
                   {importData.length > 0 && (
                     <div className="max-h-32 overflow-y-auto space-y-1">
                       {importData.slice(0, 10).map((c, i) => (
-                        <div key={i} className="text-[11px] text-text-secondary flex gap-2">
+                        <div key={i} className="text-sm text-text-secondary flex gap-2">
                           <span className="font-medium text-text-primary">{c.name}</span>
                           <span className="font-mono text-text-muted">{truncateAddress(c.address || '')}</span>
                           {c.group && <span className="text-cyan-400">{c.group}</span>}
                         </div>
                       ))}
-                      {importData.length > 10 && <p className="text-[11px] text-text-muted">...and {importData.length - 10} more</p>}
+                      {importData.length > 10 && <p className="text-sm text-text-muted">...and {importData.length - 10} more</p>}
                     </div>
                   )}
                   <button
@@ -418,23 +418,23 @@ export function ContactsManager() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-sm font-medium text-text-primary">{contact.name}</span>
                           {contact.group && (
-                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[10px] font-medium text-cyan-400">
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-medium text-cyan-400">
                               <Tag className="w-2.5 h-2.5" />
                               {contact.group}
                             </span>
                           )}
                           {contact.lastTipped && (Date.now() - new Date(contact.lastTipped).getTime()) < 86400000 && (
-                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] font-medium text-green-400 animate-fade-in">
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-xs font-medium text-green-400 animate-fade-in">
                               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
                               Recent
                             </span>
                           )}
                           {contact.tipCount > 0 && (
-                            <span className="text-[10px] text-text-muted tabular-nums">{contact.tipCount} tips</span>
+                            <span className="text-xs text-text-muted tabular-nums">{contact.tipCount} tips</span>
                           )}
                         </div>
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="font-mono text-[11px] text-text-muted">{truncateAddress(contact.address)}</span>
+                          <span className="font-mono text-sm text-text-muted">{truncateAddress(contact.address)}</span>
                           <button
                             onClick={() => copyAddress(contact.id, contact.address)}
                             className="p-0.5 text-text-muted hover:text-text-primary transition-colors"

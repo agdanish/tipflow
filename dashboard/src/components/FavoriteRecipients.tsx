@@ -170,7 +170,7 @@ export function FavoriteRecipients({ history, onQuickTip }: FavoriteRecipientsPr
             </button>
 
             {/* Avatar */}
-            <div className="w-7 h-7 rounded-full bg-accent/15 text-accent flex items-center justify-center text-[10px] font-bold shrink-0">
+            <div className="w-7 h-7 rounded-full bg-accent/15 text-accent flex items-center justify-center text-xs font-bold shrink-0">
               {fav.name ? fav.name.charAt(0).toUpperCase() : fav.address.slice(2, 4).toUpperCase()}
             </div>
 
@@ -179,10 +179,10 @@ export function FavoriteRecipients({ history, onQuickTip }: FavoriteRecipientsPr
               {fav.name && (
                 <p className="text-xs font-medium text-text-primary truncate">{fav.name}</p>
               )}
-              <p className="text-[10px] font-mono text-text-muted truncate">{formatAddress(fav.address)}</p>
+              <p className="text-xs font-mono text-text-muted truncate">{formatAddress(fav.address)}</p>
               <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-[10px] text-text-muted">{fav.tipCount} tips</span>
-                <span className="text-[10px] text-text-muted flex items-center gap-0.5">
+                <span className="text-xs text-text-muted">{fav.tipCount} tips</span>
+                <span className="text-xs text-text-muted flex items-center gap-0.5">
                   <Clock className="w-2.5 h-2.5" />
                   {formatTime(fav.lastTipped)}
                 </span>
@@ -192,7 +192,7 @@ export function FavoriteRecipients({ history, onQuickTip }: FavoriteRecipientsPr
             {/* Quick tip */}
             <button
               onClick={() => onQuickTip(fav.address)}
-              className="shrink-0 px-2.5 py-1.5 rounded-md bg-accent/10 border border-accent-border text-accent text-[11px] font-medium hover:bg-accent/20 transition-colors flex items-center gap-1"
+              className="shrink-0 px-2.5 py-1.5 rounded-md bg-accent/10 border border-accent-border text-accent text-sm font-medium hover:bg-accent/20 transition-colors flex items-center gap-1"
               title="Quick tip"
             >
               <Send className="w-3 h-3" />

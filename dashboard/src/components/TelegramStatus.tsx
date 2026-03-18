@@ -88,8 +88,8 @@ export function TelegramStatus() {
         </div>
       ) : (
         <div className="text-xs text-text-muted space-y-1.5">
-          <p>Set <code className="px-1 py-0.5 rounded bg-surface-2 text-text-secondary font-mono text-[10px]">TELEGRAM_BOT_TOKEN</code> to enable.</p>
-          <p className="text-[11px]">
+          <p>Set <code className="px-1 py-0.5 rounded bg-surface-2 text-text-secondary font-mono text-xs">TELEGRAM_BOT_TOKEN</code> to enable.</p>
+          <p className="text-sm">
             Create a bot via{' '}
             <a
               href="https://t.me/BotFather"

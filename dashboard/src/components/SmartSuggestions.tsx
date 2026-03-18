@@ -151,7 +151,7 @@ export function SmartSuggestions({ onNavigate, tipCount }: SmartSuggestionsProps
           <Lightbulb className="w-4 h-4 text-amber-400" />
           Smart Suggestions
         </h2>
-        <span className="text-[10px] text-text-muted">AI-powered</span>
+        <span className="text-xs text-text-muted">AI-powered</span>
       </div>
 
       <div className="space-y-2">
@@ -166,11 +166,11 @@ export function SmartSuggestions({ onNavigate, tipCount }: SmartSuggestionsProps
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-medium text-text-primary">{suggestion.title}</p>
-              <p className="text-[11px] text-text-muted mt-0.5 leading-relaxed">{suggestion.description}</p>
+              <p className="text-sm text-text-muted mt-0.5 leading-relaxed">{suggestion.description}</p>
               {suggestion.action && (
                 <button
                   onClick={suggestion.action.onClick}
-                  className="mt-1.5 inline-flex items-center gap-1 text-[11px] font-medium text-accent hover:text-accent-light transition-colors btn-press"
+                  className="mt-1.5 inline-flex items-center gap-1 text-sm font-medium text-accent hover:text-accent-light transition-colors btn-press"
                 >
                   {suggestion.action.label}
                   <ArrowRight className="w-3 h-3" />

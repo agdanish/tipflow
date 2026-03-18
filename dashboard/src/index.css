@@ -1,22 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  --color-surface: #0a0b0f;
-  --color-surface-1: #12131a;
-  --color-surface-2: #1a1b24;
-  --color-surface-3: #22232e;
-  --color-border: #2a2b38;
-  --color-border-light: #363748;
-  --color-text-primary: #f0f0f5;
-  --color-text-secondary: #8a8b9e;
-  --color-text-muted: #5c5d72;
-  --color-accent: #22c55e;
-  --color-accent-light: #4ade80;
-  --color-accent-dim: rgba(34, 197, 94, 0.1);
-  --color-accent-border: rgba(34, 197, 94, 0.3);
+  /* Surfaces — proper dark mode elevation */
+  --color-surface: #09090b;
+  --color-surface-1: #18181b;
+  --color-surface-2: #27272a;
+  --color-surface-3: #3f3f46;
+
+  /* Borders — visible but not harsh */
+  --color-border: #3f3f46;
+  --color-border-light: #52525b;
+
+  /* Text — high contrast */
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+
+  /* Brand accent — emerald */
+  --color-accent: #10b981;
+  --color-accent-light: #34d399;
+  --color-accent-dim: rgba(16, 185, 129, 0.1);
+  --color-accent-border: rgba(16, 185, 129, 0.3);
+
+  /* Semantic */
   --color-warning: #f59e0b;
   --color-error: #ef4444;
   --color-info: #3b82f6;
+
+  /* Chain colors */
   --color-eth: #627eea;
   --color-ton: #0098ea;
 }
@@ -140,17 +151,15 @@ h1, h2, h3, h4,
 
 /* Light theme overrides */
 html.light {
-  --color-surface: #f8fafc;
+  --color-surface: #f4f4f5;
   --color-surface-1: #ffffff;
-  --color-surface-2: #f1f5f9;
-  --color-surface-3: #e2e8f0;
-  --color-border: #e2e8f0;
-  --color-border-light: #cbd5e1;
-  --color-text-primary: #0f172a;
-  --color-text-secondary: #475569;
-  --color-text-muted: #94a3b8;
-  --color-accent-dim: rgba(34, 197, 94, 0.08);
-  --color-accent-border: rgba(34, 197, 94, 0.25);
+  --color-surface-2: #f4f4f5;
+  --color-surface-3: #e4e4e7;
+  --color-border: #e4e4e7;
+  --color-border-light: #d4d4d8;
+  --color-text-primary: #18181b;
+  --color-text-secondary: #52525b;
+  --color-text-muted: #71717a;
 }
 
 html.light .header-gradient {
@@ -223,16 +232,14 @@ html.light .animate-shimmer {
 
 /* Global glassmorphism uplift — all panel cards get subtle glass effect */
 .rounded-xl.border.border-border.bg-surface-1 {
-  background: rgba(18, 19, 26, 0.92);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  background: var(--color-surface-1);
+  border-color: var(--color-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 html.light .rounded-xl.border.border-border.bg-surface-1 {
-  background: rgba(255, 255, 255, 0.65);
-  border-color: rgba(0, 0, 0, 0.08);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  background: #ffffff;
+  border-color: #e4e4e7;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 /* Prevent horizontal overflow on mobile */
@@ -1043,33 +1050,29 @@ html.light .aurora-blob-3 {
 
 /* Glassmorphism card */
 .glass-card {
-  background: rgba(18, 19, 26, 0.88);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 html.light .glass-card {
-  background: rgba(255, 255, 255, 0.6);
-  border-color: rgba(0, 0, 0, 0.08);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  background: #ffffff;
+  border-color: #e4e4e7;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 /* Glassmorphism elevated (header, primary panels) */
 .glass-elevated {
-  background: rgba(18, 19, 26, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  background: var(--color-surface-1);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 html.light .glass-elevated {
-  background: rgba(255, 255, 255, 0.75);
-  border-color: rgba(0, 0, 0, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  background: #ffffff;
+  border-color: #e4e4e7;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 /* Gradient border accent — wrap element in this parent */

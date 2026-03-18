@@ -118,7 +118,7 @@ export function TipLinkCreator() {
           <Link2 className="w-4 h-4 text-cyan-400" />
           Tip Links
           {tipLinks.length > 0 && (
-            <span className="ml-1 px-1.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/20 text-[10px] font-medium text-cyan-400">
+            <span className="ml-1 px-1.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/20 text-xs font-medium text-cyan-400">
               {tipLinks.length}
             </span>
           )}
@@ -241,7 +241,7 @@ export function TipLinkCreator() {
                         </span>
                       </div>
                       {link.message && (
-                        <p className="text-[11px] text-text-muted mt-0.5 truncate">
+                        <p className="text-sm text-text-muted mt-0.5 truncate">
                           &ldquo;{link.message}&rdquo;
                         </p>
                       )}
@@ -257,7 +257,7 @@ export function TipLinkCreator() {
 
                   {/* Link URL */}
                   <div className="flex items-center gap-1.5">
-                    <div className="flex-1 min-w-0 px-2.5 py-1.5 rounded-md bg-surface-3 border border-border text-[11px] font-mono text-text-secondary truncate">
+                    <div className="flex-1 min-w-0 px-2.5 py-1.5 rounded-md bg-surface-3 border border-border text-sm font-mono text-text-secondary truncate">
                       {getFullUrl(link)}
                     </div>
                     <button
@@ -281,28 +281,28 @@ export function TipLinkCreator() {
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <button
                       onClick={() => handleCopy(link)}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-surface-3 border border-border text-[10px] font-medium text-text-secondary hover:text-text-primary hover:border-border-light transition-colors"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-surface-3 border border-border text-xs font-medium text-text-secondary hover:text-text-primary hover:border-border-light transition-colors"
                     >
                       <Copy className="w-3 h-3" />
                       Copy
                     </button>
                     <button
                       onClick={() => handleShareTwitter(link)}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-surface-3 border border-border text-[10px] font-medium text-text-secondary hover:text-[#1DA1F2] hover:border-[#1DA1F2]/30 transition-colors"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-surface-3 border border-border text-xs font-medium text-text-secondary hover:text-[#1DA1F2] hover:border-[#1DA1F2]/30 transition-colors"
                     >
                       <ExternalLink className="w-3 h-3" />
                       X / Twitter
                     </button>
                     <button
                       onClick={() => handleShareWhatsApp(link)}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-surface-3 border border-border text-[10px] font-medium text-text-secondary hover:text-green-400 hover:border-green-500/30 transition-colors"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-surface-3 border border-border text-xs font-medium text-text-secondary hover:text-green-400 hover:border-green-500/30 transition-colors"
                     >
                       <Share2 className="w-3 h-3" />
                       WhatsApp
                     </button>
                     <button
                       onClick={() => setShowQR(showQR === link.id ? null : link.id)}
-                      className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-surface-3 border border-border text-[10px] font-medium text-text-secondary hover:text-purple-400 hover:border-purple-500/30 transition-colors"
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-surface-3 border border-border text-xs font-medium text-text-secondary hover:text-purple-400 hover:border-purple-500/30 transition-colors"
                     >
                       <QrCode className="w-3 h-3" />
                       QR
@@ -320,7 +320,7 @@ export function TipLinkCreator() {
                       />
                       <button
                         onClick={() => setShowQR(null)}
-                        className="text-[10px] text-gray-500 hover:text-gray-700 flex items-center gap-1"
+                        className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
                       >
                         <X className="w-3 h-3" />
                         Close
@@ -328,7 +328,7 @@ export function TipLinkCreator() {
                     </div>
                   )}
 
-                  <div className="text-[10px] text-text-muted">
+                  <div className="text-xs text-text-muted">
                     Created {new Date(link.createdAt).toLocaleString()}
                     {link.chainId && ` on ${link.chainId}`}
                   </div>

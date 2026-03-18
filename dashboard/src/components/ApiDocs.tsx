@@ -82,14 +82,14 @@ function SchemaView({ schema, spec, depth = 0 }: { schema: SchemaObj; spec: Reco
           return (
             <div key={key} className="py-0.5">
               <span className="font-mono text-xs text-accent">{key}</span>
-              {req.has(key) && <span className="text-red-400 text-[10px] ml-1">*</span>}
-              <span className="text-text-muted text-[10px] ml-1.5">
+              {req.has(key) && <span className="text-red-400 text-xs ml-1">*</span>}
+              <span className="text-text-muted text-xs ml-1.5">
                 {innerResolved?.type ?? 'object'}
                 {innerResolved?.enum && ` [${innerResolved.enum.join(' | ')}]`}
                 {innerResolved?.format && ` (${innerResolved.format})`}
               </span>
               {(innerResolved?.description || val.description) && (
-                <span className="text-text-muted text-[10px] ml-2">
+                <span className="text-text-muted text-xs ml-2">
                   &mdash; {innerResolved?.description ?? val.description}
                 </span>
               )}
@@ -98,7 +98,7 @@ function SchemaView({ schema, spec, depth = 0 }: { schema: SchemaObj; spec: Reco
               )}
               {innerResolved?.type === 'array' && innerResolved.items && (
                 <div className="ml-3 pl-3 border-l border-border">
-                  <span className="text-text-muted text-[10px]">items:</span>
+                  <span className="text-text-muted text-xs">items:</span>
                   <SchemaView schema={innerResolved.items} spec={spec} depth={depth + 1} />
                 </div>
               )}
@@ -112,7 +112,7 @@ function SchemaView({ schema, spec, depth = 0 }: { schema: SchemaObj; spec: Reco
   if (resolved.type === 'array' && resolved.items) {
     return (
       <div className={`${depth > 0 ? 'ml-3 pl-3 border-l border-border' : ''}`}>
-        <span className="text-text-muted text-[10px]">array of:</span>
+        <span className="text-text-muted text-xs">array of:</span>
         <SchemaView schema={resolved.items} spec={spec} depth={depth + 1} />
       </div>
     );
@@ -148,14 +148,14 @@ function EndpointRow({ ep, spec }: { ep: EndpointInfo; spec: Record<string, unkn
           <ChevronRight className="w-3.5 h-3.5 text-text-muted shrink-0" />
         )}
         <span
-          className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase border shrink-0 ${
+          className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-bold uppercase border shrink-0 ${
             METHOD_COLORS[ep.method] ?? 'bg-surface-2 text-text-secondary border-border'
           }`}
         >
           {ep.method}
         </span>
         <span className="font-mono text-xs text-text-primary truncate">{ep.path}</span>
-        <span className="text-[11px] text-text-muted ml-auto truncate max-w-[45%] text-right hidden sm:inline">
+        <span className="text-sm text-text-muted ml-auto truncate max-w-[45%] text-right hidden sm:inline">
           {ep.summary}
         </span>
       </button>
@@ -168,14 +168,14 @@ function EndpointRow({ ep, spec }: { ep: EndpointInfo; spec: Record<string, unkn
 
           {ep.parameters && ep.parameters.length > 0 && (
             <div>
-              <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-1">Parameters</h4>
+              <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">Parameters</h4>
               <div className="space-y-0.5">
                 {ep.parameters.map((p) => (
                   <div key={p.name} className="flex items-center gap-2 text-xs">
                     <span className="font-mono text-accent">{p.name}</span>
-                    <span className="text-text-muted text-[10px]">({p.in})</span>
-                    {p.required && <span className="text-red-400 text-[10px]">required</span>}
-                    {p.schema?.type && <span className="text-text-muted text-[10px]">{p.schema.type}</span>}
+                    <span className="text-text-muted text-xs">({p.in})</span>
+                    {p.required && <span className="text-red-400 text-xs">required</span>}
+                    {p.schema?.type && <span className="text-text-muted text-xs">{p.schema.type}</span>}
                   </div>
                 ))}
               </div>
@@ -184,14 +184,14 @@ function EndpointRow({ ep, spec }: { ep: EndpointInfo; spec: Record<string, unkn
 
           {reqSchema && (
             <div>
-              <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-1">Request Body</h4>
+              <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">Request Body</h4>
               <SchemaView schema={reqSchema} spec={spec} />
             </div>
           )}
 
           {firstResp && (
             <div>
-              <h4 className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-1">
+              <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">
                 Response {firstResp[0]}
                 {firstResp[1].description && (
                   <span className="font-normal ml-1">&mdash; {firstResp[1].description}</span>
@@ -309,7 +309,7 @@ export function ApiDocs() {
         </div>
         <h3 className="text-sm font-medium text-text-secondary">API Documentation</h3>
         {totalEndpoints > 0 && (
-          <span className="text-[10px] text-text-muted ml-1">({totalEndpoints} endpoints)</span>
+          <span className="text-xs text-text-muted ml-1">({totalEndpoints} endpoints)</span>
         )}
         <span className="ml-auto">
           {collapsed ? (
@@ -329,7 +329,7 @@ export function ApiDocs() {
           {spec && (
             <>
               {/* Info line */}
-              <p className="text-[11px] text-text-muted">
+              <p className="text-sm text-text-muted">
                 {(spec.info as Record<string, unknown>)?.title as string ?? 'API'}{' '}
                 v{(spec.info as Record<string, unknown>)?.version as string ?? '?'} &mdash;{' '}
                 {(spec.info as Record<string, unknown>)?.description as string ?? ''}
@@ -360,7 +360,7 @@ export function ApiDocs() {
                       <ChevronRight className="w-3 h-3" />
                     )}
                     {tag}
-                    <span className="text-text-muted font-normal text-[10px]">({endpoints.length})</span>
+                    <span className="text-text-muted font-normal text-xs">({endpoints.length})</span>
                   </button>
                   {openTags.has(tag) && (
                     <div className="ml-1">

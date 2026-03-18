@@ -166,7 +166,7 @@ export function QRReceive() {
             />
             {/* Chain badge overlay */}
             <div
-              className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow-lg"
+              className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full text-xs font-bold text-white shadow-lg"
               style={{
                 backgroundColor: chainColor(active.chainId),
                 boxShadow: `0 2px 8px ${chainColor(active.chainId)}55`,
@@ -178,7 +178,7 @@ export function QRReceive() {
 
           {/* Address display */}
           <div className="w-full mt-2">
-            <p className="text-[10px] text-text-muted uppercase tracking-wider text-center mb-1.5">
+            <p className="text-xs text-text-muted uppercase tracking-wider text-center mb-1.5">
               {active.chainName} Address
             </p>
             <div className="flex items-center gap-2 p-2.5 rounded-lg bg-surface-2 border border-border">

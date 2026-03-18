@@ -42,7 +42,7 @@ export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, o
           </div>
           <div>
             <h1 className="text-base sm:text-lg font-bold leading-none tracking-tight gradient-text-animated">{t('app.title')}</h1>
-            <p className="text-[10px] sm:text-[11px] text-text-muted mt-0.5 hidden xs:block">{t('app.subtitle')}</p>
+            <p className="text-xs sm:text-sm text-text-muted mt-0.5 hidden xs:block">{t('app.subtitle')}</p>
           </div>
         </div>
 
@@ -50,7 +50,7 @@ export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, o
           {health && (
             <>
               <div className="hidden sm:flex items-center gap-2 text-xs text-text-secondary">
-                <span className={`px-2.5 py-1 rounded-full border text-[11px] font-medium ${
+                <span className={`px-2.5 py-1 rounded-full border text-sm font-medium ${
                   health.ai === 'llm'
                     ? 'bg-purple-500/10 border-purple-500/20 text-purple-400'
                     : 'bg-surface-3 border-border text-text-secondary'
@@ -60,11 +60,11 @@ export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, o
               </div>
               <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-accent-dim border border-accent-border">
                 <span className="relative w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-accent status-dot-ping" />
-                <span className="text-[10px] sm:text-[11px] text-accent font-semibold">{t('nav.online')}</span>
+                <span className="text-xs sm:text-sm text-accent font-semibold">{t('nav.online')}</span>
               </div>
               <div className="hidden md:flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-2 border border-border">
                 <Clock className="w-3 h-3 text-text-muted" />
-                <span className="text-[10px] text-text-secondary font-mono tabular-nums">
+                <span className="text-xs text-text-secondary font-mono tabular-nums">
                   {now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                 </span>
               </div>
@@ -73,7 +73,7 @@ export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, o
           {!health && (
             <div className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full bg-error/10 border border-error/20">
               <Activity className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-error" />
-              <span className="text-[10px] sm:text-[11px] text-error font-semibold">{t('nav.offline')}</span>
+              <span className="text-xs sm:text-sm text-error font-semibold">{t('nav.offline')}</span>
             </div>
           )}
           <ConnectionStatus />

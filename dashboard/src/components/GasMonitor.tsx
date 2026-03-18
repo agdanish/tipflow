@@ -151,7 +151,7 @@ export function GasMonitor() {
 
               {/* Status badge */}
               <span
-                className={`ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded ${colors.bg} ${colors.text}`}
+                className={`ml-auto text-xs font-semibold px-1.5 py-0.5 rounded ${colors.bg} ${colors.text}`}
               >
                 {colors.label}
               </span>
@@ -161,7 +161,7 @@ export function GasMonitor() {
       </div>
 
       {/* Gas thresholds reference */}
-      <div className="mt-2 flex items-center gap-3 px-3 py-1.5 text-[10px] text-text-muted">
+      <div className="mt-2 flex items-center gap-3 px-3 py-1.5 text-xs text-text-muted">
         <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-400" /> &lt;20 gwei</span>
         <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-yellow-400" /> 20-50 gwei</span>
         <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-red-400" /> &gt;50 gwei</span>
@@ -173,7 +173,7 @@ export function GasMonitor() {
           <span className="text-green-400 text-xs font-semibold animate-pulse">
             Best time to tip!
           </span>
-          <span className="text-[10px] text-green-400/70">
+          <span className="text-xs text-green-400/70">
             Gas is low — transactions are cheap right now
           </span>
         </div>

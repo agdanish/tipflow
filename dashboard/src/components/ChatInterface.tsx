@@ -82,10 +82,10 @@ function ActionCard({ action }: { action: NonNullable<ChatMessage['action']> }) 
         {/* AI Decision Reasoning */}
         {data.decision ? (
           <div className="mt-2 p-2 rounded-md bg-purple-500/5 border border-purple-500/15">
-            <div className="text-[10px] font-semibold text-purple-400 mb-1">AI Decision</div>
-            <div className="text-[10px] text-text-secondary">{String((data.decision as Record<string, string>).reasoning ?? '')}</div>
+            <div className="text-xs font-semibold text-purple-400 mb-1">AI Decision</div>
+            <div className="text-xs text-text-secondary">{String((data.decision as Record<string, string>).reasoning ?? '')}</div>
             {(data.decision as Record<string, number>).confidence ? (
-              <div className="text-[10px] text-text-muted mt-1">Confidence: {String((data.decision as Record<string, number>).confidence)}%</div>
+              <div className="text-xs text-text-muted mt-1">Confidence: {String((data.decision as Record<string, number>).confidence)}%</div>
             ) : null}
           </div>
         ) : null}
@@ -140,7 +140,7 @@ function ActionCard({ action }: { action: NonNullable<ChatMessage['action']> }) 
         <div className="text-purple-400 font-semibold text-sm">Wallet Addresses</div>
         {Object.entries(addresses).map(([chainId, addr]) => (
           <div key={chainId} className="text-text-secondary">
-            <div className="text-text-muted text-[10px]">{chainId.startsWith('ethereum') ? 'Ethereum Sepolia' : 'TON Testnet'}</div>
+            <div className="text-text-muted text-xs">{chainId.startsWith('ethereum') ? 'Ethereum Sepolia' : 'TON Testnet'}</div>
             <div className="font-mono break-all">{addr}</div>
           </div>
         ))}
@@ -251,7 +251,7 @@ export function ChatInterface() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-sm font-semibold text-text-primary">TipFlow Agent</div>
-              <div className="text-[11px] text-green-400 flex items-center gap-1">
+              <div className="text-sm text-green-400 flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
                 Online
               </div>
@@ -283,7 +283,7 @@ export function ChatInterface() {
                 >
                   <MessageContent text={msg.content} />
                   {msg.action && <ActionCard action={msg.action} />}
-                  <div className={`text-[10px] mt-1.5 ${msg.role === 'user' ? 'text-blue-200' : 'text-text-muted'}`}>
+                  <div className={`text-xs mt-1.5 ${msg.role === 'user' ? 'text-blue-200' : 'text-text-muted'}`}>
                     {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
@@ -315,7 +315,7 @@ export function ChatInterface() {
                 <SendIcon />
               </button>
             </div>
-            <div className="text-[10px] text-text-muted mt-1.5 text-center">
+            <div className="text-xs text-text-muted mt-1.5 text-center">
               Try: "check my balance" or "send 0.01 ETH to 0x..."
             </div>
           </div>

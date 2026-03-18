@@ -146,7 +146,7 @@ export function CommandPalette({ open, onClose, actions }: CommandPaletteProps) 
             autoComplete="off"
             spellCheck={false}
           />
-          <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-surface-3 border border-border text-[10px] font-mono text-text-muted">
+          <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-surface-3 border border-border text-xs font-mono text-text-muted">
             ESC
           </kbd>
         </div>
@@ -161,13 +161,13 @@ export function CommandPalette({ open, onClose, actions }: CommandPaletteProps) 
             <div className="px-4 py-8 text-center">
               <Search className="w-6 h-6 text-text-muted/40 mx-auto mb-2" />
               <p className="text-sm text-text-muted">No commands found</p>
-              <p className="text-[10px] text-text-muted/60 mt-1">Try a different search term</p>
+              <p className="text-xs text-text-muted/60 mt-1">Try a different search term</p>
             </div>
           ) : (
             grouped.map((group) => (
               <div key={group.label}>
                 <div className="px-4 py-1.5">
-                  <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">
+                  <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">
                     {group.label}
                   </p>
                 </div>
@@ -197,7 +197,7 @@ export function CommandPalette({ open, onClose, actions }: CommandPaletteProps) 
                           {item.label}
                         </p>
                         {item.description && (
-                          <p className="text-[11px] text-text-muted truncate">{item.description}</p>
+                          <p className="text-sm text-text-muted truncate">{item.description}</p>
                         )}
                       </div>
                       {isSelected && (
@@ -213,19 +213,19 @@ export function CommandPalette({ open, onClose, actions }: CommandPaletteProps) 
 
         {/* Footer hints */}
         <div className="flex items-center gap-4 px-4 py-2 border-t border-border bg-surface-2/50">
-          <div className="flex items-center gap-1.5 text-[10px] text-text-muted">
+          <div className="flex items-center gap-1.5 text-xs text-text-muted">
             <kbd className="px-1 py-0.5 rounded bg-surface-3 border border-border font-mono">↑↓</kbd>
             <span>navigate</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[10px] text-text-muted">
+          <div className="flex items-center gap-1.5 text-xs text-text-muted">
             <kbd className="px-1 py-0.5 rounded bg-surface-3 border border-border font-mono">↵</kbd>
             <span>select</span>
           </div>
-          <div className="flex items-center gap-1.5 text-[10px] text-text-muted">
+          <div className="flex items-center gap-1.5 text-xs text-text-muted">
             <kbd className="px-1 py-0.5 rounded bg-surface-3 border border-border font-mono">esc</kbd>
             <span>close</span>
           </div>
-          <div className="ml-auto flex items-center gap-1 text-[10px] text-text-muted">
+          <div className="ml-auto flex items-center gap-1 text-xs text-text-muted">
             <Command className="w-3 h-3" />
             <span>TipFlow</span>
           </div>

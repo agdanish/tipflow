@@ -104,7 +104,7 @@ export function NetworkHealth() {
         </div>
         <h3 className="text-sm font-medium text-text-secondary">Network Health</h3>
         {lastChecked && (
-          <span className="ml-auto text-[10px] text-text-muted">
+          <span className="ml-auto text-xs text-text-muted">
             Updated {lastChecked}
           </span>
         )}
@@ -137,22 +137,22 @@ export function NetworkHealth() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-medium text-text-primary truncate">{chain.chainName}</span>
-                  <span className={`text-[10px] font-semibold ${statusTextColor(chain.status)}`}>
+                  <span className={`text-xs font-semibold ${statusTextColor(chain.status)}`}>
                     {statusLabel(chain.status)}
                   </span>
                   {/* Uptime percentage */}
                   {healthyChecks.current[chain.chainId]?.total > 1 && (
-                    <span className="text-[10px] tabular-nums text-text-muted">
+                    <span className="text-xs tabular-nums text-text-muted">
                       {Math.round((healthyChecks.current[chain.chainId].healthy / healthyChecks.current[chain.chainId].total) * 100)}% uptime
                     </span>
                   )}
                 </div>
                 <div className="flex items-center gap-3 mt-0.5">
-                  <span className="text-[10px] text-text-muted tabular-nums">
+                  <span className="text-xs text-text-muted tabular-nums">
                     {chain.latencyMs}ms
                   </span>
                   {chain.blockNumber !== undefined && (
-                    <span className="text-[10px] text-text-muted tabular-nums">
+                    <span className="text-xs text-text-muted tabular-nums">
                       Block #{chain.blockNumber.toLocaleString()}
                     </span>
                   )}
@@ -197,21 +197,21 @@ export function NetworkHealth() {
               <div className="flex items-center gap-2">
                 <Database className="w-3 h-3 text-text-muted" />
                 <span className="text-xs font-medium text-text-primary">WDK Indexer</span>
-                <span className={`text-[10px] font-semibold ${indexer.isAvailable ? 'text-green-400' : 'text-red-400'}`}>
+                <span className={`text-xs font-semibold ${indexer.isAvailable ? 'text-green-400' : 'text-red-400'}`}>
                   {indexer.isAvailable ? 'Connected' : 'Offline'}
                 </span>
               </div>
               <div className="flex items-center gap-3 mt-0.5">
                 {indexer.isAvailable && (
                   <>
-                    <span className="text-[10px] text-text-muted">{indexer.latencyMs}ms</span>
+                    <span className="text-xs text-text-muted">{indexer.latencyMs}ms</span>
                     {indexerChainCount > 0 && (
-                      <span className="text-[10px] text-text-muted">{indexerChainCount} chains</span>
+                      <span className="text-xs text-text-muted">{indexerChainCount} chains</span>
                     )}
                   </>
                 )}
                 {!indexer.isAvailable && (
-                  <span className="text-[10px] text-text-muted truncate">{indexer.error ?? 'Unavailable'}</span>
+                  <span className="text-xs text-text-muted truncate">{indexer.error ?? 'Unavailable'}</span>
                 )}
               </div>
             </div>

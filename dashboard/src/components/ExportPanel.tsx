@@ -94,7 +94,7 @@ export function ExportPanel({ historyCount }: ExportPanelProps) {
         <Download className="w-4 h-4 text-accent" />
         <h2 className="text-base font-semibold text-text-primary">Export History</h2>
         {historyCount > 0 && (
-          <span className="text-[10px] text-text-muted font-normal ml-auto px-2 py-0.5 rounded-full bg-surface-3">
+          <span className="text-xs text-text-muted font-normal ml-auto px-2 py-0.5 rounded-full bg-surface-3">
             {historyCount} record{historyCount !== 1 ? 's' : ''}
           </span>
         )}
@@ -136,7 +136,7 @@ export function ExportPanel({ historyCount }: ExportPanelProps) {
                     <p className="text-xs font-medium text-text-primary leading-none">
                       {opt.label}
                     </p>
-                    <p className="text-[10px] text-text-muted mt-0.5 leading-none">
+                    <p className="text-xs text-text-muted mt-0.5 leading-none">
                       {opt.description} &middot; ~{estimateSize(historyCount, opt.format)}
                     </p>
                   </div>
@@ -146,7 +146,7 @@ export function ExportPanel({ historyCount }: ExportPanelProps) {
           </div>
 
           {lastExport && (
-            <p className="text-[10px] text-text-muted mt-2 text-center">
+            <p className="text-xs text-text-muted mt-2 text-center">
               Last export: {lastExport.format.toUpperCase()} at{' '}
               {new Date(lastExport.time).toLocaleTimeString()}
             </p>

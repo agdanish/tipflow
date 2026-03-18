@@ -13,7 +13,7 @@ export function Footer() {
               </div>
               <div>
                 <h3 className="text-sm font-bold text-text-primary">TipFlow</h3>
-                <p className="text-[10px] text-text-muted">v1.0.0</p>
+                <p className="text-xs text-text-muted">v1.0.0</p>
               </div>
             </div>
             <p className="text-xs text-text-secondary leading-relaxed">
@@ -68,7 +68,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 text-text-secondary hover:text-accent transition-colors"
                 >
-                  <span className="w-3.5 h-3.5 flex items-center justify-center text-[10px] font-bold">AP</span>
+                  <span className="w-3.5 h-3.5 flex items-center justify-center text-xs font-bold">AP</span>
                   Apache 2.0 License
                   <ExternalLink className="w-3 h-3 opacity-50" />
                 </a>
@@ -92,18 +92,18 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-6 pt-4 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-3">
-            <p className="text-[11px] text-text-muted text-center sm:text-left flex items-center gap-1.5">
+            <p className="text-sm text-text-muted text-center sm:text-left flex items-center gap-1.5">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
               </span>
               System Online
             </p>
-            <span className="px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-[10px] font-medium text-accent tabular-nums">
+            <span className="px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-xs font-medium text-accent tabular-nums">
               228+ API endpoints
             </span>
           </div>
-          <p className="text-[11px] text-text-muted">
+          <p className="text-sm text-text-muted">
             &copy; 2026 TipFlow &middot; Built for <span className="text-accent font-medium">Tether Hackathon Galactica</span>
           </p>
         </div>

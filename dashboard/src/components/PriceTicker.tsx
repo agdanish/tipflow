@@ -63,14 +63,14 @@ export function PriceTicker() {
             className="flex items-center gap-1.5 shrink-0"
           >
             <div
-              className="w-5 h-5 rounded-md flex items-center justify-center text-[8px] font-bold text-white"
+              className="w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold text-white"
               style={{ backgroundColor: entry.color }}
             >
               {entry.symbol.slice(0, 1)}
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-[11px] font-medium text-text-secondary">{entry.symbol}</span>
-              <span className={`text-[11px] font-mono font-semibold tabular-nums ${
+              <span className="text-sm font-medium text-text-secondary">{entry.symbol}</span>
+              <span className={`text-sm font-mono font-semibold tabular-nums ${
                 dir === 'up' ? 'text-green-400' : dir === 'down' ? 'text-red-400' : 'text-text-primary'
               }`}>
                 ${entry.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}

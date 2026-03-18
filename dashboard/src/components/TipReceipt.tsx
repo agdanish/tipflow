@@ -96,7 +96,7 @@ export function TipReceiptModal({ receipt, onClose }: TipReceiptProps) {
               <h2 className="text-lg font-bold text-text-primary tracking-tight">
                 TipFlow
               </h2>
-              <p className="text-[10px] text-text-muted uppercase tracking-widest">
+              <p className="text-xs text-text-muted uppercase tracking-widest">
                 Transaction Receipt
               </p>
             </div>
@@ -158,7 +158,7 @@ export function TipReceiptModal({ receipt, onClose }: TipReceiptProps) {
             <div className="flex items-start gap-2 py-1.5">
               <MessageSquare className="w-3 h-3 text-cyan-400 mt-0.5 shrink-0" />
               <div className="flex-1">
-                <span className="text-[10px] text-text-muted uppercase tracking-wider block mb-0.5">Memo</span>
+                <span className="text-xs text-text-muted uppercase tracking-wider block mb-0.5">Memo</span>
                 <p className="text-xs text-text-secondary italic">{receipt.memo}</p>
               </div>
             </div>
@@ -187,7 +187,7 @@ export function TipReceiptModal({ receipt, onClose }: TipReceiptProps) {
               loading="lazy"
             />
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1.5">
+              <p className="text-xs text-text-muted uppercase tracking-wider mb-1.5">
                 Scan to view on explorer
               </p>
               <a
@@ -205,7 +205,7 @@ export function TipReceiptModal({ receipt, onClose }: TipReceiptProps) {
 
         {/* Footer branding */}
         <div className="px-6 py-3 border-t border-border bg-surface-2 rounded-b-2xl print:rounded-none">
-          <p className="text-[10px] text-text-muted text-center">
+          <p className="text-xs text-text-muted text-center">
             Powered by TipFlow + Tether WDK
           </p>
         </div>

@@ -172,21 +172,21 @@ export function EscrowPanel() {
 
           {/* Release condition selector */}
           <div>
-            <label className="text-[10px] text-text-muted uppercase tracking-wider mb-1.5 block">Release Condition</label>
+            <label className="text-xs text-text-muted uppercase tracking-wider mb-1.5 block">Release Condition</label>
             <div className="grid grid-cols-2 gap-1.5">
               {RELEASE_CONDITIONS.map(rc => (
                 <button
                   key={rc.value}
                   type="button"
                   onClick={() => setCreateCondition(rc.value)}
-                  className={`text-left p-2 rounded-lg border text-[11px] transition-all ${
+                  className={`text-left p-2 rounded-lg border text-sm transition-all ${
                     createCondition === rc.value
                       ? 'border-accent bg-accent/10 text-accent'
                       : 'border-border bg-surface-2 text-text-secondary hover:border-border-light'
                   }`}
                 >
                   <div className="font-medium">{rc.label}</div>
-                  <div className="text-[9px] text-text-muted mt-0.5">{rc.desc}</div>
+                  <div className="text-xs text-text-muted mt-0.5">{rc.desc}</div>
                 </button>
               ))}
             </div>
@@ -216,15 +216,15 @@ export function EscrowPanel() {
         <div className="grid grid-cols-3 gap-2">
           <div className="p-2.5 rounded-lg bg-surface-2 border border-border text-center">
             <div className="text-sm font-bold text-text-primary tabular-nums">{stats.totalEscrowed.toFixed(4)}</div>
-            <div className="text-[10px] text-text-secondary">Total Escrowed</div>
+            <div className="text-xs text-text-secondary">Total Escrowed</div>
           </div>
           <div className="p-2.5 rounded-lg bg-surface-2 border border-border text-center">
             <div className="text-sm font-bold text-green-400 tabular-nums">{stats.totalReleased.toFixed(4)}</div>
-            <div className="text-[10px] text-text-secondary">Released</div>
+            <div className="text-xs text-text-secondary">Released</div>
           </div>
           <div className="p-2.5 rounded-lg bg-surface-2 border border-border text-center">
             <div className="text-sm font-bold text-red-400 tabular-nums">{stats.totalRefunded.toFixed(4)}</div>
-            <div className="text-[10px] text-text-secondary">Refunded</div>
+            <div className="text-xs text-text-secondary">Refunded</div>
           </div>
         </div>
       )}
@@ -234,7 +234,7 @@ export function EscrowPanel() {
         <div className="text-center py-6 animate-fade-in">
           <Lock className="w-8 h-8 text-text-muted/30 mx-auto mb-2" />
           <p className="text-xs text-text-muted">No active escrows</p>
-          <p className="text-[10px] text-text-muted/60 mt-1">Create one to hold tips with release conditions</p>
+          <p className="text-xs text-text-muted/60 mt-1">Create one to hold tips with release conditions</p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -242,24 +242,24 @@ export function EscrowPanel() {
             <div key={escrow.id} className="p-3 rounded-lg bg-surface-2 border border-border card-hover animate-list-item-in" style={{ animationDelay: `${i * 60}ms` }}>
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-medium text-text-primary tabular-nums">{escrow.amount} {escrow.token.toUpperCase()}</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-500/10 text-yellow-400 flex items-center gap-1">
+                <span className="text-xs px-1.5 py-0.5 rounded bg-yellow-500/10 text-yellow-400 flex items-center gap-1">
                   <Clock className="w-2.5 h-2.5" /> {escrow.releaseCondition.replace(/_/g, ' ')}
                 </span>
               </div>
-              <div className="text-[10px] text-text-secondary mb-2">
+              <div className="text-xs text-text-secondary mb-2">
                 &rarr; {escrow.recipient.slice(0, 10)}...{escrow.recipient.slice(-4)}
                 {escrow.memo && <span className="ml-2 italic">&ldquo;{escrow.memo}&rdquo;</span>}
               </div>
               <div className="flex gap-1.5">
-                <button onClick={() => release(escrow.id)} className="text-[10px] px-2 py-1 rounded bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors flex items-center gap-1 btn-press">
+                <button onClick={() => release(escrow.id)} className="text-xs px-2 py-1 rounded bg-green-500/10 text-green-400 hover:bg-green-500/20 transition-colors flex items-center gap-1 btn-press">
                   <Unlock className="w-2.5 h-2.5" /> Release
                 </button>
-                <button onClick={() => refund(escrow.id)} className="text-[10px] px-2 py-1 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors flex items-center gap-1 btn-press">
+                <button onClick={() => refund(escrow.id)} className="text-xs px-2 py-1 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors flex items-center gap-1 btn-press">
                   <RotateCcw className="w-2.5 h-2.5" /> Refund
                 </button>
                 <button
                   onClick={() => setDisputeId(disputeId === escrow.id ? null : escrow.id)}
-                  className="text-[10px] px-2 py-1 rounded bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-colors flex items-center gap-1 btn-press ml-auto"
+                  className="text-xs px-2 py-1 rounded bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 transition-colors flex items-center gap-1 btn-press ml-auto"
                 >
                   <AlertTriangle className="w-2.5 h-2.5" /> Dispute
                 </button>

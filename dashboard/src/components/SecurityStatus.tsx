@@ -22,7 +22,7 @@ export function SecurityStatus() {
         <h3 className="text-sm font-medium text-text-secondary">Security</h3>
         <span className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20">
           <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-          <span className="text-[10px] font-semibold text-green-400">Active</span>
+          <span className="text-xs font-semibold text-green-400">Active</span>
         </span>
       </div>
 
@@ -36,7 +36,7 @@ export function SecurityStatus() {
       </div>
 
       <div className="mt-3 px-2 py-1.5 rounded-md bg-surface-2 border border-border">
-        <p className="text-[10px] text-text-muted leading-relaxed">
+        <p className="text-xs text-text-muted leading-relaxed">
           Keys never leave your device. All transactions are signed locally using WDK self-custodial wallets.
         </p>
       </div>

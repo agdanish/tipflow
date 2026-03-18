@@ -35,7 +35,7 @@ export function InnovationShowcase({ onNavigate }: InnovationShowcaseProps) {
             <Zap className="w-4 h-4 text-accent" />
             <span className="gradient-text-animated">10 Patent-Worthy Innovations</span>
           </h2>
-          <span className="text-[10px] text-text-muted">Powered by WDK</span>
+          <span className="text-xs text-text-muted">Powered by WDK</span>
         </div>
 
         {/* Horizontal scrolling carousel */}
@@ -51,8 +51,8 @@ export function InnovationShowcase({ onNavigate }: InnovationShowcaseProps) {
                 {item.icon}
               </div>
               <p className="text-xs font-semibold text-text-primary mb-1 leading-tight">{item.title}</p>
-              <p className="text-[10px] text-text-muted leading-relaxed line-clamp-2">{item.tagline}</p>
-              <div className="mt-2 flex items-center gap-1 text-[10px] font-medium text-accent opacity-0 group-hover:opacity-100 transition-opacity">
+              <p className="text-xs text-text-muted leading-relaxed line-clamp-2">{item.tagline}</p>
+              <div className="mt-2 flex items-center gap-1 text-xs font-medium text-accent opacity-0 group-hover:opacity-100 transition-opacity">
                 Explore <ArrowRight className="w-3 h-3" />
               </div>
             </button>

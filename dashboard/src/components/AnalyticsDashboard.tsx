@@ -637,7 +637,7 @@ export function AnalyticsDashboard() {
                   Hourly Activity Heatmap
                 </h3>
                 <HourlyHeatmap data={data.hourlyHeatmap} />
-                <p className="text-[10px] text-text-muted mt-2 text-center">
+                <p className="text-xs text-text-muted mt-2 text-center">
                   Hour of day (local time) — darker = more tips
                 </p>
               </div>
@@ -646,21 +646,21 @@ export function AnalyticsDashboard() {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                 <div className="rounded-lg border border-border bg-surface-2 p-3">
                   <p className="text-lg font-bold text-text-primary">{data.trends.tipsToday}</p>
-                  <p className="text-[10px] text-text-muted">Tips Today</p>
+                  <p className="text-xs text-text-muted">Tips Today</p>
                 </div>
                 <div className="rounded-lg border border-border bg-surface-2 p-3">
                   <p className="text-lg font-bold text-text-primary">{data.trends.tipsYesterday}</p>
-                  <p className="text-[10px] text-text-muted">Yesterday</p>
+                  <p className="text-xs text-text-muted">Yesterday</p>
                 </div>
                 <div className="rounded-lg border border-border bg-surface-2 p-3">
                   <p className="text-lg font-bold text-text-primary">{formatNumber(data.trends.largestTip)}</p>
-                  <p className="text-[10px] text-text-muted">Largest Tip</p>
+                  <p className="text-xs text-text-muted">Largest Tip</p>
                 </div>
                 <div className="rounded-lg border border-border bg-surface-2 p-3">
                   <p className="text-lg font-bold text-text-primary">
                     {data.trends.busiestHour.toString().padStart(2, '0')}:00
                   </p>
-                  <p className="text-[10px] text-text-muted">Busiest Hour</p>
+                  <p className="text-xs text-text-muted">Busiest Hour</p>
                 </div>
               </div>
             </>

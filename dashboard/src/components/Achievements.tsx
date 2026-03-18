@@ -51,7 +51,7 @@ function AchievementBadge({ achievement }: { achievement: Achievement }) {
           </div>
           <p className="text-xs text-text-muted mt-0.5">{achievement.description}</p>
           <ProgressBar progress={achievement.progress} target={achievement.target} />
-          <div className="text-[10px] text-text-muted mt-1 flex items-center gap-2">
+          <div className="text-xs text-text-muted mt-1 flex items-center gap-2">
             <span className="tabular-nums">{achievement.progress}/{achievement.target}</span>
             <span className={`font-semibold tabular-nums ${pct >= 100 ? 'text-green-400' : pct >= 50 ? 'text-accent' : 'text-text-muted'}`}>
               {pct}%

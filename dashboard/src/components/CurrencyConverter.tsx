@@ -75,7 +75,7 @@ export function CurrencyConverter() {
           Currency Converter
         </h3>
         {lastUpdated && (
-          <span className="text-[10px] text-text-muted">
+          <span className="text-xs text-text-muted">
             Approx. prices
           </span>
         )}
@@ -124,7 +124,7 @@ export function CurrencyConverter() {
       </div>
 
       {/* Disclaimer */}
-      <p className="mt-2 text-[10px] text-text-muted text-center">
+      <p className="mt-2 text-xs text-text-muted text-center">
         Approximate rates for estimation only
       </p>
     </div>

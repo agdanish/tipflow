@@ -66,13 +66,13 @@ export function TransactionTracker({ result, onDismiss }: TransactionTrackerProp
             Transaction Tracker
           </h3>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] text-text-muted font-mono tabular-nums">
+            <span className="text-xs text-text-muted font-mono tabular-nums">
               {(elapsed / 1000).toFixed(1)}s
             </span>
             {isComplete && (
               <button
                 onClick={onDismiss}
-                className="text-[10px] text-accent hover:text-accent-light transition-colors btn-press"
+                className="text-xs text-accent hover:text-accent-light transition-colors btn-press"
               >
                 Dismiss
               </button>
@@ -120,7 +120,7 @@ export function TransactionTracker({ result, onDismiss }: TransactionTrackerProp
           {STAGES.map((s, i) => (
             <span
               key={s.id}
-              className={`text-[9px] font-medium transition-colors ${
+              className={`text-xs font-medium transition-colors ${
                 i <= stageIndex ? 'text-text-secondary' : 'text-text-muted/50'
               }`}
             >
@@ -132,19 +132,19 @@ export function TransactionTracker({ result, onDismiss }: TransactionTrackerProp
         {/* Transaction details */}
         <div className="grid grid-cols-2 gap-2 text-xs">
           <div className="p-2.5 rounded-lg bg-surface-2/50 border border-border">
-            <p className="text-[10px] text-text-muted mb-0.5">Amount</p>
+            <p className="text-xs text-text-muted mb-0.5">Amount</p>
             <p className="font-semibold text-text-primary tabular-nums">{result.amount} {token}</p>
           </div>
           <div className="p-2.5 rounded-lg bg-surface-2/50 border border-border">
-            <p className="text-[10px] text-text-muted mb-0.5">Chain</p>
+            <p className="text-xs text-text-muted mb-0.5">Chain</p>
             <p className="font-semibold text-text-primary">{isEth ? 'Ethereum Sepolia' : 'TON Testnet'}</p>
           </div>
           <div className="p-2.5 rounded-lg bg-surface-2/50 border border-border">
-            <p className="text-[10px] text-text-muted mb-0.5">Fee</p>
+            <p className="text-xs text-text-muted mb-0.5">Fee</p>
             <p className="font-semibold text-text-primary tabular-nums">{result.fee}</p>
           </div>
           <div className="p-2.5 rounded-lg bg-surface-2/50 border border-border">
-            <p className="text-[10px] text-text-muted mb-0.5">Explorer</p>
+            <p className="text-xs text-text-muted mb-0.5">Explorer</p>
             <a
               href={`${explorerBase}${result.txHash}`}
               target="_blank"

@@ -105,7 +105,7 @@ export function WalletBackup({ totalTransactions = 0, createdDate }: WalletBacku
           <div className="px-3 py-2.5 rounded-lg bg-surface-2 border border-border">
             <div className="flex items-center gap-1.5 mb-1">
               <Key className="w-3 h-3 text-text-muted" />
-              <span className="text-[10px] text-text-muted uppercase tracking-wider">Derivation Path</span>
+              <span className="text-xs text-text-muted uppercase tracking-wider">Derivation Path</span>
             </div>
             <p className="text-xs font-mono text-text-primary">{DERIVATION_PATH}</p>
           </div>
@@ -113,7 +113,7 @@ export function WalletBackup({ totalTransactions = 0, createdDate }: WalletBacku
           <div className="px-3 py-2.5 rounded-lg bg-surface-2 border border-border">
             <div className="flex items-center gap-1.5 mb-1">
               <HardDrive className="w-3 h-3 text-text-muted" />
-              <span className="text-[10px] text-text-muted uppercase tracking-wider">Wallet Type</span>
+              <span className="text-xs text-text-muted uppercase tracking-wider">Wallet Type</span>
             </div>
             <p className="text-xs font-medium text-text-primary">{WALLET_TYPE}</p>
           </div>
@@ -121,7 +121,7 @@ export function WalletBackup({ totalTransactions = 0, createdDate }: WalletBacku
           <div className="px-3 py-2.5 rounded-lg bg-surface-2 border border-border">
             <div className="flex items-center gap-1.5 mb-1">
               <Info className="w-3 h-3 text-text-muted" />
-              <span className="text-[10px] text-text-muted uppercase tracking-wider">Created</span>
+              <span className="text-xs text-text-muted uppercase tracking-wider">Created</span>
             </div>
             <p className="text-xs text-text-primary">{displayDate}</p>
           </div>
@@ -129,7 +129,7 @@ export function WalletBackup({ totalTransactions = 0, createdDate }: WalletBacku
           <div className="px-3 py-2.5 rounded-lg bg-surface-2 border border-border">
             <div className="flex items-center gap-1.5 mb-1">
               <Info className="w-3 h-3 text-text-muted" />
-              <span className="text-[10px] text-text-muted uppercase tracking-wider">Transactions</span>
+              <span className="text-xs text-text-muted uppercase tracking-wider">Transactions</span>
             </div>
             <p className="text-xs font-medium text-text-primary">{totalTransactions}</p>
           </div>
@@ -146,7 +146,7 @@ export function WalletBackup({ totalTransactions = 0, createdDate }: WalletBacku
 
         {/* Security note */}
         <div className="mt-3 px-2 py-1.5 rounded-md bg-surface-2 border border-border">
-          <p className="text-[10px] text-text-muted leading-relaxed flex items-start gap-1.5">
+          <p className="text-xs text-text-muted leading-relaxed flex items-start gap-1.5">
             <Lock className="w-3 h-3 shrink-0 mt-0.5" />
             Your seed phrase gives full access to your wallet. Never share it with anyone. Store it securely offline.
           </p>
@@ -251,7 +251,7 @@ export function WalletBackup({ totalTransactions = 0, createdDate }: WalletBacku
                         key={i}
                         className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-surface-2 border border-border"
                       >
-                        <span className="text-[10px] text-text-muted font-mono w-4 text-right">{i + 1}.</span>
+                        <span className="text-xs text-text-muted font-mono w-4 text-right">{i + 1}.</span>
                         <span className="text-xs font-mono text-text-primary">{word}</span>
                       </div>
                     ))}
@@ -281,7 +281,7 @@ export function WalletBackup({ totalTransactions = 0, createdDate }: WalletBacku
 
                   {/* Warning after reveal */}
                   <div className="mt-3 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                    <p className="text-[10px] text-amber-300 leading-relaxed flex items-start gap-1.5">
+                    <p className="text-xs text-amber-300 leading-relaxed flex items-start gap-1.5">
                       <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
                       Store this phrase securely offline. This window will clear on close.
                     </p>

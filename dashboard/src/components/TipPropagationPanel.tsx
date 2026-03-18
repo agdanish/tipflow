@@ -64,12 +64,12 @@ export function TipPropagationPanel() {
           <Radio className="w-4 h-4 text-cyan-400" />
           Tip Propagation
         </h3>
-        <button onClick={load} aria-label="Refresh propagation waves" className="text-[10px] text-text-muted hover:text-accent transition-colors flex items-center gap-1">
+        <button onClick={load} aria-label="Refresh propagation waves" className="text-xs text-text-muted hover:text-accent transition-colors flex items-center gap-1">
           <RefreshCw className="w-3 h-3" /> Refresh
         </button>
       </div>
 
-      <p className="text-[10px] text-text-secondary">
+      <p className="text-xs text-text-secondary">
         Viral tipping with amplifier matching. Every tip creates a wave that can be matched by community pools.
       </p>
 
@@ -87,7 +87,7 @@ export function TipPropagationPanel() {
             <div key={label as string} className="p-2 rounded-lg bg-surface-2 border border-border text-center animate-list-item-in" style={{ animationDelay: `${i * 50}ms` }}>
               <div className="flex items-center justify-center gap-1 mb-0.5">{icon as React.ReactNode}</div>
               <div className="text-sm font-bold text-text-primary tabular-nums">{value as string}</div>
-              <div className="text-[9px] text-text-muted">{label as string}</div>
+              <div className="text-xs text-text-muted">{label as string}</div>
             </div>
           ))}
         </div>
@@ -102,16 +102,16 @@ export function TipPropagationPanel() {
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-xs font-medium text-text-primary">{wave.creatorName}</span>
-                  <div className="text-[10px] text-text-muted">
+                  <div className="text-xs text-text-muted">
                     ${wave.originalAmount.toFixed(4)} → <span className="text-accent font-bold">${wave.amplifiedTotal.toFixed(4)}</span>
                     <span className="ml-1 text-amber-400">({wave.matchMultiplier}x)</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                  <span className={`text-xs px-1.5 py-0.5 rounded ${
                     wave.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-surface-3 text-text-muted'
                   }`}>{wave.status}</span>
-                  <div className="text-[9px] text-text-muted mt-0.5">{wave.participants} joined</div>
+                  <div className="text-xs text-text-muted mt-0.5">{wave.participants} joined</div>
                 </div>
               </div>
             </div>
@@ -120,13 +120,13 @@ export function TipPropagationPanel() {
       ) : !error ? (
         <div className="text-center py-4">
           <Waves className="w-6 h-6 text-text-muted/30 mx-auto mb-1" />
-          <p className="text-[10px] text-text-muted">No tip waves yet. Send a tip to start a wave.</p>
+          <p className="text-xs text-text-muted">No tip waves yet. Send a tip to start a wave.</p>
         </div>
       ) : null}
 
       {/* Pool info */}
       {stats && stats.poolBalance > 0 && (
-        <div className="p-2 rounded-lg bg-cyan-500/5 border border-cyan-500/10 text-[10px] text-text-secondary">
+        <div className="p-2 rounded-lg bg-cyan-500/5 border border-cyan-500/10 text-xs text-text-secondary">
           <Zap className="w-3 h-3 text-cyan-400 inline mr-1" />
           Community Amplifier: <span className="text-accent font-bold">${stats.poolBalance.toFixed(4)}</span> available for 2:1 matching
         </div>

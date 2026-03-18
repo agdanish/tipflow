@@ -104,7 +104,7 @@ export function AuditLog() {
         </div>
         <div className="flex-1 text-left">
           <h3 className="text-sm font-semibold text-text-primary">Audit Log</h3>
-          <p className="text-[11px] text-text-muted mt-0.5">Security event trail</p>
+          <p className="text-sm text-text-muted mt-0.5">Security event trail</p>
         </div>
         <span className="text-xs text-text-muted mr-2">{entries.length} entries</span>
         {collapsed ? (
@@ -166,7 +166,7 @@ export function AuditLog() {
           {showFilters && (
             <div className="flex flex-col sm:flex-row gap-2 p-3 rounded-lg bg-surface-2 border border-border">
               <div className="flex-1">
-                <label className="text-[10px] font-medium text-text-muted uppercase tracking-wider">From</label>
+                <label className="text-xs font-medium text-text-muted uppercase tracking-wider">From</label>
                 <input
                   type="date"
                   value={dateFrom}
@@ -175,7 +175,7 @@ export function AuditLog() {
                 />
               </div>
               <div className="flex-1">
-                <label className="text-[10px] font-medium text-text-muted uppercase tracking-wider">To</label>
+                <label className="text-xs font-medium text-text-muted uppercase tracking-wider">To</label>
                 <input
                   type="date"
                   value={dateTo}
@@ -206,7 +206,7 @@ export function AuditLog() {
             <div className="flex flex-col items-center justify-center py-8 text-text-muted">
               <Info className="w-8 h-8 mb-2 opacity-40" />
               <p className="text-sm">No audit entries found</p>
-              <p className="text-[11px] mt-1">Events will appear here as you use TipFlow</p>
+              <p className="text-sm mt-1">Events will appear here as you use TipFlow</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -227,7 +227,7 @@ export function AuditLog() {
                     const eventColor = EVENT_COLORS[entry.eventType] || 'text-text-secondary bg-surface-2 border-border';
                     return (
                       <tr key={entry.id} className="border-b border-border/50 hover:bg-surface-2/30 transition-colors">
-                        <td className="py-2 px-3 text-text-secondary whitespace-nowrap font-mono text-[11px]">
+                        <td className="py-2 px-3 text-text-secondary whitespace-nowrap font-mono text-sm">
                           {new Date(entry.timestamp).toLocaleString(undefined, {
                             month: 'short',
                             day: 'numeric',
@@ -237,20 +237,20 @@ export function AuditLog() {
                           })}
                         </td>
                         <td className="py-2 px-3">
-                          <span className={`inline-flex px-2 py-0.5 rounded-full border text-[10px] font-semibold ${eventColor}`}>
+                          <span className={`inline-flex px-2 py-0.5 rounded-full border text-xs font-semibold ${eventColor}`}>
                             {entry.eventType.replace(/_/g, ' ')}
                           </span>
                         </td>
                         <td className="py-2 px-3 text-text-secondary max-w-xs truncate" title={entry.details}>
                           {entry.details}
                         </td>
-                        <td className="py-2 px-3 text-text-muted font-mono text-[11px]">
+                        <td className="py-2 px-3 text-text-muted font-mono text-sm">
                           {entry.ip ?? '-'}
                         </td>
                         <td className="py-2 px-3">
                           <span className={`inline-flex items-center gap-1 ${statusColor}`}>
                             <StatusIcon className="w-3 h-3" />
-                            <span className="text-[10px] font-medium capitalize">{entry.status}</span>
+                            <span className="text-xs font-medium capitalize">{entry.status}</span>
                           </span>
                         </td>
                       </tr>
@@ -259,7 +259,7 @@ export function AuditLog() {
                 </tbody>
               </table>
               {entries.length > 50 && (
-                <p className="text-center text-[11px] text-text-muted py-2">
+                <p className="text-center text-sm text-text-muted py-2">
                   Showing 50 of {entries.length} entries. Export CSV for full log.
                 </p>
               )}

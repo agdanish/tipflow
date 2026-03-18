@@ -111,7 +111,7 @@ export function MobileNav() {
             >
               <TabIcon id={tab.id} active={isActive} />
               <span
-                className="text-[10px] font-medium transition-colors"
+                className="text-xs font-medium transition-colors"
                 style={{ color: isActive ? 'var(--color-accent)' : 'var(--color-text-muted)' }}
               >
                 {tab.label}

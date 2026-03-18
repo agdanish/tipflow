@@ -74,7 +74,7 @@ export function CreatorDiscoveryPanel() {
         </button>
       </div>
 
-      <p className="text-[10px] text-text-secondary">
+      <p className="text-xs text-text-secondary">
         AI angel investing — finds undervalued creators with high engagement but low tips.
       </p>
 
@@ -84,7 +84,7 @@ export function CreatorDiscoveryPanel() {
         <div className="text-center py-6">
           <Star className="w-8 h-8 text-text-muted/30 mx-auto mb-2" />
           <p className="text-xs text-text-muted">No discovery signals yet</p>
-          <p className="text-[10px] text-text-muted/60 mt-1">Click Discover to analyze registered Rumble creators</p>
+          <p className="text-xs text-text-muted/60 mt-1">Click Discover to analyze registered Rumble creators</p>
         </div>
       ) : signals.length > 0 ? (
         <div className="space-y-2">
@@ -101,7 +101,7 @@ export function CreatorDiscoveryPanel() {
                   <span className={`text-xs font-bold tabular-nums ${
                     sig.undervaluationScore > 70 ? 'text-purple-400' : sig.undervaluationScore > 50 ? 'text-amber-400' : 'text-text-secondary'
                   }`}>{sig.undervaluationScore}/100</span>
-                  <span className="text-[9px] text-accent tabular-nums">{sig.suggestedTip} USDT</span>
+                  <span className="text-xs text-accent tabular-nums">{sig.suggestedTip} USDT</span>
                 </div>
               </div>
 
@@ -114,7 +114,7 @@ export function CreatorDiscoveryPanel() {
                   ['Niche', sig.signals.nicheOpportunity, '#f59e0b'],
                   ['Consistency', sig.signals.consistency, '#06b6d4'],
                 ].map(([name, value, color]) => (
-                  <div key={name as string} className="flex items-center gap-2 text-[9px] text-text-muted">
+                  <div key={name as string} className="flex items-center gap-2 text-xs text-text-muted">
                     <span className="w-14 shrink-0">{name as string}</span>
                     <SignalBar value={value as number} color={color as string} />
                     <span className="w-6 text-right tabular-nums">{value as number}</span>
@@ -122,14 +122,14 @@ export function CreatorDiscoveryPanel() {
                 ))}
               </div>
 
-              <p className="text-[9px] text-text-muted mt-1.5 italic">{sig.reasoning}</p>
-              {sig.actedOn && <span className="text-[8px] text-green-400 mt-1 block">✓ Discovered</span>}
+              <p className="text-xs text-text-muted mt-1.5 italic">{sig.reasoning}</p>
+              {sig.actedOn && <span className="text-xs text-green-400 mt-1 block">✓ Discovered</span>}
             </div>
           ))}
         </div>
       ) : null}
 
-      <div className="p-2 rounded-lg bg-purple-500/5 border border-purple-500/10 text-[9px] text-text-muted">
+      <div className="p-2 rounded-lg bg-purple-500/5 border border-purple-500/10 text-xs text-text-muted">
         <TrendingUp className="w-3 h-3 text-purple-400 inline mr-1" />
         First tippers to undervalued creators earn 2x reputation bonus
       </div>

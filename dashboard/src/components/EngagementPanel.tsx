@@ -19,11 +19,11 @@ function ScoreBar({ score, label }: { score: number; label: string }) {
   const color = pct >= 70 ? '#22c55e' : pct >= 40 ? '#f59e0b' : '#ef4444';
   return (
     <div className="flex items-center gap-2">
-      <span className="text-[10px] text-text-muted w-20 shrink-0">{label}</span>
+      <span className="text-xs text-text-muted w-20 shrink-0">{label}</span>
       <div className="flex-1 h-1.5 rounded-full bg-surface-3 overflow-hidden">
         <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, backgroundColor: color }} />
       </div>
-      <span className="text-[10px] tabular-nums w-8 text-right" style={{ color }}>{pct}%</span>
+      <span className="text-xs tabular-nums w-8 text-right" style={{ color }}>{pct}%</span>
     </div>
   );
 }
@@ -61,12 +61,12 @@ export function EngagementPanel() {
           <Heart className="w-4 h-4 text-pink-400" />
           Engagement Scoring
         </h3>
-        <button onClick={load} aria-label="Refresh engagement data" className="text-[10px] text-text-muted hover:text-accent transition-colors flex items-center gap-1">
+        <button onClick={load} aria-label="Refresh engagement data" className="text-xs text-text-muted hover:text-accent transition-colors flex items-center gap-1">
           <RotateCw className="w-3 h-3" /> Refresh
         </button>
       </div>
 
-      <p className="text-[10px] text-text-secondary">
+      <p className="text-xs text-text-secondary">
         Dynamic tip amounts based on 5-factor engagement algorithm. Higher engagement = higher tip multiplier (0.5x–3.0x).
       </p>
 
@@ -76,7 +76,7 @@ export function EngagementPanel() {
         <div className="text-center py-6">
           <Eye className="w-8 h-8 text-text-muted/30 mx-auto mb-2" />
           <p className="text-xs text-text-muted">No engagement data yet</p>
-          <p className="text-[10px] text-text-muted/60 mt-1">Watch Rumble creator videos to generate engagement scores</p>
+          <p className="text-xs text-text-muted/60 mt-1">Watch Rumble creator videos to generate engagement scores</p>
         </div>
       ) : recs.length > 0 ? (
         <div className="space-y-2">
@@ -89,7 +89,7 @@ export function EngagementPanel() {
                   </div>
                   <div>
                     <span className="text-xs font-medium text-text-primary">{rec.creatorName}</span>
-                    <p className="text-[9px] text-text-muted">{rec.walletAddress.slice(0, 8)}...{rec.walletAddress.slice(-4)}</p>
+                    <p className="text-xs text-text-muted">{rec.walletAddress.slice(0, 8)}...{rec.walletAddress.slice(-4)}</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -97,20 +97,20 @@ export function EngagementPanel() {
                     <TrendingUp className="w-3 h-3 text-accent" />
                     <span className="text-sm font-bold text-accent tabular-nums">{rec.multiplier}x</span>
                   </div>
-                  <span className="text-[10px] text-text-secondary tabular-nums">{rec.adjustedAmount} USDT</span>
+                  <span className="text-xs text-text-secondary tabular-nums">{rec.adjustedAmount} USDT</span>
                 </div>
               </div>
 
               <ScoreBar score={rec.engagementScore} label="Overall" />
 
-              <p className="text-[9px] text-text-muted mt-1.5 italic">{rec.reasoning}</p>
+              <p className="text-xs text-text-muted mt-1.5 italic">{rec.reasoning}</p>
             </div>
           ))}
         </div>
       ) : null}
 
       {/* Algorithm explanation */}
-      <div className="p-2.5 rounded-lg bg-accent/5 border border-accent/15 text-[10px] text-text-secondary">
+      <div className="p-2.5 rounded-lg bg-accent/5 border border-accent/15 text-xs text-text-secondary">
         <p className="font-medium text-accent mb-1">Algorithm Weights:</p>
         <div className="grid grid-cols-3 sm:grid-cols-5 gap-1 text-center">
           {[['Watch', '40%'], ['Rewatch', '20%'], ['Frequency', '15%'], ['Loyalty', '15%'], ['Category', '10%']].map(([name, weight]) => (

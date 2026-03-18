@@ -28,7 +28,7 @@ export function TechStack() {
         {techBadges.map(({ name, color }) => (
           <span
             key={name}
-            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium border transition-transform hover:scale-105 ${color}`}
+            className={`inline-flex items-center px-2 py-0.5 rounded-full text-sm font-medium border transition-transform hover:scale-105 ${color}`}
           >
             {name}
           </span>

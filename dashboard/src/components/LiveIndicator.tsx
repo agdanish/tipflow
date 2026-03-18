@@ -46,7 +46,7 @@ export function LiveIndicator({ lastUpdated, loading = false, onRefresh, compact
           isRecent ? 'bg-green-400 connection-dot-breathe' :
           isStale ? 'bg-amber-400' : 'bg-green-400'
         }`} />
-        <span className="text-[9px] text-text-muted font-mono tabular-nums">
+        <span className="text-xs text-text-muted font-mono tabular-nums">
           {loading ? 'Updating...' : lastUpdated ? timeAgoShort(lastUpdated) : '—'}
         </span>
       </div>
@@ -55,7 +55,7 @@ export function LiveIndicator({ lastUpdated, loading = false, onRefresh, compact
 
   return (
     <div className="flex items-center gap-2">
-      <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-medium ${
+      <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-xs font-medium ${
         loading
           ? 'border-blue-500/20 bg-blue-500/5 text-blue-400'
           : isRecent

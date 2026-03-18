@@ -15,7 +15,7 @@ function PortfolioBar({ label, value, total, color }: { label: string; value: nu
   const pct = total > 0 ? (value / total) * 100 : 0;
   return (
     <div className="space-y-1">
-      <div className="flex items-center justify-between text-[11px]">
+      <div className="flex items-center justify-between text-sm">
         <span className="text-text-secondary font-medium">{label}</span>
         <span className="text-text-muted font-mono">${value.toFixed(2)} ({pct.toFixed(0)}%)</span>
       </div>
@@ -113,7 +113,7 @@ export function PortfolioSummary({ balances }: { balances: WalletBalance[] }) {
 
       {/* Total value */}
       <div className="text-center mb-4">
-        <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1">Total Value</p>
+        <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Total Value</p>
         <div className="flex items-center justify-center gap-2">
           <p className="text-2xl sm:text-3xl font-bold text-text-primary tabular-nums tracking-tight">
             <DollarSign className="w-5 h-5 inline text-text-muted -mt-1" />
@@ -144,7 +144,7 @@ export function PortfolioSummary({ balances }: { balances: WalletBalance[] }) {
           <div className="text-center py-4">
             <Wallet className="w-6 h-6 text-text-muted/30 mx-auto mb-1.5" />
             <p className="text-xs text-text-muted">No balances yet</p>
-            <p className="text-[10px] text-text-muted/60 mt-0.5">Fund your wallets to see portfolio</p>
+            <p className="text-xs text-text-muted/60 mt-0.5">Fund your wallets to see portfolio</p>
           </div>
         )}
       </div>
@@ -153,11 +153,11 @@ export function PortfolioSummary({ balances }: { balances: WalletBalance[] }) {
       {totalUsd > 0.001 && (
         <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-border">
           <div className="text-center">
-            <p className="text-[10px] text-text-muted">Chains</p>
+            <p className="text-xs text-text-muted">Chains</p>
             <p className="text-sm font-semibold text-text-primary">{chainValues.filter(c => c.total > 0.001).length}</p>
           </div>
           <div className="text-center">
-            <p className="text-[10px] text-text-muted">USDT %</p>
+            <p className="text-xs text-text-muted">USDT %</p>
             <p className="text-sm font-semibold text-accent tabular-nums">
               {totalUsd > 0 ? ((chainValues.reduce((s, c) => s + c.usdtVal, 0) / totalUsd) * 100).toFixed(0) : 0}%
             </p>

@@ -62,8 +62,8 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
               <div className="flex items-center gap-1">
                 {s.keys.map((key, j) => (
                   <span key={j} className="flex items-center gap-1">
-                    {j > 0 && <span className="text-[10px] text-text-muted">+</span>}
-                    <kbd className="inline-flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded-md bg-surface-3 border border-border text-[11px] font-mono font-medium text-text-secondary shadow-sm">
+                    {j > 0 && <span className="text-xs text-text-muted">+</span>}
+                    <kbd className="inline-flex items-center justify-center min-w-[24px] h-6 px-1.5 rounded-md bg-surface-3 border border-border text-sm font-mono font-medium text-text-secondary shadow-sm">
                       {key}
                     </kbd>
                   </span>
@@ -75,7 +75,7 @@ export function KeyboardShortcutsModal({ open, onClose }: KeyboardShortcutsModal
 
         {/* Footer */}
         <div className="px-5 py-3 border-t border-border">
-          <p className="text-[10px] text-text-muted text-center">
+          <p className="text-xs text-text-muted text-center">
             Shortcuts are disabled while typing in input fields (except {modKey}+K and {modKey}+Enter)
           </p>
         </div>

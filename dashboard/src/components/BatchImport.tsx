@@ -207,7 +207,7 @@ export function BatchImport() {
       <div className="flex items-center gap-2 mb-4">
         <Upload className="w-4 h-4 text-accent" />
         <h2 className="text-base font-semibold text-text-primary">Batch Import</h2>
-        <span className="text-[10px] text-text-muted ml-auto px-2 py-0.5 rounded-full bg-surface-3">
+        <span className="text-xs text-text-muted ml-auto px-2 py-0.5 rounded-full bg-surface-3">
           CSV
         </span>
       </div>
@@ -247,7 +247,7 @@ export function BatchImport() {
               rows={6}
               className="w-full px-3 py-2.5 rounded-lg bg-surface-2 border border-border text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-border focus:ring-1 focus:ring-accent-border transition-colors font-mono resize-y"
             />
-            <p className="text-[10px] text-text-muted mt-1">
+            <p className="text-xs text-text-muted mt-1">
               Format: recipient,amount,token,chain,memo (max 20 rows)
             </p>
           </div>
@@ -275,17 +275,17 @@ export function BatchImport() {
         <div className="space-y-3">
           {/* Summary badges */}
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-3 text-[10px] text-text-secondary">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-3 text-xs text-text-secondary">
               {parsedRows.length} total
             </span>
             {validCount > 0 && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[10px] text-green-400">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-xs text-green-400">
                 <CheckCircle2 className="w-3 h-3" />
                 {validCount} valid
               </span>
             )}
             {invalidCount > 0 && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] text-red-400">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-xs text-red-400">
                 <XCircle className="w-3 h-3" />
                 {invalidCount} invalid
               </span>
@@ -342,11 +342,11 @@ export function BatchImport() {
           {/* Error details for invalid rows */}
           {invalidCount > 0 && (
             <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/15 space-y-1">
-              <p className="text-[11px] font-medium text-red-400">Validation Errors:</p>
+              <p className="text-sm font-medium text-red-400">Validation Errors:</p>
               {parsedRows
                 .filter((r) => !r.valid)
                 .map((r, i) => (
-                  <p key={i} className="text-[10px] text-red-400/80">
+                  <p key={i} className="text-xs text-red-400/80">
                     Row {parsedRows.indexOf(r) + 1}: {r.errors.join(', ')}
                   </p>
                 ))}
@@ -411,15 +411,15 @@ export function BatchImport() {
           <div className="grid grid-cols-3 gap-2">
             <div className="p-3 rounded-lg bg-surface-2 border border-border text-center">
               <p className="text-lg font-bold text-text-primary">{result.total}</p>
-              <p className="text-[10px] text-text-muted uppercase tracking-wider">Total</p>
+              <p className="text-xs text-text-muted uppercase tracking-wider">Total</p>
             </div>
             <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/20 text-center">
               <p className="text-lg font-bold text-green-400">{result.success}</p>
-              <p className="text-[10px] text-green-400/70 uppercase tracking-wider">Success</p>
+              <p className="text-xs text-green-400/70 uppercase tracking-wider">Success</p>
             </div>
             <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/20 text-center">
               <p className="text-lg font-bold text-red-400">{result.failed}</p>
-              <p className="text-[10px] text-red-400/70 uppercase tracking-wider">Failed</p>
+              <p className="text-xs text-red-400/70 uppercase tracking-wider">Failed</p>
             </div>
           </div>
 
@@ -448,15 +448,15 @@ export function BatchImport() {
                     </span>
                   </div>
                   {r.txHash && (
-                    <p className="text-[10px] text-text-muted font-mono truncate mt-0.5">
+                    <p className="text-xs text-text-muted font-mono truncate mt-0.5">
                       TX: {r.txHash}
                     </p>
                   )}
                   {r.error && (
-                    <p className="text-[10px] text-red-400 mt-0.5">{r.error}</p>
+                    <p className="text-xs text-red-400 mt-0.5">{r.error}</p>
                   )}
                   {r.memo && (
-                    <p className="text-[10px] text-text-muted mt-0.5 italic">
+                    <p className="text-xs text-text-muted mt-0.5 italic">
                       Memo: {r.memo}
                     </p>
                   )}

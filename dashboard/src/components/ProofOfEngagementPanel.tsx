@@ -77,12 +77,12 @@ export function ProofOfEngagementPanel() {
           <Fingerprint className="w-4 h-4 text-indigo-400" />
           Proof-of-Engagement
         </h3>
-        <button onClick={load} aria-label="Refresh attestations" className="text-[10px] text-text-muted hover:text-accent transition-colors flex items-center gap-1">
+        <button onClick={load} aria-label="Refresh attestations" className="text-xs text-text-muted hover:text-accent transition-colors flex items-center gap-1">
           <RefreshCw className="w-3 h-3" /> Refresh
         </button>
       </div>
 
-      <p className="text-[10px] text-text-secondary">
+      <p className="text-xs text-text-secondary">
         WDK-signed cryptographic attestations proving real viewer engagement. Unforgeable — verified onchain.
       </p>
 
@@ -99,7 +99,7 @@ export function ProofOfEngagementPanel() {
           ].map(([label, value], i) => (
             <div key={label as string} className="p-2 rounded-lg bg-surface-2 border border-border text-center animate-list-item-in" style={{ animationDelay: `${i * 40}ms` }}>
               <div className="text-sm font-bold text-text-primary tabular-nums">{value as string}</div>
-              <div className="text-[9px] text-text-muted">{label as string}</div>
+              <div className="text-xs text-text-muted">{label as string}</div>
             </div>
           ))}
         </div>
@@ -113,21 +113,21 @@ export function ProofOfEngagementPanel() {
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-1.5">
                   <Shield className="w-3 h-3 text-indigo-400" />
-                  <span className="text-[10px] text-text-primary font-mono">{att.proof.payloadHash.slice(0, 16)}...</span>
+                  <span className="text-xs text-text-primary font-mono">{att.proof.payloadHash.slice(0, 16)}...</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   {verifyResult?.id === att.id ? (
                     verifyResult.valid ? (
-                      <span className="text-[10px] text-green-400 flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" /> Valid</span>
+                      <span className="text-xs text-green-400 flex items-center gap-0.5"><CheckCircle2 className="w-3 h-3" /> Valid</span>
                     ) : (
-                      <span className="text-[10px] text-red-400 flex items-center gap-0.5"><XCircle className="w-3 h-3" /> Invalid</span>
+                      <span className="text-xs text-red-400 flex items-center gap-0.5"><XCircle className="w-3 h-3" /> Invalid</span>
                     )
                   ) : (
                     <button
                       onClick={() => verify(att.id)}
                       disabled={verifyingId === att.id}
                       aria-label="Verify engagement proof"
-                      className="text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-colors btn-press disabled:opacity-50"
+                      className="text-xs px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-colors btn-press disabled:opacity-50"
                     >
                       {verifyingId === att.id ? '...' : 'Verify'}
                     </button>
@@ -135,7 +135,7 @@ export function ProofOfEngagementPanel() {
                   {att.verified && <CheckCircle2 className="w-3 h-3 text-green-400" />}
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-2 text-[10px]">
+              <div className="grid grid-cols-3 gap-2 text-xs">
                 <div>
                   <span className="text-text-muted">Watch: </span>
                   <span className="text-text-primary tabular-nums">{att.engagement.watchPercent}%</span>
@@ -155,11 +155,11 @@ export function ProofOfEngagementPanel() {
       ) : !error ? (
         <div className="text-center py-4">
           <Fingerprint className="w-6 h-6 text-text-muted/30 mx-auto mb-1" />
-          <p className="text-[10px] text-text-muted">No attestations yet. Tips with engagement data generate PoE proofs.</p>
+          <p className="text-xs text-text-muted">No attestations yet. Tips with engagement data generate PoE proofs.</p>
         </div>
       ) : null}
 
-      <div className="p-2 rounded-lg bg-indigo-500/5 border border-indigo-500/10 text-[9px] text-text-muted">
+      <div className="p-2 rounded-lg bg-indigo-500/5 border border-indigo-500/10 text-xs text-text-muted">
         <Fingerprint className="w-3 h-3 text-indigo-400 inline mr-1" />
         Each attestation is signed with the viewer&apos;s WDK wallet key — unforgeable proof of real engagement
       </div>

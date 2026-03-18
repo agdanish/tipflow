@@ -109,7 +109,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               <div className="px-4 pb-4 space-y-3">
                 {error && (
                   <div>
-                    <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-1">
+                    <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">
                       Error
                     </p>
                     <pre className="text-xs text-red-400 bg-surface font-mono p-3 rounded-md border border-border overflow-x-auto whitespace-pre-wrap break-words">
@@ -119,10 +119,10 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 )}
                 {errorInfo?.componentStack && (
                   <div>
-                    <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-1">
+                    <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">
                       Component Stack
                     </p>
-                    <pre className="text-[11px] text-text-secondary bg-surface font-mono p-3 rounded-md border border-border overflow-x-auto whitespace-pre-wrap break-words max-h-48 overflow-y-auto">
+                    <pre className="text-sm text-text-secondary bg-surface font-mono p-3 rounded-md border border-border overflow-x-auto whitespace-pre-wrap break-words max-h-48 overflow-y-auto">
                       {errorInfo.componentStack}
                     </pre>
                   </div>

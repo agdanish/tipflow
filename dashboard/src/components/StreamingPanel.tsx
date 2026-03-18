@@ -172,15 +172,15 @@ export function StreamingPanel() {
         <div className="grid grid-cols-3 gap-3 mb-4">
           <div className="bg-white/[0.03] rounded-lg px-3 py-2 text-center border border-white/[0.05]">
             <div className="text-lg font-bold text-text-primary tabular-nums value-glow-green">{stats.activeStreams}</div>
-            <div className="text-[10px] text-text-muted">Active</div>
+            <div className="text-xs text-text-muted">Active</div>
           </div>
           <div className="bg-white/[0.03] rounded-lg px-3 py-2 text-center border border-white/[0.05]">
             <div className="text-lg font-bold text-text-primary tabular-nums">{parseFloat(stats.totalAmountStreamed).toFixed(4)}</div>
-            <div className="text-[10px] text-text-muted">Streamed</div>
+            <div className="text-xs text-text-muted">Streamed</div>
           </div>
           <div className="bg-white/[0.03] rounded-lg px-3 py-2 text-center border border-white/[0.05]">
             <div className="text-lg font-bold text-text-primary tabular-nums">{stats.totalTransactionsSent}</div>
-            <div className="text-[10px] text-text-muted">Txns</div>
+            <div className="text-xs text-text-muted">Txns</div>
           </div>
         </div>
       )}
@@ -190,7 +190,7 @@ export function StreamingPanel() {
         <form onSubmit={handleStart} className="mb-4 p-3 rounded-lg bg-surface-2 border border-border space-y-3 animate-slide-down">
           {/* Preset templates */}
           <div>
-            <label className="block text-[10px] text-text-muted uppercase tracking-wider mb-1.5">Quick Presets</label>
+            <label className="block text-xs text-text-muted uppercase tracking-wider mb-1.5">Quick Presets</label>
             <div className="grid grid-cols-3 gap-1.5">
               {[
                 { label: 'Micro-tip', amount: '0.001', interval: '30', desc: '$0.001 every 30s' },
@@ -201,7 +201,7 @@ export function StreamingPanel() {
                   key={p.label}
                   type="button"
                   onClick={() => { setAmountPerTick(p.amount); setIntervalSeconds(p.interval); }}
-                  className={`p-2 rounded-lg border text-[10px] text-left transition-all btn-press ${
+                  className={`p-2 rounded-lg border text-xs text-left transition-all btn-press ${
                     amountPerTick === p.amount && intervalSeconds === p.interval
                       ? 'border-accent bg-accent/10 text-accent'
                       : 'border-border bg-surface-1 text-text-secondary hover:border-border-light'
@@ -214,7 +214,7 @@ export function StreamingPanel() {
             </div>
           </div>
           <div>
-            <label className="block text-[11px] text-text-muted mb-1">Recipient Address</label>
+            <label className="block text-sm text-text-muted mb-1">Recipient Address</label>
             <input
               type="text"
               value={recipient}
@@ -226,7 +226,7 @@ export function StreamingPanel() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] text-text-muted mb-1">Amount / Tick</label>
+              <label className="block text-sm text-text-muted mb-1">Amount / Tick</label>
               <input
                 type="number"
                 step="0.001"
@@ -238,7 +238,7 @@ export function StreamingPanel() {
               />
             </div>
             <div>
-              <label className="block text-[11px] text-text-muted mb-1">Interval (sec)</label>
+              <label className="block text-sm text-text-muted mb-1">Interval (sec)</label>
               <input
                 type="number"
                 min="10"
@@ -251,7 +251,7 @@ export function StreamingPanel() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] text-text-muted mb-1">Chain</label>
+              <label className="block text-sm text-text-muted mb-1">Chain</label>
               <select
                 value={chainId}
                 onChange={(e) => setChainId(e.target.value)}
@@ -263,7 +263,7 @@ export function StreamingPanel() {
               </select>
             </div>
             <div>
-              <label className="block text-[11px] text-text-muted mb-1">Budget Cap (opt)</label>
+              <label className="block text-sm text-text-muted mb-1">Budget Cap (opt)</label>
               <input
                 type="number"
                 step="0.01"
@@ -278,8 +278,8 @@ export function StreamingPanel() {
           {/* Rate preview calculator */}
           {parseFloat(amountPerTick) > 0 && parseInt(intervalSeconds) > 0 && (
             <div className="p-2.5 rounded-lg bg-accent/5 border border-accent/15 space-y-1">
-              <p className="text-[10px] font-semibold text-accent uppercase tracking-wider">Stream Rate Preview</p>
-              <div className="grid grid-cols-3 gap-2 text-[10px]">
+              <p className="text-xs font-semibold text-accent uppercase tracking-wider">Stream Rate Preview</p>
+              <div className="grid grid-cols-3 gap-2 text-xs">
                 <div className="text-center">
                   <div className="font-bold text-text-primary tabular-nums">{(parseFloat(amountPerTick) * (3600 / parseInt(intervalSeconds))).toFixed(4)}</div>
                   <div className="text-text-muted">per hour</div>
@@ -294,7 +294,7 @@ export function StreamingPanel() {
                 </div>
               </div>
               {maxBudget && parseFloat(maxBudget) > 0 && (
-                <div className="pt-1 border-t border-accent/10 text-[10px] text-text-muted text-center">
+                <div className="pt-1 border-t border-accent/10 text-xs text-text-muted text-center">
                   Budget lasts ~{Math.floor((parseFloat(maxBudget) / parseFloat(amountPerTick)) * parseInt(intervalSeconds) / 3600)} hours ({Math.floor(parseFloat(maxBudget) / parseFloat(amountPerTick))} ticks)
                 </div>
               )}
@@ -327,11 +327,11 @@ export function StreamingPanel() {
                 <div className="flex items-center gap-2 mb-2">
                   <div className={`w-2 h-2 rounded-full ${colors.dot} ${stream.status === 'active' ? 'animate-pulse' : ''}`} />
                   <span className="font-mono text-xs text-text-primary">{truncateAddress(stream.recipient)}</span>
-                  <span className={`ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded ${colors.bg} ${colors.text}`}>
+                  <span className={`ml-auto text-xs font-semibold px-1.5 py-0.5 rounded ${colors.bg} ${colors.text}`}>
                     {colors.label}
                   </span>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-[11px] text-text-muted mb-2">
+                <div className="grid grid-cols-3 gap-2 text-sm text-text-muted mb-2">
                   <div className="flex items-center gap-1">
                     <Zap className="w-3 h-3" />
                     {parseFloat(stream.totalStreamed).toFixed(4)} {stream.token}
@@ -348,11 +348,11 @@ export function StreamingPanel() {
                 {stream.status === 'active' && stream.elapsedSeconds > 0 && (
                   <div className="flex items-center gap-1.5 mb-2 px-2 py-1 rounded-md bg-amber-500/5 border border-amber-500/15">
                     <Zap className="w-3 h-3 text-amber-400" />
-                    <span className="text-[10px] text-amber-400 font-medium tabular-nums">
+                    <span className="text-xs text-amber-400 font-medium tabular-nums">
                       Burn rate: {((parseFloat(stream.totalStreamed) / stream.elapsedSeconds) * 3600).toFixed(4)} {stream.token}/hr
                     </span>
                     {stream.maxBudget && parseFloat(stream.maxBudget) > 0 && (
-                      <span className="text-[10px] text-text-muted ml-auto tabular-nums">
+                      <span className="text-xs text-text-muted ml-auto tabular-nums">
                         ~{Math.max(0, Math.round(((parseFloat(stream.maxBudget) - parseFloat(stream.totalStreamed)) / (parseFloat(stream.totalStreamed) / stream.elapsedSeconds)) / 60))}m left
                       </span>
                     )}
@@ -366,7 +366,7 @@ export function StreamingPanel() {
                         style={{ width: `${Math.min(100, (parseFloat(stream.totalStreamed) / parseFloat(stream.maxBudget)) * 100)}%` }}
                       />
                     </div>
-                    <div className="text-[10px] text-text-muted mt-0.5 text-right">
+                    <div className="text-xs text-text-muted mt-0.5 text-right">
                       {parseFloat(stream.totalStreamed).toFixed(4)} / {stream.maxBudget} budget
                     </div>
                   </div>
@@ -425,7 +425,7 @@ export function StreamingPanel() {
                   <span className="font-mono text-text-primary">{truncateAddress(s.recipient)}</span>
                   <span className="text-text-muted">{parseFloat(s.totalStreamed).toFixed(4)} {s.token}</span>
                   <span className="text-text-muted">{s.totalTransactions} txns</span>
-                  <span className={`ml-auto ${colors.text} text-[10px]`}>{colors.label}</span>
+                  <span className={`ml-auto ${colors.text} text-xs`}>{colors.label}</span>
                 </div>
               );
             })

@@ -105,26 +105,26 @@ function VoteCard({ vote, index, isLive }: { vote: AgentVote; index: number; isL
         </div>
         <div className="flex-1 min-w-0">
           <span className="text-xs font-semibold text-text-primary">{agentNames[vote.agent] ?? vote.agent}</span>
-          <p className="text-[9px] text-text-muted">{agentRoles[vote.agent] ?? ''}</p>
+          <p className="text-xs text-text-muted">{agentRoles[vote.agent] ?? ''}</p>
         </div>
       </div>
 
       {/* Decision badge */}
       <div className="flex items-center gap-2 mb-2">
         {vote.decision === 'approve' ? (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/15 border border-green-500/25 text-[10px] font-bold text-green-400">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/15 border border-green-500/25 text-xs font-bold text-green-400">
             <CheckCircle2 className="w-3 h-3" /> APPROVE
           </span>
         ) : vote.decision === 'reject' ? (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/15 border border-red-500/25 text-[10px] font-bold text-red-400">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500/15 border border-red-500/25 text-xs font-bold text-red-400">
             <XCircle className="w-3 h-3" /> REJECT
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/25 text-[10px] font-bold text-amber-400">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/25 text-xs font-bold text-amber-400">
             <AlertTriangle className="w-3 h-3" /> ABSTAIN
           </span>
         )}
-        <span className="text-[10px] text-text-muted ml-auto tabular-nums">{vote.confidence}%</span>
+        <span className="text-xs text-text-muted ml-auto tabular-nums">{vote.confidence}%</span>
       </div>
 
       {/* Confidence bar */}
@@ -133,7 +133,7 @@ function VoteCard({ vote, index, isLive }: { vote: AgentVote; index: number; isL
       {/* Reasoning bullets */}
       <ul className="mt-2 space-y-0.5">
         {reasonParts.slice(0, 4).map((part, i) => (
-          <li key={i} className="text-[10px] text-text-secondary flex items-start gap-1">
+          <li key={i} className="text-xs text-text-secondary flex items-start gap-1">
             <span className="text-text-muted mt-0.5 shrink-0">•</span>
             <span>{part.trim()}</span>
           </li>
@@ -225,8 +225,8 @@ export function OrchestratorPanel() {
                 <span className="text-xs font-medium text-text-primary">{agentNames[agent.role] ?? agent.role}</span>
               </div>
               <div className="text-lg font-bold text-text-primary tabular-nums">{agent.avgConfidence}%</div>
-              <div className="text-[10px] text-text-secondary">avg confidence</div>
-              <div className="flex gap-2 mt-1.5 text-[10px]">
+              <div className="text-xs text-text-secondary">avg confidence</div>
+              <div className="flex gap-2 mt-1.5 text-xs">
                 <span className="text-green-400">&#10003;{agent.approvals}</span>
                 <span className="text-red-400">&#10007;{agent.rejections}</span>
                 <span className="text-text-secondary">w:{agent.weight}x</span>
@@ -261,10 +261,10 @@ export function OrchestratorPanel() {
           {/* Reasoning chain */}
           {liveResult.reasoningChain.length > 0 && (
             <div className="space-y-1.5 pt-2 border-t border-accent/15">
-              <p className="text-[10px] font-semibold text-accent uppercase tracking-wider">Consensus Reasoning</p>
+              <p className="text-xs font-semibold text-accent uppercase tracking-wider">Consensus Reasoning</p>
               {liveResult.reasoningChain.map((step, i) => (
-                <div key={i} className="flex items-start gap-2 text-[11px] text-text-secondary animate-list-item-in" style={{ animationDelay: `${(i + 3) * 200}ms` }}>
-                  <span className="w-4 h-4 rounded-full bg-accent/20 text-accent flex items-center justify-center text-[9px] font-bold shrink-0 mt-0.5">{i + 1}</span>
+                <div key={i} className="flex items-start gap-2 text-sm text-text-secondary animate-list-item-in" style={{ animationDelay: `${(i + 3) * 200}ms` }}>
+                  <span className="w-4 h-4 rounded-full bg-accent/20 text-accent flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">{i + 1}</span>
                   <span>{step}</span>
                 </div>
               ))}
@@ -305,7 +305,7 @@ export function OrchestratorPanel() {
                     </span>
                     <div className="flex gap-1">
                       {action.votes.map((vote) => (
-                        <span key={vote.agent} className={`text-[9px] px-1 py-0.5 rounded ${
+                        <span key={vote.agent} className={`text-xs px-1 py-0.5 rounded ${
                           vote.decision === 'approve' ? 'bg-green-500/10 text-green-400' :
                           'bg-red-500/10 text-red-400'
                         }`}>
@@ -327,9 +327,9 @@ export function OrchestratorPanel() {
                     </div>
                     {action.reasoningChain.length > 0 && (
                       <div className="space-y-1 pt-2 border-t border-border">
-                        <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">Reasoning Chain</p>
+                        <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">Reasoning Chain</p>
                         {action.reasoningChain.map((step, si) => (
-                          <p key={si} className="text-[10px] text-text-secondary flex items-start gap-1.5">
+                          <p key={si} className="text-xs text-text-secondary flex items-start gap-1.5">
                             <span className="text-accent font-bold">{si + 1}.</span> {step}
                           </p>
                         ))}

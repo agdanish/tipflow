@@ -126,11 +126,11 @@ export function AgentActivityFeed() {
         </h2>
         <div className="flex items-center gap-2">
           {autonomousCount > 0 && (
-            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 tabular-nums">
+            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 tabular-nums">
               {autonomousCount} autonomous
             </span>
           )}
-          <span className={`flex items-center gap-1 text-[10px] ${connected ? 'text-green-400' : 'text-red-400'}`}>
+          <span className={`flex items-center gap-1 text-xs ${connected ? 'text-green-400' : 'text-red-400'}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${connected ? 'bg-green-400 connection-dot-breathe' : 'bg-red-400'}`} />
             {connected ? 'Live' : 'Reconnecting'}
           </span>
@@ -142,7 +142,7 @@ export function AgentActivityFeed() {
         <div className="text-center py-6">
           <Activity className="w-8 h-8 text-text-muted/30 mx-auto mb-2" />
           <p className="text-xs text-text-muted">Agent is monitoring...</p>
-          <p className="text-[10px] text-text-muted/60 mt-1">Autonomous actions will appear here in real-time</p>
+          <p className="text-xs text-text-muted/60 mt-1">Autonomous actions will appear here in real-time</p>
         </div>
       ) : (
         <div className="space-y-1.5 max-h-72 overflow-y-auto">
@@ -161,19 +161,19 @@ export function AgentActivityFeed() {
                 <Icon className={`w-3.5 h-3.5 ${config.color} shrink-0 mt-0.5`} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className={`text-[9px] font-medium px-1 py-0.5 rounded ${config.color} bg-current/10`}>
+                    <span className={`text-xs font-medium px-1 py-0.5 rounded ${config.color} bg-current/10`}>
                       {config.label}
                     </span>
                     {action.autonomous && (
-                      <span className="text-[8px] font-bold text-accent uppercase tracking-wider">AUTO</span>
+                      <span className="text-xs font-bold text-accent uppercase tracking-wider">AUTO</span>
                     )}
                   </div>
-                  <p className="text-[11px] text-text-secondary mt-0.5">{action.message}</p>
+                  <p className="text-sm text-text-secondary mt-0.5">{action.message}</p>
                   {action.detail && (
-                    <p className="text-[10px] text-text-muted mt-0.5">{action.detail}</p>
+                    <p className="text-xs text-text-muted mt-0.5">{action.detail}</p>
                   )}
                 </div>
-                <span className="text-[9px] text-text-muted shrink-0 tabular-nums">{timeAgo(action.timestamp)}</span>
+                <span className="text-xs text-text-muted shrink-0 tabular-nums">{timeAgo(action.timestamp)}</span>
               </div>
             );
           })}

@@ -32,7 +32,7 @@ export function ContextualHelp({ tips, variant = 'inline', defaultOpen = false }
       <div className="space-y-1">
         <button
           onClick={() => setOpen(!open)}
-          className="flex items-center gap-1.5 text-[11px] text-text-muted hover:text-text-secondary transition-colors"
+          className="flex items-center gap-1.5 text-sm text-text-muted hover:text-text-secondary transition-colors"
           aria-expanded={open}
         >
           <HelpCircle className="w-3 h-3" />
@@ -44,7 +44,7 @@ export function ContextualHelp({ tips, variant = 'inline', defaultOpen = false }
             {tips.map((tip, i) => (
               <div
                 key={i}
-                className="flex items-start gap-2 pl-4 text-[11px] text-text-muted animate-list-item-in"
+                className="flex items-start gap-2 pl-4 text-sm text-text-muted animate-list-item-in"
                 style={{ animationDelay: `${i * 50}ms` }}
               >
                 <Lightbulb className="w-3 h-3 text-amber-400 shrink-0 mt-0.5" />
@@ -100,14 +100,14 @@ export function ContextualHelp({ tips, variant = 'inline', defaultOpen = false }
               </div>
               {expandedIdx === i && (
                 <div className="mt-2 pl-5.5 animate-slide-down">
-                  <p className="text-[11px] text-text-muted leading-relaxed">{tip.description}</p>
+                  <p className="text-sm text-text-muted leading-relaxed">{tip.description}</p>
                   {tip.action && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         tip.action!.onClick();
                       }}
-                      className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-accent hover:text-accent-light transition-colors btn-press"
+                      className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-accent hover:text-accent-light transition-colors btn-press"
                     >
                       {tip.action.label}
                       <ArrowRight className="w-3 h-3" />

@@ -185,7 +185,7 @@ export function DemoScenarios({ onSetTipMode, onTipComplete }: DemoScenariosProp
       <div className="flex items-center gap-2 mb-4">
         <Film className="w-5 h-5 text-amber-400" />
         <h2 className="text-base font-semibold text-text-primary">Demo Scenarios</h2>
-        <span className="ml-auto text-[10px] text-text-muted font-medium uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400">
+        <span className="ml-auto text-xs text-text-muted font-medium uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400">
           One-Click Demos
         </span>
       </div>
@@ -221,12 +221,12 @@ export function DemoScenarios({ onSetTipMode, onTipComplete }: DemoScenariosProp
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-medium text-text-primary">{s.name}</h3>
-                  <p className="text-[11px] text-text-muted mt-0.5">{s.description}</p>
+                  <p className="text-sm text-text-muted mt-0.5">{s.description}</p>
                 </div>
               </div>
 
               <div className="flex items-center justify-between mt-2">
-                <span className="text-[10px] text-text-muted bg-surface-3 px-2 py-0.5 rounded-full">
+                <span className="text-xs text-text-muted bg-surface-3 px-2 py-0.5 rounded-full">
                   {s.feature}
                 </span>
                 <button
@@ -254,7 +254,7 @@ export function DemoScenarios({ onSetTipMode, onTipComplete }: DemoScenariosProp
 
               {/* Result indicator */}
               {lastResult && !isRunning && (
-                <div className={`mt-2 pt-2 border-t text-[11px] flex items-start gap-1.5 ${
+                <div className={`mt-2 pt-2 border-t text-sm flex items-start gap-1.5 ${
                   lastResult.status === 'success'
                     ? 'border-green-500/20 text-green-400'
                     : 'border-red-500/20 text-red-400'
@@ -309,7 +309,7 @@ export function DemoScenarios({ onSetTipMode, onTipComplete }: DemoScenariosProp
             {feeData.map((est, i) => (
               <div key={est.chainId} className="flex items-center justify-between text-xs">
                 <span className="text-text-secondary flex items-center gap-1.5">
-                  {i === 0 && <span className="text-green-400 text-[10px] font-bold">BEST</span>}
+                  {i === 0 && <span className="text-green-400 text-xs font-bold">BEST</span>}
                   {est.chainId}
                 </span>
                 <span className="font-mono text-text-primary">{est.fee}</span>

@@ -70,10 +70,10 @@ export function PluginRegistry() {
           Plugin Ecosystem
         </h2>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">
             {activeCount} active
           </span>
-          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+          <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
             {plannedCount} planned
           </span>
         </div>
@@ -98,7 +98,7 @@ export function PluginRegistry() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold text-text-primary">{plugin.name}</span>
-                    <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded-full ${
+                    <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${
                       plugin.status === 'active'
                         ? 'bg-green-500/10 text-green-400 border border-green-500/20'
                         : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
@@ -110,18 +110,18 @@ export function PluginRegistry() {
                       )}
                     </span>
                   </div>
-                  <p className="text-[10px] text-text-muted mt-0.5 line-clamp-1">{plugin.description}</p>
+                  <p className="text-xs text-text-muted mt-0.5 line-clamp-1">{plugin.description}</p>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-[9px] font-mono text-text-muted">v{plugin.version}</span>
+                  <span className="text-xs font-mono text-text-muted">v{plugin.version}</span>
                   {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-text-muted" /> : <ChevronDown className="w-3.5 h-3.5 text-text-muted" />}
                 </div>
               </button>
 
               {isExpanded && (
                 <div className="border-t border-border p-3 animate-slide-down">
-                  <p className="text-[11px] text-text-secondary leading-relaxed">{plugin.details}</p>
-                  <div className="mt-2 flex items-center gap-3 text-[10px] text-text-muted">
+                  <p className="text-sm text-text-secondary leading-relaxed">{plugin.details}</p>
+                  <div className="mt-2 flex items-center gap-3 text-xs text-text-muted">
                     <span>Version: <span className="font-mono text-text-secondary">{plugin.version}</span></span>
                     <span>Status: <span className={plugin.status === 'active' ? 'text-green-400' : 'text-amber-400'}>{plugin.status}</span></span>
                   </div>
@@ -135,7 +135,7 @@ export function PluginRegistry() {
       {/* Develop Your Own CTA */}
       <div className="mt-4 p-3 rounded-lg border border-dashed border-accent/30 bg-accent/5 text-center">
         <p className="text-xs font-medium text-text-primary mb-1">Build Your Own Plugin</p>
-        <p className="text-[10px] text-text-muted mb-2">
+        <p className="text-xs text-text-muted mb-2">
           TipFlow exposes a plugin interface for any streaming or social platform.
         </p>
         <a

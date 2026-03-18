@@ -173,7 +173,7 @@ export function WebhookManager() {
                     className="sr-only"
                   />
                   <span
-                    className={`w-3 h-3 rounded border flex items-center justify-center text-[8px] ${
+                    className={`w-3 h-3 rounded border flex items-center justify-center text-xs ${
                       selectedEvents.includes(evt.value)
                         ? 'bg-accent border-accent text-white'
                         : 'border-border'
@@ -225,7 +225,7 @@ export function WebhookManager() {
                     {webhook.url}
                   </span>
                   {webhook.failCount > 0 && (
-                    <span className="shrink-0 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-red-500/15 border border-red-500/20 text-[10px] font-medium text-red-400">
+                    <span className="shrink-0 inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-red-500/15 border border-red-500/20 text-xs font-medium text-red-400">
                       <AlertTriangle className="w-2.5 h-2.5" />
                       {webhook.failCount} fail{webhook.failCount > 1 ? 's' : ''}
                     </span>
@@ -235,13 +235,13 @@ export function WebhookManager() {
                   {webhook.events.map((evt) => (
                     <span
                       key={evt}
-                      className="inline-block px-1.5 py-0.5 rounded bg-accent/10 border border-accent-border/30 text-[10px] font-medium text-accent"
+                      className="inline-block px-1.5 py-0.5 rounded bg-accent/10 border border-accent-border/30 text-xs font-medium text-accent"
                     >
                       {evt}
                     </span>
                   ))}
                 </div>
-                <div className="text-[11px] text-text-muted">
+                <div className="text-sm text-text-muted">
                   Created {new Date(webhook.createdAt).toLocaleString()}
                   {webhook.lastTriggered && (
                     <> &middot; Last triggered {new Date(webhook.lastTriggered).toLocaleString()}</>

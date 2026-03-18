@@ -112,7 +112,7 @@ export function NotificationCenter({ notifications, onMarkRead, onMarkAllRead, o
       >
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-accent text-[10px] font-bold text-white animate-bounce-in">
+          <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-accent text-xs font-bold text-white animate-bounce-in">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -127,7 +127,7 @@ export function NotificationCenter({ notifications, onMarkRead, onMarkAllRead, o
               <Bell className="w-4 h-4 text-accent" />
               <h3 className="text-sm font-semibold text-text-primary">Notifications</h3>
               {unreadCount > 0 && (
-                <span className="text-[10px] text-accent bg-accent/10 px-1.5 py-0.5 rounded-full font-medium">
+                <span className="text-xs text-accent bg-accent/10 px-1.5 py-0.5 rounded-full font-medium">
                   {unreadCount} new
                 </span>
               )}
@@ -194,7 +194,7 @@ export function NotificationCenter({ notifications, onMarkRead, onMarkAllRead, o
                       {/* Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 mb-0.5">
-                          <span className={`text-[10px] font-medium ${config.color}`}>
+                          <span className={`text-xs font-medium ${config.color}`}>
                             {config.label}
                           </span>
                           {!notification.read && (
@@ -205,11 +205,11 @@ export function NotificationCenter({ notifications, onMarkRead, onMarkAllRead, o
                           {notification.message}
                         </p>
                         {notification.detail && (
-                          <p className="text-[11px] text-text-muted mt-0.5 truncate">
+                          <p className="text-sm text-text-muted mt-0.5 truncate">
                             {notification.detail}
                           </p>
                         )}
-                        <span className="text-[10px] text-text-muted mt-1 block">
+                        <span className="text-xs text-text-muted mt-1 block">
                           {relativeTime(notification.timestamp)}
                         </span>
                       </div>

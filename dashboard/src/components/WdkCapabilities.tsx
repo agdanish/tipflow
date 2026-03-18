@@ -79,7 +79,7 @@ export function WdkCapabilities() {
           WDK Wallet Capabilities
         </h2>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-accent font-medium px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20">
+          <span className="text-xs text-accent font-medium px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20">
             8 packages
           </span>
           {expanded ? <ChevronUp className="w-4 h-4 text-text-muted" /> : <ChevronDown className="w-4 h-4 text-text-muted" />}
@@ -90,7 +90,7 @@ export function WdkCapabilities() {
         <div className="mt-4 space-y-4 animate-slide-down">
           {/* WDK Package Grid */}
           <div>
-            <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">Integrated WDK Packages</p>
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Integrated WDK Packages</p>
             <div className="space-y-1.5">
               {WDK_PACKAGES.map((pkg, i) => (
                 <div
@@ -102,10 +102,10 @@ export function WdkCapabilities() {
                     {pkg.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-mono font-medium text-text-primary truncate">{pkg.name}</p>
-                    <p className="text-[10px] text-text-muted truncate">{pkg.description}</p>
+                    <p className="text-sm font-mono font-medium text-text-primary truncate">{pkg.name}</p>
+                    <p className="text-xs text-text-muted truncate">{pkg.description}</p>
                   </div>
-                  <span className={`shrink-0 text-[9px] font-medium px-1.5 py-0.5 rounded-full ${
+                  <span className={`shrink-0 text-xs font-medium px-1.5 py-0.5 rounded-full ${
                     pkg.status === 'active'
                       ? 'bg-green-500/10 text-green-400'
                       : pkg.status === 'available'
@@ -122,7 +122,7 @@ export function WdkCapabilities() {
           {/* HD Derived Accounts */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">HD Wallet Derivation (BIP-44)</p>
+              <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">HD Wallet Derivation (BIP-44)</p>
               <button onClick={loadAccounts} className="p-1 rounded text-text-muted hover:text-text-primary transition-colors">
                 <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
               </button>
@@ -138,17 +138,17 @@ export function WdkCapabilities() {
                         : 'border-border bg-surface-2/50'
                     }`}
                   >
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
                       acc.isActive ? 'bg-accent/20 text-accent' : 'bg-surface-3 text-text-muted'
                     }`}>
                       {acc.index}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-mono text-text-primary truncate">{acc.address}</p>
-                      <p className="text-[9px] text-text-muted font-mono">{acc.path}</p>
+                      <p className="text-xs font-mono text-text-primary truncate">{acc.address}</p>
+                      <p className="text-xs text-text-muted font-mono">{acc.path}</p>
                     </div>
                     {acc.isActive && (
-                      <span className="text-[9px] font-medium text-accent px-1.5 py-0.5 rounded-full bg-accent/10">Active</span>
+                      <span className="text-xs font-medium text-accent px-1.5 py-0.5 rounded-full bg-accent/10">Active</span>
                     )}
                   </div>
                 ))}
@@ -156,13 +156,13 @@ export function WdkCapabilities() {
             ) : loading ? (
               <div className="h-20 skeleton rounded-lg" />
             ) : (
-              <p className="text-[10px] text-text-muted text-center py-4">Click refresh to load derived accounts</p>
+              <p className="text-xs text-text-muted text-center py-4">Click refresh to load derived accounts</p>
             )}
           </div>
 
           {/* ERC-4337 Account Abstraction Status */}
           <div>
-            <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">ERC-4337 Account Abstraction</p>
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">ERC-4337 Account Abstraction</p>
             <div className="p-3 rounded-lg bg-surface-2/50 border border-border">
               <div className="flex items-center gap-2 mb-2">
                 {gaslessStatus?.available ? (
@@ -174,7 +174,7 @@ export function WdkCapabilities() {
                   Bundler {gaslessStatus?.available ? 'Connected' : 'Unavailable'}
                 </span>
               </div>
-              <div className="space-y-1 text-[10px] text-text-muted">
+              <div className="space-y-1 text-xs text-text-muted">
                 <div className="flex justify-between">
                   <span>Protocol</span>
                   <span className="font-mono text-text-secondary">ERC-4337</span>
@@ -193,17 +193,17 @@ export function WdkCapabilities() {
 
           {/* Cryptographic Operations */}
           <div>
-            <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">Cryptographic Operations</p>
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Cryptographic Operations</p>
             <div className="grid grid-cols-2 gap-2">
               <div className="p-2.5 rounded-lg bg-surface-2/50 border border-border text-center">
                 <Shield className="w-4 h-4 text-cyan-400 mx-auto mb-1" />
-                <p className="text-[10px] font-medium text-text-primary">Proof-of-Tip</p>
-                <p className="text-[9px] text-text-muted">SHA-256 + ECDSA</p>
+                <p className="text-xs font-medium text-text-primary">Proof-of-Tip</p>
+                <p className="text-xs text-text-muted">SHA-256 + ECDSA</p>
               </div>
               <div className="p-2.5 rounded-lg bg-surface-2/50 border border-border text-center">
                 <Hash className="w-4 h-4 text-purple-400 mx-auto mb-1" />
-                <p className="text-[10px] font-medium text-text-primary">Receipt Signing</p>
-                <p className="text-[9px] text-text-muted">WDK account.sign()</p>
+                <p className="text-xs font-medium text-text-primary">Receipt Signing</p>
+                <p className="text-xs text-text-muted">WDK account.sign()</p>
               </div>
             </div>
           </div>

@@ -136,7 +136,7 @@ export function QuickActions({ onRefreshBalances, onScrollToCompare, onScrollToT
               </label>
             );
           })}
-          <p className="text-[10px] text-text-muted mt-2">Toggle actions to show/hide them from the bar.</p>
+          <p className="text-xs text-text-muted mt-2">Toggle actions to show/hide them from the bar.</p>
         </div>
       ) : (
         <div
@@ -160,7 +160,7 @@ export function QuickActions({ onRefreshBalances, onScrollToCompare, onScrollToT
             );
           })}
           {visibleActions.length === 0 && (
-            <p className="text-[11px] text-text-muted py-1">No actions visible. Click <Plus className="w-3 h-3 inline" /> to customize.</p>
+            <p className="text-sm text-text-muted py-1">No actions visible. Click <Plus className="w-3 h-3 inline" /> to customize.</p>
           )}
         </div>
       )}

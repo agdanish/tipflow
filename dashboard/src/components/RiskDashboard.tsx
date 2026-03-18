@@ -24,7 +24,7 @@ function RiskBar({ score, label }: { score: number; label: string }) {
   const color = score <= 25 ? '#22c55e' : score <= 50 ? '#f59e0b' : score <= 75 ? '#f97316' : '#ef4444';
   return (
     <div className="space-y-0.5">
-      <div className="flex justify-between text-[10px]">
+      <div className="flex justify-between text-xs">
         <span className="text-text-secondary">{label}</span>
         <span className="tabular-nums" style={{ color }}>{score}/100</span>
       </div>
@@ -51,7 +51,7 @@ export function RiskDashboard() {
           <ShieldAlert className="w-4 h-4 text-accent" />
           Risk Engine
         </h3>
-        <span className="text-[10px] text-text-muted">8-factor assessment</span>
+        <span className="text-xs text-text-muted">8-factor assessment</span>
       </div>
 
       {/* Overall risk level */}
@@ -62,14 +62,14 @@ export function RiskDashboard() {
             <span className={`text-sm font-bold ${levelColor}`}>{level} RISK</span>
             <span className="text-xs text-text-muted tabular-nums">Score: {simulatedScore}/100</span>
           </div>
-          <p className="text-[10px] text-text-secondary mt-0.5">
+          <p className="text-xs text-text-secondary mt-0.5">
             {simulatedScore <= 25 ? 'All factors within normal parameters — safe to execute' :
              simulatedScore <= 50 ? 'Some elevated factors — proceeding with caution' :
              'Multiple risk factors elevated — requires review'}
           </p>
         </div>
         <div className="text-right">
-          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+          <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
             simulatedScore <= 25 ? 'bg-green-500/20 text-green-400' :
             simulatedScore <= 50 ? 'bg-amber-500/20 text-amber-400' :
             'bg-red-500/20 text-red-400'
@@ -94,7 +94,7 @@ export function RiskDashboard() {
           {RISK_FACTORS.map((factor, i) => (
             <div key={factor.name} className="p-2 rounded-lg bg-surface-2 border border-border animate-list-item-in" style={{ animationDelay: `${i * 40}ms` }}>
               <RiskBar score={Math.max(5, Math.floor(Math.random() * 30))} label={`${factor.name} (${factor.weight})`} />
-              <p className="text-[9px] text-text-muted mt-1">{factor.description}</p>
+              <p className="text-xs text-text-muted mt-1">{factor.description}</p>
             </div>
           ))}
         </div>

@@ -60,7 +60,7 @@ export function DecisionAuditTrail() {
         <div className="text-center py-6">
           <FileText className="w-8 h-8 text-text-muted/30 mx-auto mb-2" />
           <p className="text-xs text-text-muted">No autonomous decisions yet</p>
-          <p className="text-[10px] text-text-muted/60 mt-1">Decisions appear when the agent acts autonomously</p>
+          <p className="text-xs text-text-muted/60 mt-1">Decisions appear when the agent acts autonomously</p>
         </div>
       </div>
     );
@@ -74,7 +74,7 @@ export function DecisionAuditTrail() {
           Decision Audit Trail
         </h2>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-text-muted">{decisions.length} decisions</span>
+          <span className="text-xs text-text-muted">{decisions.length} decisions</span>
           <button onClick={load} className="p-1 rounded text-text-muted hover:text-text-primary transition-colors">
             <RefreshCw className="w-3 h-3" />
           </button>
@@ -103,14 +103,14 @@ export function DecisionAuditTrail() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className={`text-xs font-medium ${config.color}`}>{config.label}</span>
-                    <span className="text-[10px] text-text-muted">•</span>
-                    <span className="text-[10px] text-text-secondary tabular-nums">{decision.amount} USDT</span>
-                    <span className="text-[10px] text-text-muted">&rarr;</span>
-                    <span className="text-[10px] text-text-secondary font-mono truncate">{decision.recipient.slice(0, 8)}...</span>
+                    <span className="text-xs text-text-muted">•</span>
+                    <span className="text-xs text-text-secondary tabular-nums">{decision.amount} USDT</span>
+                    <span className="text-xs text-text-muted">&rarr;</span>
+                    <span className="text-xs text-text-secondary font-mono truncate">{decision.recipient.slice(0, 8)}...</span>
                   </div>
-                  <p className="text-[10px] text-text-muted mt-0.5 truncate">{decision.trigger}</p>
+                  <p className="text-xs text-text-muted mt-0.5 truncate">{decision.trigger}</p>
                 </div>
-                <span className={`text-[10px] font-mono tabular-nums ${
+                <span className={`text-xs font-mono tabular-nums ${
                   decision.confidence >= 70 ? 'text-green-400' : decision.confidence >= 50 ? 'text-amber-400' : 'text-red-400'
                 }`}>{decision.confidence}%</span>
                 {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-text-muted shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 text-text-muted shrink-0" />}
@@ -121,37 +121,37 @@ export function DecisionAuditTrail() {
                 <div className="border-t border-border/50 p-3 space-y-3 animate-slide-down bg-surface-2/30">
                   {/* 4-part reasoning chain */}
                   <div className="space-y-2">
-                    <p className="text-[9px] font-semibold text-text-muted uppercase tracking-wider">Decision Reasoning Chain</p>
+                    <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">Decision Reasoning Chain</p>
 
                     <div className="flex items-start gap-2 p-2 rounded bg-surface-2/50">
                       <Brain className="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-[10px] font-semibold text-blue-400">Trigger</p>
-                        <p className="text-[10px] text-text-secondary">{decision.trigger}</p>
+                        <p className="text-xs font-semibold text-blue-400">Trigger</p>
+                        <p className="text-xs text-text-secondary">{decision.trigger}</p>
                       </div>
                     </div>
 
                     <div className="flex items-start gap-2 p-2 rounded bg-surface-2/50">
                       <Shield className="w-3.5 h-3.5 text-purple-400 shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-[10px] font-semibold text-purple-400">Recipient Selection</p>
-                        <p className="text-[10px] text-text-secondary">{decision.recipientRationale || 'Based on historical tipping pattern'}</p>
+                        <p className="text-xs font-semibold text-purple-400">Recipient Selection</p>
+                        <p className="text-xs text-text-secondary">{decision.recipientRationale || 'Based on historical tipping pattern'}</p>
                       </div>
                     </div>
 
                     <div className="flex items-start gap-2 p-2 rounded bg-surface-2/50">
                       <Coins className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-[10px] font-semibold text-amber-400">Amount Calculation</p>
-                        <p className="text-[10px] text-text-secondary">{decision.amountRationale || `Historical average: ${decision.amount}`}</p>
+                        <p className="text-xs font-semibold text-amber-400">Amount Calculation</p>
+                        <p className="text-xs text-text-secondary">{decision.amountRationale || `Historical average: ${decision.amount}`}</p>
                       </div>
                     </div>
 
                     <div className="flex items-start gap-2 p-2 rounded bg-surface-2/50">
                       <Clock className="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-[10px] font-semibold text-cyan-400">Timing Rationale</p>
-                        <p className="text-[10px] text-text-secondary">{decision.timingRationale || 'Optimal time based on fee analysis'}</p>
+                        <p className="text-xs font-semibold text-cyan-400">Timing Rationale</p>
+                        <p className="text-xs text-text-secondary">{decision.timingRationale || 'Optimal time based on fee analysis'}</p>
                       </div>
                     </div>
                   </div>
@@ -159,10 +159,10 @@ export function DecisionAuditTrail() {
                   {/* Policy compliance */}
                   {decision.policyCompliance && decision.policyCompliance.length > 0 && (
                     <div>
-                      <p className="text-[9px] font-semibold text-text-muted uppercase tracking-wider mb-1">Policy Compliance</p>
+                      <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">Policy Compliance</p>
                       <div className="flex flex-wrap gap-1">
                         {decision.policyCompliance.map((policy, pi) => (
-                          <span key={pi} className="text-[9px] px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/15">
+                          <span key={pi} className="text-xs px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/15">
                             ✓ {policy}
                           </span>
                         ))}
@@ -171,7 +171,7 @@ export function DecisionAuditTrail() {
                   )}
 
                   {/* Execution details */}
-                  <div className="grid grid-cols-2 gap-2 text-[10px]">
+                  <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="p-2 rounded bg-surface-2/50 border border-border">
                       <p className="text-text-muted">Created</p>
                       <p className="text-text-primary font-mono">{new Date(decision.createdAt).toLocaleString()}</p>
@@ -185,7 +185,7 @@ export function DecisionAuditTrail() {
                   </div>
 
                   {decision.txHash && (
-                    <div className="flex items-center gap-1.5 text-[10px] text-text-muted">
+                    <div className="flex items-center gap-1.5 text-xs text-text-muted">
                       <span>TX:</span>
                       <span className="font-mono text-text-secondary truncate">{decision.txHash}</span>
                     </div>

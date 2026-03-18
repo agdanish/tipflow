@@ -53,7 +53,7 @@ export function TransactionTimeline({ history, loading }: TransactionTimelinePro
           Transaction Timeline
         </h2>
         {history.length > 0 && (
-          <span className="text-[10px] text-text-muted font-normal px-2 py-0.5 rounded-full bg-surface-3">
+          <span className="text-xs text-text-muted font-normal px-2 py-0.5 rounded-full bg-surface-3">
             {history.length} tx{history.length !== 1 ? 's' : ''}
           </span>
         )}
@@ -121,7 +121,7 @@ export function TransactionTimeline({ history, loading }: TransactionTimelinePro
                               <XCircle className="w-3.5 h-3.5 text-red-400" />
                             )}
                             {/* Chain badge */}
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium border border-border bg-surface-1">
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium border border-border bg-surface-1">
                               <span
                                 className="w-1.5 h-1.5 rounded-full shrink-0"
                                 style={{ backgroundColor: chainColor(entry.chainId) }}
@@ -130,7 +130,7 @@ export function TransactionTimeline({ history, loading }: TransactionTimelinePro
                             </span>
                             {/* Time */}
                             <span
-                              className="ml-auto text-[10px] text-text-muted cursor-default"
+                              className="ml-auto text-xs text-text-muted cursor-default"
                               title={new Date(entry.createdAt).toLocaleString()}
                             >
                               {timeAgo(entry.createdAt)}
@@ -139,8 +139,8 @@ export function TransactionTimeline({ history, loading }: TransactionTimelinePro
 
                           {/* Recipient + explorer link */}
                           <div className="flex items-center gap-2 mt-1.5">
-                            <span className="text-[11px] text-text-muted">to</span>
-                            <span className="text-[11px] font-mono text-text-secondary">
+                            <span className="text-sm text-text-muted">to</span>
+                            <span className="text-sm font-mono text-text-secondary">
                               {shortenAddress(entry.recipient)}
                             </span>
                             {entry.txHash && (
@@ -157,7 +157,7 @@ export function TransactionTimeline({ history, loading }: TransactionTimelinePro
                           </div>
 
                           {/* Fee */}
-                          <div className="text-[10px] text-text-muted mt-1">
+                          <div className="text-xs text-text-muted mt-1">
                             Fee: {entry.fee}
                           </div>
                         </div>

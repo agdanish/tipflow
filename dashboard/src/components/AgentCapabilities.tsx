@@ -109,12 +109,12 @@ export function AgentCapabilities() {
           <Brain className="w-4 h-4 text-accent" />
           Agent Capabilities
         </h2>
-        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">
+        <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-accent/10 text-accent border border-accent/20">
           11-step pipeline
         </span>
       </div>
 
-      <p className="text-[11px] text-text-secondary mb-4 leading-relaxed">
+      <p className="text-sm text-text-secondary mb-4 leading-relaxed">
         Every tip flows through an 11-step intelligent pipeline. Each step is autonomous, auditable, and can be individually configured.
       </p>
 
@@ -143,13 +143,13 @@ export function AgentCapabilities() {
               {/* Step content */}
               <div className="flex-1 min-w-0 pt-0.5">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[9px] font-bold font-mono px-1.5 py-0.5 rounded bg-surface-3 text-text-muted">
+                  <span className="text-xs font-bold font-mono px-1.5 py-0.5 rounded bg-surface-3 text-text-muted">
                     {step.number}
                   </span>
                   <span className="text-xs font-semibold text-text-primary">{step.name}</span>
-                  <span className="text-[10px] text-text-muted hidden sm:inline">{step.label}</span>
+                  <span className="text-xs text-text-muted hidden sm:inline">{step.label}</span>
                 </div>
-                <p className="text-[10px] text-text-secondary mt-0.5 leading-relaxed">
+                <p className="text-xs text-text-secondary mt-0.5 leading-relaxed">
                   {step.description}
                 </p>
               </div>
@@ -159,7 +159,7 @@ export function AgentCapabilities() {
       </div>
 
       {/* Footer */}
-      <div className="mt-4 pt-3 border-t border-border flex items-center gap-3 text-[10px] text-text-muted">
+      <div className="mt-4 pt-3 border-t border-border flex items-center gap-3 text-xs text-text-muted">
         <span>Avg latency: <span className="text-text-secondary font-mono">~2.1s</span></span>
         <span>&middot;</span>
         <span>Success rate: <span className="text-green-400 font-mono">98.7%</span></span>

@@ -132,7 +132,7 @@ export function WalletSwitcher({ chain = 'ethereum-sepolia', onActiveChanged }: 
                       <div className="font-mono text-xs text-text-primary truncate">
                         {truncateAddr(w.address)}
                       </div>
-                      <div className="text-[10px] text-text-muted mt-0.5">
+                      <div className="text-xs text-text-muted mt-0.5">
                         m/44'/60'/0'/0/{w.index}
                       </div>
                     </div>

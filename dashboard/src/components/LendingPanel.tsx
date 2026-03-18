@@ -90,7 +90,7 @@ export function LendingPanel() {
           <TrendingUp className="w-4 h-4 text-green-400" />
           DeFi Lending (Aave V3)
           {!available && (
-            <span className="text-[10px] font-normal px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/20 text-amber-400">
+            <span className="text-xs font-normal px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/20 text-amber-400">
               Testnet
             </span>
           )}
@@ -237,7 +237,7 @@ export function LendingPanel() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-[11px] text-text-muted mb-1">Chain</label>
+                    <label className="block text-sm text-text-muted mb-1">Chain</label>
                     <select
                       value={chain}
                       onChange={(e) => setChain(e.target.value)}
@@ -251,7 +251,7 @@ export function LendingPanel() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] text-text-muted mb-1">Asset</label>
+                    <label className="block text-sm text-text-muted mb-1">Asset</label>
                     <select
                       value={asset}
                       onChange={(e) => setAsset(e.target.value)}
@@ -265,10 +265,10 @@ export function LendingPanel() {
 
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <label className="text-[11px] text-text-muted">Amount</label>
+                      <label className="text-sm text-text-muted">Amount</label>
                       <div className="flex gap-1">
                         {['0.01', '0.05', '0.1', '1'].map(v => (
-                          <button key={v} type="button" onClick={() => setAmount(v)} className={`px-1.5 py-0.5 rounded text-[9px] border transition-colors btn-press ${
+                          <button key={v} type="button" onClick={() => setAmount(v)} className={`px-1.5 py-0.5 rounded text-xs border transition-colors btn-press ${
                             amount === v ? 'border-accent bg-accent/10 text-accent' : 'border-border bg-surface-3 text-text-muted hover:text-text-secondary'
                           }`}>{v}</button>
                         ))}
@@ -326,19 +326,19 @@ export function LendingPanel() {
                   <h3 className="text-xs font-medium text-text-secondary mb-2">Yield Summary</h3>
                   <div className="grid grid-cols-3 gap-3">
                     <div className="rounded-lg bg-surface-2 border border-border p-3 text-center">
-                      <p className="text-[10px] text-text-muted mb-1">Best APY</p>
+                      <p className="text-xs text-text-muted mb-1">Best APY</p>
                       <p className="text-lg font-bold text-green-400">
                         {Math.max(...filteredRates.map((r) => r.supplyApy)).toFixed(2)}%
                       </p>
                     </div>
                     <div className="rounded-lg bg-surface-2 border border-border p-3 text-center">
-                      <p className="text-[10px] text-text-muted mb-1">Avg APY</p>
+                      <p className="text-xs text-text-muted mb-1">Avg APY</p>
                       <p className="text-lg font-bold text-text-primary">
                         {(filteredRates.reduce((s, r) => s + r.supplyApy, 0) / filteredRates.length).toFixed(2)}%
                       </p>
                     </div>
                     <div className="rounded-lg bg-surface-2 border border-border p-3 text-center">
-                      <p className="text-[10px] text-text-muted mb-1">Markets</p>
+                      <p className="text-xs text-text-muted mb-1">Markets</p>
                       <p className="text-lg font-bold text-text-primary">{filteredRates.length}</p>
                     </div>
                   </div>

@@ -104,10 +104,10 @@ export function MemoryPanel() {
           Agent Memory
         </h3>
         <div className="flex items-center gap-2">
-          {stats && <span className="text-[10px] text-text-secondary hidden sm:inline">{stats.totalMemories} memories</span>}
+          {stats && <span className="text-xs text-text-secondary hidden sm:inline">{stats.totalMemories} memories</span>}
           <button
             onClick={() => setShowStore(!showStore)}
-            className="text-[10px] px-2 py-1 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors flex items-center gap-1 btn-press"
+            className="text-xs px-2 py-1 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors flex items-center gap-1 btn-press"
           >
             {showStore ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
             {showStore ? 'Cancel' : 'Teach Agent'}
@@ -118,7 +118,7 @@ export function MemoryPanel() {
       {/* ── TEACH AGENT FORM ── */}
       {showStore && (
         <div className="p-3 rounded-lg border border-purple-500/20 bg-purple-500/5 space-y-2 animate-slide-down">
-          <h4 className="text-[10px] font-semibold text-purple-400 uppercase tracking-wider flex items-center gap-1">
+          <h4 className="text-xs font-semibold text-purple-400 uppercase tracking-wider flex items-center gap-1">
             <Brain className="w-3 h-3" /> Teach Agent a New Memory
           </h4>
           <select
@@ -168,7 +168,7 @@ export function MemoryPanel() {
           ].map(s => (
             <div key={s.label} className="p-2 rounded bg-surface-2 border border-border text-center">
               <div className={`text-sm font-bold ${s.color}`}>{s.count}</div>
-              <div className="text-[9px] text-text-secondary">{s.label}</div>
+              <div className="text-xs text-text-secondary">{s.label}</div>
             </div>
           ))}
         </div>
@@ -195,7 +195,7 @@ export function MemoryPanel() {
         <div className="text-center py-6 animate-fade-in">
           <Brain className="w-8 h-8 text-text-muted/30 mx-auto mb-2" />
           <p className="text-xs text-text-muted">No memories yet</p>
-          <p className="text-[10px] text-text-muted/60 mt-1">The agent learns from your interactions</p>
+          <p className="text-xs text-text-muted/60 mt-1">The agent learns from your interactions</p>
         </div>
       ) : (
         <div className="space-y-1.5 max-h-64 overflow-y-auto">
@@ -203,15 +203,15 @@ export function MemoryPanel() {
             const color = typeColors[mem.type] ?? 'text-accent bg-accent/10';
             return (
               <div key={mem.id} className="p-2.5 rounded-lg bg-surface-2 border border-border flex items-start gap-2 card-hover animate-list-item-in" style={{ animationDelay: `${i * 40}ms` }}>
-                <span className={`text-[9px] px-1.5 py-0.5 rounded ${color} mt-0.5`}>
+                <span className={`text-xs px-1.5 py-0.5 rounded ${color} mt-0.5`}>
                   {mem.type}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[11px] font-medium text-text-primary truncate">{mem.key}</div>
-                  <div className="text-[10px] text-text-secondary truncate">{mem.value}</div>
+                  <div className="text-sm font-medium text-text-primary truncate">{mem.key}</div>
+                  <div className="text-xs text-text-secondary truncate">{mem.value}</div>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
-                  <span className="text-[9px] text-text-secondary">{mem.confidence}%</span>
+                  <span className="text-xs text-text-secondary">{mem.confidence}%</span>
                   <button onClick={() => forget(mem.id)} className="p-0.5 rounded hover:bg-red-500/10 text-text-secondary hover:text-red-400 transition-colors">
                     <Trash2 className="w-3 h-3" />
                   </button>

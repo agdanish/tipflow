@@ -125,10 +125,10 @@ export function FeeArbitragePanel() {
             }`} style={{ animationDelay: `${idx * 80}ms` }}>
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
-                  {idx === 0 && <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 text-accent font-medium">BEST</span>}
+                  {idx === 0 && <span className="text-xs px-1.5 py-0.5 rounded bg-accent/20 text-accent font-medium">BEST</span>}
                   <span className="text-xs font-medium text-text-primary">{chain.chainName}</span>
                 </div>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded ${congestionColors[chain.congestion] ?? ''}`}>
+                <span className={`text-xs px-1.5 py-0.5 rounded ${congestionColors[chain.congestion] ?? ''}`}>
                   {chain.congestion}
                 </span>
               </div>
@@ -208,7 +208,7 @@ export function FeeArbitragePanel() {
                   fillColor={sparkColor}
                   strokeWidth={1.5}
                 />
-                <div className="flex-1 text-[10px] text-text-muted text-right space-y-0.5">
+                <div className="flex-1 text-xs text-text-muted text-right space-y-0.5">
                   <div className="flex items-center justify-end gap-1">
                     {trendIcon}
                     <span>{chain.trend}</span>

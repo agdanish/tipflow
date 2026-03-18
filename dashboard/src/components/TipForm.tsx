@@ -340,7 +340,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
         <div className="flex items-center gap-2">
           {/* Auto-save draft indicator */}
           {(recipient.trim() || amount.trim()) && (
-            <span className="inline-flex items-center gap-1 text-[10px] text-text-muted autosave-saved">
+            <span className="inline-flex items-center gap-1 text-xs text-text-muted autosave-saved">
               <Save className="w-3 h-3" />
               Draft saved
             </span>
@@ -350,7 +350,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
             <button
               type="button"
               onClick={() => { setRecipient(''); setAmount(''); setMessage(''); setChain(''); setToken('native'); setEnsResolved(null); setEnsFailed(false); setNlpInput(''); clearNlpState(); setError(null); setScheduleMode(false); setScheduledAt(''); setRecurring(false); setGaslessMode(false); setGaslessResult(null); }}
-              className="inline-flex items-center gap-1 text-[10px] text-text-muted hover:text-error transition-colors btn-press px-1.5 py-0.5 rounded-md hover:bg-error/10"
+              className="inline-flex items-center gap-1 text-xs text-text-muted hover:text-error transition-colors btn-press px-1.5 py-0.5 rounded-md hover:bg-error/10"
             >
               <Trash2 className="w-3 h-3" />
               Clear
@@ -365,7 +365,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
           <Wand2 className="w-3.5 h-3.5 text-purple-400" />
           <label className="text-xs text-text-secondary">{t('nlp.label')}</label>
           {nlpParsed && (
-            <span className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-500/30 text-[10px] font-medium text-purple-400">
+            <span className="ml-auto inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/15 border border-purple-500/30 text-xs font-medium text-purple-400">
               <Sparkles className="w-3 h-3" />
               {nlpSource === 'llm' ? 'AI' : 'Smart'} parsed &middot; {nlpConfidence}% confidence
             </span>
@@ -402,7 +402,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
             <span className="hidden sm:inline">{t('nlp.parse')}</span>
           </button>
         </div>
-        <p id="nlp-helper-text" className="text-[10px] text-text-muted mt-1 hidden sm:block">
+        <p id="nlp-helper-text" className="text-xs text-text-muted mt-1 hidden sm:block">
           {t('nlp.hint')}
         </p>
       </div>
@@ -410,7 +410,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
       <div className="relative">
         <div className="absolute inset-x-0 top-0 h-px bg-border" />
         <div className="flex justify-center -mt-2 mb-2">
-          <span className="px-2 bg-surface-1 text-[10px] text-text-muted uppercase tracking-wider">{t('nlp.orManual')}</span>
+          <span className="px-2 bg-surface-1 text-xs text-text-muted uppercase tracking-wider">{t('nlp.orManual')}</span>
         </div>
       </div>
 
@@ -466,7 +466,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
               <button
                 type="button"
                 onClick={() => setShowContacts(!showContacts)}
-                className="inline-flex items-center gap-1 text-[10px] text-accent hover:text-accent-light transition-colors"
+                className="inline-flex items-center gap-1 text-xs text-accent hover:text-accent-light transition-colors"
               >
                 <BookUser className="w-3 h-3" />
                 {t('contacts.title')} ({contacts.length})
@@ -520,19 +520,19 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
           {recipient.trim().endsWith('.eth') && (
             <div className="mt-1.5">
               {ensResolving && (
-                <div className="flex items-center gap-1.5 text-[11px] text-text-secondary">
+                <div className="flex items-center gap-1.5 text-sm text-text-secondary">
                   <Loader2 className="w-3 h-3 animate-spin" />
                   <span>Resolving {recipient.trim()}...</span>
                 </div>
               )}
               {ensResolved && !ensResolving && (
-                <div className="flex items-center gap-1.5 text-[11px] text-green-400">
+                <div className="flex items-center gap-1.5 text-sm text-green-400">
                   <CheckCircle2 className="w-3 h-3" />
                   <span className="font-mono truncate">{ensResolved}</span>
                 </div>
               )}
               {ensFailed && !ensResolving && (
-                <div className="flex items-center gap-1.5 text-[11px] text-red-400">
+                <div className="flex items-center gap-1.5 text-sm text-red-400">
                   <XCircle className="w-3 h-3" />
                   <span>ENS name not found</span>
                 </div>
@@ -580,15 +580,15 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
                   onClick={() => handleSelectContact(c)}
                   className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-surface-3 transition-colors group"
                 >
-                  <div className="w-6 h-6 rounded-full bg-accent/15 text-accent flex items-center justify-center text-[10px] font-bold shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-accent/15 text-accent flex items-center justify-center text-xs font-bold shrink-0">
                     {c.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-xs font-medium text-text-primary truncate">{c.name}</div>
-                    <div className="text-[10px] text-text-muted font-mono truncate">{c.address}</div>
+                    <div className="text-xs text-text-muted font-mono truncate">{c.address}</div>
                   </div>
                   {c.tipCount > 0 && (
-                    <span className="text-[10px] text-text-muted shrink-0">{c.tipCount} tips</span>
+                    <span className="text-xs text-text-muted shrink-0">{c.tipCount} tips</span>
                   )}
                   <button
                     type="button"
@@ -624,7 +624,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
                 key={preset}
                 type="button"
                 onClick={() => setAmount(preset)}
-                className="px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs rounded-md bg-surface-3 border border-border text-text-secondary hover:text-text-primary hover:border-border-light transition-colors"
+                className="px-2 sm:px-2.5 py-1 text-sm sm:text-xs rounded-md bg-surface-3 border border-border text-text-secondary hover:text-text-primary hover:border-border-light transition-colors"
               >
                 {token === 'usdt' ? `$${preset}` : preset}
               </button>
@@ -670,7 +670,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
             <label className="text-xs text-text-secondary">
               {t('tip.message')} <span className="text-text-muted">({t('tip.messageOptional')})</span>
             </label>
-            <span className={`text-[10px] tabular-nums transition-colors ${message.length > 180 ? 'text-red-400' : message.length > 140 ? 'text-amber-400' : 'text-text-muted'}`}>
+            <span className={`text-xs tabular-nums transition-colors ${message.length > 180 ? 'text-red-400' : message.length > 140 ? 'text-amber-400' : 'text-text-muted'}`}>
               {message.length}/200
             </span>
           </div>
@@ -755,7 +755,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
                   </select>
                 )}
               </div>
-              <p className="text-[10px] text-text-muted">
+              <p className="text-xs text-text-muted">
                 {recurring
                   ? `The agent will execute this tip ${interval} starting at the scheduled time.`
                   : 'The agent will autonomously execute this tip at the scheduled time.'}
@@ -773,7 +773,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
               disabled={sending || disabled}
             />
             {gaslessResult && (
-              <div className={`mt-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium ${
+              <div className={`mt-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm font-medium ${
                 gaslessResult.gasless
                   ? 'bg-green-500/10 border border-green-500/20 text-green-400'
                   : 'bg-amber-500/10 border border-amber-500/20 text-amber-400'
@@ -849,7 +849,7 @@ export function TipForm({ onTipComplete, onTipScheduled, disabled, prefillTempla
               <button
                 type="button"
                 onClick={() => setSavingTemplate(true)}
-                className="inline-flex items-center gap-1.5 text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
+                className="inline-flex items-center gap-1.5 text-sm text-blue-400 hover:text-blue-300 transition-colors"
               >
                 <BookMarked className="w-3.5 h-3.5" />
                 {t('template.save')}

@@ -125,16 +125,16 @@ function ReceiptCard({ receipt }: { receipt: CryptoReceiptData }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="font-mono text-xs text-text-primary">{truncate(receipt.from)}</span>
-            <span className="text-text-muted text-[10px]">-&gt;</span>
+            <span className="text-text-muted text-xs">-&gt;</span>
             <span className="font-mono text-xs text-text-primary">{truncate(receipt.to)}</span>
           </div>
-          <div className="text-[10px] text-text-muted mt-0.5">
+          <div className="text-xs text-text-muted mt-0.5">
             {date.toLocaleDateString()} {date.toLocaleTimeString()}
           </div>
         </div>
         <div className="text-right shrink-0">
           <div className="text-sm font-semibold text-text-primary">{receipt.amount} {receipt.token}</div>
-          <div className="text-[10px] text-text-muted">{receipt.chainId}</div>
+          <div className="text-xs text-text-muted">{receipt.chainId}</div>
         </div>
         {expanded ? <ChevronUp className="w-4 h-4 text-text-muted" /> : <ChevronDown className="w-4 h-4 text-text-muted" />}
       </button>
@@ -144,7 +144,7 @@ function ReceiptCard({ receipt }: { receipt: CryptoReceiptData }) {
         <div className="px-3 pb-3 space-y-3 border-t border-border pt-3">
           {/* Transaction details */}
           <div className="space-y-1.5">
-            <h4 className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Transaction</h4>
+            <h4 className="text-sm font-semibold text-text-secondary uppercase tracking-wider">Transaction</h4>
             <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
               <span className="text-text-muted">From</span>
               <div className="flex items-center gap-1 min-w-0">
@@ -180,7 +180,7 @@ function ReceiptCard({ receipt }: { receipt: CryptoReceiptData }) {
 
           {/* Cryptographic proof */}
           <div className="space-y-1.5">
-            <h4 className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Cryptographic Proof</h4>
+            <h4 className="text-sm font-semibold text-text-secondary uppercase tracking-wider">Cryptographic Proof</h4>
             <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
               <span className="text-text-muted">Signature</span>
               <div className="flex items-center gap-1 min-w-0">
@@ -217,7 +217,7 @@ function ReceiptCard({ receipt }: { receipt: CryptoReceiptData }) {
                   {verifyResult.valid ? 'Cryptographically Verified' : 'Verification Failed'}
                 </span>
                 {verifyResult.reason && (
-                  <p className="text-[10px] text-text-muted mt-0.5">{verifyResult.reason}</p>
+                  <p className="text-xs text-text-muted mt-0.5">{verifyResult.reason}</p>
                 )}
               </div>
             </div>
@@ -290,7 +290,7 @@ export function CryptoReceiptPanel() {
         <div className="text-center py-8 text-text-muted text-sm animate-fade-in">
           <Shield className="w-8 h-8 text-text-muted/30 mx-auto mb-2" />
           <p className="text-xs text-text-muted">No receipts yet</p>
-          <p className="text-[10px] text-text-muted/60 mt-1">Send a tip to generate cryptographic proof</p>
+          <p className="text-xs text-text-muted/60 mt-1">Send a tip to generate cryptographic proof</p>
         </div>
       ) : (
         <div className="space-y-2">

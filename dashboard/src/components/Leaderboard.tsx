@@ -77,7 +77,7 @@ export function Leaderboard({ entries, loading }: LeaderboardProps) {
                   <div className="text-sm font-semibold text-text-primary">
                     {entry.totalTips} {entry.totalTips === 1 ? 'tip' : 'tips'}
                   </div>
-                  <div className="text-[11px] text-text-muted">
+                  <div className="text-sm text-text-muted">
                     {parseFloat(entry.totalVolume).toFixed(4)} vol
                   </div>
                 </div>

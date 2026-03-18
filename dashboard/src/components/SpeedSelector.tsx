@@ -80,13 +80,13 @@ export function SpeedSelector({ selectedSpeed, onSpeedChange, disabled, chainFil
               } hover:opacity-90`}
             >
               <span className="text-sm leading-none">{SPEED_ICONS[opt.level]}</span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider mt-0.5">
+              <span className="text-xs font-semibold uppercase tracking-wider mt-0.5">
                 {opt.level}
               </span>
-              <span className="text-[9px] text-text-muted leading-tight mt-0.5">
+              <span className="text-xs text-text-muted leading-tight mt-0.5">
                 {opt.estimatedFee}
               </span>
-              <span className="text-[9px] text-text-muted leading-tight">
+              <span className="text-xs text-text-muted leading-tight">
                 {opt.estimatedTime}
               </span>
             </button>

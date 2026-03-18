@@ -64,7 +64,7 @@ export function GaslessToggle({ enabled, onToggle, disabled }: GaslessToggleProp
           )}
           Gasless Mode
           {enabled && isAvailable && (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-500/15 border border-green-500/30 text-[10px] font-medium text-green-400">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-green-500/15 border border-green-500/30 text-xs font-medium text-green-400">
               <Zap className="w-2.5 h-2.5" />
               Zero Gas
             </span>
@@ -105,10 +105,10 @@ export function GaslessToggle({ enabled, onToggle, disabled }: GaslessToggleProp
                 <XCircle className="w-3.5 h-3.5 text-amber-400 mt-0.5 shrink-0" />
               )}
               <div className="min-w-0">
-                <div className="text-[11px] font-medium text-text-primary">
+                <div className="text-sm font-medium text-text-primary">
                   {status.evmErc4337.chainName}
                 </div>
-                <div className="text-[10px] text-text-muted mt-0.5">
+                <div className="text-xs text-text-muted mt-0.5">
                   {status.evmErc4337.available
                     ? 'Bundler + Paymaster connected. Transactions sponsored via Safe ERC-4337.'
                     : (status.evmErc4337.reason ?? 'Not configured')}
@@ -124,10 +124,10 @@ export function GaslessToggle({ enabled, onToggle, disabled }: GaslessToggleProp
                 <XCircle className="w-3.5 h-3.5 text-amber-400 mt-0.5 shrink-0" />
               )}
               <div className="min-w-0">
-                <div className="text-[11px] font-medium text-text-primary">
+                <div className="text-sm font-medium text-text-primary">
                   {status.tonGasless.chainName}
                 </div>
-                <div className="text-[10px] text-text-muted mt-0.5">
+                <div className="text-xs text-text-muted mt-0.5">
                   {status.tonGasless.available
                     ? 'TON gasless relay connected. Token transfers pay no gas.'
                     : (status.tonGasless.reason ?? 'Not configured')}
@@ -136,7 +136,7 @@ export function GaslessToggle({ enabled, onToggle, disabled }: GaslessToggleProp
             </div>
           </div>
 
-          <p className="text-[10px] text-text-muted mt-2 leading-relaxed">
+          <p className="text-xs text-text-muted mt-2 leading-relaxed">
             Gasless mode uses WDK ERC-4337 (Account Abstraction) and TON Gasless packages
             so users pay zero gas fees. A paymaster or sponsor covers transaction costs.
             Falls back to regular transactions if gasless is unavailable.

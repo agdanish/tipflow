@@ -99,7 +99,7 @@ export function BridgePanel() {
           <ArrowRightLeft className="w-4 h-4 text-cyan-400" />
           Cross-Chain Bridge (USDT0)
           {!available && (
-            <span className="text-[10px] font-normal px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/20 text-amber-400">
+            <span className="text-xs font-normal px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/20 text-amber-400">
               Testnet
             </span>
           )}
@@ -143,7 +143,7 @@ export function BridgePanel() {
                 <h3 className="text-xs font-medium text-text-secondary mb-3">Bridge USDT0</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-[11px] text-text-muted mb-1">From Chain</label>
+                    <label className="block text-sm text-text-muted mb-1">From Chain</label>
                     <select
                       value={fromChain}
                       onChange={(e) => {
@@ -161,7 +161,7 @@ export function BridgePanel() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] text-text-muted mb-1">To Chain</label>
+                    <label className="block text-sm text-text-muted mb-1">To Chain</label>
                     <select
                       value={toChain}
                       onChange={(e) => {
@@ -179,7 +179,7 @@ export function BridgePanel() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] text-text-muted mb-1">Amount (USDT0)</label>
+                    <label className="block text-sm text-text-muted mb-1">Amount (USDT0)</label>
                     <input
                       type="number"
                       value={amount}
@@ -217,14 +217,14 @@ export function BridgePanel() {
                 {/* Bridge execution progress */}
                 {executing && (
                   <div className="mt-3 p-3 rounded-lg bg-cyan-500/5 border border-cyan-500/20 animate-fade-in">
-                    <p className="text-[10px] font-semibold text-cyan-400 uppercase tracking-wider mb-2">Bridge Progress</p>
+                    <p className="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2">Bridge Progress</p>
                     <div className="flex items-center gap-2">
                       {['Submitting', 'Bridging', 'Confirming'].map((step, i) => (
                         <div key={step} className="flex items-center flex-1 gap-1">
-                          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${
+                          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold ${
                             i === 0 ? 'bg-cyan-500/20 text-cyan-400 animate-step-pulse' : 'bg-surface-3 text-text-muted'
                           }`}>{i + 1}</div>
-                          <span className={`text-[9px] ${i === 0 ? 'text-cyan-400' : 'text-text-muted'}`}>{step}</span>
+                          <span className={`text-xs ${i === 0 ? 'text-cyan-400' : 'text-text-muted'}`}>{step}</span>
                           {i < 2 && <div className="flex-1 h-0.5 rounded bg-surface-3" />}
                         </div>
                       ))}
@@ -289,7 +289,7 @@ export function BridgePanel() {
                         <Clock className="w-3.5 h-3.5 text-text-muted shrink-0" />
                         <span className="text-text-primary font-medium">{entry.fromChain} &rarr; {entry.toChain}</span>
                         <span className="text-text-secondary">{entry.amount} USDT0</span>
-                        <span className={`ml-auto px-1.5 py-0.5 rounded-full text-[10px] font-medium ${
+                        <span className={`ml-auto px-1.5 py-0.5 rounded-full text-xs font-medium ${
                           entry.status === 'completed'
                             ? 'bg-green-500/15 text-green-400'
                             : entry.status === 'failed'

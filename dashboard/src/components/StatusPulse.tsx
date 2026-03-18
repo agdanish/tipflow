@@ -19,8 +19,8 @@ const STATUS_CONFIG = {
 };
 
 const SIZE_CONFIG = {
-  sm: { dot: 'w-2 h-2', ring: 'w-4 h-4', outer: 'w-6 h-6', text: 'text-[10px]' },
-  md: { dot: 'w-2.5 h-2.5', ring: 'w-5 h-5', outer: 'w-7 h-7', text: 'text-[11px]' },
+  sm: { dot: 'w-2 h-2', ring: 'w-4 h-4', outer: 'w-6 h-6', text: 'text-xs' },
+  md: { dot: 'w-2.5 h-2.5', ring: 'w-5 h-5', outer: 'w-7 h-7', text: 'text-sm' },
   lg: { dot: 'w-3 h-3', ring: 'w-6 h-6', outer: 'w-8 h-8', text: 'text-xs' },
 };
 

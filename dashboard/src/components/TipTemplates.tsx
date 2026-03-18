@@ -180,7 +180,7 @@ export function TipTemplates({ onUseTemplate }: TipTemplatesProps) {
         <div className="text-center py-6">
           <BookMarked className="w-8 h-8 text-text-muted mx-auto mb-2 opacity-40" />
           <p className="text-xs text-text-muted">No templates yet</p>
-          <p className="text-[10px] text-text-muted mt-0.5">Save frequently-used tip configurations for quick reuse</p>
+          <p className="text-xs text-text-muted mt-0.5">Save frequently-used tip configurations for quick reuse</p>
         </div>
       ) : (
         <div className="grid gap-2">
@@ -195,12 +195,12 @@ export function TipTemplates({ onUseTemplate }: TipTemplatesProps) {
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium text-text-primary truncate">{t.name}</span>
                   {isPopular && (
-                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/25 text-[10px] font-semibold text-amber-400 discovery-star">
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/25 text-xs font-semibold text-amber-400 discovery-star">
                       <Star className="w-2.5 h-2.5" />
                       Popular
                     </span>
                   )}
-                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                  <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
                     t.token === 'usdt'
                       ? 'bg-green-500/15 text-green-400 border border-green-500/20'
                       : 'bg-blue-500/15 text-blue-400 border border-blue-500/20'
@@ -210,10 +210,10 @@ export function TipTemplates({ onUseTemplate }: TipTemplatesProps) {
                 </div>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-xs text-text-secondary font-medium">{t.amount}</span>
-                  <span className="text-[10px] text-text-muted">to</span>
-                  <span className="text-[10px] text-text-muted font-mono">{truncateAddr(t.recipient)}</span>
+                  <span className="text-xs text-text-muted">to</span>
+                  <span className="text-xs text-text-muted font-mono">{truncateAddr(t.recipient)}</span>
                   {(t.useCount ?? 0) > 0 && (
-                    <span className="text-[10px] text-text-muted tabular-nums ml-auto">Used {t.useCount}x</span>
+                    <span className="text-xs text-text-muted tabular-nums ml-auto">Used {t.useCount}x</span>
                   )}
                 </div>
               </div>
@@ -221,7 +221,7 @@ export function TipTemplates({ onUseTemplate }: TipTemplatesProps) {
                 <button
                   type="button"
                   onClick={() => onUseTemplate(t)}
-                  className="px-2.5 py-1.5 rounded-md bg-accent/15 text-accent border border-accent/20 text-[10px] font-medium hover:bg-accent/25 transition-colors flex items-center gap-1"
+                  className="px-2.5 py-1.5 rounded-md bg-accent/15 text-accent border border-accent/20 text-xs font-medium hover:bg-accent/25 transition-colors flex items-center gap-1"
                 >
                   <Play className="w-3 h-3" />
                   Use
@@ -231,7 +231,7 @@ export function TipTemplates({ onUseTemplate }: TipTemplatesProps) {
                     <button
                       type="button"
                       onClick={() => handleDelete(t.id)}
-                      className="px-2 py-1.5 rounded-md bg-red-500/15 text-red-400 border border-red-500/20 text-[10px] font-medium hover:bg-red-500/25 transition-colors"
+                      className="px-2 py-1.5 rounded-md bg-red-500/15 text-red-400 border border-red-500/20 text-xs font-medium hover:bg-red-500/25 transition-colors"
                     >
                       Confirm
                     </button>

@@ -33,21 +33,21 @@ function ProgressBar({ label, spent, limit, percentage, currency }: {
         />
       </div>
       <div className="flex items-center justify-between">
-        <span className="text-[10px] text-text-muted">{percentage.toFixed(1)}% used</span>
-        <span className={`text-[10px] font-medium ${isDanger ? 'text-red-400' : isWarning ? 'text-amber-400' : 'text-green-400'}`}>
+        <span className="text-xs text-text-muted">{percentage.toFixed(1)}% used</span>
+        <span className={`text-xs font-medium ${isDanger ? 'text-red-400' : isWarning ? 'text-amber-400' : 'text-green-400'}`}>
           {(limit - spent).toFixed(4)} {currency} remaining
         </span>
       </div>
       {isWarning && !isDanger && (
         <div className="flex items-center gap-1.5 mt-1 px-2 py-1 rounded-md bg-amber-500/5 border border-amber-500/20">
           <AlertTriangle className="w-3 h-3 text-amber-400 shrink-0" />
-          <span className="text-[10px] text-amber-400">Approaching {label.toLowerCase()} limit</span>
+          <span className="text-xs text-amber-400">Approaching {label.toLowerCase()} limit</span>
         </div>
       )}
       {isDanger && (
         <div className="flex items-center gap-1.5 mt-1 px-2 py-1 rounded-md bg-red-500/5 border border-red-500/20">
           <AlertTriangle className="w-3 h-3 text-red-400 shrink-0" />
-          <span className="text-[10px] text-red-400">{label} limit reached</span>
+          <span className="text-xs text-red-400">{label} limit reached</span>
         </div>
       )}
     </div>
@@ -135,7 +135,7 @@ export function SpendingLimits() {
         </div>
         <div className="flex-1">
           <h3 className="text-sm font-semibold text-text-primary">Spending Limits</h3>
-          <p className="text-[10px] text-text-muted">Safety caps for tipping</p>
+          <p className="text-xs text-text-muted">Safety caps for tipping</p>
         </div>
         {!editing ? (
           <button
@@ -170,7 +170,7 @@ export function SpendingLimits() {
       {editing ? (
         <div className="space-y-3">
           <div>
-            <label className="text-[10px] font-medium text-text-muted uppercase tracking-wider">Daily Limit ({limits.currency})</label>
+            <label className="text-xs font-medium text-text-muted uppercase tracking-wider">Daily Limit ({limits.currency})</label>
             <input
               type="number"
               step="0.01"
@@ -181,7 +181,7 @@ export function SpendingLimits() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-medium text-text-muted uppercase tracking-wider">Weekly Limit ({limits.currency})</label>
+            <label className="text-xs font-medium text-text-muted uppercase tracking-wider">Weekly Limit ({limits.currency})</label>
             <input
               type="number"
               step="0.01"
@@ -192,7 +192,7 @@ export function SpendingLimits() {
             />
           </div>
           <div>
-            <label className="text-[10px] font-medium text-text-muted uppercase tracking-wider">Per-Tip Limit ({limits.currency})</label>
+            <label className="text-xs font-medium text-text-muted uppercase tracking-wider">Per-Tip Limit ({limits.currency})</label>
             <input
               type="number"
               step="0.01"
@@ -223,8 +223,8 @@ export function SpendingLimits() {
 
           {/* Per-Tip Limit Info */}
           <div className="flex items-center justify-between px-2 py-2 rounded-md bg-surface-2 border border-border">
-            <span className="text-[11px] text-text-secondary">Per-tip limit</span>
-            <span className="text-[11px] font-mono font-semibold text-text-primary">
+            <span className="text-sm text-text-secondary">Per-tip limit</span>
+            <span className="text-sm font-mono font-semibold text-text-primary">
               {limits.perTipLimit} {limits.currency}
             </span>
           </div>
@@ -234,7 +234,7 @@ export function SpendingLimits() {
             {overallHealth ? (
               <>
                 <CheckCircle2 className="w-3.5 h-3.5 text-green-400 shrink-0" />
-                <span className="text-[11px] text-text-secondary">
+                <span className="text-sm text-text-secondary">
                   Remaining today: <span className="font-semibold text-green-400">{dailyRemaining.toFixed(4)} {limits.currency}</span>
                   {' | '}
                   This week: <span className="font-semibold text-green-400">{weeklyRemaining.toFixed(4)} {limits.currency}</span>
@@ -243,7 +243,7 @@ export function SpendingLimits() {
             ) : (
               <>
                 <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span className="text-[11px] text-amber-400">
+                <span className="text-sm text-amber-400">
                   Approaching spending limits. Consider reducing tip amounts.
                 </span>
               </>

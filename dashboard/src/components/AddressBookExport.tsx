@@ -138,7 +138,7 @@ export function AddressBookExport() {
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
-          <p className="text-[10px] text-text-muted">
+          <p className="text-xs text-text-muted">
             Format: <code className="px-1 py-0.5 rounded bg-surface-3 text-text-secondary">name,address,group</code> (one per line, header optional)
           </p>
           <textarea
@@ -152,17 +152,17 @@ export function AddressBookExport() {
           {/* Preview */}
           {previewRows.length > 0 && !importResult && (
             <div className="space-y-1.5">
-              <p className="text-[11px] text-text-secondary">{previewRows.length} contacts parsed:</p>
+              <p className="text-sm text-text-secondary">{previewRows.length} contacts parsed:</p>
               <div className="max-h-28 overflow-y-auto space-y-0.5">
                 {previewRows.slice(0, 8).map((r, i) => (
-                  <div key={i} className="flex items-center gap-2 text-[11px]">
+                  <div key={i} className="flex items-center gap-2 text-sm">
                     <span className="text-text-primary font-medium truncate max-w-[100px]">{r.name}</span>
                     <span className="text-text-muted font-mono truncate flex-1">{truncateAddr(r.address)}</span>
-                    {r.group && <span className="text-cyan-400 text-[10px] shrink-0">{r.group}</span>}
+                    {r.group && <span className="text-cyan-400 text-xs shrink-0">{r.group}</span>}
                   </div>
                 ))}
                 {previewRows.length > 8 && (
-                  <p className="text-[10px] text-text-muted">...and {previewRows.length - 8} more</p>
+                  <p className="text-xs text-text-muted">...and {previewRows.length - 8} more</p>
                 )}
               </div>
               <button

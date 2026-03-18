@@ -87,10 +87,10 @@ export function FeeOptimizer() {
         <div className="flex items-center gap-2 p-2.5 rounded-lg bg-green-500/5 border border-green-500/15 mb-3">
           <Zap className="w-4 h-4 text-green-400 shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-medium text-green-400">
+            <p className="text-sm font-medium text-green-400">
               Best: {cheapest.chainId.includes('ton') ? 'TON' : cheapest.chainId.includes('ethereum') ? 'Ethereum' : cheapest.chainId}
             </p>
-            <p className="text-[10px] text-text-muted">
+            <p className="text-xs text-text-muted">
               Save up to {savings}% vs other chains
             </p>
           </div>
@@ -124,14 +124,14 @@ export function FeeOptimizer() {
                 style={{ backgroundColor: chainColor(chain.chainId as import('../types').ChainId) }}
               />
               <span className="text-xs text-text-secondary flex-1">{name}</span>
-              <span className={`text-[10px] ${congestionColor}`}>
+              <span className={`text-xs ${congestionColor}`}>
                 {chain.congestion === 'low' ? 'Low' : chain.congestion === 'high' ? 'High' : 'Med'}
               </span>
               <span className="text-xs font-mono text-text-primary tabular-nums">
                 {parseFloat(chain.fee).toFixed(6)}
               </span>
               {isCheapest && (
-                <span className="text-[9px] font-bold text-green-400 uppercase">Best</span>
+                <span className="text-xs font-bold text-green-400 uppercase">Best</span>
               )}
             </div>
           );
@@ -141,7 +141,7 @@ export function FeeOptimizer() {
       {/* Optimal timing hint */}
       {optimal && (
         <div className="mt-3 pt-3 border-t border-border">
-          <div className="flex items-center gap-1.5 text-[10px] text-text-muted">
+          <div className="flex items-center gap-1.5 text-xs text-text-muted">
             <Clock className="w-3 h-3" />
             <span>{optimal.timing}</span>
           </div>

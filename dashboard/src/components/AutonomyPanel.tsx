@@ -173,13 +173,13 @@ export function AutonomyPanel() {
   const statusBadge = (status: AutonomousDecision['status']) => {
     switch (status) {
       case 'proposed':
-        return <span className="px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-blue-500/15 border border-blue-500/20 text-blue-400">Proposed</span>;
+        return <span className="px-1.5 py-0.5 text-xs font-medium rounded-full bg-blue-500/15 border border-blue-500/20 text-blue-400">Proposed</span>;
       case 'approved':
-        return <span className="px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-green-500/15 border border-green-500/20 text-green-400">Approved</span>;
+        return <span className="px-1.5 py-0.5 text-xs font-medium rounded-full bg-green-500/15 border border-green-500/20 text-green-400">Approved</span>;
       case 'executed':
-        return <span className="px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-emerald-500/15 border border-emerald-500/20 text-emerald-400">Executed</span>;
+        return <span className="px-1.5 py-0.5 text-xs font-medium rounded-full bg-emerald-500/15 border border-emerald-500/20 text-emerald-400">Executed</span>;
       case 'rejected':
-        return <span className="px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-red-500/15 border border-red-500/20 text-red-400">Rejected</span>;
+        return <span className="px-1.5 py-0.5 text-xs font-medium rounded-full bg-red-500/15 border border-red-500/20 text-red-400">Rejected</span>;
     }
   };
 
@@ -228,7 +228,7 @@ export function AutonomyPanel() {
             <User className="w-4 h-4 text-cyan-400" />
             Tip Profile
             {profile && (
-              <span className="text-[10px] text-text-muted font-normal">
+              <span className="text-xs text-text-muted font-normal">
                 {profile.frequentRecipients.length} recipients, {profile.activeDays} active days
               </span>
             )}
@@ -241,19 +241,19 @@ export function AutonomyPanel() {
             {/* Profile summary */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="p-2.5 rounded-lg bg-surface-2 border border-border">
-                <div className="text-[10px] text-text-muted uppercase tracking-wider">Total Tipped</div>
+                <div className="text-xs text-text-muted uppercase tracking-wider">Total Tipped</div>
                 <div className="text-sm font-semibold text-text-primary mt-0.5">{profile.totalTipped.toFixed(4)}</div>
               </div>
               <div className="p-2.5 rounded-lg bg-surface-2 border border-border">
-                <div className="text-[10px] text-text-muted uppercase tracking-wider">Avg Tip</div>
+                <div className="text-xs text-text-muted uppercase tracking-wider">Avg Tip</div>
                 <div className="text-sm font-semibold text-text-primary mt-0.5">{profile.avgTipAmount.toFixed(4)}</div>
               </div>
               <div className="p-2.5 rounded-lg bg-surface-2 border border-border">
-                <div className="text-[10px] text-text-muted uppercase tracking-wider">Active Days</div>
+                <div className="text-xs text-text-muted uppercase tracking-wider">Active Days</div>
                 <div className="text-sm font-semibold text-text-primary mt-0.5">{profile.activeDays}</div>
               </div>
               <div className="p-2.5 rounded-lg bg-surface-2 border border-border">
-                <div className="text-[10px] text-text-muted uppercase tracking-wider">Preferred Chain</div>
+                <div className="text-xs text-text-muted uppercase tracking-wider">Preferred Chain</div>
                 <div className="text-sm font-semibold text-text-primary mt-0.5 truncate">{profile.preferredChain}</div>
               </div>
             </div>
@@ -269,9 +269,9 @@ export function AutonomyPanel() {
                         <div className="w-6 h-6 rounded-full bg-accent/20 flex items-center justify-center shrink-0">
                           <User className="w-3 h-3 text-accent" />
                         </div>
-                        <span className="font-mono text-[11px] text-text-secondary truncate">{r.address.slice(0, 8)}...{r.address.slice(-6)}</span>
+                        <span className="font-mono text-sm text-text-secondary truncate">{r.address.slice(0, 8)}...{r.address.slice(-6)}</span>
                       </div>
-                      <div className="flex items-center gap-3 text-[11px] shrink-0">
+                      <div className="flex items-center gap-3 text-sm shrink-0">
                         <span className="text-text-muted">{r.count} tips</span>
                         <span className="text-text-primary font-medium">avg {r.avgAmount.toFixed(4)}</span>
                       </div>
@@ -287,7 +287,7 @@ export function AutonomyPanel() {
                 <div className="text-xs text-text-secondary font-medium mb-2">Tip Patterns (Day/Time)</div>
                 <div className="flex flex-wrap gap-1.5">
                   {profile.tipPatterns.slice(0, 10).map((p, i) => (
-                    <span key={i} className="px-2 py-1 text-[10px] font-medium rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                    <span key={i} className="px-2 py-1 text-xs font-medium rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400">
                       {dayNames[p.dayOfWeek]} {p.hour}:00 ({p.frequency}x)
                     </span>
                   ))}
@@ -314,7 +314,7 @@ export function AutonomyPanel() {
             <Target className="w-4 h-4 text-amber-400" />
             Smart Recommendations
             {recommendations.length > 0 && (
-              <span className="px-1.5 py-0.5 text-[10px] font-medium rounded-full bg-amber-500/15 border border-amber-500/20 text-amber-400">
+              <span className="px-1.5 py-0.5 text-xs font-medium rounded-full bg-amber-500/15 border border-amber-500/20 text-amber-400">
                 {recommendations.length}
               </span>
             )}
@@ -336,12 +336,12 @@ export function AutonomyPanel() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-sm font-medium text-text-primary">{rec.amount.toFixed(4)}</span>
                         <span className="text-text-muted text-xs">to</span>
-                        <span className="font-mono text-[11px] text-text-secondary">{rec.recipient.slice(0, 8)}...{rec.recipient.slice(-6)}</span>
+                        <span className="font-mono text-sm text-text-secondary">{rec.recipient.slice(0, 8)}...{rec.recipient.slice(-6)}</span>
                       </div>
-                      <div className="text-[11px] text-text-muted mt-0.5">{rec.chain}</div>
+                      <div className="text-sm text-text-muted mt-0.5">{rec.chain}</div>
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <span className={`text-[10px] font-medium ${confidenceColor(rec.reasoning.confidenceScore)}`}>
+                      <span className={`text-xs font-medium ${confidenceColor(rec.reasoning.confidenceScore)}`}>
                         {Math.round(rec.reasoning.confidenceScore * 100)}%
                       </span>
                       {rec.status === 'proposed' && (
@@ -366,7 +366,7 @@ export function AutonomyPanel() {
                   </div>
 
                   {/* Reasoning chain */}
-                  <div className="space-y-1 text-[11px]">
+                  <div className="space-y-1 text-sm">
                     <div className="flex items-start gap-1.5">
                       <Zap className="w-3 h-3 text-amber-400 mt-0.5 shrink-0" />
                       <span className="text-text-secondary">{rec.reasoning.trigger}</span>
@@ -387,13 +387,13 @@ export function AutonomyPanel() {
 
                   {/* Policy compliance badges */}
                   <div className="flex flex-wrap gap-1 mt-2">
-                    <span className={`px-1.5 py-0.5 text-[9px] font-medium rounded-full border ${rec.policyCompliance.withinDailyLimit ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
+                    <span className={`px-1.5 py-0.5 text-xs font-medium rounded-full border ${rec.policyCompliance.withinDailyLimit ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
                       {rec.policyCompliance.withinDailyLimit ? 'Within daily limit' : 'Exceeds daily limit'}
                     </span>
-                    <span className={`px-1.5 py-0.5 text-[9px] font-medium rounded-full border ${rec.policyCompliance.withinPerTipLimit ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
+                    <span className={`px-1.5 py-0.5 text-xs font-medium rounded-full border ${rec.policyCompliance.withinPerTipLimit ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
                       {rec.policyCompliance.withinPerTipLimit ? 'Within per-tip limit' : 'Exceeds per-tip limit'}
                     </span>
-                    <span className={`px-1.5 py-0.5 text-[9px] font-medium rounded-full border ${rec.policyCompliance.knownRecipient ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-amber-500/10 border-amber-500/20 text-amber-400'}`}>
+                    <span className={`px-1.5 py-0.5 text-xs font-medium rounded-full border ${rec.policyCompliance.knownRecipient ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-amber-500/10 border-amber-500/20 text-amber-400'}`}>
                       {rec.policyCompliance.knownRecipient ? 'Known recipient' : 'New recipient'}
                     </span>
                   </div>
@@ -414,7 +414,7 @@ export function AutonomyPanel() {
             <ShieldCheck className="w-4 h-4 text-green-400" />
             Autonomy Policies
             {policies.length > 0 && (
-              <span className="text-[10px] text-text-muted font-normal">
+              <span className="text-xs text-text-muted font-normal">
                 {policies.filter((p) => p.enabled).length} active
               </span>
             )}
@@ -432,14 +432,14 @@ export function AutonomyPanel() {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium text-text-primary">{p.name}</span>
-                        <span className={`px-1.5 py-0.5 text-[9px] font-medium rounded-full border ${p.enabled ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-gray-500/10 border-gray-500/20 text-gray-400'}`}>
+                        <span className={`px-1.5 py-0.5 text-xs font-medium rounded-full border ${p.enabled ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-gray-500/10 border-gray-500/20 text-gray-400'}`}>
                           {p.enabled ? 'Active' : 'Disabled'}
                         </span>
-                        <span className="px-1.5 py-0.5 text-[9px] font-medium rounded-full bg-surface-3 border border-border text-text-muted">
+                        <span className="px-1.5 py-0.5 text-xs font-medium rounded-full bg-surface-3 border border-border text-text-muted">
                           {p.type}
                         </span>
                       </div>
-                      <div className="text-[11px] text-text-muted mt-0.5">
+                      <div className="text-sm text-text-muted mt-0.5">
                         {p.rules.maxPerTip !== undefined && `Max per tip: ${p.rules.maxPerTip}`}
                         {p.rules.maxPerTip !== undefined && p.rules.maxDailyTotal !== undefined && ' | '}
                         {p.rules.maxDailyTotal !== undefined && `Daily max: ${p.rules.maxDailyTotal}`}
@@ -540,7 +540,7 @@ export function AutonomyPanel() {
             <ScrollText className="w-4 h-4 text-indigo-400" />
             Decision Log
             {decisions.length > 0 && (
-              <span className="text-[10px] text-text-muted font-normal">
+              <span className="text-xs text-text-muted font-normal">
                 {decisions.length} decisions
               </span>
             )}
@@ -561,18 +561,18 @@ export function AutonomyPanel() {
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-medium text-text-primary">{d.amount.toFixed(4)}</span>
-                        <span className="text-text-muted text-[11px]">to</span>
-                        <span className="font-mono text-[10px] text-text-secondary">{d.recipient.slice(0, 8)}...{d.recipient.slice(-6)}</span>
+                        <span className="text-text-muted text-sm">to</span>
+                        <span className="font-mono text-xs text-text-secondary">{d.recipient.slice(0, 8)}...{d.recipient.slice(-6)}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <span className={`text-[10px] font-medium ${confidenceColor(d.reasoning.confidenceScore)}`}>
+                        <span className={`text-xs font-medium ${confidenceColor(d.reasoning.confidenceScore)}`}>
                           {Math.round(d.reasoning.confidenceScore * 100)}%
                         </span>
                         {statusBadge(d.status)}
                       </div>
                     </div>
-                    <div className="text-[10px] text-text-muted">{d.reasoning.trigger}</div>
-                    <div className="text-[10px] text-text-muted mt-0.5">
+                    <div className="text-xs text-text-muted">{d.reasoning.trigger}</div>
+                    <div className="text-xs text-text-muted mt-0.5">
                       {new Date(d.timestamp).toLocaleString()}
                     </div>
                   </div>

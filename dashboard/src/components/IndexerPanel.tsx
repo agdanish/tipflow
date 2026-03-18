@@ -87,7 +87,7 @@ export function IndexerPanel() {
         </h2>
         <div className="flex items-center gap-2">
           {health && (
-            <span className={`flex items-center gap-1 text-[10px] font-medium ${health.available ? 'text-green-400' : 'text-red-400'}`}>
+            <span className={`flex items-center gap-1 text-xs font-medium ${health.available ? 'text-green-400' : 'text-red-400'}`}>
               {health.available ? <CheckCircle2 className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
               {health.available ? 'Connected' : 'Unavailable'}
               {health.latency ? ` (${health.latency}ms)` : ''}
@@ -103,7 +103,7 @@ export function IndexerPanel() {
       {chains.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-4">
           {chains.map(c => (
-            <span key={c.blockchain} className="px-2 py-0.5 rounded-full bg-surface-3 border border-border text-[10px] text-text-secondary">
+            <span key={c.blockchain} className="px-2 py-0.5 rounded-full bg-surface-3 border border-border text-xs text-text-secondary">
               {c.blockchain}
             </span>
           ))}
@@ -112,7 +112,7 @@ export function IndexerPanel() {
 
       {/* Query Form */}
       <div className="space-y-2 mb-4">
-        <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">Query Balance</p>
+        <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">Query Balance</p>
         <div className="grid grid-cols-2 gap-2">
           <select
             value={queryChain}
@@ -152,18 +152,18 @@ export function IndexerPanel() {
       {/* Query Result */}
       {queryResult && (
         <div className="p-3 rounded-lg bg-accent/5 border border-accent/15 mb-4 animate-fade-in">
-          <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1">Balance</p>
+          <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Balance</p>
           <p className="text-sm font-bold text-text-primary tabular-nums neon-glow">{queryResult.balance}</p>
-          <p className="text-[10px] text-text-muted mt-1">{queryChain} / {queryToken}</p>
+          <p className="text-xs text-text-muted mt-1">{queryChain} / {queryToken}</p>
         </div>
       )}
 
       {/* Recent Transfers */}
       {transfers.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">Recent Transfers</p>
+          <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">Recent Transfers</p>
           {transfers.map((tx, i) => (
-            <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-surface-2/50 text-[10px] animate-list-item-in" style={{ animationDelay: `${i * 50}ms` }}>
+            <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-surface-2/50 text-xs animate-list-item-in" style={{ animationDelay: `${i * 50}ms` }}>
               <span className="text-text-muted font-mono truncate max-w-[60px]">{tx.from.slice(0, 8)}...</span>
               <ArrowRight className="w-3 h-3 text-text-muted shrink-0" />
               <span className="text-text-muted font-mono truncate max-w-[60px]">{tx.to.slice(0, 8)}...</span>

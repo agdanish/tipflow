@@ -62,7 +62,7 @@ export function ActivityHeatmap({ history }: ActivityHeatmapProps) {
           <CalendarDays className="w-4 h-4 text-accent" />
           Activity Heatmap
         </h2>
-        <div className="flex items-center gap-2 text-[10px] text-text-muted">
+        <div className="flex items-center gap-2 text-xs text-text-muted">
           <span>{activeDays} active days</span>
           <span className="text-text-muted/40">•</span>
           <span>Last 12 weeks</span>
@@ -74,7 +74,7 @@ export function ActivityHeatmap({ history }: ActivityHeatmapProps) {
         <div className="flex flex-col gap-1 pr-1">
           {dayLabels.map((label, i) => (
             <div key={i} className="h-[14px] flex items-center">
-              <span className="text-[9px] text-text-muted w-6 text-right">{label}</span>
+              <span className="text-xs text-text-muted w-6 text-right">{label}</span>
             </div>
           ))}
         </div>
@@ -98,15 +98,15 @@ export function ActivityHeatmap({ history }: ActivityHeatmapProps) {
       {/* Legend */}
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
         <div className="flex items-center gap-1.5">
-          <span className="text-[9px] text-text-muted">Less</span>
+          <span className="text-xs text-text-muted">Less</span>
           <div className="w-[10px] h-[10px] rounded-sm bg-surface-3/50" />
           <div className="w-[10px] h-[10px] rounded-sm bg-green-500/20" />
           <div className="w-[10px] h-[10px] rounded-sm bg-green-500/40" />
           <div className="w-[10px] h-[10px] rounded-sm bg-green-500/60" />
           <div className="w-[10px] h-[10px] rounded-sm bg-green-500/80" />
-          <span className="text-[9px] text-text-muted">More</span>
+          <span className="text-xs text-text-muted">More</span>
         </div>
-        <span className="text-[10px] text-text-muted font-mono tabular-nums">
+        <span className="text-xs text-text-muted font-mono tabular-nums">
           Peak: {maxCount} tip{maxCount !== 1 ? 's' : ''}/day
         </span>
       </div>

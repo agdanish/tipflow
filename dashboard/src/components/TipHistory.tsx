@@ -174,13 +174,13 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
         Transaction History
         {history.length > 0 && (
           <>
-            <span className="text-[10px] text-text-muted font-normal ml-auto px-2 py-0.5 rounded-full bg-surface-3">
+            <span className="text-xs text-text-muted font-normal ml-auto px-2 py-0.5 rounded-full bg-surface-3">
               {history.length} tip{history.length !== 1 ? 's' : ''}
             </span>
             <button
               onClick={handleExport}
               disabled={exporting}
-              className="flex items-center gap-1 px-2 py-0.5 text-[10px] font-medium text-text-muted hover:text-accent bg-surface-3 hover:bg-surface-3/80 rounded-full transition-colors disabled:opacity-50"
+              className="flex items-center gap-1 px-2 py-0.5 text-xs font-medium text-text-muted hover:text-accent bg-surface-3 hover:bg-surface-3/80 rounded-full transition-colors disabled:opacity-50"
               title="Export tip history as CSV"
             >
               <Download className="w-3 h-3" />
@@ -196,28 +196,28 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
           <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-surface-2 border border-border">
             <BarChart3 className="w-3 h-3 text-accent shrink-0" />
             <div className="min-w-0">
-              <p className="text-[9px] text-text-muted uppercase tracking-wider leading-none">Tips</p>
+              <p className="text-xs text-text-muted uppercase tracking-wider leading-none">Tips</p>
               <p className="text-xs font-semibold text-text-primary">{stats.totalTips}</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-surface-2 border border-border">
             <TrendingUp className="w-3 h-3 text-green-400 shrink-0" />
             <div className="min-w-0">
-              <p className="text-[9px] text-text-muted uppercase tracking-wider leading-none">Volume</p>
+              <p className="text-xs text-text-muted uppercase tracking-wider leading-none">Volume</p>
               <p className="text-xs font-semibold text-text-primary">{formatNumber(stats.totalVolume)}</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-surface-2 border border-border">
             <Percent className="w-3 h-3 text-blue-400 shrink-0" />
             <div className="min-w-0">
-              <p className="text-[9px] text-text-muted uppercase tracking-wider leading-none">Success</p>
+              <p className="text-xs text-text-muted uppercase tracking-wider leading-none">Success</p>
               <p className="text-xs font-semibold text-text-primary">{stats.successRate}%</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg bg-surface-2 border border-border">
             <Coins className="w-3 h-3 text-amber-400 shrink-0" />
             <div className="min-w-0">
-              <p className="text-[9px] text-text-muted uppercase tracking-wider leading-none">Avg Fee</p>
+              <p className="text-xs text-text-muted uppercase tracking-wider leading-none">Avg Fee</p>
               <p className="text-xs font-semibold text-text-primary">{stats.avgFee.toFixed(6)}</p>
             </div>
           </div>
@@ -254,7 +254,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
               <button
                 key={f}
                 onClick={() => setChainFilter(f)}
-                className={`px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ${
+                className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-colors ${
                   chainFilter === f
                     ? 'border-accent bg-accent-dim text-accent'
                     : 'border-border bg-surface-2 text-text-muted hover:text-text-secondary hover:border-border-light'
@@ -271,7 +271,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
               <button
                 key={f}
                 onClick={() => setStatusFilter(f)}
-                className={`px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors ${
+                className={`px-2 py-0.5 rounded-full text-xs font-medium border transition-colors ${
                   statusFilter === f
                     ? f === 'confirmed'
                       ? 'border-green-500/50 bg-green-500/10 text-green-400'
@@ -292,15 +292,15 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
-              className="flex-1 px-2 py-1.5 rounded-md bg-surface-2 border border-border text-[11px] text-text-primary focus:outline-none focus:border-accent-border transition-colors"
+              className="flex-1 px-2 py-1.5 rounded-md bg-surface-2 border border-border text-sm text-text-primary focus:outline-none focus:border-accent-border transition-colors"
               placeholder="From"
             />
-            <span className="text-[10px] text-text-muted">to</span>
+            <span className="text-xs text-text-muted">to</span>
             <input
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
-              className="flex-1 px-2 py-1.5 rounded-md bg-surface-2 border border-border text-[11px] text-text-primary focus:outline-none focus:border-accent-border transition-colors"
+              className="flex-1 px-2 py-1.5 rounded-md bg-surface-2 border border-border text-sm text-text-primary focus:outline-none focus:border-accent-border transition-colors"
               placeholder="To"
             />
           </div>
@@ -308,12 +308,12 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
           {/* Result count + clear */}
           {hasActiveFilters && (
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-text-muted">
+              <span className="text-xs text-text-muted">
                 {filtered.length} of {history.length} tip{history.length !== 1 ? 's' : ''}
               </span>
               <button
                 onClick={clearFilters}
-                className="flex items-center gap-1 text-[10px] text-accent hover:text-accent-light transition-colors"
+                className="flex items-center gap-1 text-xs text-accent hover:text-accent-light transition-colors"
               >
                 <X className="w-3 h-3" />
                 Clear filters
@@ -377,8 +377,8 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                       <span className="text-xs sm:text-sm font-semibold text-text-primary">
                         {formatNumber(entry.amount)} {entry.token === 'usdt' ? 'USDT' : isEth ? 'ETH' : 'TON'}
                       </span>
-                      <span className="text-[11px] sm:text-xs text-text-muted">to</span>
-                      <span className="text-[11px] sm:text-xs text-text-secondary font-mono truncate sm:hidden">
+                      <span className="text-sm sm:text-xs text-text-muted">to</span>
+                      <span className="text-sm sm:text-xs text-text-secondary font-mono truncate sm:hidden">
                         {shortenAddress(entry.recipient, 4)}
                       </span>
                       <span className="text-xs text-text-secondary font-mono truncate hidden sm:inline">
@@ -390,21 +390,21 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                         className="w-1.5 h-1.5 rounded-full shrink-0"
                         style={{ backgroundColor: chainColor(entry.chainId) }}
                       />
-                      <span className="text-[10px] sm:text-[11px] text-text-muted">
+                      <span className="text-xs sm:text-sm text-text-muted">
                         {isEth ? 'Ethereum Sepolia' : 'TON Testnet'}
                       </span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-                    <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full border ${
+                    <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full border ${
                       entry.status === 'confirmed'
                         ? 'bg-green-500/10 border-green-500/30 text-green-400'
                         : 'bg-red-500/10 border-red-500/30 text-red-400'
                     }`}>
                       {entry.status === 'confirmed' ? 'Confirmed' : 'Failed'}
                     </span>
-                    <span className="text-[10px] sm:text-xs text-text-muted">{timeAgo(entry.createdAt)}</span>
+                    <span className="text-xs sm:text-xs text-text-muted">{timeAgo(entry.createdAt)}</span>
                     {entry.txHash && (
                       <a
                         href={`${explorerBase}${entry.txHash}`}
@@ -432,7 +432,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                       <div className="p-3.5 rounded-lg bg-gradient-to-br from-purple-500/8 via-surface-1 to-surface-1 border border-purple-500/15">
                         <div className="flex items-center gap-2 mb-2">
                           <Brain className="w-3.5 h-3.5 text-purple-400" />
-                          <span className="text-[10px] font-semibold text-purple-400 uppercase tracking-wider">
+                          <span className="text-xs font-semibold text-purple-400 uppercase tracking-wider">
                             AI Decision
                           </span>
                         </div>
@@ -446,7 +446,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                         <div className="p-3 rounded-lg bg-surface-1 border border-border">
                           <div className="flex items-center gap-1.5 mb-1.5">
                             <MessageSquare className="w-3 h-3 text-cyan-400" />
-                            <span className="text-[10px] text-text-muted uppercase tracking-wider">Memo</span>
+                            <span className="text-xs text-text-muted uppercase tracking-wider">Memo</span>
                           </div>
                           <p className="text-xs text-text-secondary italic">{entry.memo}</p>
                         </div>
@@ -457,14 +457,14 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                         <div className="p-2.5 rounded-lg bg-surface-1 border border-border">
                           <div className="flex items-center gap-1.5 mb-1">
                             <Fuel className="w-3 h-3 text-warning" />
-                            <span className="text-[10px] text-text-muted uppercase tracking-wider">Gas Fee</span>
+                            <span className="text-xs text-text-muted uppercase tracking-wider">Gas Fee</span>
                           </div>
                           <p className="text-xs font-medium text-text-primary">{entry.fee}</p>
                         </div>
                         <div className="p-2.5 rounded-lg bg-surface-1 border border-border">
                           <div className="flex items-center gap-1.5 mb-1">
                             <Layers className="w-3 h-3 text-info" />
-                            <span className="text-[10px] text-text-muted uppercase tracking-wider">Network</span>
+                            <span className="text-xs text-text-muted uppercase tracking-wider">Network</span>
                           </div>
                           <p className="text-xs font-medium text-text-primary">
                             {isEth ? 'Ethereum Sepolia' : 'TON Testnet'}
@@ -474,7 +474,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
 
                       {/* TX Hash + Copy + Share */}
                       {entry.txHash && (
-                        <div className="flex items-center gap-2 px-2 py-1.5 text-[11px]">
+                        <div className="flex items-center gap-2 px-2 py-1.5 text-sm">
                           <span className="text-text-muted">TX:</span>
                           <span className="text-text-secondary font-mono truncate flex-1">{entry.txHash}</span>
                           <button
@@ -485,7 +485,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                                 setTimeout(() => setCopiedTxId(null), 2000);
                               } catch { /* silent */ }
                             }}
-                            className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-text-muted hover:text-accent bg-surface-3 hover:bg-surface-3/80 rounded-md transition-colors shrink-0"
+                            className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-text-muted hover:text-accent bg-surface-3 hover:bg-surface-3/80 rounded-md transition-colors shrink-0"
                             title="Copy transaction hash"
                           >
                             {copiedTxId === entry.id ? (
@@ -503,7 +503,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                           <button
                             onClick={() => handleReceipt(entry)}
                             disabled={loadingReceipt === entry.id}
-                            className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-text-muted hover:text-accent bg-surface-3 hover:bg-surface-3/80 rounded-md transition-colors shrink-0 disabled:opacity-50"
+                            className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-text-muted hover:text-accent bg-surface-3 hover:bg-surface-3/80 rounded-md transition-colors shrink-0 disabled:opacity-50"
                             title="View receipt"
                           >
                             <Receipt className={`w-3 h-3 ${loadingReceipt === entry.id ? 'animate-pulse' : ''}`} />
@@ -511,7 +511,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                           </button>
                           <button
                             onClick={() => handleShare(entry)}
-                            className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-text-muted hover:text-accent bg-surface-3 hover:bg-surface-3/80 rounded-md transition-colors shrink-0"
+                            className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-text-muted hover:text-accent bg-surface-3 hover:bg-surface-3/80 rounded-md transition-colors shrink-0"
                             title="Copy share text to clipboard"
                           >
                             {copiedId === entry.id ? (

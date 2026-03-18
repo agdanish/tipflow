@@ -109,7 +109,7 @@ export function DcaPanel() {
           ].map((s) => (
             <div key={s.label} className="text-center p-2 rounded-lg bg-surface-2">
               <div className="text-xs font-bold text-text-primary">{s.value}</div>
-              <div className="text-[10px] text-text-muted">{s.label}</div>
+              <div className="text-xs text-text-muted">{s.label}</div>
             </div>
           ))}
         </div>
@@ -126,15 +126,15 @@ export function DcaPanel() {
           />
           <div className="grid grid-cols-3 gap-2">
             <div>
-              <label className="text-[10px] text-text-muted">Total</label>
+              <label className="text-xs text-text-muted">Total</label>
               <input value={form.totalAmount} onChange={(e) => setForm({ ...form, totalAmount: e.target.value })} className="w-full px-2 py-1 rounded bg-surface-2 border border-border text-text-primary text-xs" />
             </div>
             <div>
-              <label className="text-[10px] text-text-muted">Installments</label>
+              <label className="text-xs text-text-muted">Installments</label>
               <input value={form.installments} onChange={(e) => setForm({ ...form, installments: e.target.value })} className="w-full px-2 py-1 rounded bg-surface-2 border border-border text-text-primary text-xs" />
             </div>
             <div>
-              <label className="text-[10px] text-text-muted">Interval (hrs)</label>
+              <label className="text-xs text-text-muted">Interval (hrs)</label>
               <input value={form.intervalHours} onChange={(e) => setForm({ ...form, intervalHours: e.target.value })} className="w-full px-2 py-1 rounded bg-surface-2 border border-border text-text-primary text-xs" />
             </div>
           </div>
@@ -154,8 +154,8 @@ export function DcaPanel() {
           {/* Payout schedule preview */}
           {parseFloat(form.totalAmount) > 0 && parseInt(form.installments) > 0 && (
             <div className="p-2.5 rounded-lg bg-purple-500/5 border border-purple-500/15 space-y-1.5">
-              <p className="text-[10px] font-semibold text-purple-400 uppercase tracking-wider">Payout Schedule Preview</p>
-              <div className="grid grid-cols-2 gap-2 text-[10px]">
+              <p className="text-xs font-semibold text-purple-400 uppercase tracking-wider">Payout Schedule Preview</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
                   <span className="text-text-muted">Per installment:</span>
                   <span className="ml-1 font-bold text-text-primary tabular-nums">
@@ -182,7 +182,7 @@ export function DcaPanel() {
                   />
                 ))}
                 {parseInt(form.installments) > 12 && (
-                  <span className="text-[9px] text-text-muted ml-1">+{parseInt(form.installments) - 12} more</span>
+                  <span className="text-xs text-text-muted ml-1">+{parseInt(form.installments) - 12} more</span>
                 )}
               </div>
             </div>
@@ -208,7 +208,7 @@ export function DcaPanel() {
             <div key={p.id} className="p-3 rounded-lg border border-border bg-surface-2 space-y-2 card-hover animate-list-item-in" style={{ animationDelay: `${index * 60}ms` }}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium border ${statusColor(p.status)}`}>
+                  <span className={`px-1.5 py-0.5 rounded-full text-xs font-medium border ${statusColor(p.status)}`}>
                     {p.status}
                   </span>
                   <span className="text-xs font-mono text-text-secondary">{p.recipient.slice(0, 8)}...{p.recipient.slice(-4)}</span>
@@ -245,7 +245,7 @@ export function DcaPanel() {
               <div className="h-1.5 rounded-full bg-surface-3 overflow-hidden">
                 <div className={`h-full rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-500 transition-all ${p.status === 'active' ? 'progress-shimmer' : ''}`} style={{ width: `${progress}%` }} />
               </div>
-              <div className="text-[10px] text-text-muted flex justify-between">
+              <div className="text-xs text-text-muted flex justify-between">
                 <span>{p.completedInstallments}/{p.installments} installments</span>
                 {p.status === 'active' && p.nextExecutionAt && (
                   <span>Next: {new Date(p.nextExecutionAt).toLocaleString()}</span>

@@ -47,7 +47,7 @@ export function DemoBanner() {
           <div className="min-w-0">
             <h2 className="text-sm font-bold text-amber-300 flex items-center gap-2">
               Demo Mode
-              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-[10px] font-semibold text-amber-400 uppercase tracking-wide">
+              <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-xs font-semibold text-amber-400 uppercase tracking-wide">
                 Testnet
               </span>
             </h2>

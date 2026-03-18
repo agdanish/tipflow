@@ -62,7 +62,7 @@ export function ProtocolOverview() {
             <Layers className="w-4 h-4 text-accent" />
             <span className="gradient-text-animated">5-Layer Protocol Architecture</span>
           </h2>
-          <button aria-label="View protocol specification" className="flex items-center gap-1 text-[10px] text-text-muted hover:text-accent transition-colors group">
+          <button aria-label="View protocol specification" className="flex items-center gap-1 text-xs text-text-muted hover:text-accent transition-colors group">
             View Protocol Spec
             <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
           </button>
@@ -81,7 +81,7 @@ export function ProtocolOverview() {
             >
               {/* Layer name badge */}
               <div className="flex items-center justify-center px-3 py-3 min-w-[100px]">
-                <span className={`text-[11px] font-bold tracking-widest ${layer.color}`}>
+                <span className={`text-sm font-bold tracking-widest ${layer.color}`}>
                   {layer.name}
                 </span>
               </div>
@@ -92,7 +92,7 @@ export function ProtocolOverview() {
               {/* Description & metrics */}
               <div className="flex-1 px-3 py-2.5 flex flex-col justify-center">
                 <p className="text-xs text-text-primary font-medium">{layer.description}</p>
-                <p className="text-[10px] text-text-muted mt-0.5">{layer.metrics}</p>
+                <p className="text-xs text-text-muted mt-0.5">{layer.metrics}</p>
               </div>
 
               {/* Layer number */}
@@ -107,7 +107,7 @@ export function ProtocolOverview() {
 
         {/* Bottom legend */}
         <div className="flex items-center justify-center gap-4 mt-4 pt-3 border-t border-border">
-          <span className="text-[10px] text-text-muted">Each layer is independently extensible via plugins</span>
+          <span className="text-xs text-text-muted">Each layer is independently extensible via plugins</span>
         </div>
       </div>
     </div>

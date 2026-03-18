@@ -51,7 +51,7 @@ function TimeRemaining({ expiresAt }: { expiresAt: string }) {
   }, [expiresAt, urgent]);
 
   return (
-    <span className={`inline-flex items-center gap-1 text-[10px] tabular-nums ${urgent ? 'text-amber-400 font-semibold' : 'text-text-muted'}`}>
+    <span className={`inline-flex items-center gap-1 text-xs tabular-nums ${urgent ? 'text-amber-400 font-semibold' : 'text-text-muted'}`}>
       <Clock className={`w-2.5 h-2.5 ${urgent ? 'animate-pulse' : ''}`} />
       {remaining}
     </span>
@@ -80,12 +80,12 @@ function ChallengeCard({ challenge }: { challenge: Challenge }) {
               <CheckCircle2 className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
             )}
           </div>
-          <p className="text-[11px] text-text-muted mt-0.5">{challenge.description}</p>
+          <p className="text-sm text-text-muted mt-0.5">{challenge.description}</p>
           <div className="mt-2">
             <ChallengeProgressBar progress={challenge.progress} target={challenge.target} />
           </div>
           <div className="flex items-center justify-between mt-1.5">
-            <span className="text-[10px] text-text-muted font-medium">
+            <span className="text-xs text-text-muted font-medium">
               {challenge.progress}/{challenge.target}
               {challenge.completed && (
                 <span className="ml-1.5 text-green-400">Complete!</span>
@@ -94,7 +94,7 @@ function ChallengeCard({ challenge }: { challenge: Challenge }) {
             <TimeRemaining expiresAt={challenge.expiresAt} />
           </div>
           {!challenge.completed && (
-            <p className="text-[10px] text-accent/70 mt-1 italic">
+            <p className="text-xs text-accent/70 mt-1 italic">
               Reward: {challenge.reward}
             </p>
           )}
@@ -114,9 +114,9 @@ function StreakDisplay({ streak }: { streak: StreakData }) {
             <span className={`text-xl font-bold ${streak.currentStreak > 0 ? 'text-orange-400' : 'text-text-muted'}`}>
               {streak.currentStreak}
             </span>
-            <span className="text-[11px] text-text-muted">day streak</span>
+            <span className="text-sm text-text-muted">day streak</span>
           </div>
-          <p className="text-[10px] text-text-muted">
+          <p className="text-xs text-text-muted">
             Best: {streak.longestStreak} day{streak.longestStreak !== 1 ? 's' : ''}
           </p>
         </div>
@@ -125,7 +125,7 @@ function StreakDisplay({ streak }: { streak: StreakData }) {
         {streak.streakMilestones.map((m) => (
           <span
             key={m.days}
-            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border ${
+            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${
               m.reached
                 ? 'bg-orange-500/10 border-orange-500/20 text-orange-400'
                 : 'bg-surface-3 border-border text-text-muted opacity-50'
@@ -195,7 +195,7 @@ export function Challenges() {
           <Target className="w-4 h-4 text-accent" />
           Challenges
           {streak && streak.currentStreak > 0 && (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/20 text-[10px] font-medium text-orange-400">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-orange-500/15 border border-orange-500/20 text-xs font-medium text-orange-400">
               <Flame className="w-2.5 h-2.5" />
               {streak.currentStreak}d streak
             </span>
@@ -267,11 +267,11 @@ export function Challenges() {
           {/* Summary bar */}
           {!loading && activeChallenges.length > 0 && (
             <div className="flex items-center justify-between pt-2 border-t border-border">
-              <span className="text-[11px] text-text-muted">
+              <span className="text-sm text-text-muted">
                 {completedCount}/{activeChallenges.length} completed
               </span>
               {completedCount === activeChallenges.length && (
-                <span className="text-[11px] font-medium text-green-400">
+                <span className="text-sm font-medium text-green-400">
                   All challenges complete!
                 </span>
               )}

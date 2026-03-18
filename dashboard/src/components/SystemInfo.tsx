@@ -80,7 +80,7 @@ export function SystemInfo() {
       <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2 mb-3">
         <Server className="w-4 h-4 text-accent" />
         System Info
-        <span className="ml-auto text-[10px] font-normal text-text-muted px-1.5 py-0.5 rounded-full bg-surface-3 border border-border">
+        <span className="ml-auto text-xs font-normal text-text-muted px-1.5 py-0.5 rounded-full bg-surface-3 border border-border">
           {info.environment}
         </span>
       </h3>
@@ -99,7 +99,7 @@ export function SystemInfo() {
 
       {/* Memory bar */}
       <div className="mt-3 pt-2 border-t border-border/50">
-        <div className="flex items-center justify-between text-[10px] text-text-muted mb-1">
+        <div className="flex items-center justify-between text-xs text-text-muted mb-1">
           <span>Heap Usage</span>
           <span>{memPercent}%</span>
         </div>
@@ -114,7 +114,7 @@ export function SystemInfo() {
       </div>
 
       {/* Last restart */}
-      <div className="mt-2 text-[10px] text-text-muted text-right">
+      <div className="mt-2 text-xs text-text-muted text-right">
         Started {new Date(info.startTime).toLocaleString()}
       </div>
     </div>

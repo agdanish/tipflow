@@ -201,7 +201,7 @@ export function HelpCenter() {
                         {item.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-surface-3 border border-border text-text-muted"
+                            className="px-2 py-0.5 rounded-full text-xs font-medium bg-surface-3 border border-border text-text-muted"
                           >
                             {tag}
                           </span>

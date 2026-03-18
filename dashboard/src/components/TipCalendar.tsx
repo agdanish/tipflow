@@ -84,7 +84,7 @@ function DayPopover({ date, tips, onClose, onCancel }: DayPopoverProps) {
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
                   {tip.recurring && (
-                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-purple-500/15 border border-purple-500/20 text-[10px] font-medium text-purple-400">
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-purple-500/15 border border-purple-500/20 text-xs font-medium text-purple-400">
                       <Repeat className="w-2.5 h-2.5" />
                       {tip.interval}
                     </span>
@@ -105,16 +105,16 @@ function DayPopover({ date, tips, onClose, onCancel }: DayPopoverProps) {
                 <span className="font-mono">{tip.recipient.slice(0, 8)}...{tip.recipient.slice(-6)}</span>
               </div>
               {tip.chain && (
-                <div className="mt-0.5 text-[11px] text-text-muted">
+                <div className="mt-0.5 text-sm text-text-muted">
                   Chain: {tip.chain}
                 </div>
               )}
               {tip.message && (
-                <div className="mt-0.5 text-[11px] text-text-muted italic">
+                <div className="mt-0.5 text-sm text-text-muted italic">
                   &ldquo;{tip.message}&rdquo;
                 </div>
               )}
-              <div className="mt-0.5 text-[11px] text-text-muted">
+              <div className="mt-0.5 text-sm text-text-muted">
                 {new Date(tip.scheduledAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>
@@ -293,7 +293,7 @@ export function TipCalendar({ onCancelTip }: TipCalendarProps) {
               </span>
               <button
                 onClick={goToday}
-                className="text-[10px] px-2 py-0.5 rounded-full bg-surface-3 text-text-secondary hover:text-text-primary hover:bg-accent/20 transition-colors"
+                className="text-xs px-2 py-0.5 rounded-full bg-surface-3 text-text-secondary hover:text-text-primary hover:bg-accent/20 transition-colors"
               >
                 Today
               </button>
@@ -320,7 +320,7 @@ export function TipCalendar({ onCancelTip }: TipCalendarProps) {
               {/* Weekday headers */}
               <div className="grid grid-cols-7 mb-1">
                 {WEEKDAYS.map((wd) => (
-                  <div key={wd} className="text-center text-[10px] font-medium text-text-muted py-1">
+                  <div key={wd} className="text-center text-xs font-medium text-text-muted py-1">
                     <span className="hidden sm:inline">{wd}</span>
                     <span className="sm:hidden">{wd.charAt(0)}</span>
                   </div>
@@ -363,7 +363,7 @@ export function TipCalendar({ onCancelTip }: TipCalendarProps) {
                           {day}
                         </span>
                         {hasTips && (
-                          <span className="text-[8px] font-semibold tabular-nums text-amber-400 bg-amber-500/10 px-1 rounded-full sm:inline hidden">
+                          <span className="text-xs font-semibold tabular-nums text-amber-400 bg-amber-500/10 px-1 rounded-full sm:inline hidden">
                             {tips.length}
                           </span>
                         )}
@@ -380,14 +380,14 @@ export function TipCalendar({ onCancelTip }: TipCalendarProps) {
                             />
                           ))}
                           {tips.length > 4 && (
-                            <span className="text-[8px] text-text-muted leading-none">+{tips.length - 4}</span>
+                            <span className="text-xs text-text-muted leading-none">+{tips.length - 4}</span>
                           )}
                         </div>
                       )}
 
                       {/* Compact tip count on mobile */}
                       {hasTips && (
-                        <span className="hidden max-sm:block text-[8px] text-amber-400 mt-0.5">
+                        <span className="hidden max-sm:block text-xs text-amber-400 mt-0.5">
                           {tips.length}
                         </span>
                       )}
@@ -395,11 +395,11 @@ export function TipCalendar({ onCancelTip }: TipCalendarProps) {
                       {/* Desktop: show first tip preview */}
                       {hasTips && tips.length > 0 && (
                         <div className="hidden sm:block mt-1">
-                          <span className="text-[9px] text-text-muted truncate block">
+                          <span className="text-xs text-text-muted truncate block">
                             {tips[0].amount} {tips[0].token === 'usdt' ? 'USDT' : ''}
                           </span>
                           {tips.length > 1 && (
-                            <span className="text-[8px] text-text-muted">
+                            <span className="text-xs text-text-muted">
                               +{tips.length - 1} more
                             </span>
                           )}
@@ -411,7 +411,7 @@ export function TipCalendar({ onCancelTip }: TipCalendarProps) {
               </div>
 
               {/* Legend */}
-              <div className="flex items-center gap-4 mt-3 text-[10px] text-text-muted">
+              <div className="flex items-center gap-4 mt-3 text-xs text-text-muted">
                 <div className="flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-indigo-400" />
                   Ethereum

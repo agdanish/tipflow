@@ -45,7 +45,7 @@ export function HealthDashboard() {
           System Health
         </h3>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-text-secondary">Uptime: {hours}h {mins}m {secs}s</span>
+          <span className="text-xs text-text-secondary">Uptime: {hours}h {mins}m {secs}s</span>
           <button onClick={() => { setLoading(true); load(); }} className="p-1 rounded hover:bg-surface-2 text-text-secondary">
             <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
           </button>
@@ -58,7 +58,7 @@ export function HealthDashboard() {
       }`}>
         <CheckCircle2 className={`w-4 h-4 ${health.status === 'operational' ? 'text-green-400' : 'text-red-400'}`} />
         <span className="text-xs font-medium text-text-primary">{health.status === 'operational' ? 'All Systems Operational' : 'Issues Detected'}</span>
-        <span className="text-[10px] text-text-secondary ml-auto">{activeServices.length}/{serviceEntries.length} services active</span>
+        <span className="text-xs text-text-secondary ml-auto">{activeServices.length}/{serviceEntries.length} services active</span>
       </div>
 
       {/* Services Grid */}
@@ -73,7 +73,7 @@ export function HealthDashboard() {
                 info.status === 'running' || info.status === 'active' || info.status === 'ready' || info.status === 'connected'
                   ? 'bg-green-400' : info.status === 'not configured' ? 'bg-gray-500' : 'bg-yellow-400'
               }`} />
-              <span className="text-[9px] text-text-secondary block truncate">{name}</span>
+              <span className="text-xs text-text-secondary block truncate">{name}</span>
             </div>
           ))}
         </div>
@@ -89,9 +89,9 @@ export function HealthDashboard() {
             <div key={id} className="p-2.5 rounded-lg bg-surface-2 border border-border">
               <div className="flex items-center gap-1.5 mb-1">
                 <div className="w-2 h-2 rounded-full bg-green-400" />
-                <span className="text-[10px] font-medium text-text-primary">{info.type}</span>
+                <span className="text-xs font-medium text-text-primary">{info.type}</span>
               </div>
-              <span className="text-[9px] text-text-secondary">{id}</span>
+              <span className="text-xs text-text-secondary">{id}</span>
             </div>
           ))}
         </div>
@@ -104,7 +104,7 @@ export function HealthDashboard() {
         </h4>
         <div className="flex flex-wrap gap-1">
           {health.wdk.packages.map((pkg) => (
-            <span key={pkg} className="text-[9px] px-1.5 py-0.5 rounded bg-accent/10 text-accent">{pkg.replace('@tetherto/', '')}</span>
+            <span key={pkg} className="text-xs px-1.5 py-0.5 rounded bg-accent/10 text-accent">{pkg.replace('@tetherto/', '')}</span>
           ))}
         </div>
       </div>

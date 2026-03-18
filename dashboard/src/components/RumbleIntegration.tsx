@@ -239,7 +239,7 @@ function CreatorsPanel() {
                   {c.categories.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {c.categories.map((cat) => (
-                        <span key={cat} className="px-2 py-0.5 rounded-full bg-surface-3 border border-border text-[10px] text-text-secondary">
+                        <span key={cat} className="px-2 py-0.5 rounded-full bg-surface-3 border border-border text-xs text-text-secondary">
                           {cat}
                         </span>
                       ))}
@@ -248,7 +248,7 @@ function CreatorsPanel() {
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-sm font-semibold text-accent">{c.totalTipAmount.toFixed(4)}</p>
-                  <p className="text-[10px] text-text-muted">{c.totalTipsReceived} tips</p>
+                  <p className="text-xs text-text-muted">{c.totalTipsReceived} tips</p>
                 </div>
               </div>
             </div>
@@ -404,13 +404,13 @@ function AutoTipPanel() {
                     <p className="text-sm font-medium text-text-primary">
                       Tip <span className="text-accent">{rule.tipAmount} ETH</span> when watch &ge; <span className="text-cyan-400">{rule.minWatchPercent}%</span>
                     </p>
-                    <p className="text-[11px] text-text-muted mt-0.5">
+                    <p className="text-sm text-text-muted mt-0.5">
                       Max {rule.maxTipsPerDay}/day
                       {rule.enabledCategories.length > 0 && ` | Categories: ${rule.enabledCategories.join(', ')}`}
                     </p>
                   </div>
                 </div>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${rule.enabled ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-gray-500/10 text-gray-400 border border-gray-500/20'}`}>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${rule.enabled ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-gray-500/10 text-gray-400 border border-gray-500/20'}`}>
                   {rule.enabled ? 'Active' : 'Disabled'}
                 </span>
               </div>
@@ -588,7 +588,7 @@ function PoolsPanel() {
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-sm font-semibold text-accent">{pool.currentAmount.toFixed(4)} / {pool.goalAmount} ETH</p>
-                    <p className="text-[10px] text-text-muted">{pool.contributors.length} contributors</p>
+                    <p className="text-xs text-text-muted">{pool.contributors.length} contributors</p>
                   </div>
                 </div>
                 {/* Progress bar */}
@@ -602,7 +602,7 @@ function PoolsPanel() {
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <div className="flex items-center justify-between text-[11px] text-text-muted">
+                <div className="flex items-center justify-between text-sm text-text-muted">
                   <span>{pct}% funded</span>
                   {pool.deadline && (
                     <span className="flex items-center gap-1">
@@ -615,7 +615,7 @@ function PoolsPanel() {
                 {contributingPool === pool.id ? (
                   <div className="flex items-end gap-2">
                     <div className="flex-1">
-                      <label className="block text-[10px] text-text-muted mb-0.5">Your name</label>
+                      <label className="block text-xs text-text-muted mb-0.5">Your name</label>
                       <input
                         type="text"
                         value={contributorName}
@@ -625,7 +625,7 @@ function PoolsPanel() {
                       />
                     </div>
                     <div className="w-24">
-                      <label className="block text-[10px] text-text-muted mb-0.5">Amount</label>
+                      <label className="block text-xs text-text-muted mb-0.5">Amount</label>
                       <input
                         type="number"
                         step="0.001"
@@ -835,7 +835,7 @@ function LeaderboardPanel() {
             <button
               key={tf}
               onClick={() => setTimeframe(tf)}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${
+              className={`px-2.5 py-1 rounded-md text-sm font-medium transition-colors ${
                 timeframe === tf
                   ? 'bg-surface-3 text-text-primary shadow-sm'
                   : 'text-text-muted hover:text-text-secondary'
@@ -879,12 +879,12 @@ function LeaderboardPanel() {
                   </a>
                 </div>
                 {entry.categories.length > 0 && (
-                  <p className="text-[10px] text-text-muted truncate">{entry.categories.join(' / ')}</p>
+                  <p className="text-xs text-text-muted truncate">{entry.categories.join(' / ')}</p>
                 )}
               </div>
               <div className="text-right shrink-0">
                 <p className="text-sm font-semibold text-accent">{entry.totalAmount.toFixed(4)}</p>
-                <p className="text-[10px] text-text-muted">{entry.totalTips} tips</p>
+                <p className="text-xs text-text-muted">{entry.totalTips} tips</p>
               </div>
             </div>
           ))}

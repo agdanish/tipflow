@@ -184,7 +184,7 @@ export function TipGoals() {
                 value={recipient}
                 onChange={(e) => setRecipient(e.target.value)}
                 placeholder="0x... or UQ..."
-                className="w-full px-3 py-2 rounded-lg border border-border bg-surface-1 text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent font-mono text-[11px]"
+                className="w-full px-3 py-2 rounded-lg border border-border bg-surface-1 text-text-primary text-sm placeholder:text-text-muted focus:outline-none focus:ring-1 focus:ring-accent font-mono text-sm"
               />
             </div>
             <div>
@@ -239,7 +239,7 @@ export function TipGoals() {
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-medium text-text-primary truncate">{goal.title}</h3>
                     {goal.description && (
-                      <p className="text-[11px] text-text-muted mt-0.5 line-clamp-1">{goal.description}</p>
+                      <p className="text-sm text-text-muted mt-0.5 line-clamp-1">{goal.description}</p>
                     )}
                   </div>
                   <div className="flex items-center gap-1 ml-2 shrink-0">
@@ -271,7 +271,7 @@ export function TipGoals() {
                 </div>
 
                 {/* Stats row */}
-                <div className="flex items-center justify-between text-[11px]">
+                <div className="flex items-center justify-between text-sm">
                   <span className="text-text-secondary">
                     <span className="font-semibold text-text-primary">{goal.currentAmount}</span>
                     <span className="text-text-muted"> / {goal.targetAmount} {goal.token === 'any' ? '' : goal.token === 'usdt' ? 'USDT' : goal.token}</span>
@@ -282,7 +282,7 @@ export function TipGoals() {
                 </div>
 
                 {/* Metadata row */}
-                <div className="flex items-center gap-3 mt-1.5 text-[10px] text-text-muted">
+                <div className="flex items-center gap-3 mt-1.5 text-xs text-text-muted">
                   {goal.recipient && (
                     <span className="font-mono truncate max-w-[120px]" title={goal.recipient}>
                       {goal.recipient.slice(0, 8)}...{goal.recipient.slice(-4)}
@@ -314,7 +314,7 @@ export function TipGoals() {
                 <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
                 <div className="flex-1 min-w-0">
                   <span className="text-xs font-medium text-text-primary truncate block">{goal.title}</span>
-                  <span className="text-[10px] text-text-muted">
+                  <span className="text-xs text-text-muted">
                     {goal.currentAmount} / {goal.targetAmount} {goal.token === 'any' ? '' : goal.token === 'usdt' ? 'USDT' : goal.token}
                   </span>
                 </div>

@@ -52,7 +52,7 @@ export function WalletCard({ balance }: WalletCardProps) {
             <p className="text-sm font-semibold text-text-primary">
               {isEth ? 'Ethereum Sepolia' : isTron ? 'Tron Nile' : 'TON Testnet'}
             </p>
-            <p className="text-[11px] text-text-muted">Testnet</p>
+            <p className="text-sm text-text-muted">Testnet</p>
           </div>
         </div>
         <a
@@ -68,7 +68,7 @@ export function WalletCard({ balance }: WalletCardProps) {
       <div className="space-y-3">
         <div>
           <div className="flex items-center justify-between mb-1">
-            <p className="text-[11px] text-text-muted uppercase tracking-wider">Native Balance</p>
+            <p className="text-sm text-text-muted uppercase tracking-wider">Native Balance</p>
             <button
               onClick={() => {
                 setRefreshing(true);
@@ -88,7 +88,7 @@ export function WalletCard({ balance }: WalletCardProps) {
         </div>
 
         <div>
-          <p className="text-[11px] text-text-muted mb-1 uppercase tracking-wider">USDT Balance</p>
+          <p className="text-sm text-text-muted mb-1 uppercase tracking-wider">USDT Balance</p>
           <p className={`text-lg font-semibold tabular-nums ${hasUsdt ? 'text-accent value-glow-accent' : 'text-text-muted'}`}>
             {hasUsdt ? formatNumber(animatedUsdt, 2) : '0.00'}{' '}
             <span className="text-sm font-medium">USDT</span>
@@ -98,7 +98,7 @@ export function WalletCard({ balance }: WalletCardProps) {
         <div className="pt-3 border-t border-border">
           <button
             onClick={handleCopy}
-            className={`flex items-center gap-1.5 sm:gap-2 text-[11px] sm:text-xs w-full py-1.5 px-2 rounded-md transition-all ${
+            className={`flex items-center gap-1.5 sm:gap-2 text-sm sm:text-xs w-full py-1.5 px-2 rounded-md transition-all ${
               copied
                 ? 'bg-accent/10 text-accent animate-copy-flash'
                 : 'text-text-secondary hover:text-text-primary hover:bg-surface-3'

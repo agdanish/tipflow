@@ -187,7 +187,7 @@ export function QRScanner({ onAddressDetected, onClose }: QRScannerProps) {
 
         {/* Paste section */}
         <div className="p-4 space-y-3">
-          <p className="text-[11px] text-text-muted text-center">
+          <p className="text-sm text-text-muted text-center">
             Point camera at QR code, or paste a wallet address below
           </p>
 
@@ -218,7 +218,7 @@ export function QRScanner({ onAddressDetected, onClose }: QRScannerProps) {
             <div className="flex items-center gap-2 p-2.5 rounded-lg bg-green-500/10 border border-green-500/20">
               <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] text-green-400 font-medium mb-0.5">Address detected</p>
+                <p className="text-xs text-green-400 font-medium mb-0.5">Address detected</p>
                 <p className="text-xs text-text-primary font-mono truncate">{detected}</p>
               </div>
             </div>

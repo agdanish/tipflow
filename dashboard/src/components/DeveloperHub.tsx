@@ -108,7 +108,7 @@ export function DeveloperHub() {
           </div>
           <div className="flex items-center gap-1">
             <Terminal className="w-3.5 h-3.5 text-text-muted" />
-            <span className="text-[10px] text-text-muted font-mono">v1.0.0</span>
+            <span className="text-xs text-text-muted font-mono">v1.0.0</span>
           </div>
         </div>
         <p className="text-xs text-text-secondary mb-4">
@@ -122,7 +122,7 @@ export function DeveloperHub() {
             <div key={s.label} className="flex items-center gap-3 animate-list-item-in" style={{ animationDelay: `${i * 80}ms` }}>
               <div className="text-center">
                 <div className="text-sm font-bold text-text-primary">{s.value}</div>
-                <div className="text-[10px] text-text-muted">{s.label}</div>
+                <div className="text-xs text-text-muted">{s.label}</div>
               </div>
               {i < STATS.length - 1 && <div className="w-px h-6 bg-border" />}
             </div>
@@ -142,21 +142,21 @@ export function DeveloperHub() {
                 <span className={path.color}>{path.icon}</span>
                 <h3 className="text-sm font-semibold text-text-primary">{path.title}</h3>
               </div>
-              <p className="text-[11px] text-text-secondary mb-3 leading-relaxed">
+              <p className="text-sm text-text-secondary mb-3 leading-relaxed">
                 {path.description}
               </p>
 
               {/* Code block */}
               <div className="rounded-lg bg-[#0d0e14] border border-[#1e1f2e] overflow-hidden">
                 <div className="flex items-center justify-between px-3 py-1.5 border-b border-[#1e1f2e]">
-                  <span className="text-[9px] text-text-muted font-mono uppercase tracking-wider">{path.language}</span>
+                  <span className="text-xs text-text-muted font-mono uppercase tracking-wider">{path.language}</span>
                   <div className="flex gap-1">
                     <div className="w-2 h-2 rounded-full bg-red-500/40" />
                     <div className="w-2 h-2 rounded-full bg-amber-500/40" />
                     <div className="w-2 h-2 rounded-full bg-green-500/40" />
                   </div>
                 </div>
-                <pre className="p-3 text-[11px] leading-relaxed overflow-x-auto font-mono text-text-secondary">
+                <pre className="p-3 text-sm leading-relaxed overflow-x-auto font-mono text-text-secondary">
                   <code>{path.snippet}</code>
                 </pre>
               </div>

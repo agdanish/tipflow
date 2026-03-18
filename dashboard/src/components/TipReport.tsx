@@ -217,8 +217,8 @@ export function TipReport({ history }: TipReportProps) {
               />
             </div>
             <div className="flex items-center justify-between mt-1.5">
-              <span className="text-[10px] text-green-400">{report.totalSent} confirmed</span>
-              <span className="text-[10px] text-red-400">{report.totalFailed} failed</span>
+              <span className="text-xs text-green-400">{report.totalSent} confirmed</span>
+              <span className="text-xs text-red-400">{report.totalFailed} failed</span>
             </div>
           </div>
 
@@ -294,7 +294,7 @@ export function TipReport({ history }: TipReportProps) {
               <div className="space-y-1.5">
                 {report.topRecipients.map((entry, idx) => (
                   <div key={entry.address} className="flex items-center gap-2 py-1.5">
-                    <span className="w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center text-[10px] font-bold text-accent shrink-0">
+                    <span className="w-5 h-5 rounded-full bg-accent/10 flex items-center justify-center text-xs font-bold text-accent shrink-0">
                       {idx + 1}
                     </span>
                     <span className="text-xs font-mono text-text-secondary flex-1 truncate">
@@ -335,7 +335,7 @@ function KPICard({
     <div className="p-3 rounded-lg bg-surface-2 border border-border">
       <div className="flex items-center gap-1.5 mb-1">
         {icon}
-        <span className="text-[10px] text-text-muted uppercase tracking-wider">{label}</span>
+        <span className="text-xs text-text-muted uppercase tracking-wider">{label}</span>
       </div>
       <p className="text-sm font-bold text-text-primary truncate" title={value}>
         {value}

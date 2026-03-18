@@ -104,7 +104,7 @@ export function ShareCard({ result, onClose }: ShareCardProps) {
             </div>
 
             <div className="pt-2 border-t border-border text-center">
-              <p className="text-[10px] text-text-muted flex items-center justify-center gap-1">
+              <p className="text-xs text-text-muted flex items-center justify-center gap-1">
                 <Zap className="w-3 h-3 text-accent" />
                 Powered by TipFlow + Tether WDK
               </p>

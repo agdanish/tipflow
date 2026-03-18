@@ -51,12 +51,12 @@ function ChainCard({ chain, color, recommendation }: {
         <h3 className={`text-sm font-semibold ${colorClasses.accent}`}>{chain.name}</h3>
         <div className="flex gap-1">
           {isLowestFee && (
-            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium ${colorClasses.badge}`}>
+            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium ${colorClasses.badge}`}>
               <Fuel className="w-2.5 h-2.5" /> Low Fees
             </span>
           )}
           {isFastest && (
-            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium ${colorClasses.badge}`}>
+            <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium ${colorClasses.badge}`}>
               <Zap className="w-2.5 h-2.5" /> Fastest
             </span>
           )}
@@ -66,32 +66,32 @@ function ChainCard({ chain, color, recommendation }: {
       {/* Stats grid */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <p className="text-[10px] text-text-muted uppercase tracking-wider">Balance</p>
+          <p className="text-xs text-text-muted uppercase tracking-wider">Balance</p>
           <p className="text-sm font-semibold text-text-primary mt-0.5">
             <AnimatedStat value={parseFloat(chain.balance) || 0} decimals={4} />
           </p>
         </div>
         <div>
-          <p className="text-[10px] text-text-muted uppercase tracking-wider">Tips Sent</p>
+          <p className="text-xs text-text-muted uppercase tracking-wider">Tips Sent</p>
           <p className="text-sm font-semibold text-text-primary mt-0.5">
             <AnimatedStat value={chain.totalTips} decimals={0} />
           </p>
         </div>
         <div>
-          <p className="text-[10px] text-text-muted uppercase tracking-wider">Avg Fee</p>
+          <p className="text-xs text-text-muted uppercase tracking-wider">Avg Fee</p>
           <p className="text-sm font-semibold text-text-primary mt-0.5">
             <AnimatedStat value={parseFloat(chain.avgFee) || 0} decimals={6} />
           </p>
         </div>
         <div>
-          <p className="text-[10px] text-text-muted uppercase tracking-wider">Avg Confirm</p>
+          <p className="text-xs text-text-muted uppercase tracking-wider">Avg Confirm</p>
           <p className="text-sm font-semibold text-text-primary mt-0.5 flex items-center gap-1">
             <Clock className="w-3 h-3 text-text-muted" />
             <AnimatedStat value={chain.avgConfirmationTime} decimals={0} suffix="s" />
           </p>
         </div>
         <div>
-          <p className="text-[10px] text-text-muted uppercase tracking-wider">Success Rate</p>
+          <p className="text-xs text-text-muted uppercase tracking-wider">Success Rate</p>
           <div className="flex items-center gap-2 mt-0.5">
             <div className="flex-1 h-1.5 rounded-full bg-surface-3 overflow-hidden">
               <div className={`h-full rounded-full ${colorClasses.bar} transition-all duration-700`} style={{ width: `${chain.successRate}%` }} />
@@ -102,14 +102,14 @@ function ChainCard({ chain, color, recommendation }: {
           </div>
         </div>
         <div>
-          <p className="text-[10px] text-text-muted uppercase tracking-wider">Gas Price</p>
+          <p className="text-xs text-text-muted uppercase tracking-wider">Gas Price</p>
           <p className="text-xs font-medium text-text-primary mt-0.5">{chain.gasPrice}</p>
         </div>
       </div>
 
       {/* Volume */}
       <div className="pt-2 border-t border-border/50">
-        <p className="text-[10px] text-text-muted uppercase tracking-wider">Total Volume</p>
+        <p className="text-xs text-text-muted uppercase tracking-wider">Total Volume</p>
         <p className={`text-base font-bold ${colorClasses.accent} mt-0.5`}>
           <AnimatedStat value={parseFloat(chain.totalVolume) || 0} decimals={4} />
         </p>
@@ -195,8 +195,8 @@ export function ChainComparison() {
                     <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-500/5 border border-green-500/20">
                       <CheckCircle2 className="w-3.5 h-3.5 text-green-400 shrink-0" />
                       <div>
-                        <p className="text-[11px] font-medium text-green-400">Best for Low Fees</p>
-                        <p className="text-[10px] text-text-muted">
+                        <p className="text-sm font-medium text-green-400">Best for Low Fees</p>
+                        <p className="text-xs text-text-muted">
                           {data.chains.find(c => c.chainId === data.recommendation.lowestFee)?.name || data.recommendation.lowestFee}
                         </p>
                       </div>
@@ -206,8 +206,8 @@ export function ChainComparison() {
                     <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/5 border border-blue-500/20">
                       <Zap className="w-3.5 h-3.5 text-blue-400 shrink-0" />
                       <div>
-                        <p className="text-[11px] font-medium text-blue-400">Fastest Confirmations</p>
-                        <p className="text-[10px] text-text-muted">
+                        <p className="text-sm font-medium text-blue-400">Fastest Confirmations</p>
+                        <p className="text-xs text-text-muted">
                           {data.chains.find(c => c.chainId === data.recommendation.fastest)?.name || data.recommendation.fastest}
                         </p>
                       </div>

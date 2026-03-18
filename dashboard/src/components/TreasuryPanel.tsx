@@ -81,7 +81,7 @@ function RiskBadge({ risk }: { risk: 'low' | 'medium' | 'high' }) {
     high: 'bg-red-500/15 border-red-500/20 text-red-400',
   };
   return (
-    <span className={`inline-flex px-1.5 py-0.5 rounded-full border text-[10px] font-medium ${styles[risk]}`}>
+    <span className={`inline-flex px-1.5 py-0.5 rounded-full border text-xs font-medium ${styles[risk]}`}>
       {risk}
     </span>
   );
@@ -94,10 +94,10 @@ function MetricCard({ label, value, subtext, icon }: { label: string; value: str
     <div className="rounded-lg border border-border bg-surface-2 p-3 space-y-1">
       <div className="flex items-center gap-1.5 text-text-muted">
         {icon}
-        <span className="text-[10px] uppercase tracking-wider font-medium">{label}</span>
+        <span className="text-xs uppercase tracking-wider font-medium">{label}</span>
       </div>
       <p className="text-lg font-semibold text-text-primary font-mono">{value}</p>
-      {subtext && <p className="text-[10px] text-text-muted">{subtext}</p>}
+      {subtext && <p className="text-xs text-text-muted">{subtext}</p>}
     </div>
   );
 }
@@ -280,7 +280,7 @@ export function TreasuryPanel() {
           <Vault className="w-5 h-5 text-emerald-400" />
           <h2 className="text-base font-semibold text-text-primary">Treasury Management</h2>
           {sustainability && (
-            <span className={`ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${
+            <span className={`ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border ${
               sustainability.score >= 80 ? 'bg-green-500/15 border-green-500/20 text-green-400'
               : sustainability.score >= 60 ? 'bg-blue-500/15 border-blue-500/20 text-blue-400'
               : sustainability.score >= 40 ? 'bg-amber-500/15 border-amber-500/20 text-amber-400'
@@ -315,7 +315,7 @@ export function TreasuryPanel() {
               Fund Allocation
             </h3>
             <AllocationPieChart allocation={allocation} />
-            <div className="text-[10px] text-text-muted">
+            <div className="text-xs text-text-muted">
               Last rebalanced: {new Date(status.lastRebalance).toLocaleString()}
             </div>
           </div>
@@ -387,7 +387,7 @@ export function TreasuryPanel() {
             <TrendingUp className="w-3.5 h-3.5 text-green-400" />
             Yield Opportunities
             {yields.length > 0 && (
-              <span className="text-[10px] text-text-muted font-normal">
+              <span className="text-xs text-text-muted font-normal">
                 ({yields.length} pools{yields[0]?.isLive ? ' — live data' : ' — cached'})
               </span>
             )}
@@ -464,7 +464,7 @@ export function TreasuryPanel() {
               </div>
             ))}
             <div className="flex items-center justify-between">
-              <span className={`text-[10px] font-mono ${Math.abs(tipPct + yieldPct + gasPct - 100) > 0.01 ? 'text-red-400' : 'text-green-400'}`}>
+              <span className={`text-xs font-mono ${Math.abs(tipPct + yieldPct + gasPct - 100) > 0.01 ? 'text-red-400' : 'text-green-400'}`}>
                 Total: {tipPct + yieldPct + gasPct}%
               </span>
               <button
@@ -489,7 +489,7 @@ export function TreasuryPanel() {
             <Shield className="w-3.5 h-3.5 text-purple-400" />
             Yield Strategy
             {strategy?.enabled && (
-              <span className="inline-flex px-1.5 py-0.5 rounded-full bg-green-500/15 border border-green-500/20 text-[10px] font-medium text-green-400">
+              <span className="inline-flex px-1.5 py-0.5 rounded-full bg-green-500/15 border border-green-500/20 text-xs font-medium text-green-400">
                 Active
               </span>
             )}

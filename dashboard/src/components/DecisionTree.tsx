@@ -162,7 +162,7 @@ function TreeNodeRow({ node, isLast }: { node: TreeNode; isLast: boolean }) {
           {node.label}
         </p>
         {node.detail && (
-          <p className="text-[10px] text-text-secondary mt-0.5 leading-relaxed animate-fade-in truncate">
+          <p className="text-xs text-text-secondary mt-0.5 leading-relaxed animate-fade-in truncate">
             {node.detail}
           </p>
         )}
@@ -194,7 +194,7 @@ export function DecisionTree({ decision, agentStatus = 'idle' }: DecisionTreePro
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <GitBranch className="w-4 h-4 text-accent" />
           Decision Tree
-          <span className="text-[10px] font-normal text-text-muted ml-1">
+          <span className="text-xs font-normal text-text-muted ml-1">
             {nodes.filter((n) => n.status === 'complete').length}/{nodes.length} steps
           </span>
         </h3>

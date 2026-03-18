@@ -72,7 +72,7 @@ export function VoiceButton({ onTranscript, disabled }: VoiceButtonProps) {
         )}
       </button>
       {isListening && (
-        <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-red-400 whitespace-nowrap font-medium">
+        <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-xs text-red-400 whitespace-nowrap font-medium">
           Listening...
         </span>
       )}

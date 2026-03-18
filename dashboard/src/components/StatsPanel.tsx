@@ -109,7 +109,7 @@ export function StatsPanel({ stats }: StatsPanelProps) {
                 <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-surface-3/50">
                   <Icon className={`w-3.5 h-3.5 ${card.color}`} />
                 </div>
-                <span className="text-[10px] text-text-muted uppercase tracking-wider font-medium">
+                <span className="text-xs text-text-muted uppercase tracking-wider font-medium">
                   {card.label}
                 </span>
               </div>
@@ -143,7 +143,7 @@ export function StatsPanel({ stats }: StatsPanelProps) {
               fillColor="#22c55e"
               strokeWidth={1.5}
             />
-            <p className="text-[10px] text-text-muted">
+            <p className="text-xs text-text-muted">
               {stats.tipsByDay.reduce((s, d) => s + d.count, 0)} total
             </p>
           </div>
@@ -158,7 +158,7 @@ export function StatsPanel({ stats }: StatsPanelProps) {
             return (
               <div key={day.date} className="flex-1 flex flex-col items-center gap-1 group">
                 {/* Count label */}
-                <span className={`text-[10px] font-mono transition-colors ${
+                <span className={`text-xs font-mono transition-colors ${
                   hasActivity ? 'text-text-secondary' : 'text-text-muted/40'
                 }`}>
                   {day.count}
@@ -179,7 +179,7 @@ export function StatsPanel({ stats }: StatsPanelProps) {
                   />
                 </div>
                 {/* Day label */}
-                <span className="text-[9px] text-text-muted font-medium">{dateLabel}</span>
+                <span className="text-xs text-text-muted font-medium">{dateLabel}</span>
               </div>
             );
           })}
@@ -249,10 +249,10 @@ export function StatsPanel({ stats }: StatsPanelProps) {
                         style={{ backgroundColor: chainColor(chain.chainId) }}
                       />
                       <div className="flex flex-col">
-                        <span className="text-[11px] text-text-secondary font-medium leading-none">
+                        <span className="text-sm text-text-secondary font-medium leading-none">
                           {chainName(chain.chainId)}
                         </span>
-                        <span className="text-[10px] text-text-muted font-mono">
+                        <span className="text-xs text-text-muted font-mono">
                           {chain.count} tips ({chain.percentage}%)
                         </span>
                       </div>
@@ -283,7 +283,7 @@ export function StatsPanel({ stats }: StatsPanelProps) {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div
-                          className="w-5 h-5 rounded-md flex items-center justify-center text-[8px] font-bold text-white"
+                          className="w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold text-white"
                           style={{ backgroundColor: barColor }}
                         >
                           {isUsdt ? '$' : 'N'}
@@ -303,7 +303,7 @@ export function StatsPanel({ stats }: StatsPanelProps) {
                         }}
                       />
                     </div>
-                    <p className="text-[10px] text-text-muted font-mono">
+                    <p className="text-xs text-text-muted font-mono">
                       Vol: {formatNumber(tokenData.volume)}
                     </p>
                   </div>
@@ -319,15 +319,15 @@ export function StatsPanel({ stats }: StatsPanelProps) {
       {/* Extra stats row */}
       <div className="grid grid-cols-3 gap-2">
         <div className="rounded-lg border border-border bg-surface-2/50 p-2.5 text-center">
-          <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1">Avg Tip</p>
+          <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Avg Tip</p>
           <p className="text-sm font-bold text-text-primary font-mono">{formatNumber(stats.avgTipAmount)}</p>
         </div>
         <div className="rounded-lg border border-border bg-surface-2/50 p-2.5 text-center">
-          <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1">Fees Paid</p>
+          <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Fees Paid</p>
           <p className="text-sm font-bold text-text-primary font-mono">{formatNumber(stats.totalFeePaid)}</p>
         </div>
         <div className="rounded-lg border border-border bg-surface-2/50 p-2.5 text-center">
-          <p className="text-[10px] text-text-muted uppercase tracking-wider mb-1">Avg Confirm</p>
+          <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Avg Confirm</p>
           <p className="text-sm font-bold text-text-primary font-mono">
             {stats.averageConfirmationTime > 0 ? `${stats.averageConfirmationTime}s` : '--'}
           </p>

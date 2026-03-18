@@ -206,7 +206,7 @@ export function SettingsPanel({ theme, onToggleTheme, soundOn, onToggleSound }: 
                       <span className="text-sm font-medium text-text-primary">
                         {PERSONALITY_LABELS[type].name}
                       </span>
-                      <span className="text-[10px] text-text-muted">
+                      <span className="text-xs text-text-muted">
                         {PERSONALITY_LABELS[type].desc}
                       </span>
                     </div>
@@ -236,7 +236,7 @@ export function SettingsPanel({ theme, onToggleTheme, soundOn, onToggleSound }: 
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
-            <p className="text-[11px] text-text-muted mt-1">
+            <p className="text-sm text-text-muted mt-1">
               When set, tips will default to this chain instead of AI auto-selection.
             </p>
           </div>
@@ -318,7 +318,7 @@ export function SettingsPanel({ theme, onToggleTheme, soundOn, onToggleSound }: 
                 <label key={key} className="flex items-center justify-between p-2 rounded-lg hover:bg-surface-2/50 cursor-pointer">
                   <div>
                     <span className="text-sm text-text-primary">{label}</span>
-                    <span className="text-[11px] text-text-muted ml-2">{desc}</span>
+                    <span className="text-sm text-text-muted ml-2">{desc}</span>
                   </div>
                   <input
                     type="checkbox"
