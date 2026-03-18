@@ -852,6 +852,26 @@ Hold tips in escrow until release conditions are met.
 
 ---
 
+### Agent Memory
+
+Store and recall agent memories for persistent intelligence.
+
+**Store:** `POST /api/memory`
+
+**Parameters:**
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `type` | string | no | `"preference"`, `"fact"`, `"context"`, `"correction"`. Default: `"fact"` |
+| `key` | string | yes | Memory key |
+| `value` | string | yes | Memory value |
+
+**Recall:** `GET /api/memory/search?q=query`
+**All:** `GET /api/memory`
+**Stats:** `GET /api/memory/stats`
+**Forget:** `DELETE /api/memory/:id`
+
+---
+
 ## Chain Reference
 
 | Chain ID | Name | Currency | Address Format |
@@ -869,6 +889,7 @@ Hold tips in escrow until release conditions are met.
 | `native` | Chain's native currency (ETH or TON) |
 | `usdt` | Tether USDT (ERC-20 on Ethereum) |
 | `usat` | Tether USAT / USA₮ (ERC-20 on Ethereum) — Rumble-supported tipping token |
+| `xaut` | Tether Gold XAU₮ (ERC-20 on Ethereum) — gold-backed stablecoin |
 
 ## Error Handling
 

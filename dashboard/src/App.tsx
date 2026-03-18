@@ -70,6 +70,7 @@ import { OrchestratorPanel } from './components/OrchestratorPanel';
 import { PredictorPanel } from './components/PredictorPanel';
 import { FeeArbitragePanel } from './components/FeeArbitragePanel';
 import { EscrowPanel } from './components/EscrowPanel';
+import { MemoryPanel } from './components/MemoryPanel';
 import { HealthDashboard } from './components/HealthDashboard';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
@@ -664,20 +665,23 @@ function App() {
           }
           aiContent={
             <div className="space-y-4 sm:space-y-6">
-              <div className="dashboard-grid-cards">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
                   <OrchestratorPanel />
                 </div>
                 <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
                   <PredictorPanel />
                 </div>
-              </div>
-              <div className="dashboard-grid-cards">
                 <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
                   <FeeArbitragePanel />
                 </div>
+              </div>
+              <div className="dashboard-grid-cards">
                 <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
                   <EscrowPanel />
+                </div>
+                <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
+                  <MemoryPanel />
                 </div>
               </div>
             </div>
