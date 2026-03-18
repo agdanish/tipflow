@@ -27,21 +27,28 @@ export function CreatorDiscoveryPanel() {
   const [signals, setSignals] = useState<Signal[]>([]);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = async () => {
+    setError(null);
     try {
       const data = await api.discoverySignals() as { signals: Signal[] };
       setSignals(data.signals ?? []);
-    } catch { /* ignore */ }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load discovery signals');
+    }
     setLoading(false);
   };
 
   const analyze = async () => {
     setAnalyzing(true);
+    setError(null);
     try {
       const data = await api.discoveryAnalyze() as { signals: Signal[] };
       setSignals(data.signals ?? []);
-    } catch { /* ignore */ }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Analysis failed');
+    }
     setAnalyzing(false);
   };
 
@@ -61,7 +68,7 @@ export function CreatorDiscoveryPanel() {
           <Search className="w-4 h-4 text-purple-400" />
           Creator Discovery
         </h3>
-        <button onClick={analyze} disabled={analyzing} className="text-xs px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 transition-colors flex items-center gap-1 btn-press disabled:opacity-50">
+        <button onClick={analyze} disabled={analyzing} aria-label="Discover undervalued creators" className="text-xs px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 transition-colors flex items-center gap-1 btn-press disabled:opacity-50">
           <RefreshCw className={`w-3 h-3 ${analyzing ? 'animate-spin' : ''}`} />
           {analyzing ? 'Analyzing...' : 'Discover'}
         </button>
@@ -71,13 +78,15 @@ export function CreatorDiscoveryPanel() {
         AI angel investing — finds undervalued creators with high engagement but low tips.
       </p>
 
-      {signals.length === 0 ? (
+      {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
+
+      {signals.length === 0 && !error ? (
         <div className="text-center py-6">
           <Star className="w-8 h-8 text-text-muted/30 mx-auto mb-2" />
           <p className="text-xs text-text-muted">No discovery signals yet</p>
           <p className="text-[10px] text-text-muted/60 mt-1">Click Discover to analyze registered Rumble creators</p>
         </div>
-      ) : (
+      ) : signals.length > 0 ? (
         <div className="space-y-2">
           {signals.slice(0, 6).map((sig, i) => (
             <div key={sig.creatorId} className={`p-3 rounded-lg border card-hover animate-list-item-in ${
@@ -118,7 +127,7 @@ export function CreatorDiscoveryPanel() {
             </div>
           ))}
         </div>
-      )}
+      ) : null}
 
       <div className="p-2 rounded-lg bg-purple-500/5 border border-purple-500/10 text-[9px] text-text-muted">
         <TrendingUp className="w-3 h-3 text-purple-400 inline mr-1" />

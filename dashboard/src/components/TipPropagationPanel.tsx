@@ -32,12 +32,17 @@ export function TipPropagationPanel() {
   const [stats, setStats] = useState<PropStats | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const [error, setError] = useState<string | null>(null);
+
   const load = async () => {
+    setError(null);
     try {
       const data = await api.propagationWaves() as { waves: TipWave[]; stats: PropStats };
       setWaves(data.waves ?? []);
       setStats(data.stats ?? null);
-    } catch { /* ignore */ }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load propagation data');
+    }
     setLoading(false);
   };
 
@@ -46,7 +51,7 @@ export function TipPropagationPanel() {
   if (loading) return (
     <div className="space-y-3">
       <Skeleton variant="text-line" width="160px" height="16px" />
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {[1,2,3,4].map(i => <Skeleton key={i} variant="card" height="50px" />)}
       </div>
     </div>
@@ -59,7 +64,7 @@ export function TipPropagationPanel() {
           <Radio className="w-4 h-4 text-cyan-400" />
           Tip Propagation
         </h3>
-        <button onClick={load} className="text-[10px] text-text-muted hover:text-accent transition-colors flex items-center gap-1">
+        <button onClick={load} aria-label="Refresh propagation waves" className="text-[10px] text-text-muted hover:text-accent transition-colors flex items-center gap-1">
           <RefreshCw className="w-3 h-3" /> Refresh
         </button>
       </div>
@@ -68,9 +73,11 @@ export function TipPropagationPanel() {
         Viral tipping with amplifier matching. Every tip creates a wave that can be matched by community pools.
       </p>
 
+      {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
+
       {/* Stats */}
       {stats && (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {[
             ['Waves', stats.totalWaves, <Waves key="w" className="w-3 h-3 text-cyan-400" />],
             ['Amplified', `$${stats.totalAmplified.toFixed(4)}`, <Zap key="z" className="w-3 h-3 text-amber-400" />],
@@ -87,7 +94,7 @@ export function TipPropagationPanel() {
       )}
 
       {/* Active Waves */}
-      {waves.length > 0 ? (
+      {!error && waves.length > 0 ? (
         <div className="space-y-2">
           <h4 className="text-xs text-text-secondary font-medium">Active Waves</h4>
           {waves.slice(0, 5).map((wave, i) => (
@@ -110,12 +117,12 @@ export function TipPropagationPanel() {
             </div>
           ))}
         </div>
-      ) : (
+      ) : !error ? (
         <div className="text-center py-4">
           <Waves className="w-6 h-6 text-text-muted/30 mx-auto mb-1" />
           <p className="text-[10px] text-text-muted">No tip waves yet. Send a tip to start a wave.</p>
         </div>
-      )}
+      ) : null}
 
       {/* Pool info */}
       {stats && stats.poolBalance > 0 && (

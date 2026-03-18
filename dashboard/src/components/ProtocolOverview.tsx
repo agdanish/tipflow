@@ -62,7 +62,7 @@ export function ProtocolOverview() {
             <Layers className="w-4 h-4 text-accent" />
             <span className="gradient-text-animated">5-Layer Protocol Architecture</span>
           </h2>
-          <button className="flex items-center gap-1 text-[10px] text-text-muted hover:text-accent transition-colors group">
+          <button aria-label="View protocol specification" className="flex items-center gap-1 text-[10px] text-text-muted hover:text-accent transition-colors group">
             View Protocol Spec
             <ExternalLink className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
           </button>

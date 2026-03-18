@@ -33,12 +33,17 @@ export function ProofOfEngagementPanel() {
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
   const [verifyResult, setVerifyResult] = useState<{ id: string; valid: boolean } | null>(null);
 
+  const [error, setError] = useState<string | null>(null);
+
   const load = async () => {
+    setError(null);
     try {
       const data = await api.poeList() as { attestations: Attestation[]; stats: PoEStats };
       setAttestations(data.attestations ?? []);
       setStats(data.stats ?? null);
-    } catch { /* ignore */ }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load attestations');
+    }
     setLoading(false);
   };
 
@@ -50,7 +55,9 @@ export function ProofOfEngagementPanel() {
       const result = await api.poeVerify(id) as { valid: boolean };
       setVerifyResult({ id, valid: result.valid });
       setTimeout(() => setVerifyResult(null), 3000);
-    } catch { /* ignore */ }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Verification failed');
+    }
     setVerifyingId(null);
   };
 
@@ -70,7 +77,7 @@ export function ProofOfEngagementPanel() {
           <Fingerprint className="w-4 h-4 text-indigo-400" />
           Proof-of-Engagement
         </h3>
-        <button onClick={load} className="text-[10px] text-text-muted hover:text-accent transition-colors flex items-center gap-1">
+        <button onClick={load} aria-label="Refresh attestations" className="text-[10px] text-text-muted hover:text-accent transition-colors flex items-center gap-1">
           <RefreshCw className="w-3 h-3" /> Refresh
         </button>
       </div>
@@ -79,9 +86,11 @@ export function ProofOfEngagementPanel() {
         WDK-signed cryptographic attestations proving real viewer engagement. Unforgeable — verified onchain.
       </p>
 
+      {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
+
       {/* Stats */}
       {stats && (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {[
             ['Proofs', stats.totalAttestations],
             ['Verified', `${stats.verifiedCount}`],
@@ -97,7 +106,7 @@ export function ProofOfEngagementPanel() {
       )}
 
       {/* Attestations */}
-      {attestations.length > 0 ? (
+      {!error && attestations.length > 0 ? (
         <div className="space-y-2">
           {attestations.slice(0, 5).map((att, i) => (
             <div key={att.id} className="p-2.5 rounded-lg bg-surface-2 border border-border card-hover animate-list-item-in" style={{ animationDelay: `${i * 50}ms` }}>
@@ -117,6 +126,7 @@ export function ProofOfEngagementPanel() {
                     <button
                       onClick={() => verify(att.id)}
                       disabled={verifyingId === att.id}
+                      aria-label="Verify engagement proof"
                       className="text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 transition-colors btn-press disabled:opacity-50"
                     >
                       {verifyingId === att.id ? '...' : 'Verify'}
@@ -142,12 +152,12 @@ export function ProofOfEngagementPanel() {
             </div>
           ))}
         </div>
-      ) : (
+      ) : !error ? (
         <div className="text-center py-4">
           <Fingerprint className="w-6 h-6 text-text-muted/30 mx-auto mb-1" />
           <p className="text-[10px] text-text-muted">No attestations yet. Tips with engagement data generate PoE proofs.</p>
         </div>
-      )}
+      ) : null}
 
       <div className="p-2 rounded-lg bg-indigo-500/5 border border-indigo-500/10 text-[9px] text-text-muted">
         <Fingerprint className="w-3 h-3 text-indigo-400 inline mr-1" />

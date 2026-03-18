@@ -31,12 +31,16 @@ function ScoreBar({ score, label }: { score: number; label: string }) {
 export function EngagementPanel() {
   const [recs, setRecs] = useState<EngagementRec[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = async () => {
+    setError(null);
     try {
       const data = await api.engagementTips('default', 0.01) as { recommendations: EngagementRec[] };
       setRecs(data.recommendations ?? []);
-    } catch { /* ignore */ }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load engagement data');
+    }
     setLoading(false);
   };
 
@@ -57,7 +61,7 @@ export function EngagementPanel() {
           <Heart className="w-4 h-4 text-pink-400" />
           Engagement Scoring
         </h3>
-        <button onClick={load} className="text-[10px] text-text-muted hover:text-accent transition-colors flex items-center gap-1">
+        <button onClick={load} aria-label="Refresh engagement data" className="text-[10px] text-text-muted hover:text-accent transition-colors flex items-center gap-1">
           <RotateCw className="w-3 h-3" /> Refresh
         </button>
       </div>
@@ -66,13 +70,15 @@ export function EngagementPanel() {
         Dynamic tip amounts based on 5-factor engagement algorithm. Higher engagement = higher tip multiplier (0.5x–3.0x).
       </p>
 
-      {recs.length === 0 ? (
+      {error && <p className="text-xs text-red-400 mt-2">{error}</p>}
+
+      {recs.length === 0 && !error ? (
         <div className="text-center py-6">
           <Eye className="w-8 h-8 text-text-muted/30 mx-auto mb-2" />
           <p className="text-xs text-text-muted">No engagement data yet</p>
           <p className="text-[10px] text-text-muted/60 mt-1">Watch Rumble creator videos to generate engagement scores</p>
         </div>
-      ) : (
+      ) : recs.length > 0 ? (
         <div className="space-y-2">
           {recs.slice(0, 5).map((rec, i) => (
             <div key={rec.creatorId} className="p-3 rounded-lg bg-surface-2 border border-border card-hover animate-list-item-in" style={{ animationDelay: `${i * 60}ms` }}>
@@ -101,12 +107,12 @@ export function EngagementPanel() {
             </div>
           ))}
         </div>
-      )}
+      ) : null}
 
       {/* Algorithm explanation */}
       <div className="p-2.5 rounded-lg bg-accent/5 border border-accent/15 text-[10px] text-text-secondary">
         <p className="font-medium text-accent mb-1">Algorithm Weights:</p>
-        <div className="grid grid-cols-5 gap-1 text-center">
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-1 text-center">
           {[['Watch', '40%'], ['Rewatch', '20%'], ['Frequency', '15%'], ['Loyalty', '15%'], ['Category', '10%']].map(([name, weight]) => (
             <div key={name}>
               <div className="font-bold text-text-primary">{weight}</div>

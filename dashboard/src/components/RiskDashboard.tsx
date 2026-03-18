@@ -82,6 +82,7 @@ export function RiskDashboard() {
       {/* Factor breakdown */}
       <button
         onClick={() => setExpanded(!expanded)}
+        aria-label={expanded ? 'Collapse risk factor breakdown' : 'Expand risk factor breakdown'}
         className="w-full flex items-center justify-between text-xs text-text-secondary hover:text-text-primary transition-colors"
       >
         <span>Risk Factor Breakdown (8 dimensions)</span>
