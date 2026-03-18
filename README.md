@@ -12,9 +12,9 @@
     <img src="https://img.shields.io/badge/Track-Tipping%20Bot-ff6b6b" alt="Track: Tipping Bot" />
   </p>
   <p align="center">
-    <img src="https://img.shields.io/badge/Endpoints-173-blueviolet" alt="173 API Endpoints" />
-    <img src="https://img.shields.io/badge/Components-81-orange" alt="77 React Components" />
-    <img src="https://img.shields.io/badge/Services-29-green" alt="29 Agent Services" />
+    <img src="https://img.shields.io/badge/Endpoints-179-blueviolet" alt="173 API Endpoints" />
+    <img src="https://img.shields.io/badge/Components-82-orange" alt="77 React Components" />
+    <img src="https://img.shields.io/badge/Services-30-green" alt="29 Agent Services" />
     <img src="https://img.shields.io/badge/Budget-%240-red" alt="$0 Budget" />
   </p>
 </p>
@@ -27,7 +27,7 @@
 
 In January 2026, [Rumble](https://rumble.com) launched its crypto wallet powered by Tether WDK, enabling viewers to tip creators directly with USDT, USAT (USA₮), XAU₮, and BTC. TipFlow extends that foundation with an **autonomous AI agent** that makes tipping smarter, automatic, and community-driven.
 
-TipFlow watches your viewing habits, learns your preferences, and autonomously manages tips to your favorite Rumble creators. Say **"tip my top 3 creators this week"** — the agent identifies them, calculates fair amounts based on watch time, executes transactions via **Tether WDK**, verifies on-chain, and reports back. All through a polished dashboard with 81 components.
+TipFlow watches your viewing habits, learns your preferences, and autonomously manages tips to your favorite Rumble creators. Say **"tip my top 3 creators this week"** — the agent identifies them, calculates fair amounts based on watch time, executes transactions via **Tether WDK**, verifies on-chain, and reports back. All through a polished dashboard with 82 components.
 
 **Key highlights:**
 - **Rumble-native** — Creator profiles, channel management, watch-time tracking, event-triggered tipping
@@ -36,7 +36,7 @@ TipFlow watches your viewing habits, learns your preferences, and autonomously m
 - **Multi-chain** — Ethereum Sepolia + TON Testnet + TRON Nile with intelligent chain selection
 - **Voice commands** — Speak your tips via Web Speech API
 - **Chat interface** — Conversational AI that understands tip intents, balance queries, and fee comparisons
-- **173 API endpoints** — Full REST + SSE real-time streaming
+- **179 API endpoints** — Full REST + SSE real-time streaming
 - **Multi-Agent Orchestration** — 3 sub-agents (TipExecutor, Guardian, TreasuryOptimizer) vote on every tip with 2-of-3 consensus + Guardian veto
 - **Predictive Tipping Intelligence** — Agent predicts tips before user asks (time patterns, recipient affinity, streaks)
 - **Cross-Chain Fee Arbitrage** — Real-time fee monitoring across 3 chains with optimal timing
@@ -508,7 +508,7 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 - 8 WDK packages integrated: core, EVM, TON, TRON, ERC-4337 gasless, TON gasless, USDT0 bridge, Aave lending
 - WDK Indexer API for unified cross-chain balance and transfer data
 - Full-stack TypeScript with 100+ typed interfaces
-- 173 REST/SSE API endpoints across 24 categories
+- 179 REST/SSE API endpoints across 24 categories
 - Clean WDK integration — 15+ methods including `sign()`, `verify()`, `keyPair`, zero mocked calls
 - Real testnet transactions (Ethereum Sepolia + TON Testnet + TRON Nile)
 - HD wallet derivation with multi-account support (BIP-44 paths, account switching)
@@ -516,7 +516,7 @@ See the full OpenAPI 3.0 spec at `/api/docs` when the server is running, or the 
 
 ### 3. Technical Execution
 
-- 81 React components, 29 backend services, 5 custom hooks
+- 82 React components, 30 backend services, 5 custom hooks
 - Dual SSE streams for real-time updates
 - OpenAPI 3.0 specification
 - Express 5 + rate limiting + validation + audit logging
@@ -606,7 +606,7 @@ tipflow/
 ├── agent/                          # Node.js agent server
 │   └── src/
 │       ├── core/agent.ts           # 6-step pipeline + scheduler + conditions
-│       ├── services/               # 29 services
+│       ├── services/               # 30 services
 │       │   ├── wallet.service.ts   # WDK operations + HD derivation + multi-account + gasless
 │       │   ├── ai.service.ts       # Ollama LLM + NLP + intent detection
 │       │   ├── orchestrator.service.ts # Multi-Agent Orchestration (3 sub-agents + consensus)
@@ -640,13 +640,13 @@ tipflow/
 │       │   ├── rateLimit.ts        # Rate limiting
 │       │   └── validate.ts         # Input validation + audit
 │       ├── routes/
-│       │   ├── api.ts              # 173 REST + SSE endpoints
+│       │   ├── api.ts              # 179 REST + SSE endpoints
 │       │   └── openapi.ts          # OpenAPI 3.0 spec
 │       ├── __tests__/              # 24 automated tests
 │       └── index.ts                # Express 5 entry point
 ├── dashboard/                      # React frontend
 │   └── src/
-│       ├── components/             # 81 React components
+│       ├── components/             # 82 React components
 │       │   ├── RumbleIntegration.tsx # Rumble creator dashboard
 │       │   ├── AutonomyPanel.tsx   # Autonomous intelligence controls
 │       │   ├── StreamingPanel.tsx  # Tip Streaming Protocol UI
