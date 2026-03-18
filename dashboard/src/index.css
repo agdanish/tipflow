@@ -27,11 +27,11 @@
 
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-weight: 450;
-  letter-spacing: -0.011em;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+  font-weight: 450 !important;
+  letter-spacing: -0.011em !important;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-  font-size: 15px;
+  font-size: 15px !important;
   line-height: 1.6;
   background: var(--color-surface);
   color: var(--color-text-primary);
@@ -47,14 +47,14 @@ h1, h2, h3, h4,
 .text-sm.font-medium,
 .text-lg.font-semibold,
 .text-xl.font-semibold {
-  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif !important;
   letter-spacing: -0.025em;
   line-height: 1.25;
 }
 
 /* Monospace — JetBrains Mono */
 .font-mono, code, pre {
-  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace !important;
   font-weight: 500;
   font-size: max(12px, 0.8125rem) !important;
 }
