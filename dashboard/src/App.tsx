@@ -75,6 +75,7 @@ import { DcaPanel } from './components/DcaPanel';
 import { CreatorAnalyticsPanel } from './components/CreatorAnalyticsPanel';
 import { HealthDashboard } from './components/HealthDashboard';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
+import { useSpotlight } from './hooks/useSpotlight';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useSwipe } from './hooks/useTouchGestures';
 import { api } from './lib/api';
@@ -113,6 +114,9 @@ function App() {
     document.documentElement.classList.toggle('light', theme === 'light');
     localStorage.setItem('tipflow-theme', theme);
   }, [theme]);
+
+  // Cursor spotlight effect on main content
+  const spotlightRef = useSpotlight<HTMLElement>();
 
   // Swipe gesture ref for tip mode tabs
   const tipTabsRef = useRef<HTMLDivElement>(null);
@@ -371,8 +375,11 @@ function App() {
   const isAgentBusy = agentState.status !== 'idle';
 
   return (
-    <div className="min-h-screen bg-surface relative overflow-hidden">
-      {/* Aurora ambient background */}
+    <div className="min-h-screen bg-surface relative overflow-hidden dot-grid grain-overlay">
+      {/* Scroll progress bar */}
+      <div className="scroll-progress-bar" aria-hidden="true" />
+
+      {/* Aurora ambient background with morphing blobs */}
       <div className="aurora-blob-1" aria-hidden="true" />
       <div className="aurora-blob-2" aria-hidden="true" />
       <div className="aurora-blob-3" aria-hidden="true" />
@@ -382,7 +389,7 @@ function App() {
       </a>
       <Header health={health} theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} onShowShortcuts={() => setShowShortcuts(true)} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onClearAll={clearAll} />
 
-      <main id="main-content" role="main" className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <main ref={spotlightRef} id="main-content" role="main" className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
         {/* Demo Mode Banner */}
         <DemoBanner />
 
@@ -429,7 +436,7 @@ function App() {
               </section>
 
               {/* Wallets */}
-              <section className="mb-4 sm:mb-6" data-onboarding="wallets">
+              <section className="mb-4 sm:mb-6 scroll-reveal" data-onboarding="wallets">
                 <h2 className="text-sm font-medium text-text-secondary mb-3 flex items-center gap-2">
                   <Wallet className="w-4 h-4" />
                   Wallets
@@ -672,30 +679,30 @@ function App() {
           }
           aiContent={
             <div className="space-y-4 sm:space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="glass-card glow-hover p-4 sm:p-5">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 spotlight-grid">
+                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
                   <OrchestratorPanel />
                 </div>
-                <div className="glass-card glow-hover p-4 sm:p-5">
+                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
                   <PredictorPanel />
                 </div>
-                <div className="glass-card glow-hover p-4 sm:p-5">
+                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
                   <FeeArbitragePanel />
                 </div>
               </div>
               <div className="dashboard-grid-cards">
-                <div className="glass-card glow-hover p-4 sm:p-5">
+                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
                   <EscrowPanel />
                 </div>
-                <div className="glass-card glow-hover p-4 sm:p-5">
+                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
                   <MemoryPanel />
                 </div>
               </div>
               <div className="dashboard-grid-cards">
-                <div className="glass-card glow-hover p-4 sm:p-5">
+                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
                   <DcaPanel />
                 </div>
-                <div className="glass-card glow-hover p-4 sm:p-5">
+                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
                   <CreatorAnalyticsPanel />
                 </div>
               </div>

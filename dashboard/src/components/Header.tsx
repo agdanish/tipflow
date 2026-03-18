@@ -33,7 +33,7 @@ export function Header({ health, theme, onToggleTheme, soundOn, onToggleSound, o
             <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-accent" />
           </div>
           <div>
-            <h1 className="text-base sm:text-lg font-bold text-text-primary leading-none tracking-tight">{t('app.title')}</h1>
+            <h1 className="text-base sm:text-lg font-bold leading-none tracking-tight gradient-text-animated">{t('app.title')}</h1>
             <p className="text-[10px] sm:text-[11px] text-text-muted mt-0.5 hidden xs:block">{t('app.subtitle')}</p>
           </div>
         </div>
