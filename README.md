@@ -12,9 +12,10 @@
     <img src="https://img.shields.io/badge/Track-Tipping%20Bot-ff6b6b" alt="Track: Tipping Bot" />
   </p>
   <p align="center">
-    <img src="https://img.shields.io/badge/Endpoints-179-blueviolet" alt="173 API Endpoints" />
-    <img src="https://img.shields.io/badge/Components-82-orange" alt="77 React Components" />
-    <img src="https://img.shields.io/badge/Services-30-green" alt="29 Agent Services" />
+    <img src="https://img.shields.io/badge/Endpoints-190-blueviolet" alt="190 API Endpoints" />
+    <img src="https://img.shields.io/badge/Components-107-orange" alt="107 React Components" />
+    <img src="https://img.shields.io/badge/Services-32-green" alt="32 Agent Services" />
+    <img src="https://img.shields.io/badge/WDK%20Packages-10-009393" alt="10 WDK Packages" />
     <img src="https://img.shields.io/badge/Budget-%240-red" alt="$0 Budget" />
   </p>
 </p>
@@ -27,16 +28,19 @@
 
 In January 2026, [Rumble](https://rumble.com) launched its crypto wallet powered by Tether WDK, enabling viewers to tip creators directly with USDT, USAT (USA₮), XAU₮, and BTC. TipFlow extends that foundation with an **autonomous AI agent** that makes tipping smarter, automatic, and community-driven.
 
-TipFlow watches your viewing habits, learns your preferences, and autonomously manages tips to your favorite Rumble creators. Say **"tip my top 3 creators this week"** — the agent identifies them, calculates fair amounts based on watch time, executes transactions via **Tether WDK**, verifies on-chain, and reports back. All through a polished dashboard with 85 components.
+TipFlow watches your viewing habits, learns your preferences, and autonomously manages tips to your favorite Rumble creators. Say **"tip my top 3 creators this week"** — the agent identifies them, calculates fair amounts based on watch time, executes transactions via **Tether WDK**, verifies on-chain, and reports back. All through a polished dashboard with 107 components.
 
 **Key highlights:**
 - **Rumble-native** — Creator profiles, channel management, watch-time tracking, event-triggered tipping
-- **6-step AI pipeline** — INTAKE > ANALYZE > REASON > EXECUTE > VERIFY > REPORT
+- **10-step AI pipeline** — INTAKE → LIMIT_CHECK → ANALYZE → FEE_OPTIMIZE → ECONOMIC_CHECK → REASON → CONSENSUS → EXECUTE → VERIFY → REPORT
 - **Autonomous intelligence** — Pattern learning, smart recommendations, policy engine, decision logging
 - **Multi-chain** — Ethereum Sepolia + TON Testnet + TRON Nile with intelligent chain selection
 - **Voice commands** — Speak your tips via Web Speech API
 - **Chat interface** — Conversational AI that understands tip intents, balance queries, and fee comparisons
-- **179 API endpoints** — Full REST + SSE real-time streaming
+- **190 API endpoints** — Full REST + SSE real-time streaming
+- **MCP Server** — WDK MCP Toolkit exposing 35 wallet tools for any AI agent (Claude, GPT, OpenClaw)
+- **Economic Circuit Breaker** — Refuses tips where gas > tip amount, auto-suggests gasless
+- **Treasury Auto-Rebalancing** — Autonomous capital management: deploy idle funds to Aave V3 yield, withdraw when reserve depleted
 - **Multi-Agent Orchestration** — 3 sub-agents (TipExecutor, Guardian, TreasuryOptimizer) vote on every tip with 2-of-3 consensus + Guardian veto
 - **Predictive Tipping Intelligence** — Agent predicts tips before user asks (time patterns, recipient affinity, streaks)
 - **Cross-Chain Fee Arbitrage** — Real-time fee monitoring across 3 chains with optimal timing
@@ -190,7 +194,8 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 | Gasless (ERC-4337) | `@tetherto/wdk-wallet-evm-erc-4337` | Account abstraction | Zero-fee tipping |
 | TON gasless | `@tetherto/wdk-wallet-ton-gasless` | Gasless sends | Zero-fee TON tipping |
 | USDT0 Bridge | `@tetherto/wdk-protocol-bridge-usdt0-evm` | Cross-chain bridge (LayerZero) | Cross-chain USDT0 transfers |
-| Aave V3 Lending | `@tetherto/wdk-protocol-lending-aave-evm` | Supply/withdraw | Treasury yield generation |
+| Aave V3 Lending | `@tetherto/wdk-protocol-lending-aave-evm` | Supply/withdraw/borrow | Treasury yield generation |
+| MCP Toolkit | `@tetherto/wdk-mcp-toolkit` | 35 built-in MCP tools | Any AI agent can use TipFlow wallets |
 | WDK Indexer API | REST API (not npm) | `/balances`, `/transfers` | Unified cross-chain data |
 | Resource cleanup | `@tetherto/wdk` | `dispose()` | Graceful shutdown |
 
@@ -358,7 +363,7 @@ TipFlow deeply integrates Tether WDK as its core wallet infrastructure. **Every 
 |-------|-----------|
 | **Frontend** | React 19, Vite 8, Tailwind CSS 4, Lucide Icons, Custom SVG Charts |
 | **Backend** | Node.js 22+, Express 5, TypeScript 5.9 |
-| **Wallet SDK** | `@tetherto/wdk`, `wdk-wallet-evm`, `wdk-wallet-ton`, `wdk-wallet-tron`, `wdk-wallet-evm-erc-4337`, `wdk-wallet-ton-gasless`, `wdk-protocol-bridge-usdt0-evm`, `wdk-protocol-lending-aave-evm` (8 packages) |
+| **Wallet SDK** | `@tetherto/wdk`, `wdk-wallet-evm`, `wdk-wallet-ton`, `wdk-wallet-tron`, `wdk-wallet-evm-erc-4337`, `wdk-wallet-ton-gasless`, `wdk-protocol-bridge-usdt0-evm`, `wdk-protocol-lending-aave-evm`, `wdk-mcp-toolkit` (10 packages) |
 | **AI** | Ollama (local LLM — phi3:mini) with rule-based regex fallback |
 | **Blockchains** | Ethereum Sepolia, TON Testnet, TRON Nile Testnet |
 | **Real-Time** | Server-Sent Events (SSE) — dual streams |
@@ -379,7 +384,7 @@ All external services used in TipFlow are free and require no paid subscriptions
 
 | Service | Purpose | Cost | URL |
 |---------|---------|------|-----|
-| **Tether WDK** (8 packages) | Core wallet SDK — `@tetherto/wdk`, `wdk-wallet-evm`, `wdk-wallet-ton`, `wdk-wallet-tron`, `wdk-wallet-evm-erc-4337`, `wdk-wallet-ton-gasless`, `wdk-protocol-bridge-usdt0-evm`, `wdk-protocol-lending-aave-evm`. Apache 2.0. | Free | [github.com/tetherto](https://github.com/tetherto) |
+| **Tether WDK** (10 packages) | Core wallet SDK — `@tetherto/wdk`, `wdk-wallet-evm`, `wdk-wallet-ton`, `wdk-wallet-tron`, `wdk-wallet-evm-erc-4337`, `wdk-wallet-ton-gasless`, `wdk-protocol-bridge-usdt0-evm`, `wdk-protocol-lending-aave-evm`. Apache 2.0. | Free | [github.com/tetherto](https://github.com/tetherto) |
 | **Ollama** | Local LLM inference (phi3:mini model). Runs entirely locally, no data leaves the machine. | Free | [ollama.ai](https://ollama.ai) |
 | **Bitfinex Public API** | Real-time cryptocurrency pricing (ETH, TON, TRX, USDT). No API key required. | Free | [api-pub.bitfinex.com](https://api-pub.bitfinex.com) |
 | **DeFi Llama API** | DeFi yield rates (Aave V3, lending pools) for treasury optimization. No API key required. | Free | [yields.llama.fi](https://yields.llama.fi) |
