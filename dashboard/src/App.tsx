@@ -8,7 +8,7 @@ import { Header } from './components/Header';
 // import { BatchTipForm } from './components/BatchTipForm';
 // import { SplitTipForm } from './components/SplitTipForm';
 // import { AgentPanel } from './components/AgentPanel';
-import { TipHistory } from './components/TipHistory';
+// import { TipHistory } from './components/TipHistory';
 import { StatsPanel } from './components/StatsPanel';
 import { GasMonitor } from './components/GasMonitor';
 import { CurrencyConverter } from './components/CurrencyConverter';
@@ -37,8 +37,8 @@ import { WalletBackup } from './components/WalletBackup';
 import { WalletSwitcher } from './components/WalletSwitcher';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
 import { SettingsPanel } from './components/SettingsPanel';
-import { TransactionTimeline } from './components/TransactionTimeline';
-import { ExportPanel } from './components/ExportPanel';
+// import { TransactionTimeline } from './components/TransactionTimeline';
+// import { ExportPanel } from './components/ExportPanel';
 import { Footer } from './components/Footer';
 import { HelpCenter } from './components/HelpCenter';
 import { SystemInfo } from './components/SystemInfo';
@@ -107,6 +107,7 @@ import { ProtocolOverview } from './components/ProtocolOverview';
 import { ApiExplorer } from './components/ApiExplorer';
 import { AgentCapabilities } from './components/AgentCapabilities';
 import { DashboardHero, TipComposer, ContextFeed, WalletStrip, InsightBar } from './ui-v3/dashboard';
+import { HistoryPage } from './ui-v3/history';
 import { Brain, Zap, TrendingUp, Sparkles } from 'lucide-react';
 
 function App() {
@@ -534,13 +535,7 @@ function App() {
             </div>
           }
           historyContent={
-            <div className="space-y-5 max-w-6xl">
-              <TipHistory history={history} loading={historyLoading} />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <ExportPanel historyCount={history.length} />
-                <TransactionTimeline history={history} loading={historyLoading} />
-              </div>
-            </div>
+            <HistoryPage history={history} loading={historyLoading} />
           }
           rumbleContent={
             <RumbleIntegration />
