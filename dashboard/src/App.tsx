@@ -445,20 +445,20 @@ function App() {
           dashboardContent={
             <>
               {/* Price ticker — full width */}
-              <div className="mb-4">
+              <div className="mb-5">
                 <PriceTicker />
               </div>
 
               {/* LiveMetrics strip */}
-              <div className="mb-4">
+              <div className="mb-5">
                 <LiveMetrics health={health} />
               </div>
 
               {/* === MAIN BENTO GRID === */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5 mb-6">
 
-                {/* LEFT COLUMN: Tip Form — spans 5 cols */}
-                <div className="lg:col-span-5 space-y-4">
+                {/* LEFT COLUMN: Tip Form + Agent — spans 8 cols */}
+                <div className="lg:col-span-8 space-y-5">
                   <QuickActions
                     onRefreshBalances={refreshBalances}
                     onScrollToCompare={() => {
@@ -514,17 +514,27 @@ function App() {
                   {/* Collapsible: Templates & Links */}
                   <details className="group rounded-xl bg-surface-2/50 border border-border">
                     <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Templates &amp; Links<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
-                    <div className="space-y-4 pt-2 animate-slide-down">
+                    <div className="space-y-5 pt-2 animate-slide-down">
                       <div id="tip-templates-section"><TipTemplates onUseTemplate={handleUseTemplate} /></div>
                       <TipLinkCreator />
                       <BatchImport />
                     </div>
                   </details>
 
+                  {/* Agent Intelligence */}
+                  <div data-onboarding="agent-panel" className="card-hero glow-hover scroll-reveal">
+                    <AgentPanel state={agentState} />
+                  </div>
+                  {agentState.currentDecision && (
+                    <div className="card-standard glow-hover scroll-reveal">
+                      <DecisionTree decision={agentState.currentDecision} agentStatus={agentState.status} />
+                    </div>
+                  )}
+
                   {/* Collapsible: Contacts & Receiving */}
                   <details className="group rounded-xl bg-surface-2/50 border border-border">
                     <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Contacts &amp; Receiving<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
-                    <div className="space-y-4 pt-2 animate-slide-down">
+                    <div className="space-y-5 pt-2 animate-slide-down">
                       <ContactsManager />
                       <QRReceive />
                       <ConditionalTips />
@@ -532,27 +542,12 @@ function App() {
                   </details>
                 </div>
 
-                {/* CENTER COLUMN: Agent Intelligence — spans 4 cols */}
-                <div className="lg:col-span-4 space-y-4">
-                  <div data-onboarding="agent-panel" className="glass-card shadow-depth glow-hover tilt-card p-4 sm:p-5">
-                    <AgentPanel state={agentState} />
-                  </div>
-                  {agentState.currentDecision && (
-                    <div className="glass-card glow-hover p-4 sm:p-5 scroll-reveal">
-                      <DecisionTree decision={agentState.currentDecision} agentStatus={agentState.status} />
-                    </div>
-                  )}
-                  <div className="glass-card glow-hover p-4 sm:p-5 scroll-reveal"><FeeOptimizer /></div>
-                  <div className="glass-card glow-hover p-4 sm:p-5 scroll-reveal"><StreamingPanel /></div>
-                  <div className="glass-card glow-hover p-4 sm:p-5 scroll-reveal"><AutonomyPanel /></div>
-                </div>
-
-                {/* RIGHT COLUMN: Activity & Status — spans 3 cols */}
-                <div className="lg:col-span-3 space-y-4">
+                {/* RIGHT COLUMN: Activity & Status — spans 4 cols */}
+                <div className="lg:col-span-4 space-y-5">
                   {trackedTx && <div className="scroll-reveal"><TransactionTracker result={trackedTx} onDismiss={() => setTrackedTx(null)} /></div>}
-                  <div className="glass-card p-4 sm:p-5 scroll-reveal"><ReputationPanel /></div>
-                  <div className="glass-card p-4 sm:p-5 scroll-reveal"><ActivityFeed /></div>
-                  <div className="glass-card p-4 sm:p-5 scroll-reveal"><TipGoals /></div>
+                  <div className="card-standard scroll-reveal"><ReputationPanel /></div>
+                  <div className="card-standard scroll-reveal"><ActivityFeed /></div>
+                  <div className="card-standard scroll-reveal"><TipGoals /></div>
                   {scheduledTips.length > 0 && (
                     <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5 scroll-reveal">
                       <h2 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
@@ -586,33 +581,33 @@ function App() {
                       </div>
                     </div>
                   )}
-                  <div className="glass-card p-4 sm:p-5 scroll-reveal"><TipCalendar onCancelTip={handleCancelScheduled} /></div>
+                  <div className="card-standard scroll-reveal"><TipCalendar onCancelTip={handleCancelScheduled} /></div>
                   <details className="group rounded-xl bg-surface-2/50 border border-border">
                     <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Agent Logs<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
-                    <div className="space-y-4 pt-2 animate-slide-down"><AgentActivityFeed /><DecisionAuditTrail /></div>
+                    <div className="space-y-5 pt-2 animate-slide-down"><AgentActivityFeed /><DecisionAuditTrail /></div>
                   </details>
                 </div>
               </div>
 
               {/* BOTTOM: Wallets */}
-              <section className="mb-4 scroll-reveal" data-onboarding="wallets">
+              <section className="mb-5 scroll-reveal" data-onboarding="wallets">
                 <h2 className="text-sm font-medium text-text-secondary mb-3 flex items-center gap-2"><Wallet className="w-4 h-4" />Wallets</h2>
                 {balancesLoading ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">{[1, 2].map((i) => <WalletCardSkeleton key={i} />)}</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">{[1, 2].map((i) => <WalletCardSkeleton key={i} />)}</div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                     {balances.map((b, i) => <div key={b.chainId} className="animate-list-item-in scroll-reveal" style={{ animationDelay: `${i * 80}ms` }}><WalletCard balance={b} /></div>)}
                     <PortfolioSummary balances={balances} />
                   </div>
                 )}
               </section>
 
-              <div className="mb-4 scroll-reveal"><SmartSuggestions onNavigate={navigateToTab} tipCount={stats?.totalTips ?? 0} /></div>
+              <div className="mb-5 scroll-reveal"><SmartSuggestions onNavigate={navigateToTab} tipCount={stats?.totalTips ?? 0} /></div>
 
               {/* Collapsible: Demo & Showcase */}
-              <details className="group rounded-xl bg-surface-2/50 border border-border mb-4">
+              <details className="group rounded-xl bg-surface-2/50 border border-border mb-5">
                 <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Demo Scenarios &amp; Innovation Showcase<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
-                <div className="space-y-4 pt-2 animate-slide-down">
+                <div className="space-y-5 pt-2 animate-slide-down">
                   <DemoScenarios onSetTipMode={setTipMode} onTipComplete={handleTipComplete} />
                   <InnovationShowcase onNavigate={navigateToTab} />
                   <ProtocolOverview />
@@ -621,35 +616,33 @@ function App() {
             </>
           }
           analyticsContent={
-            <div className="space-y-4 sm:space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="glass-card p-4 sm:p-5 scroll-reveal"><EconomicsDashboard /></div>
-                <div className="glass-card p-4 sm:p-5 scroll-reveal"><StatsPanel stats={stats} /></div>
+            <div className="space-y-5 sm:space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="card-standard scroll-reveal"><EconomicsDashboard /></div>
+                <div className="card-standard scroll-reveal"><StatsPanel stats={stats} /></div>
               </div>
-              <div id="chain-comparison-section" className="glass-card p-4 sm:p-5 scroll-reveal">
+              <div id="chain-comparison-section" className="card-standard scroll-reveal">
                 <ChainComparison />
               </div>
-              <div className="glass-card p-4 sm:p-5 scroll-reveal"><AnalyticsDashboard /></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="glass-card p-4 sm:p-5 scroll-reveal"><ActivityHeatmap history={history} /></div>
-                <div className="glass-card p-4 sm:p-5 scroll-reveal"><TipReport history={history} /></div>
+              <div className="card-standard scroll-reveal"><AnalyticsDashboard /></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="card-standard scroll-reveal"><ActivityHeatmap history={history} /></div>
+                <div className="card-standard scroll-reveal"><TipReport history={history} /></div>
               </div>
-              <div className="glass-card p-4 sm:p-5 scroll-reveal"><Leaderboard entries={leaderboard} loading={leaderboardLoading} /></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="glass-card p-4 sm:p-5 scroll-reveal"><Achievements achievements={achievements} loading={achievementsLoading} /></div>
-                <div className="glass-card p-4 sm:p-5 scroll-reveal"><Challenges /></div>
+              <div className="card-standard scroll-reveal"><Leaderboard entries={leaderboard} loading={leaderboardLoading} /></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="card-standard scroll-reveal"><Achievements achievements={achievements} loading={achievementsLoading} /></div>
+                <div className="card-standard scroll-reveal"><Challenges /></div>
               </div>
-              <div className="glass-card p-4 sm:p-5 scroll-reveal"><TechStack /></div>
+              <div className="card-standard scroll-reveal"><TechStack /></div>
             </div>
           }
           historyContent={
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-              <div className="lg:col-span-9 space-y-4">
-                <TipHistory history={history} loading={historyLoading} />
-                <TransactionTimeline history={history} loading={historyLoading} />
-              </div>
-              <div className="lg:col-span-3 space-y-4 lg:sticky lg:top-4 lg:self-start">
-                <ExportPanel historyCount={history.length} />
+            <div className="space-y-5">
+              <TipHistory history={history} loading={historyLoading} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="card-standard scroll-reveal"><ExportPanel historyCount={history.length} /></div>
+                <div className="card-standard scroll-reveal"><TransactionTimeline history={history} loading={historyLoading} /></div>
               </div>
             </div>
           }
@@ -657,63 +650,68 @@ function App() {
             <RumbleIntegration />
           }
           aiContent={
-            <div className="space-y-4 sm:space-y-6">
+            <div className="space-y-5 sm:space-y-6">
               <AgentCapabilities />
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 spotlight-grid">
-                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 spotlight-grid">
+                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <OrchestratorPanel />
                 </div>
-                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
+                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <PredictorPanel />
                 </div>
-                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
+                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <FeeArbitragePanel />
                 </div>
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="card-standard glow-hover scroll-reveal"><FeeOptimizer /></div>
+                <div className="card-standard glow-hover scroll-reveal"><StreamingPanel /></div>
+                <div className="card-standard glow-hover scroll-reveal"><AutonomyPanel /></div>
+              </div>
               <div className="dashboard-grid-cards">
-                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
+                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <EscrowPanel />
                 </div>
-                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
+                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <MemoryPanel />
                 </div>
               </div>
               <div className="dashboard-grid-cards">
-                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
+                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <DcaPanel />
                 </div>
-                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
+                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <CreatorAnalyticsPanel />
                 </div>
               </div>
               {/* Innovation panels — making backend innovations VISIBLE */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <RiskDashboard />
                 </div>
-                <div className="glass-card glow-hover spotlight-card p-4 sm:p-5 scroll-reveal">
+                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <EngagementPanel />
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <CreatorDiscoveryPanel />
                 </div>
-                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
+                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <TipPropagationPanel />
                 </div>
-                <div className="glass-card glow-hover spotlight-card tilt-card p-4 sm:p-5 scroll-reveal">
+                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <ProofOfEngagementPanel />
                 </div>
               </div>
             </div>
           }
           settingsContent={
-            <div className="space-y-4 sm:space-y-6">
+            <div className="space-y-5 sm:space-y-6">
               <SettingsPanel theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="glass-card p-4 sm:p-5 scroll-reveal"><WalletBackup totalTransactions={stats?.totalTips ?? 0} /></div>
-                <div className="glass-card p-4 sm:p-5 scroll-reveal"><WalletSwitcher onActiveChanged={() => refreshBalances()} /></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="card-standard scroll-reveal"><WalletBackup totalTransactions={stats?.totalTips ?? 0} /></div>
+                <div className="card-standard scroll-reveal"><WalletSwitcher onActiveChanged={() => refreshBalances()} /></div>
               </div>
               <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
                 <HealthDashboard />
@@ -722,27 +720,27 @@ function App() {
               {/* Monitors */}
               <details className="group rounded-xl bg-surface-2/50 border border-border" open>
                 <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Monitors &amp; Status<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2 animate-slide-down">
-                  <div className="glass-card p-4 sm:p-5"><GasMonitor /></div>
-                  <div className="glass-card p-4 sm:p-5"><CurrencyConverter /></div>
-                  <div className="glass-card p-4 sm:p-5"><SecurityStatus /></div>
-                  <div className="glass-card p-4 sm:p-5"><NetworkHealth /></div>
-                  <div className="glass-card p-4 sm:p-5"><TelegramStatus /></div>
-                  <div className="glass-card p-4 sm:p-5"><SystemInfo /></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pt-2 animate-slide-down">
+                  <div className="card-standard"><GasMonitor /></div>
+                  <div className="card-standard"><CurrencyConverter /></div>
+                  <div className="card-standard"><SecurityStatus /></div>
+                  <div className="card-standard"><NetworkHealth /></div>
+                  <div className="card-standard"><TelegramStatus /></div>
+                  <div className="card-standard"><SystemInfo /></div>
                 </div>
               </details>
 
               {/* Integrations */}
               <details className="group rounded-xl bg-surface-2/50 border border-border">
                 <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Integrations &amp; Finance<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
-                <div className="space-y-4 pt-2 animate-slide-down">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="glass-card p-4 sm:p-5"><TreasuryPanel /></div>
-                    <div className="glass-card p-4 sm:p-5"><BridgePanel /></div>
+                <div className="space-y-5 pt-2 animate-slide-down">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="card-standard"><TreasuryPanel /></div>
+                    <div className="card-standard"><BridgePanel /></div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="glass-card p-4 sm:p-5"><LendingPanel /></div>
-                    <div className="glass-card p-4 sm:p-5"><CryptoReceiptPanel /></div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div className="card-standard"><LendingPanel /></div>
+                    <div className="card-standard"><CryptoReceiptPanel /></div>
                   </div>
                   <WdkCapabilities />
                   <IndexerPanel />
@@ -753,7 +751,7 @@ function App() {
               {/* Developer Tools */}
               <details className="group rounded-xl bg-surface-2/50 border border-border">
                 <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Developer Tools<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
-                <div className="space-y-4 pt-2 animate-slide-down">
+                <div className="space-y-5 pt-2 animate-slide-down">
                   <WebhookManager />
                   <AuditLog />
                   <ApiDocs />

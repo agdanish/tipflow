@@ -2,8 +2,8 @@ import { Zap, Github, ExternalLink } from 'lucide-react';
 
 export function Footer() {
   return (
-    <footer className="mt-12 border-t border-border bg-surface-1/50 backdrop-blur-sm">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8">
+    <footer className="mt-8 border-t border-border bg-surface-1">
+      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
           {/* Brand */}
           <div className="space-y-3">
