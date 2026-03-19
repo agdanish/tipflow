@@ -1,26 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  /* Surfaces — proper dark mode elevation */
+  --color-bg: #09090b;
   --color-surface: #09090b;
-  --color-surface-1: #18181b;
-  --color-surface-2: #27272a;
-  --color-surface-3: #3f3f46;
-
-  /* Borders — visible but not harsh */
-  --color-border: #3f3f46;
-  --color-border-light: #52525b;
-
-  /* Text — high contrast */
+  --color-surface-1: #0f0f12;
+  --color-surface-2: #18181b;
+  --color-surface-3: #27272a;
+  --color-border: #27272a;
+  --color-accent: #10b981;
+  --color-accent-hover: #059669;
+  --color-accent-border: #10b981;
   --color-text-primary: #fafafa;
   --color-text-secondary: #a1a1aa;
   --color-text-muted: #71717a;
-
-  /* Brand accent — emerald */
-  --color-accent: #10b981;
-  --color-accent-light: #34d399;
-  --color-accent-dim: rgba(16, 185, 129, 0.1);
-  --color-accent-border: rgba(16, 185, 129, 0.3);
 
   /* Semantic */
   --color-warning: #f59e0b;
@@ -37,30 +29,24 @@
 }
 
 body {
-  margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
-  font-weight: 450 !important;
-  letter-spacing: -0.011em !important;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 450;
+  letter-spacing: -0.011em;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-  font-size: 15px !important;
+  font-size: 15px;
   line-height: 1.6;
-  background: var(--color-surface);
   color: var(--color-text-primary);
+  background: var(--color-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Display headings — Plus Jakarta Sans */
-h1, h2, h3, h4,
-.panel-title,
-.text-base.font-semibold,
-.text-sm.font-semibold,
-.text-sm.font-medium,
-.text-lg.font-semibold,
-.text-xl.font-semibold {
-  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif !important;
+h1, h2, h3, h4 {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-weight: 700;
   letter-spacing: -0.025em;
-  line-height: 1.25;
+  line-height: 1.2;
+  color: var(--color-text-primary);
 }
 
 /* Monospace — JetBrains Mono */
@@ -151,15 +137,18 @@ h1, h2, h3, h4,
 
 /* Light theme overrides */
 html.light {
+  --color-bg: #f4f4f5;
   --color-surface: #f4f4f5;
   --color-surface-1: #ffffff;
   --color-surface-2: #f4f4f5;
   --color-surface-3: #e4e4e7;
-  --color-border: #e4e4e7;
-  --color-border-light: #d4d4d8;
-  --color-text-primary: #18181b;
+  --color-border: #d4d4d8;
+  --color-accent: #059669;
+  --color-accent-hover: #047857;
+  --color-accent-border: #059669;
+  --color-text-primary: #09090b;
   --color-text-secondary: #52525b;
-  --color-text-muted: #71717a;
+  --color-text-muted: #a1a1aa;
 }
 
 html.light .header-gradient {
@@ -230,11 +219,10 @@ html.light .animate-shimmer {
   }
 }
 
-/* Global glassmorphism uplift — all panel cards get subtle glass effect */
 .rounded-xl.border.border-border.bg-surface-1 {
   background: var(--color-surface-1);
   border-color: var(--color-border);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 html.light .rounded-xl.border.border-border.bg-surface-1 {
   background: #ffffff;
@@ -781,47 +769,7 @@ html.light .animated-border-hover {
     ) border-box;
 }
 
-/* --- Dot grid pattern background --- */
-.dot-grid::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-image: radial-gradient(
-    circle,
-    rgba(34, 197, 94, 0.07) 1px,
-    transparent 1px
-  );
-  background-size: 32px 32px;
-  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
-}
 
-html.light .dot-grid::before {
-  background-image: radial-gradient(
-    circle,
-    rgba(34, 197, 94, 0.1) 1px,
-    transparent 1px
-  );
-}
-
-/* --- Grain texture overlay --- */
-.grain-overlay::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  mix-blend-mode: overlay;
-}
-
-html.light .grain-overlay::after {
-  opacity: 0.04;
-}
 
 /* --- Gradient text for hero headings --- */
 .gradient-text {
@@ -911,28 +859,6 @@ html.light .grain-overlay::after {
   }
 }
 
-/* --- Scroll progress bar --- */
-.scroll-progress-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  z-index: 100;
-  background: linear-gradient(90deg, #22c55e, #3b82f6, #a855f7);
-  transform-origin: left;
-  animation: scroll-progress-fill linear both;
-  animation-timeline: scroll(root);
-}
-
-@keyframes scroll-progress-fill {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
-
-@supports not (animation-timeline: scroll()) {
-  .scroll-progress-bar { display: none; }
-}
 
 /* --- Layered depth shadows (Vercel/Stripe style) --- */
 .shadow-depth {
@@ -961,13 +887,6 @@ html.light .shadow-depth {
     0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
-/* --- Morphing aurora blobs --- */
-@keyframes blob-morph {
-  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-  25% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
-  50% { border-radius: 50% 60% 30% 60% / 30% 40% 70% 50%; }
-  75% { border-radius: 60% 30% 50% 40% / 70% 50% 40% 60%; }
-}
 
 /* --- 3D tilt card on hover --- */
 .tilt-card {
@@ -1005,68 +924,23 @@ html.light .shadow-depth {
   66% { transform: translate(-30px, -10px) scale(0.98); }
 }
 
-.aurora-blob-1 {
-  position: fixed;
-  top: -15%;
-  left: -10%;
-  width: 600px;
-  height: 600px;
-  background: radial-gradient(circle, rgba(124, 92, 255, 0.1) 0%, transparent 70%);
-  filter: blur(40px);
-  animation: aurora-drift-1 25s ease-in-out infinite, blob-morph 20s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 0;
-}
-.aurora-blob-2 {
-  position: fixed;
-  bottom: -10%;
-  right: -5%;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(0, 212, 170, 0.07) 0%, transparent 70%);
-  filter: blur(40px);
-  animation: aurora-drift-2 30s ease-in-out infinite, blob-morph 25s ease-in-out infinite reverse;
-  pointer-events: none;
-  z-index: 0;
-}
-.aurora-blob-3 {
-  position: fixed;
-  top: 40%;
-  right: 20%;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
-  filter: blur(40px);
-  animation: aurora-drift-3 35s ease-in-out infinite, blob-morph 22s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 0;
-}
 
-html.light .aurora-blob-1,
-html.light .aurora-blob-2,
-html.light .aurora-blob-3 {
-  opacity: 0.5;
-}
-
-/* Glassmorphism card */
 .glass-card {
   background: var(--color-surface-1);
   border: 1px solid var(--color-border);
-  border-radius: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 20px;
 }
 
 html.light .glass-card {
   background: #ffffff;
   border-color: #e4e4e7;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-/* Glassmorphism elevated (header, primary panels) */
 .glass-elevated {
   background: var(--color-surface-1);
   border-bottom: 1px solid var(--color-border);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 html.light .glass-elevated {
@@ -1183,14 +1057,6 @@ html.light .glass-input:focus {
   box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.06);
 }
 
-/* Reduced motion: disable aurora and glow */
-@media (prefers-reduced-motion: reduce) {
-  .aurora-blob-1,
-  .aurora-blob-2,
-  .aurora-blob-3 {
-    animation: none !important;
-  }
-}
 
 /* ── UX Polish: Progress shimmer, stream glow, verify flash ── */
 @keyframes progress-shimmer {
@@ -1872,4 +1738,37 @@ details > summary {
 }
 details > summary::-webkit-details-marker {
   display: none;
+}
+
+/* Premium card variants */
+.card-elevated {
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-flat {
+  background: var(--color-surface-2);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+/* Section header */
+.section-title {
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--color-text-primary);
+  margin-bottom: 1rem;
+}
+
+/* Zinc-based hover for interactive elements */
+.hover-zinc:hover {
+  background: rgba(39, 39, 42, 0.5);
+}
+
+html.light .hover-zinc:hover {
+  background: rgba(244, 244, 245, 0.8);
 }

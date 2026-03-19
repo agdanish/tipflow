@@ -8,16 +8,16 @@ export type TabId = 'dashboard' | 'analytics' | 'history' | 'rumble' | 'ai' | 's
 interface TabDef {
   id: TabId;
   labelKey: string;
-  icon: ReactNode;
+  Icon: typeof LayoutDashboard;
 }
 
 const tabDefs: TabDef[] = [
-  { id: 'dashboard', labelKey: 'nav.dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
-  { id: 'analytics', labelKey: 'nav.analytics', icon: <BarChart3 className="w-4 h-4" /> },
-  { id: 'history',   labelKey: 'nav.history',   icon: <History className="w-4 h-4" /> },
-  { id: 'rumble',    labelKey: 'nav.rumble',    icon: <Tv className="w-4 h-4" /> },
-  { id: 'ai',        labelKey: 'nav.ai',        icon: <Brain className="w-4 h-4" /> },
-  { id: 'settings',  labelKey: 'nav.settings',  icon: <Settings className="w-4 h-4" /> },
+  { id: 'dashboard', labelKey: 'nav.dashboard', Icon: LayoutDashboard },
+  { id: 'analytics', labelKey: 'nav.analytics', Icon: BarChart3 },
+  { id: 'history',   labelKey: 'nav.history',   Icon: History },
+  { id: 'rumble',    labelKey: 'nav.rumble',     Icon: Tv },
+  { id: 'ai',        labelKey: 'nav.ai',         Icon: Brain },
+  { id: 'settings',  labelKey: 'nav.settings',   Icon: Settings },
 ];
 
 function getTabFromHash(): TabId {
@@ -69,36 +69,33 @@ export function DashboardTabs({ dashboardContent, analyticsContent, historyConte
   };
 
   return (
-    <div>
-      {/* Tab bar */}
-      <div className="mb-4 sm:mb-6">
-        <div className="flex gap-1 p-1 rounded-xl glass-card overflow-x-auto">
-          {tabDefs.map((tab) => (
+    <div className="mb-6">
+      <nav className="flex gap-1 p-1 rounded-xl bg-zinc-900/50 border border-zinc-800/50" role="tablist">
+        {tabDefs.map((tab) => {
+          const isActive = activeTab === tab.id;
+          const hasUpdate = tabsWithUpdates.includes(tab.id) && !isActive;
+          return (
             <button
               key={tab.id}
               onClick={() => switchTab(tab.id)}
-              className={`
-                relative flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm sm:text-base font-medium transition-all whitespace-nowrap min-w-0 btn-press
-                ${activeTab === tab.id
-                  ? 'bg-accent/10 text-accent border border-accent-border shadow-sm font-semibold'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-2'
-                }
-              `}
-              aria-selected={activeTab === tab.id}
               role="tab"
+              aria-selected={isActive}
+              className={`relative flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                isActive
+                  ? 'bg-zinc-800 text-white shadow-sm'
+                  : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/30'
+              }`}
             >
-              {tab.icon}
+              <tab.Icon className="w-4 h-4" />
               <span className="hidden sm:inline">{t(tab.labelKey)}</span>
-              {tabsWithUpdates.includes(tab.id) && activeTab !== tab.id && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 border border-surface-1 animate-pulse" />
+              {hasUpdate && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
               )}
             </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Tab content */}
-      <div className="animate-tab-content-in" key={activeTab}>
+          );
+        })}
+      </nav>
+      <div className="mt-6" key={activeTab}>
         {contentMap[activeTab]}
       </div>
     </div>

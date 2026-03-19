@@ -422,14 +422,14 @@ function App() {
   const isAgentBusy = agentState.status !== 'idle';
 
   return (
-    <div className="min-h-screen bg-surface relative overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-zinc-950 text-zinc-100">
 
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:rounded-lg focus:text-sm focus:font-medium">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-emerald-500 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium">
         Skip to main content
       </a>
       <Header health={health} theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} onShowShortcuts={() => setShowShortcuts(true)} notifications={notifications} onMarkRead={markRead} onMarkAllRead={markAllRead} onClearAll={clearAll} />
 
-      <main ref={spotlightRef} id="main-content" role="main" className="relative z-10 max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+      <main ref={spotlightRef} id="main-content" role="main" className="relative z-10 flex-1 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Demo Mode Banner */}
         <DemoBanner />
 

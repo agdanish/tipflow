@@ -1,111 +1,19 @@
-import { Zap, Github, ExternalLink } from 'lucide-react';
-
 export function Footer() {
   return (
-    <footer className="mt-8 border-t border-border bg-surface-1">
-      <div className="max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
-          {/* Brand */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center">
-                <Zap className="w-4 h-4 text-accent" />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold text-text-primary">TipFlow</h3>
-                <p className="text-xs text-text-muted">v1.0.0</p>
-              </div>
-            </div>
-            <p className="text-xs text-text-secondary leading-relaxed">
-              AI-Powered Multi-Chain Tipping Agent. Send tips across Ethereum and TON
-              with intelligent chain selection and fee optimization.
-            </p>
+    <footer className="mt-auto border-t border-zinc-800/40 bg-zinc-950/50">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span>TipFlow v1.0 — Powered by Tether WDK</span>
           </div>
-
-          {/* Built With */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-semibold text-text-primary uppercase tracking-wider">Built With</h4>
-            <ul className="space-y-1.5 text-xs text-text-secondary">
-              <li className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
-                Tether WDK
-              </li>
-              <li className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                React + TypeScript
-              </li>
-              <li className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                Tailwind CSS
-              </li>
-              <li className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                Node.js + Express
-              </li>
-            </ul>
+          <div className="flex items-center gap-4">
+            <span>43 services</span>
+            <span>&middot;</span>
+            <span>230+ endpoints</span>
+            <span>&middot;</span>
+            <span>Apache 2.0</span>
           </div>
-
-          {/* Links */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-semibold text-text-primary uppercase tracking-wider">Links</h4>
-            <ul className="space-y-1.5 text-xs">
-              <li>
-                <a
-                  href="https://github.com/agdanish/tipflow"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-text-secondary hover:text-accent transition-colors"
-                >
-                  <Github className="w-3.5 h-3.5" />
-                  GitHub Repository
-                  <ExternalLink className="w-3 h-3 opacity-50" />
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://github.com/agdanish/tipflow/blob/main/LICENSE"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-text-secondary hover:text-accent transition-colors"
-                >
-                  <span className="w-3.5 h-3.5 flex items-center justify-center text-xs font-bold">AP</span>
-                  Apache 2.0 License
-                  <ExternalLink className="w-3 h-3 opacity-50" />
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://wdk.tether.io"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-text-secondary hover:text-accent transition-colors"
-                >
-                  <Zap className="w-3.5 h-3.5" />
-                  Tether WDK Docs
-                  <ExternalLink className="w-3 h-3 opacity-50" />
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Bottom bar */}
-        <div className="mt-6 pt-4 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <div className="flex items-center gap-3">
-            <p className="text-sm text-text-muted text-center sm:text-left flex items-center gap-1.5">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
-              </span>
-              System Online
-            </p>
-            <span className="px-2 py-0.5 rounded-full bg-accent/10 border border-accent/20 text-xs font-medium text-accent tabular-nums">
-              228+ API endpoints
-            </span>
-          </div>
-          <p className="text-sm text-text-muted">
-            &copy; 2026 TipFlow &middot; Built for <span className="text-accent font-medium">Tether Hackathon Galactica</span>
-          </p>
         </div>
       </div>
     </footer>
