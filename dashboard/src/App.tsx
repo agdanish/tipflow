@@ -9,12 +9,12 @@ import { Header } from './components/Header';
 // import { SplitTipForm } from './components/SplitTipForm';
 // import { AgentPanel } from './components/AgentPanel';
 // import { TipHistory } from './components/TipHistory';
-import { StatsPanel } from './components/StatsPanel';
+// import { StatsPanel } from './components/StatsPanel';
 // import { GasMonitor } from './components/GasMonitor';
 // import { CurrencyConverter } from './components/CurrencyConverter';
-import { Leaderboard } from './components/Leaderboard';
-import { Achievements } from './components/Achievements';
-import { Challenges } from './components/Challenges';
+// import { Leaderboard } from './components/Leaderboard';
+// import { Achievements } from './components/Achievements';
+// import { Challenges } from './components/Challenges';
 // import { ActivityFeed } from './components/ActivityFeed';
 import { QRReceive } from './components/QRReceive';
 // import { DecisionTree } from './components/DecisionTree';
@@ -35,27 +35,27 @@ import { InstallPrompt } from './components/InstallPrompt';
 import { useNotifications } from './components/NotificationCenter';
 // import { WalletBackup } from './components/WalletBackup';
 // import { WalletSwitcher } from './components/WalletSwitcher';
-import { AnalyticsDashboard } from './components/AnalyticsDashboard';
+// import { AnalyticsDashboard } from './components/AnalyticsDashboard';
 // import { SettingsPanel } from './components/SettingsPanel';
 // import { TransactionTimeline } from './components/TransactionTimeline';
 // import { ExportPanel } from './components/ExportPanel';
 import { Footer } from './components/Footer';
 import { HelpCenter } from './components/HelpCenter';
 // import { SystemInfo } from './components/SystemInfo';
-import { TechStack } from './components/TechStack';
+// import { TechStack } from './components/TechStack';
 import { TipLinkCreator } from './components/TipLinkCreator';
 import { ShareCard } from './components/ShareCard';
 import { MobileNav } from './components/MobileNav';
 // import { TipCalendar } from './components/TipCalendar';
 import { initAccentColor } from './components/ThemeCustomizer';
-import { ChainComparison } from './components/ChainComparison';
+// import { ChainComparison } from './components/ChainComparison';
 // import { FavoriteRecipients } from './components/FavoriteRecipients';
 // import { QuickActions } from './components/QuickActions';
 // import { AuditLog } from './components/AuditLog';
 // import { TipGoals } from './components/TipGoals';
 // import { SpendingLimits } from './components/SpendingLimits';
 import { BatchImport } from './components/BatchImport';
-import { TipReport } from './components/TipReport';
+// import { TipReport } from './components/TipReport';
 import { DemoBanner } from './components/DemoBanner';
 import { DemoScenarios } from './components/DemoScenarios';
 import { RumbleIntegration } from './components/RumbleIntegration';
@@ -92,14 +92,14 @@ import { SuccessCelebration } from './components/SuccessCelebration';
 // import { PortfolioSummary } from './components/PortfolioSummary';
 // TransactionTracker, PriceTicker, SmartSuggestions — now used via ui-v3 components
 // import { FeeOptimizer } from './components/FeeOptimizer';
-import { ActivityHeatmap } from './components/ActivityHeatmap';
+// import { ActivityHeatmap } from './components/ActivityHeatmap';
 import { FloatingMenu } from './components/FloatingMenu';
 import { InnovationShowcase } from './components/InnovationShowcase';
 // import { IndexerPanel } from './components/IndexerPanel';
 // import { WdkCapabilities } from './components/WdkCapabilities';
 import { DecisionAuditTrail } from './components/DecisionAuditTrail';
 import { AgentActivityFeed } from './components/AgentActivityFeed';
-import { EconomicsDashboard } from './components/EconomicsDashboard';
+// import { EconomicsDashboard } from './components/EconomicsDashboard';
 // import { PluginRegistry } from './components/PluginRegistry';
 // import { DeveloperHub } from './components/DeveloperHub';
 import { ProtocolOverview } from './components/ProtocolOverview';
@@ -110,6 +110,7 @@ import { DashboardHero, TipComposer, ContextFeed, WalletStrip, InsightBar } from
 import { HistoryPage } from './ui-v3/history';
 import { AiEnginePage } from './ui-v3/ai';
 import { SettingsPage } from './ui-v3/settings';
+import { AnalyticsPage } from './ui-v3/analytics';
 
 function App() {
   const { health } = useHealth();
@@ -516,24 +517,14 @@ function App() {
           }
 
           analyticsContent={
-            <div className="space-y-6">
-              <EconomicsDashboard />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <StatsPanel stats={stats} />
-                <div id="chain-comparison-section"><ChainComparison /></div>
-              </div>
-              <AnalyticsDashboard />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <ActivityHeatmap history={history} />
-                <TipReport history={history} />
-              </div>
-              <Leaderboard entries={leaderboard} loading={leaderboardLoading} />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <Achievements achievements={achievements} loading={achievementsLoading} />
-                <Challenges />
-              </div>
-              <TechStack />
-            </div>
+            <AnalyticsPage
+              stats={stats}
+              history={history}
+              leaderboard={leaderboard}
+              leaderboardLoading={leaderboardLoading}
+              achievements={achievements}
+              achievementsLoading={achievementsLoading}
+            />
           }
           historyContent={
             <HistoryPage history={history} loading={historyLoading} />
