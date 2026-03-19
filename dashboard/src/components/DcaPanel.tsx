@@ -67,7 +67,7 @@ export function DcaPanel() {
   const cancel = async (id: string) => { try { await api.dcaCancel(id); await load(); } catch { /* */ } };
 
   if (loading) return (
-    <div className="space-y-4">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <Skeleton variant="text-line" width="120px" height="16px" />
         <Skeleton variant="circle" width="28px" />
@@ -87,7 +87,7 @@ export function DcaPanel() {
     'text-red-400 bg-red-500/10 border-red-500/20';
 
   return (
-    <div className="space-y-4">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Repeat className="w-4 h-4 text-purple-400" />
@@ -205,7 +205,7 @@ export function DcaPanel() {
         {plans.map((p, index) => {
           const progress = p.installments > 0 ? (p.completedInstallments / p.installments) * 100 : 0;
           return (
-            <div key={p.id} className="p-3 rounded-lg border border-border bg-surface-2 space-y-2 card-hover animate-list-item-in" style={{ animationDelay: `${index * 60}ms` }}>
+            <div key={p.id} className="p-3 rounded-lg bg-surface-2 space-y-2 card-hover animate-list-item-in" style={{ animationDelay: `${index * 60}ms` }}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className={`px-1.5 py-0.5 rounded-full text-xs font-medium border ${statusColor(p.status)}`}>

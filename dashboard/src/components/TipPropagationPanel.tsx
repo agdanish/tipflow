@@ -49,7 +49,7 @@ export function TipPropagationPanel() {
   useEffect(() => { load(); }, []);
 
   if (loading) return (
-    <div className="space-y-3">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <Skeleton variant="text-line" width="160px" height="16px" />
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         {[1,2,3,4].map(i => <Skeleton key={i} variant="card" height="50px" />)}
@@ -58,7 +58,7 @@ export function TipPropagationPanel() {
   );
 
   return (
-    <div className="space-y-3">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Radio className="w-4 h-4 text-cyan-400" />

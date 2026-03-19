@@ -55,14 +55,14 @@ export function CreatorDiscoveryPanel() {
   useEffect(() => { load(); }, []);
 
   if (loading) return (
-    <div className="space-y-3">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <Skeleton variant="text-line" width="180px" height="16px" />
       {[1, 2, 3].map(i => <Skeleton key={i} variant="card" height="70px" />)}
     </div>
   );
 
   return (
-    <div className="space-y-3">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Search className="w-4 h-4 text-purple-400" />

@@ -353,7 +353,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
                   isExpanded
                     ? 'border-border-light bg-surface-2'
                     : 'border-border bg-surface-2'
-                }`}
+                } ${entry.status === 'failed' ? 'border-l-2 border-l-red-500' : ''}`}
                 style={{ animationDelay: `${idx * 40}ms` }}
               >
                 <button
@@ -374,7 +374,7 @@ export function TipHistory({ history, loading }: TipHistoryProps) {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                      <span className="text-xs sm:text-sm font-semibold text-text-primary">
+                      <span className="text-base font-semibold text-text-primary">
                         {formatNumber(entry.amount)} {entry.token === 'usdt' ? 'USDT' : isEth ? 'ETH' : 'TON'}
                       </span>
                       <span className="text-sm sm:text-xs text-text-muted">to</span>

@@ -108,7 +108,7 @@ import { ProtocolOverview } from './components/ProtocolOverview';
 import { LiveMetrics } from './components/LiveMetrics';
 import { ApiExplorer } from './components/ApiExplorer';
 import { AgentCapabilities } from './components/AgentCapabilities';
-import { Wallet, Send, Users, Scissors, CalendarClock, X, Clock, CheckCircle2, XCircle, Repeat } from 'lucide-react';
+import { Wallet, Send, Users, Scissors, CalendarClock, X, Clock, CheckCircle2, XCircle, Repeat, Brain, Zap, TrendingUp, Sparkles } from 'lucide-react';
 
 function App() {
   const { health } = useHealth();
@@ -422,14 +422,7 @@ function App() {
   const isAgentBusy = agentState.status !== 'idle';
 
   return (
-    <div className="min-h-screen bg-surface relative overflow-hidden dot-grid grain-overlay">
-      {/* Scroll progress bar */}
-      <div className="scroll-progress-bar" aria-hidden="true" />
-
-      {/* Aurora ambient background with morphing blobs */}
-      <div className="aurora-blob-1" aria-hidden="true" />
-      <div className="aurora-blob-2" aria-hidden="true" />
-      <div className="aurora-blob-3" aria-hidden="true" />
+    <div className="min-h-screen bg-surface relative overflow-hidden">
 
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:rounded-lg focus:text-sm focus:font-medium">
         Skip to main content
@@ -444,21 +437,20 @@ function App() {
         <DashboardTabs
           dashboardContent={
             <>
-              {/* Price ticker — full width */}
-              <div className="mb-5">
-                <PriceTicker />
+              <div className="mb-5"><PriceTicker /></div>
+              <div className="mb-5"><LiveMetrics health={health} /></div>
+
+              {/* HERO: Agent Pipeline */}
+              <div className="mb-6" data-onboarding="agent-panel">
+                <AgentPanel state={agentState} />
+                {agentState.currentDecision && (
+                  <div className="mt-4"><DecisionTree decision={agentState.currentDecision} agentStatus={agentState.status} /></div>
+                )}
               </div>
 
-              {/* LiveMetrics strip */}
-              <div className="mb-5">
-                <LiveMetrics health={health} />
-              </div>
-
-              {/* === MAIN BENTO GRID === */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-5 mb-6">
-
-                {/* LEFT COLUMN: Tip Form + Agent — spans 8 cols */}
-                <div className="lg:col-span-8 space-y-5">
+              {/* MAIN: 7/5 split */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-6">
+                <div className="lg:col-span-7 space-y-5">
                   <QuickActions
                     onRefreshBalances={refreshBalances}
                     onScrollToCompare={() => {
@@ -480,7 +472,7 @@ function App() {
                   />
 
                   {/* Tip mode tabs */}
-                  <div ref={tipTabsRef} className="flex gap-1 p-1 rounded-lg bg-surface-2 border border-border" data-onboarding="tip-form">
+                  <div ref={tipTabsRef} className="flex gap-1 p-1.5 rounded-xl bg-surface-2 border border-border" data-onboarding="tip-form">
                     <button onClick={() => setTipMode('single')} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all btn-press ${tipMode === 'single' ? 'bg-surface-3 text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}>
                       <Send className="w-3.5 h-3.5" />Single Tip
                     </button>
@@ -491,9 +483,8 @@ function App() {
                       <Scissors className="w-3.5 h-3.5" />Split
                     </button>
                   </div>
-                  <p className="text-[10px] text-text-muted text-center mt-1 sm:hidden">Swipe to switch tip mode</p>
+                  <p className="text-xs text-text-muted text-center mt-1 sm:hidden">Swipe to switch tip mode</p>
 
-                  {/* Tip Link banner */}
                   {tipLinkPrefill && (
                     <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-4 space-y-2">
                       <div className="flex items-center justify-between">
@@ -510,46 +501,15 @@ function App() {
                   {tipMode === 'single' && <TipForm onTipComplete={handleTipComplete} onTipScheduled={handleTipScheduled} disabled={isAgentBusy} prefillTemplate={pendingTemplate} onTemplatePrefilled={() => setPendingTemplate(null)} prefillTipLink={tipLinkPrefill} onTipLinkPrefilled={() => setTipLinkPrefill(null)} />}
                   {tipMode === 'batch' && <BatchTipForm onBatchComplete={handleBatchComplete} disabled={isAgentBusy} />}
                   {tipMode === 'split' && <SplitTipForm onSplitComplete={handleSplitComplete} disabled={isAgentBusy} />}
-
-                  {/* Collapsible: Templates & Links */}
-                  <details className="group rounded-xl bg-surface-2/50 border border-border">
-                    <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Templates &amp; Links<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
-                    <div className="space-y-5 pt-2 animate-slide-down">
-                      <div id="tip-templates-section"><TipTemplates onUseTemplate={handleUseTemplate} /></div>
-                      <TipLinkCreator />
-                      <BatchImport />
-                    </div>
-                  </details>
-
-                  {/* Agent Intelligence */}
-                  <div data-onboarding="agent-panel" className="card-hero glow-hover scroll-reveal">
-                    <AgentPanel state={agentState} />
-                  </div>
-                  {agentState.currentDecision && (
-                    <div className="card-standard glow-hover scroll-reveal">
-                      <DecisionTree decision={agentState.currentDecision} agentStatus={agentState.status} />
-                    </div>
-                  )}
-
-                  {/* Collapsible: Contacts & Receiving */}
-                  <details className="group rounded-xl bg-surface-2/50 border border-border">
-                    <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Contacts &amp; Receiving<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
-                    <div className="space-y-5 pt-2 animate-slide-down">
-                      <ContactsManager />
-                      <QRReceive />
-                      <ConditionalTips />
-                    </div>
-                  </details>
                 </div>
 
-                {/* RIGHT COLUMN: Activity & Status — spans 4 cols */}
-                <div className="lg:col-span-4 space-y-5">
-                  {trackedTx && <div className="scroll-reveal"><TransactionTracker result={trackedTx} onDismiss={() => setTrackedTx(null)} /></div>}
-                  <div className="card-standard scroll-reveal"><ReputationPanel /></div>
-                  <div className="card-standard scroll-reveal"><ActivityFeed /></div>
-                  <div className="card-standard scroll-reveal"><TipGoals /></div>
+                <div className="lg:col-span-5 space-y-5">
+                  {trackedTx && <TransactionTracker result={trackedTx} onDismiss={() => setTrackedTx(null)} />}
+                  <ReputationPanel />
+                  <ActivityFeed />
+                  <TipGoals />
                   {scheduledTips.length > 0 && (
-                    <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5 scroll-reveal">
+                    <div className="rounded-xl border border-border bg-surface-1 p-5">
                       <h2 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
                         <CalendarClock className="w-4 h-4 text-amber-400" />Scheduled Tips
                         <span className="ml-auto text-xs font-normal text-text-muted">{scheduledTips.filter((t) => t.status === 'scheduled').length} pending</span>
@@ -581,33 +541,52 @@ function App() {
                       </div>
                     </div>
                   )}
-                  <div className="card-standard scroll-reveal"><TipCalendar onCancelTip={handleCancelScheduled} /></div>
-                  <details className="group rounded-xl bg-surface-2/50 border border-border">
-                    <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Agent Logs<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
-                    <div className="space-y-5 pt-2 animate-slide-down"><AgentActivityFeed /><DecisionAuditTrail /></div>
-                  </details>
+                  <TipCalendar onCancelTip={handleCancelScheduled} />
                 </div>
               </div>
 
-              {/* BOTTOM: Wallets */}
-              <section className="mb-5 scroll-reveal" data-onboarding="wallets">
-                <h2 className="text-sm font-medium text-text-secondary mb-3 flex items-center gap-2"><Wallet className="w-4 h-4" />Wallets</h2>
+              {/* WALLETS */}
+              <section className="mb-6" data-onboarding="wallets">
+                <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
+                  <Wallet className="w-5 h-5" /> Wallets
+                </h2>
                 {balancesLoading ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">{[1, 2].map((i) => <WalletCardSkeleton key={i} />)}</div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    {[1, 2].map((i) => <WalletCardSkeleton key={i} />)}
+                  </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    {balances.map((b, i) => <div key={b.chainId} className="animate-list-item-in scroll-reveal" style={{ animationDelay: `${i * 80}ms` }}><WalletCard balance={b} /></div>)}
+                    {balances.map((b, i) => (
+                      <div key={b.chainId} className="animate-list-item-in" style={{ animationDelay: `${i * 60}ms` }}>
+                        <WalletCard balance={b} />
+                      </div>
+                    ))}
                     <PortfolioSummary balances={balances} />
                   </div>
                 )}
               </section>
 
-              <div className="mb-5 scroll-reveal"><SmartSuggestions onNavigate={navigateToTab} tipCount={stats?.totalTips ?? 0} /></div>
+              <div className="mb-6"><SmartSuggestions onNavigate={navigateToTab} tipCount={stats?.totalTips ?? 0} /></div>
 
-              {/* Collapsible: Demo & Showcase */}
-              <details className="group rounded-xl bg-surface-2/50 border border-border mb-5">
-                <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Demo Scenarios &amp; Innovation Showcase<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
-                <div className="space-y-5 pt-2 animate-slide-down">
+              {/* ONE collapsible for ALL secondary */}
+              <details className="group rounded-xl bg-surface-2/50 border border-border mb-6">
+                <summary className="flex items-center justify-between cursor-pointer px-5 py-4 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">
+                  <span>More: Templates, Contacts, Demo & Showcase</span>
+                  <svg className="w-4 h-4 text-text-muted transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                </summary>
+                <div className="px-5 pb-5 space-y-5 animate-slide-down">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div id="tip-templates-section"><TipTemplates onUseTemplate={handleUseTemplate} /></div>
+                    <TipLinkCreator />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <ContactsManager />
+                    <QRReceive />
+                  </div>
+                  <BatchImport />
+                  <ConditionalTips />
+                  <AgentActivityFeed />
+                  <DecisionAuditTrail />
                   <DemoScenarios onSetTipMode={setTipMode} onTipComplete={handleTipComplete} />
                   <InnovationShowcase onNavigate={navigateToTab} />
                   <ProtocolOverview />
@@ -616,33 +595,31 @@ function App() {
             </>
           }
           analyticsContent={
-            <div className="space-y-5 sm:space-y-6">
+            <div className="space-y-6">
+              <EconomicsDashboard />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <StatsPanel stats={stats} />
+                <div id="chain-comparison-section"><ChainComparison /></div>
+              </div>
+              <AnalyticsDashboard />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <ActivityHeatmap history={history} />
+                <TipReport history={history} />
+              </div>
+              <Leaderboard entries={leaderboard} loading={leaderboardLoading} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="card-standard scroll-reveal"><EconomicsDashboard /></div>
-                <div className="card-standard scroll-reveal"><StatsPanel stats={stats} /></div>
+                <Achievements achievements={achievements} loading={achievementsLoading} />
+                <Challenges />
               </div>
-              <div id="chain-comparison-section" className="card-standard scroll-reveal">
-                <ChainComparison />
-              </div>
-              <div className="card-standard scroll-reveal"><AnalyticsDashboard /></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="card-standard scroll-reveal"><ActivityHeatmap history={history} /></div>
-                <div className="card-standard scroll-reveal"><TipReport history={history} /></div>
-              </div>
-              <div className="card-standard scroll-reveal"><Leaderboard entries={leaderboard} loading={leaderboardLoading} /></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="card-standard scroll-reveal"><Achievements achievements={achievements} loading={achievementsLoading} /></div>
-                <div className="card-standard scroll-reveal"><Challenges /></div>
-              </div>
-              <div className="card-standard scroll-reveal"><TechStack /></div>
+              <TechStack />
             </div>
           }
           historyContent={
-            <div className="space-y-5">
+            <div className="space-y-5 max-w-6xl">
               <TipHistory history={history} loading={historyLoading} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="card-standard scroll-reveal"><ExportPanel historyCount={history.length} /></div>
-                <div className="card-standard scroll-reveal"><TransactionTimeline history={history} loading={historyLoading} /></div>
+                <ExportPanel historyCount={history.length} />
+                <TransactionTimeline history={history} loading={historyLoading} />
               </div>
             </div>
           }
@@ -650,110 +627,113 @@ function App() {
             <RumbleIntegration />
           }
           aiContent={
-            <div className="space-y-5 sm:space-y-6">
-              <AgentCapabilities />
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 spotlight-grid">
-                <div className="card-standard glow-hover spotlight-card scroll-reveal">
+            <div className="space-y-8">
+              <section><AgentCapabilities /></section>
+
+              <section>
+                <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2 tracking-tight">
+                  <Brain className="w-5 h-5 text-purple-400" /> Intelligence Core
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   <OrchestratorPanel />
-                </div>
-                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <PredictorPanel />
-                </div>
-                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <FeeArbitragePanel />
                 </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div className="card-standard glow-hover scroll-reveal"><FeeOptimizer /></div>
-                <div className="card-standard glow-hover scroll-reveal"><StreamingPanel /></div>
-                <div className="card-standard glow-hover scroll-reveal"><AutonomyPanel /></div>
-              </div>
-              <div className="dashboard-grid-cards">
-                <div className="card-standard glow-hover spotlight-card scroll-reveal">
+              </section>
+
+              <section>
+                <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2 tracking-tight">
+                  <Zap className="w-5 h-5 text-amber-400" /> Execution Engine
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  <FeeOptimizer />
+                  <StreamingPanel />
+                  <AutonomyPanel />
+                </div>
+              </section>
+
+              <section>
+                <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2 tracking-tight">
+                  <TrendingUp className="w-5 h-5 text-blue-400" /> DeFi & Analytics
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <EscrowPanel />
-                </div>
-                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <MemoryPanel />
-                </div>
-              </div>
-              <div className="dashboard-grid-cards">
-                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <DcaPanel />
-                </div>
-                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <CreatorAnalyticsPanel />
                 </div>
-              </div>
-              {/* Innovation panels — making backend innovations VISIBLE */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="card-standard glow-hover spotlight-card scroll-reveal">
+              </section>
+
+              <section>
+                <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2 tracking-tight">
+                  <Sparkles className="w-5 h-5 text-emerald-400" /> Innovation
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <RiskDashboard />
-                </div>
-                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <EngagementPanel />
                 </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div className="card-standard glow-hover spotlight-card scroll-reveal">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
                   <CreatorDiscoveryPanel />
-                </div>
-                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <TipPropagationPanel />
-                </div>
-                <div className="card-standard glow-hover spotlight-card scroll-reveal">
                   <ProofOfEngagementPanel />
                 </div>
-              </div>
+              </section>
             </div>
           }
           settingsContent={
-            <div className="space-y-5 sm:space-y-6">
-              <SettingsPanel theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="card-standard scroll-reveal"><WalletBackup totalTransactions={stats?.totalTips ?? 0} /></div>
-                <div className="card-standard scroll-reveal"><WalletSwitcher onActiveChanged={() => refreshBalances()} /></div>
-              </div>
-              <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-5">
-                <HealthDashboard />
-              </div>
-
-              {/* Monitors */}
-              <details className="group rounded-xl bg-surface-2/50 border border-border" open>
-                <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Monitors &amp; Status<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pt-2 animate-slide-down">
-                  <div className="card-standard"><GasMonitor /></div>
-                  <div className="card-standard"><CurrencyConverter /></div>
-                  <div className="card-standard"><SecurityStatus /></div>
-                  <div className="card-standard"><NetworkHealth /></div>
-                  <div className="card-standard"><TelegramStatus /></div>
-                  <div className="card-standard"><SystemInfo /></div>
+            <div className="space-y-6 max-w-6xl">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <SettingsPanel theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} />
+                <div className="space-y-5">
+                  <WalletBackup totalTransactions={stats?.totalTips ?? 0} />
+                  <WalletSwitcher onActiveChanged={() => refreshBalances()} />
                 </div>
-              </details>
+              </div>
 
-              {/* Integrations */}
-              <details className="group rounded-xl bg-surface-2/50 border border-border">
-                <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Integrations &amp; Finance<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
-                <div className="space-y-5 pt-2 animate-slide-down">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div className="card-standard"><TreasuryPanel /></div>
-                    <div className="card-standard"><BridgePanel /></div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div className="card-standard"><LendingPanel /></div>
-                    <div className="card-standard"><CryptoReceiptPanel /></div>
-                  </div>
-                  <WdkCapabilities />
-                  <IndexerPanel />
-                  <SpendingLimits />
+              <HealthDashboard />
+
+              <section>
+                <h2 className="text-lg font-bold text-text-primary mb-4">System Monitors</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  <GasMonitor />
+                  <CurrencyConverter />
+                  <SecurityStatus />
+                  <NetworkHealth />
+                  <TelegramStatus />
+                  <SystemInfo />
                 </div>
-              </details>
+              </section>
 
-              {/* Developer Tools */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <TreasuryPanel />
+                <BridgePanel />
+                <LendingPanel />
+                <SpendingLimits />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <WdkCapabilities />
+                <CryptoReceiptPanel />
+                <IndexerPanel />
+              </div>
+
               <details className="group rounded-xl bg-surface-2/50 border border-border">
-                <summary className="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">Developer Tools<span className="text-text-muted text-xs group-open:rotate-180 transition-transform">&#9660;</span></summary>
-                <div className="space-y-5 pt-2 animate-slide-down">
+                <summary className="flex items-center justify-between cursor-pointer px-5 py-4 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">
+                  <span>Integrations & Webhooks</span>
+                  <svg className="w-4 h-4 text-text-muted transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                </summary>
+                <div className="px-5 pb-5 space-y-5 animate-slide-down">
                   <WebhookManager />
                   <AuditLog />
+                </div>
+              </details>
+
+              <details className="group rounded-xl bg-surface-2/50 border border-border">
+                <summary className="flex items-center justify-between cursor-pointer px-5 py-4 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">
+                  <span>Developer Tools</span>
+                  <svg className="w-4 h-4 text-text-muted transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                </summary>
+                <div className="px-5 pb-5 space-y-5 animate-slide-down">
                   <ApiDocs />
                   <DeveloperHub />
                   <PluginRegistry />

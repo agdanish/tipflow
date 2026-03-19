@@ -83,7 +83,7 @@ export function MemoryPanel() {
   };
 
   if (loading) return (
-    <div className="space-y-4">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <Skeleton variant="text-line" width="120px" height="16px" />
         <Skeleton variant="text-line" width="140px" height="12px" />
@@ -97,7 +97,7 @@ export function MemoryPanel() {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Brain className="w-4 h-4 text-accent" />
@@ -166,7 +166,7 @@ export function MemoryPanel() {
             { label: 'Context', count: stats.contexts, color: 'text-purple-400' },
             { label: 'Corrections', count: stats.corrections, color: 'text-red-400' },
           ].map(s => (
-            <div key={s.label} className="p-2 rounded bg-surface-2 border border-border text-center">
+            <div key={s.label} className="p-2 rounded bg-surface-2 text-center">
               <div className={`text-sm font-bold ${s.color}`}>{s.count}</div>
               <div className="text-xs text-text-secondary">{s.label}</div>
             </div>
@@ -202,7 +202,7 @@ export function MemoryPanel() {
           {memories.slice(0, 15).map((mem, i) => {
             const color = typeColors[mem.type] ?? 'text-accent bg-accent/10';
             return (
-              <div key={mem.id} className="p-2.5 rounded-lg bg-surface-2 border border-border flex items-start gap-2 card-hover animate-list-item-in" style={{ animationDelay: `${i * 40}ms` }}>
+              <div key={mem.id} className="p-2.5 rounded-lg bg-surface-2 flex items-start gap-2 card-hover animate-list-item-in" style={{ animationDelay: `${i * 40}ms` }}>
                 <span className={`text-xs px-1.5 py-0.5 rounded ${color} mt-0.5`}>
                   {mem.type}
                 </span>

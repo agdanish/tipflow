@@ -188,7 +188,7 @@ export function OrchestratorPanel() {
   };
 
   if (loading) return (
-    <div className="space-y-4">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <Skeleton variant="text-line" width="180px" height="16px" />
         <Skeleton variant="text-line" width="80px" height="28px" />
@@ -201,7 +201,7 @@ export function OrchestratorPanel() {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Shield className="w-4 h-4 text-accent" />
@@ -219,7 +219,7 @@ export function OrchestratorPanel() {
           const Icon = agentIcons[agent.role] ?? Shield;
           const color = agentColors[agent.role] ?? 'text-accent';
           return (
-            <div key={agent.role} className="p-3 rounded-lg bg-surface-2 border border-border card-hover animate-list-item-in" style={{ animationDelay: `${i * 80}ms` }}>
+            <div key={agent.role} className="p-3 rounded-lg bg-surface-2 card-hover animate-list-item-in" style={{ animationDelay: `${i * 80}ms` }}>
               <div className="flex items-center gap-1.5 mb-2">
                 <Icon className={`w-3.5 h-3.5 ${color}`} />
                 <span className="text-xs font-medium text-text-primary">{agentNames[agent.role] ?? agent.role}</span>
@@ -275,7 +275,7 @@ export function OrchestratorPanel() {
 
       {/* Stats Bar */}
       {stats && stats.total > 0 && (
-        <div className="flex items-center gap-3 p-2.5 rounded-lg bg-surface-2 border border-border text-xs">
+        <div className="flex items-center gap-3 p-2.5 rounded-lg bg-surface-2 text-xs">
           <span className="text-text-secondary">Total: <strong className="text-text-primary">{stats.total}</strong></span>
           <span className="text-green-400">Approved: {stats.approved}</span>
           <span className="text-red-400">Rejected: {stats.rejected}</span>
@@ -290,7 +290,7 @@ export function OrchestratorPanel() {
           {history.map((action, i) => {
             const isExpanded = expandedId === action.id;
             return (
-              <div key={action.id} className="rounded-lg bg-surface-2 border border-border card-hover animate-list-item-in overflow-hidden" style={{ animationDelay: `${i * 60}ms` }}>
+              <div key={action.id} className="rounded-lg bg-surface-2 card-hover animate-list-item-in overflow-hidden" style={{ animationDelay: `${i * 60}ms` }}>
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : action.id)}
                   className="w-full p-2.5 flex items-center justify-between text-left hover:bg-white/[0.02] transition-colors"

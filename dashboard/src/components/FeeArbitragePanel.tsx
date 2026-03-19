@@ -77,7 +77,7 @@ export function FeeArbitragePanel() {
   };
 
   if (loading && !comparison) return (
-    <div className="space-y-4">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <Skeleton variant="text-line" width="180px" height="16px" />
         <Skeleton variant="text-line" width="70px" height="28px" />
@@ -90,7 +90,7 @@ export function FeeArbitragePanel() {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Zap className="w-4 h-4 text-accent" />
@@ -178,7 +178,7 @@ export function FeeArbitragePanel() {
       {/* Fee History Sparklines — Feature 3 */}
       <button
         onClick={() => setShowHistory(!showHistory)}
-        className="w-full flex items-center justify-between p-2 rounded-lg bg-surface-2/50 hover:bg-surface-2 border border-border text-xs text-text-secondary transition-colors"
+        className="w-full flex items-center justify-between p-2 rounded-lg bg-surface-2/50 hover:bg-surface-2 text-xs text-text-secondary transition-colors"
       >
         <span className="flex items-center gap-1.5">
           <BarChart3 className="w-3 h-3" />
@@ -198,7 +198,7 @@ export function FeeArbitragePanel() {
             const sparkColor = chain.trend === 'falling' ? '#22c55e' : chain.trend === 'rising' ? '#ef4444' : '#8a8b9e';
 
             return (
-              <div key={chain.chainId} className="flex items-center gap-3 p-2.5 rounded-lg bg-surface-2 border border-border">
+              <div key={chain.chainId} className="flex items-center gap-3 p-2.5 rounded-lg bg-surface-2">
                 <span className="text-xs text-text-primary font-medium w-20 shrink-0">{chainName}</span>
                 <Sparkline
                   data={dataPoints.length > 1 ? dataPoints : [0, 0]}

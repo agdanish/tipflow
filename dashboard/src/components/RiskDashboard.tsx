@@ -45,7 +45,7 @@ export function RiskDashboard() {
   const levelBg = simulatedScore <= 25 ? 'bg-green-500/10 border-green-500/20' : simulatedScore <= 50 ? 'bg-amber-500/10 border-amber-500/20' : 'bg-red-500/10 border-red-500/20';
 
   return (
-    <div className="space-y-3">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <ShieldAlert className="w-4 h-4 text-accent" />

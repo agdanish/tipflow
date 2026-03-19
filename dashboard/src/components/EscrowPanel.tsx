@@ -107,7 +107,7 @@ export function EscrowPanel() {
   };
 
   if (loading) return (
-    <div className="space-y-4">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <Skeleton variant="text-line" width="140px" height="16px" />
         <Skeleton variant="text-line" width="50px" height="14px" />
@@ -120,7 +120,7 @@ export function EscrowPanel() {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Lock className="w-4 h-4 text-accent" />

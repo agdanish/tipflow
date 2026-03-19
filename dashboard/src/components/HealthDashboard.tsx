@@ -38,7 +38,7 @@ export function HealthDashboard() {
   const secs = uptime % 60;
 
   return (
-    <div className="space-y-4">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Activity className="w-4 h-4 text-accent" />

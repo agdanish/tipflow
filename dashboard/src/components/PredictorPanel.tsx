@@ -131,7 +131,7 @@ export function PredictorPanel() {
   };
 
   if (loading) return (
-    <div className="space-y-4">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <Skeleton variant="text-line" width="150px" height="16px" />
         <Skeleton variant="text-line" width="70px" height="28px" />
@@ -143,7 +143,7 @@ export function PredictorPanel() {
   );
 
   return (
-    <div className="space-y-4">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-accent" />
@@ -156,7 +156,7 @@ export function PredictorPanel() {
 
       {/* Stats */}
       {stats && stats.totalPredictions > 0 && (
-        <div className="flex items-center gap-3 p-2.5 rounded-lg bg-surface-2 border border-border text-xs">
+        <div className="flex items-center gap-3 p-2.5 rounded-lg bg-surface-2 text-xs">
           <span className="text-text-secondary">Total: <strong className="text-text-primary">{stats.totalPredictions}</strong></span>
           <span className="text-green-400">Accepted: {stats.accepted}</span>
           <span className="text-red-400">Dismissed: {stats.dismissed}</span>
@@ -180,7 +180,7 @@ export function PredictorPanel() {
             const isExpanded = expandedId === pred.id;
 
             return (
-              <div key={pred.id} className="rounded-lg bg-surface-2 border border-border card-hover animate-list-item-in overflow-hidden" style={{ animationDelay: `${i * 60}ms` }}>
+              <div key={pred.id} className="rounded-lg bg-surface-2 card-hover animate-list-item-in overflow-hidden" style={{ animationDelay: `${i * 60}ms` }}>
                 {/* Summary row */}
                 <div className="p-3">
                   <div className="flex items-start justify-between mb-1.5">

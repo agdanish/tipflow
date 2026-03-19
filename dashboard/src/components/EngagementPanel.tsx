@@ -47,7 +47,7 @@ export function EngagementPanel() {
   useEffect(() => { load(); }, []);
 
   if (loading) return (
-    <div className="space-y-3">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <Skeleton variant="text-line" width="160px" height="16px" />
       <Skeleton variant="card" height="80px" />
       <Skeleton variant="card" height="80px" />
@@ -55,7 +55,7 @@ export function EngagementPanel() {
   );
 
   return (
-    <div className="space-y-3">
+    <div className="rounded-xl border border-border bg-surface-1 p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Heart className="w-4 h-4 text-pink-400" />
