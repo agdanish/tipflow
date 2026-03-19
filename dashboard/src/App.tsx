@@ -3,11 +3,11 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Header } from './components/Header';
-import { WalletCard } from './components/WalletCard';
-import { TipForm } from './components/TipForm';
-import { BatchTipForm } from './components/BatchTipForm';
-import { SplitTipForm } from './components/SplitTipForm';
-import { AgentPanel } from './components/AgentPanel';
+// import { WalletCard } from './components/WalletCard';
+// import { TipForm } from './components/TipForm';
+// import { BatchTipForm } from './components/BatchTipForm';
+// import { SplitTipForm } from './components/SplitTipForm';
+// import { AgentPanel } from './components/AgentPanel';
 import { TipHistory } from './components/TipHistory';
 import { StatsPanel } from './components/StatsPanel';
 import { GasMonitor } from './components/GasMonitor';
@@ -15,11 +15,11 @@ import { CurrencyConverter } from './components/CurrencyConverter';
 import { Leaderboard } from './components/Leaderboard';
 import { Achievements } from './components/Achievements';
 import { Challenges } from './components/Challenges';
-import { ActivityFeed } from './components/ActivityFeed';
+// import { ActivityFeed } from './components/ActivityFeed';
 import { QRReceive } from './components/QRReceive';
-import { DecisionTree } from './components/DecisionTree';
+// import { DecisionTree } from './components/DecisionTree';
 import { TipTemplates } from './components/TipTemplates';
-import { WalletCardSkeleton } from './components/Skeleton';
+// import { WalletCardSkeleton } from './components/Skeleton';
 import { ToastContainer, useToasts } from './components/Toast';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { OnboardingOverlay, isOnboardingComplete } from './components/OnboardingOverlay';
@@ -46,13 +46,13 @@ import { TechStack } from './components/TechStack';
 import { TipLinkCreator } from './components/TipLinkCreator';
 import { ShareCard } from './components/ShareCard';
 import { MobileNav } from './components/MobileNav';
-import { TipCalendar } from './components/TipCalendar';
+// import { TipCalendar } from './components/TipCalendar';
 import { initAccentColor } from './components/ThemeCustomizer';
 import { ChainComparison } from './components/ChainComparison';
-import { FavoriteRecipients } from './components/FavoriteRecipients';
-import { QuickActions } from './components/QuickActions';
+// import { FavoriteRecipients } from './components/FavoriteRecipients';
+// import { QuickActions } from './components/QuickActions';
 import { AuditLog } from './components/AuditLog';
-import { TipGoals } from './components/TipGoals';
+// import { TipGoals } from './components/TipGoals';
 import { SpendingLimits } from './components/SpendingLimits';
 import { BatchImport } from './components/BatchImport';
 import { TipReport } from './components/TipReport';
@@ -65,7 +65,7 @@ import { BridgePanel } from './components/BridgePanel';
 import { LendingPanel } from './components/LendingPanel';
 import { StreamingPanel } from './components/StreamingPanel';
 import { CryptoReceiptPanel } from './components/CryptoReceipt';
-import { ReputationPanel } from './components/ReputationPanel';
+// import { ReputationPanel } from './components/ReputationPanel';
 import { OrchestratorPanel } from './components/OrchestratorPanel';
 import { PredictorPanel } from './components/PredictorPanel';
 import { FeeArbitragePanel } from './components/FeeArbitragePanel';
@@ -89,10 +89,8 @@ import type { TipResult, ScheduledTip, LeaderboardEntry, Achievement, TipTemplat
 import { DashboardTabs } from './components/DashboardTabs';
 import { CommandPalette, useCommandActions } from './components/CommandPalette';
 import { SuccessCelebration } from './components/SuccessCelebration';
-import { PortfolioSummary } from './components/PortfolioSummary';
-import { TransactionTracker } from './components/TransactionTracker';
-import { PriceTicker } from './components/PriceTicker';
-import { SmartSuggestions } from './components/SmartSuggestions';
+// import { PortfolioSummary } from './components/PortfolioSummary';
+// TransactionTracker, PriceTicker, SmartSuggestions — now used via ui-v3 components
 import { FeeOptimizer } from './components/FeeOptimizer';
 import { ActivityHeatmap } from './components/ActivityHeatmap';
 import { FloatingMenu } from './components/FloatingMenu';
@@ -105,10 +103,11 @@ import { EconomicsDashboard } from './components/EconomicsDashboard';
 import { PluginRegistry } from './components/PluginRegistry';
 import { DeveloperHub } from './components/DeveloperHub';
 import { ProtocolOverview } from './components/ProtocolOverview';
-import { LiveMetrics } from './components/LiveMetrics';
+// LiveMetrics — now used via ui-v3 DashboardHero
 import { ApiExplorer } from './components/ApiExplorer';
 import { AgentCapabilities } from './components/AgentCapabilities';
-import { Wallet, Send, Users, Scissors, CalendarClock, X, Clock, CheckCircle2, XCircle, Repeat, Brain, Zap, TrendingUp, Sparkles } from 'lucide-react';
+import { DashboardHero, TipComposer, ContextFeed, WalletStrip, InsightBar } from './ui-v3/dashboard';
+import { Brain, Zap, TrendingUp, Sparkles } from 'lucide-react';
 
 function App() {
   const { health } = useHealth();
@@ -437,142 +436,61 @@ function App() {
         <DashboardTabs
           dashboardContent={
             <>
-              <div className="mb-5"><PriceTicker /></div>
-              <div className="mb-5"><LiveMetrics health={health} /></div>
+              {/* V3 HERO — wallet summary + agent status + CTA */}
+              <DashboardHero
+                balances={balances}
+                health={health}
+                agentStatus={agentState.status}
+                onSendTip={() => {
+                  setTipMode('single');
+                  setTimeout(() => {
+                    const input = document.querySelector<HTMLInputElement>('[aria-label="Tip amount"], [aria-label="Tip amount in USDT"]');
+                    input?.focus();
+                  }, 200);
+                }}
+              />
 
-              {/* HERO: Agent Pipeline */}
-              <div className="mb-6" data-onboarding="agent-panel">
-                <AgentPanel state={agentState} />
-                {agentState.currentDecision && (
-                  <div className="mt-4"><DecisionTree decision={agentState.currentDecision} agentStatus={agentState.status} /></div>
-                )}
-              </div>
-
-              {/* MAIN: 7/5 split */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-6">
-                <div className="lg:col-span-7 space-y-5">
-                  <QuickActions
-                    onRefreshBalances={refreshBalances}
-                    onScrollToCompare={() => {
-                      document.getElementById('chain-comparison-section')?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    onScrollToTemplates={() => {
-                      document.getElementById('tip-templates-section')?.scrollIntoView({ behavior: 'smooth' });
-                    }}
-                    onQuickTip={(amount) => {
-                      setTipMode('single');
-                      const amountInput = document.querySelector<HTMLInputElement>('[aria-label="Tip amount"], [aria-label="Tip amount in USDT"]');
-                      if (amountInput) {
-                        amountInput.focus();
-                        const nativeEvent = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
-                        nativeEvent?.call(amountInput, amount);
-                        amountInput.dispatchEvent(new Event('input', { bubbles: true }));
-                      }
-                    }}
+              {/* V3 MAIN: 8/4 Composer + Context */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 mb-6" data-onboarding="tip-form">
+                <div className="lg:col-span-8">
+                  <TipComposer
+                    tipMode={tipMode}
+                    setTipMode={setTipMode}
+                    tipTabsRef={tipTabsRef}
+                    history={history}
+                    isAgentBusy={isAgentBusy}
+                    pendingTemplate={pendingTemplate}
+                    tipLinkPrefill={tipLinkPrefill}
+                    onTipComplete={handleTipComplete}
+                    onTipScheduled={handleTipScheduled}
+                    onBatchComplete={handleBatchComplete}
+                    onSplitComplete={handleSplitComplete}
+                    onTemplatePrefilled={() => setPendingTemplate(null)}
+                    onTipLinkPrefilled={() => setTipLinkPrefill(null)}
                   />
-
-                  {/* Tip mode tabs */}
-                  <div ref={tipTabsRef} className="flex gap-1 p-1.5 rounded-xl bg-surface-2 border border-border" data-onboarding="tip-form">
-                    <button onClick={() => setTipMode('single')} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all btn-press ${tipMode === 'single' ? 'bg-surface-3 text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}>
-                      <Send className="w-3.5 h-3.5" />Single Tip
-                    </button>
-                    <button onClick={() => setTipMode('batch')} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all btn-press ${tipMode === 'batch' ? 'bg-surface-3 text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}>
-                      <Users className="w-3.5 h-3.5" />Batch Tip
-                    </button>
-                    <button onClick={() => setTipMode('split')} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-medium transition-all btn-press ${tipMode === 'split' ? 'bg-surface-3 text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}>
-                      <Scissors className="w-3.5 h-3.5" />Split
-                    </button>
-                  </div>
-                  <p className="text-xs text-text-muted text-center mt-1 sm:hidden">Swipe to switch tip mode</p>
-
-                  {tipLinkPrefill && (
-                    <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-4 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-cyan-400">Tip Link Loaded</p>
-                        <button onClick={() => setTipLinkPrefill(null)} className="p-1 rounded-md text-text-muted hover:text-text-primary transition-colors"><X className="w-4 h-4" /></button>
-                      </div>
-                      <p className="text-xs text-text-secondary">You&apos;re about to tip <span className="font-semibold text-text-primary">{tipLinkPrefill.amount} {tipLinkPrefill.token === 'usdt' ? 'USDT' : 'Native'}</span> to <span className="font-mono text-[11px]">{tipLinkPrefill.recipient.slice(0, 10)}...{tipLinkPrefill.recipient.slice(-6)}</span></p>
-                      {tipLinkPrefill.message && <p className="text-[11px] text-text-muted italic">&ldquo;{tipLinkPrefill.message}&rdquo;</p>}
-                    </div>
-                  )}
-
-                  <FavoriteRecipients history={history} onQuickTip={(address) => { setTipMode('single'); const recipientInput = document.querySelector<HTMLInputElement>('[aria-label="Recipient wallet address or ENS name"]'); if (recipientInput) { const nativeSet = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set; nativeSet?.call(recipientInput, address); recipientInput.dispatchEvent(new Event('input', { bubbles: true })); recipientInput.focus(); } }} />
-
-                  {tipMode === 'single' && <TipForm onTipComplete={handleTipComplete} onTipScheduled={handleTipScheduled} disabled={isAgentBusy} prefillTemplate={pendingTemplate} onTemplatePrefilled={() => setPendingTemplate(null)} prefillTipLink={tipLinkPrefill} onTipLinkPrefilled={() => setTipLinkPrefill(null)} />}
-                  {tipMode === 'batch' && <BatchTipForm onBatchComplete={handleBatchComplete} disabled={isAgentBusy} />}
-                  {tipMode === 'split' && <SplitTipForm onSplitComplete={handleSplitComplete} disabled={isAgentBusy} />}
                 </div>
-
-                <div className="lg:col-span-5 space-y-5">
-                  {trackedTx && <TransactionTracker result={trackedTx} onDismiss={() => setTrackedTx(null)} />}
-                  <ReputationPanel />
-                  <ActivityFeed />
-                  <TipGoals />
-                  {scheduledTips.length > 0 && (
-                    <div className="rounded-xl border border-border bg-surface-1 p-5">
-                      <h2 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
-                        <CalendarClock className="w-4 h-4 text-amber-400" />Scheduled Tips
-                        <span className="ml-auto text-xs font-normal text-text-muted">{scheduledTips.filter((t) => t.status === 'scheduled').length} pending</span>
-                      </h2>
-                      <div className="space-y-2">
-                        {scheduledTips.map((tip) => (
-                          <div key={tip.id} className={`flex items-center gap-3 p-3 rounded-lg border ${tip.status === 'scheduled' ? 'bg-amber-500/5 border-amber-500/20' : tip.status === 'executed' ? 'bg-green-500/5 border-green-500/20' : 'bg-red-500/5 border-red-500/20'}`}>
-                            <div className="shrink-0">
-                              {tip.status === 'scheduled' && <Clock className="w-4 h-4 text-amber-400" />}
-                              {tip.status === 'executed' && <CheckCircle2 className="w-4 h-4 text-green-400" />}
-                              {tip.status === 'failed' && <XCircle className="w-4 h-4 text-red-400" />}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 text-sm flex-wrap">
-                                <span className="font-medium text-text-primary">{tip.amount} {tip.token === 'usdt' ? 'USDT' : tip.chain === 'ton-testnet' ? 'TON' : 'ETH'}</span>
-                                <span className="text-text-muted">to</span>
-                                <span className="font-mono text-xs text-text-secondary truncate">{tip.recipient.slice(0, 8)}...{tip.recipient.slice(-6)}</span>
-                                {tip.recurring && <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-purple-500/15 border border-purple-500/20 text-[10px] font-medium text-purple-400"><Repeat className="w-2.5 h-2.5" />{tip.interval}</span>}
-                              </div>
-                              <div className="text-[11px] text-text-muted mt-0.5">
-                                {tip.status === 'scheduled' ? <>Fires {new Date(tip.scheduledAt).toLocaleString()}</> : tip.status === 'executed' ? <>Executed {new Date(tip.executedAt!).toLocaleString()}</> : <>Failed {tip.executedAt ? new Date(tip.executedAt).toLocaleString() : ''}</>}
-                                {tip.recurring && tip.lastExecuted && <> &middot; Last: {new Date(tip.lastExecuted).toLocaleString()}</>}
-                                {tip.message && <> &middot; &ldquo;{tip.message}&rdquo;</>}
-                              </div>
-                            </div>
-                            {tip.status === 'scheduled' && <button onClick={() => handleCancelScheduled(tip.id)} className="shrink-0 p-1.5 rounded-md text-text-muted hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Cancel scheduled tip"><X className="w-4 h-4" /></button>}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  <TipCalendar onCancelTip={handleCancelScheduled} />
+                <div className="lg:col-span-4">
+                  <ContextFeed
+                    agentState={agentState}
+                    trackedTx={trackedTx}
+                    onDismissTracked={() => setTrackedTx(null)}
+                    scheduledTips={scheduledTips}
+                    onCancelScheduled={handleCancelScheduled}
+                  />
                 </div>
               </div>
 
-              {/* WALLETS */}
-              <section className="mb-6" data-onboarding="wallets">
-                <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2">
-                  <Wallet className="w-5 h-5" /> Wallets
-                </h2>
-                {balancesLoading ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    {[1, 2].map((i) => <WalletCardSkeleton key={i} />)}
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    {balances.map((b, i) => (
-                      <div key={b.chainId} className="animate-list-item-in" style={{ animationDelay: `${i * 60}ms` }}>
-                        <WalletCard balance={b} />
-                      </div>
-                    ))}
-                    <PortfolioSummary balances={balances} />
-                  </div>
-                )}
-              </section>
+              {/* V3 WALLETS — horizontal scroll strip */}
+              <WalletStrip balances={balances} loading={balancesLoading} />
 
-              <div className="mb-6"><SmartSuggestions onNavigate={navigateToTab} tipCount={stats?.totalTips ?? 0} /></div>
+              {/* V3 INSIGHTS */}
+              <InsightBar onNavigate={navigateToTab} tipCount={stats?.totalTips ?? 0} />
 
-              {/* ONE collapsible for ALL secondary */}
-              <details className="group rounded-xl bg-surface-2/50 border border-border mb-6">
-                <summary className="flex items-center justify-between cursor-pointer px-5 py-4 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">
+              {/* Secondary content — single collapsible */}
+              <details className="group rounded-xl bg-zinc-900/30 border border-zinc-800/50 mb-6">
+                <summary className="flex items-center justify-between cursor-pointer px-5 py-4 text-sm font-semibold text-zinc-300 hover:text-white transition-colors select-none">
                   <span>More: Templates, Contacts, Demo & Showcase</span>
-                  <svg className="w-4 h-4 text-text-muted transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  <svg className="w-4 h-4 text-zinc-500 transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
                 </summary>
                 <div className="px-5 pb-5 space-y-5 animate-slide-down">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -594,6 +512,7 @@ function App() {
               </details>
             </>
           }
+
           analyticsContent={
             <div className="space-y-6">
               <EconomicsDashboard />

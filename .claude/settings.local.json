@@ -5,7 +5,21 @@
       "Bash(for f:*)",
       "Bash(do echo:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(sed -i \"s|^import { WalletCard }|// import { WalletCard }|\" src/App.tsx)",
+      "Bash(sed -i \"s|^import { TipForm }|// import { TipForm }|\" src/App.tsx)",
+      "Bash(sed -i \"s|^import { BatchTipForm }|// import { BatchTipForm }|\" src/App.tsx)",
+      "Bash(sed -i \"s|^import { SplitTipForm }|// import { SplitTipForm }|\" src/App.tsx)",
+      "Bash(sed -i \"s|^import { AgentPanel }|// import { AgentPanel }|\" src/App.tsx)",
+      "Bash(sed -i \"s|^import { ActivityFeed }|// import { ActivityFeed }|\" src/App.tsx)",
+      "Bash(sed -i \"s|^import { DecisionTree }|// import { DecisionTree }|\" src/App.tsx)",
+      "Bash(sed -i \"s|^import { WalletCardSkeleton }|// import { WalletCardSkeleton }|\" src/App.tsx)",
+      "Bash(sed -i \"s|^import { TipCalendar }|// import { TipCalendar }|\" src/App.tsx)",
+      "Bash(sed -i \"s|^import { FavoriteRecipients }|// import { FavoriteRecipients }|\" src/App.tsx)",
+      "Bash(sed -i \"s|^import { QuickActions }|// import { QuickActions }|\" src/App.tsx)",
+      "Bash(sed -i \"s|^import { TipGoals }|// import { TipGoals }|\" src/App.tsx)",
+      "Bash(sed -i \"s|^import { ReputationPanel }|// import { ReputationPanel }|\" src/App.tsx)",
+      "Bash(sed -i \"s|^import { PortfolioSummary }|// import { PortfolioSummary }|\" src/App.tsx)"
     ]
   }
 }
