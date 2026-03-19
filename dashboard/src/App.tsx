@@ -441,6 +441,7 @@ function App() {
                 balances={balances}
                 health={health}
                 agentStatus={agentState.status}
+                totalTips={stats?.totalTips ?? 0}
                 onSendTip={() => {
                   setTipMode('single');
                   setTimeout(() => {
@@ -457,7 +458,6 @@ function App() {
                     tipMode={tipMode}
                     setTipMode={setTipMode}
                     tipTabsRef={tipTabsRef}
-                    history={history}
                     isAgentBusy={isAgentBusy}
                     pendingTemplate={pendingTemplate}
                     tipLinkPrefill={tipLinkPrefill}

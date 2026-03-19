@@ -36,7 +36,7 @@ export function WalletCard({ balance }: WalletCardProps) {
   const animatedUsdt = useAnimatedValue(parseFloat(balance.usdtBalance) || 0, 1000);
 
   return (
-    <div className={`rounded-xl border border-border bg-surface-1 p-4 sm:p-5 card-hover card-pressable gradient-border-active ${isEth ? 'chain-gradient-eth' : isTron ? 'chain-gradient-tron' : 'chain-gradient-ton'}`}>
+    <div className={`rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 sm:p-5 hover:border-zinc-700 transition-colors ${isEth ? 'chain-gradient-eth' : isTron ? 'chain-gradient-tron' : 'chain-gradient-ton'}`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <div

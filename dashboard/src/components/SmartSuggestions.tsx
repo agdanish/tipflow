@@ -145,7 +145,7 @@ export function SmartSuggestions({ onNavigate, tipCount }: SmartSuggestionsProps
   if (loading || visible.length === 0) return null;
 
   return (
-    <div className="glass-card glow-hover p-4 sm:p-5">
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold text-text-primary flex items-center gap-2">
           <Lightbulb className="w-4 h-4 text-amber-400" />

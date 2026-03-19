@@ -28,8 +28,8 @@ interface InnovationShowcaseProps {
 
 export function InnovationShowcase({ onNavigate }: InnovationShowcaseProps) {
   return (
-    <div className="animated-border shadow-depth">
-      <div className="p-4 sm:p-5">
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900/50">
+      <div className="p-5">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-text-primary flex items-center gap-2">
             <Zap className="w-4 h-4 text-accent" />
@@ -44,7 +44,7 @@ export function InnovationShowcase({ onNavigate }: InnovationShowcaseProps) {
             <button
               key={item.title}
               onClick={() => onNavigate(item.tab)}
-              className="scroll-snap-item shrink-0 w-[180px] p-3 rounded-lg bg-surface-2/50 border border-border card-pressable card-hover text-left group animate-list-item-in"
+              className="scroll-snap-item shrink-0 w-[180px] p-3 rounded-lg bg-zinc-800/40 border border-zinc-700/40 hover:border-zinc-600 text-left group transition-colors animate-list-item-in"
               style={{ animationDelay: `${i * 50}ms` }}
             >
               <div className={`${item.color} mb-2 transition-transform group-hover:scale-110`}>

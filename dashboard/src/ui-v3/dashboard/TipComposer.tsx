@@ -1,16 +1,14 @@
 import { type RefObject } from 'react';
-import { Send, Users, Scissors } from 'lucide-react';
-import type { TipResult, SplitTipResult, TipTemplate, TipLink, TipHistoryEntry } from '../../types';
+import { Send, Users, Scissors, Sparkles } from 'lucide-react';
+import type { TipResult, SplitTipResult, TipTemplate, TipLink } from '../../types';
 import { TipForm } from '../../components/TipForm';
 import { BatchTipForm } from '../../components/BatchTipForm';
 import { SplitTipForm } from '../../components/SplitTipForm';
-import { FavoriteRecipients } from '../../components/FavoriteRecipients';
 
 interface TipComposerProps {
   tipMode: 'single' | 'batch' | 'split';
   setTipMode: (mode: 'single' | 'batch' | 'split') => void;
   tipTabsRef: RefObject<HTMLDivElement | null>;
-  history: TipHistoryEntry[];
   isAgentBusy: boolean;
   pendingTemplate: TipTemplate | null;
   tipLinkPrefill: TipLink | null;
@@ -23,67 +21,59 @@ interface TipComposerProps {
 }
 
 export function TipComposer({
-  tipMode, setTipMode, tipTabsRef, history, isAgentBusy,
+  tipMode, setTipMode, tipTabsRef, isAgentBusy,
   pendingTemplate, tipLinkPrefill,
   onTipComplete, onTipScheduled, onBatchComplete, onSplitComplete,
   onTemplatePrefilled, onTipLinkPrefilled,
 }: TipComposerProps) {
   const modes = [
-    { id: 'single' as const, label: 'Single', icon: Send },
-    { id: 'batch' as const, label: 'Batch', icon: Users },
-    { id: 'split' as const, label: 'Split', icon: Scissors },
+    { id: 'single' as const, label: 'Single Tip', icon: Send, desc: 'Send to one recipient' },
+    { id: 'batch' as const, label: 'Batch', icon: Users, desc: 'Multiple recipients' },
+    { id: 'split' as const, label: 'Split', icon: Scissors, desc: 'Split among recipients' },
   ];
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 overflow-hidden">
-      {/* Mode tabs — integrated into card header */}
-      <div ref={tipTabsRef} className="flex border-b border-zinc-800" data-onboarding="tip-form">
-        {modes.map(({ id, label, icon: Icon }) => (
+    <div>
+      {/* Section header */}
+      <div className="flex items-center gap-2 mb-4">
+        <Sparkles className="w-5 h-5 text-emerald-500" />
+        <h2 className="text-lg font-bold text-white tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          Compose Tip
+        </h2>
+        <span className="text-xs text-zinc-500 ml-auto">AI-powered routing</span>
+      </div>
+
+      {/* Mode selector — cards not tabs */}
+      <div ref={tipTabsRef} className="grid grid-cols-3 gap-3 mb-5" data-onboarding="tip-form">
+        {modes.map(({ id, label, icon: Icon, desc }) => (
           <button
             key={id}
             onClick={() => setTipMode(id)}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-all ${
+            className={`flex flex-col items-start gap-1 p-3 rounded-xl border transition-all text-left ${
               tipMode === id
-                ? 'text-white bg-zinc-800/50 border-b-2 border-emerald-500'
-                : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/20'
+                ? 'bg-emerald-600/10 border-emerald-600/40 text-white'
+                : 'bg-zinc-900/40 border-zinc-800/50 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
             }`}
           >
-            <Icon className="w-3.5 h-3.5" />
-            {label}
+            <div className="flex items-center gap-2">
+              <Icon className="w-4 h-4" />
+              <span className="text-sm font-semibold">{label}</span>
+            </div>
+            <span className="text-[11px] opacity-60">{desc}</span>
           </button>
         ))}
       </div>
 
       {/* Tip link banner */}
       {tipLinkPrefill && (
-        <div className="px-5 py-3 bg-cyan-500/5 border-b border-cyan-500/20">
-          <p className="text-xs font-medium text-cyan-400">
-            Pre-filled: {tipLinkPrefill.amount} {tipLinkPrefill.token} → {tipLinkPrefill.recipient.slice(0, 10)}...
-          </p>
+        <div className="mb-4 px-4 py-3 rounded-lg bg-cyan-500/8 border border-cyan-500/20 text-sm">
+          <span className="text-cyan-400 font-medium">Pre-filled:</span>
+          <span className="text-zinc-300 ml-2">{tipLinkPrefill.amount} → {tipLinkPrefill.recipient?.slice(0, 12)}...</span>
         </div>
       )}
 
-      {/* Favorites — compact inside composer */}
-      <div className="px-5 pt-4">
-        <FavoriteRecipients
-          history={history}
-          onQuickTip={(address) => {
-            setTipMode('single');
-            setTimeout(() => {
-              const input = document.querySelector<HTMLInputElement>('[aria-label="Recipient wallet address or ENS name"]');
-              if (input) {
-                const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
-                setter?.call(input, address);
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-                input.focus();
-              }
-            }, 100);
-          }}
-        />
-      </div>
-
-      {/* Form body */}
-      <div className="p-5">
+      {/* Form */}
+      <div className="rounded-2xl border border-zinc-800/60 bg-zinc-900/30 p-5">
         {tipMode === 'single' && (
           <TipForm
             onTipComplete={onTipComplete}
