@@ -1,0 +1,1 @@
+export { RumblePage } from './RumblePage';

@@ -58,7 +58,7 @@ import { BatchImport } from './components/BatchImport';
 // import { TipReport } from './components/TipReport';
 import { DemoBanner } from './components/DemoBanner';
 import { DemoScenarios } from './components/DemoScenarios';
-import { RumbleIntegration } from './components/RumbleIntegration';
+// import { RumbleIntegration } from './components/RumbleIntegration';
 // import { AutonomyPanel } from './components/AutonomyPanel';
 // import { TreasuryPanel } from './components/TreasuryPanel';
 // import { BridgePanel } from './components/BridgePanel';
@@ -111,6 +111,7 @@ import { HistoryPage } from './ui-v3/history';
 import { AiEnginePage } from './ui-v3/ai';
 import { SettingsPage } from './ui-v3/settings';
 import { AnalyticsPage } from './ui-v3/analytics';
+import { RumblePage } from './ui-v3/rumble';
 
 function App() {
   const { health } = useHealth();
@@ -530,7 +531,7 @@ function App() {
             <HistoryPage history={history} loading={historyLoading} />
           }
           rumbleContent={
-            <RumbleIntegration />
+            <RumblePage />
           }
           aiContent={
             <AiEnginePage agentMode={(health as Record<string, string> | null)?.aiMode ?? 'rule-based'} chainCount={balances.length} />

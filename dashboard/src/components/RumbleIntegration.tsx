@@ -901,20 +901,20 @@ export function RumbleIntegration() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <div className="rounded-xl border border-border bg-surface-1 p-4 sm:p-6">
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4 sm:p-6">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 flex items-center justify-center">
-            <Tv className="w-5 h-5 text-green-400" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-900/50 to-emerald-800/30 border border-emerald-500/20 flex items-center justify-center">
+            <Tv className="w-5 h-5 text-emerald-400" />
           </div>
           <div>
-            <h2 className="text-base font-semibold text-text-primary">Rumble Integration</h2>
-            <p className="text-xs text-text-muted">AI-powered creator tipping for Rumble&apos;s ecosystem</p>
+            <h2 className="text-base font-semibold text-white">Rumble Integration</h2>
+            <p className="text-xs text-zinc-500">AI-powered creator tipping for Rumble&apos;s ecosystem</p>
           </div>
         </div>
 
         {/* Sub-tabs */}
-        <div className="flex gap-1 p-1 rounded-lg bg-surface-2 border border-border mb-4 overflow-x-auto">
+        <div className="flex gap-1 p-1 rounded-lg bg-zinc-900/50 border border-zinc-800/50 mb-4 overflow-x-auto">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -923,8 +923,8 @@ export function RumbleIntegration() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-md text-xs font-medium transition-all whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'bg-surface-3 text-text-primary shadow-sm'
-                    : 'text-text-secondary hover:text-text-primary'
+                    ? 'bg-zinc-800 text-white shadow-sm'
+                    : 'text-zinc-500 hover:text-zinc-300'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
