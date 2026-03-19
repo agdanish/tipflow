@@ -274,7 +274,7 @@ export default function App() {
                   </div>
                   <div className="hidden sm:flex items-center gap-3 text-xs text-[#8888a0]">
                     <span className="flex items-center gap-1"><Star className="w-3 h-3" /> {c.totalTips}</span>
-                    <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" /> {c.totalAmount.toFixed(4)}</span>
+                    <span className="flex items-center gap-1"><TrendingUp className="w-3 h-3" /> {(c.totalAmount ?? 0).toFixed(4)}</span>
                   </div>
                   <button onClick={() => { setRecipient(c.walletAddress); setAmount('0.001'); setActiveTab('tip'); document.getElementById('tip-section')?.scrollIntoView({ behavior: 'smooth' }); }}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-400/10 border border-teal-400/20 text-teal-300 text-xs font-medium hover:bg-teal-400/20 transition-colors">
@@ -442,9 +442,9 @@ export default function App() {
                         <p className="text-sm font-medium truncate">{p.title}</p>
                         <div className="flex items-center gap-2 mt-1">
                           <div className="flex-1 h-1.5 rounded-full bg-[#2a2a35] overflow-hidden">
-                            <div className="h-full rounded-full bg-teal-400" style={{ width: `${Math.min(100, (p.currentAmount / p.goalAmount) * 100)}%` }} />
+                            <div className="h-full rounded-full bg-teal-400" style={{ width: `${Math.min(100, p.goalAmount ? ((p.currentAmount ?? 0) / p.goalAmount) * 100 : 0)}%` }} />
                           </div>
-                          <span className="text-xs text-[#8888a0] tabular-nums">{((p.currentAmount / p.goalAmount) * 100).toFixed(0)}%</span>
+                          <span className="text-xs text-[#8888a0] tabular-nums">{p.goalAmount ? (((p.currentAmount ?? 0) / p.goalAmount) * 100).toFixed(0) : 0}%</span>
                         </div>
                       </div>
                       <span className="text-xs text-[#55556a]">{p.contributors} fans</span>
