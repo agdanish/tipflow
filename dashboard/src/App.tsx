@@ -1,12 +1,15 @@
 // Copyright 2026 Danish A. Licensed under Apache-2.0.
 // TipFlow — AI-Powered Rumble Creator Tipping Agent
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import {
-  Zap, Send, Users, Star, Clock, Eye, Target, GitBranch,
+  Zap, Send, Users, Star, Clock, Eye, Target, GitBranch, Layers,
   Copy, Check, Wallet, Radio, TrendingUp, Play, Trophy,
   CheckCircle2, Loader2, Brain, ArrowUpRight, Plus, X
 } from 'lucide-react';
+
+// Lazy-load Advanced Mode (the full dashboard)
+const AdvancedDashboard = lazy(() => import('./AdvancedMode'));
 
 // ─── Types ───────────────────────────────────────────────
 interface WalletBalance { chainId: string; address: string; nativeBalance: string; nativeCurrency: string; usdtBalance: string; }
@@ -38,6 +41,7 @@ export default function App() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [autoTipRules, setAutoTipRules] = useState<AutoTipRule[]>([]);
   const [activeTab, setActiveTab] = useState<'tip' | 'autotip' | 'pools' | 'events'>('tip');
+  const [advancedMode, setAdvancedMode] = useState(false);
 
   // Form state
   const [recipient, setRecipient] = useState('');
@@ -192,11 +196,30 @@ export default function App() {
               Agent {agentState.status}
             </span>
             <span className="hidden sm:inline">{balances.length} chains</span>
+            <button
+              onClick={() => setAdvancedMode(!advancedMode)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                advancedMode
+                  ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
+                  : 'bg-[#141418] text-[#8888a0] border border-[#2a2a35] hover:text-[#f0f0f5] hover:border-[#3a3a48]'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              {advancedMode ? 'Simple' : 'Advanced'}
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+      {/* ADVANCED MODE — full dashboard with all 43 services */}
+      {advancedMode && (
+        <Suspense fallback={<div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 text-center text-[#8888a0]"><Loader2 className="w-6 h-6 animate-spin mx-auto mb-3" />Loading Advanced Mode...</div>}>
+          <AdvancedDashboard />
+        </Suspense>
+      )}
+
+      {/* SIMPLE MODE — focused Rumble tipping */}
+      {!advancedMode && <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
         {/* ━━━ 1. WALLETS ━━━ */}
         <section>
@@ -540,7 +563,7 @@ export default function App() {
           )}
         </section>
 
-      </main>
+      </main>}
 
       <footer className="border-t border-[#2a2a35]/40 mt-auto">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-5 flex items-center justify-between text-xs text-[#55556a]">
