@@ -59,25 +59,25 @@ import { TipReport } from './components/TipReport';
 import { DemoBanner } from './components/DemoBanner';
 import { DemoScenarios } from './components/DemoScenarios';
 import { RumbleIntegration } from './components/RumbleIntegration';
-import { AutonomyPanel } from './components/AutonomyPanel';
+// import { AutonomyPanel } from './components/AutonomyPanel';
 import { TreasuryPanel } from './components/TreasuryPanel';
 import { BridgePanel } from './components/BridgePanel';
 import { LendingPanel } from './components/LendingPanel';
-import { StreamingPanel } from './components/StreamingPanel';
+// import { StreamingPanel } from './components/StreamingPanel';
 import { CryptoReceiptPanel } from './components/CryptoReceipt';
 // import { ReputationPanel } from './components/ReputationPanel';
-import { OrchestratorPanel } from './components/OrchestratorPanel';
-import { PredictorPanel } from './components/PredictorPanel';
-import { FeeArbitragePanel } from './components/FeeArbitragePanel';
-import { EscrowPanel } from './components/EscrowPanel';
-import { MemoryPanel } from './components/MemoryPanel';
-import { DcaPanel } from './components/DcaPanel';
-import { CreatorAnalyticsPanel } from './components/CreatorAnalyticsPanel';
-import { RiskDashboard } from './components/RiskDashboard';
-import { EngagementPanel } from './components/EngagementPanel';
-import { CreatorDiscoveryPanel } from './components/CreatorDiscoveryPanel';
-import { TipPropagationPanel } from './components/TipPropagationPanel';
-import { ProofOfEngagementPanel } from './components/ProofOfEngagementPanel';
+// import { OrchestratorPanel } from './components/OrchestratorPanel';
+// import { PredictorPanel } from './components/PredictorPanel';
+// import { FeeArbitragePanel } from './components/FeeArbitragePanel';
+// import { EscrowPanel } from './components/EscrowPanel';
+// import { MemoryPanel } from './components/MemoryPanel';
+// import { DcaPanel } from './components/DcaPanel';
+// import { CreatorAnalyticsPanel } from './components/CreatorAnalyticsPanel';
+// import { RiskDashboard } from './components/RiskDashboard';
+// import { EngagementPanel } from './components/EngagementPanel';
+// import { CreatorDiscoveryPanel } from './components/CreatorDiscoveryPanel';
+// import { TipPropagationPanel } from './components/TipPropagationPanel';
+// import { ProofOfEngagementPanel } from './components/ProofOfEngagementPanel';
 import { HealthDashboard } from './components/HealthDashboard';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useSpotlight } from './hooks/useSpotlight';
@@ -91,7 +91,7 @@ import { CommandPalette, useCommandActions } from './components/CommandPalette';
 import { SuccessCelebration } from './components/SuccessCelebration';
 // import { PortfolioSummary } from './components/PortfolioSummary';
 // TransactionTracker, PriceTicker, SmartSuggestions — now used via ui-v3 components
-import { FeeOptimizer } from './components/FeeOptimizer';
+// import { FeeOptimizer } from './components/FeeOptimizer';
 import { ActivityHeatmap } from './components/ActivityHeatmap';
 import { FloatingMenu } from './components/FloatingMenu';
 import { InnovationShowcase } from './components/InnovationShowcase';
@@ -105,10 +105,10 @@ import { DeveloperHub } from './components/DeveloperHub';
 import { ProtocolOverview } from './components/ProtocolOverview';
 // LiveMetrics — now used via ui-v3 DashboardHero
 import { ApiExplorer } from './components/ApiExplorer';
-import { AgentCapabilities } from './components/AgentCapabilities';
+// import { AgentCapabilities } from './components/AgentCapabilities';
 import { DashboardHero, TipComposer, ContextFeed, WalletStrip, InsightBar } from './ui-v3/dashboard';
 import { HistoryPage } from './ui-v3/history';
-import { Brain, Zap, TrendingUp, Sparkles } from 'lucide-react';
+import { AiEnginePage } from './ui-v3/ai';
 
 function App() {
   const { health } = useHealth();
@@ -541,58 +541,7 @@ function App() {
             <RumbleIntegration />
           }
           aiContent={
-            <div className="space-y-8">
-              <section><AgentCapabilities /></section>
-
-              <section>
-                <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2 tracking-tight">
-                  <Brain className="w-5 h-5 text-purple-400" /> Intelligence Core
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  <OrchestratorPanel />
-                  <PredictorPanel />
-                  <FeeArbitragePanel />
-                </div>
-              </section>
-
-              <section>
-                <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2 tracking-tight">
-                  <Zap className="w-5 h-5 text-amber-400" /> Execution Engine
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  <FeeOptimizer />
-                  <StreamingPanel />
-                  <AutonomyPanel />
-                </div>
-              </section>
-
-              <section>
-                <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2 tracking-tight">
-                  <TrendingUp className="w-5 h-5 text-blue-400" /> DeFi & Analytics
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <EscrowPanel />
-                  <MemoryPanel />
-                  <DcaPanel />
-                  <CreatorAnalyticsPanel />
-                </div>
-              </section>
-
-              <section>
-                <h2 className="text-lg font-bold text-text-primary mb-4 flex items-center gap-2 tracking-tight">
-                  <Sparkles className="w-5 h-5 text-emerald-400" /> Innovation
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <RiskDashboard />
-                  <EngagementPanel />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
-                  <CreatorDiscoveryPanel />
-                  <TipPropagationPanel />
-                  <ProofOfEngagementPanel />
-                </div>
-              </section>
-            </div>
+            <AiEnginePage agentMode={(health as Record<string, string> | null)?.aiMode ?? 'rule-based'} chainCount={balances.length} />
           }
           settingsContent={
             <div className="space-y-6 max-w-6xl">
