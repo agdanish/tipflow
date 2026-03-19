@@ -10,8 +10,8 @@ import { Header } from './components/Header';
 // import { AgentPanel } from './components/AgentPanel';
 // import { TipHistory } from './components/TipHistory';
 import { StatsPanel } from './components/StatsPanel';
-import { GasMonitor } from './components/GasMonitor';
-import { CurrencyConverter } from './components/CurrencyConverter';
+// import { GasMonitor } from './components/GasMonitor';
+// import { CurrencyConverter } from './components/CurrencyConverter';
 import { Leaderboard } from './components/Leaderboard';
 import { Achievements } from './components/Achievements';
 import { Challenges } from './components/Challenges';
@@ -24,24 +24,24 @@ import { ToastContainer, useToasts } from './components/Toast';
 import { KeyboardShortcutsModal } from './components/KeyboardShortcutsModal';
 import { OnboardingOverlay, isOnboardingComplete } from './components/OnboardingOverlay';
 import { ChatInterface } from './components/ChatInterface';
-import { SecurityStatus } from './components/SecurityStatus';
+// import { SecurityStatus } from './components/SecurityStatus';
 import { ConditionalTips } from './components/ConditionalTips';
-import { WebhookManager } from './components/WebhookManager';
+// import { WebhookManager } from './components/WebhookManager';
 import { ContactsManager } from './components/ContactsManager';
 import { InstallPrompt } from './components/InstallPrompt';
-import { ApiDocs } from './components/ApiDocs';
-import { NetworkHealth } from './components/NetworkHealth';
-import { TelegramStatus } from './components/TelegramStatus';
+// import { ApiDocs } from './components/ApiDocs';
+// import { NetworkHealth } from './components/NetworkHealth';
+// import { TelegramStatus } from './components/TelegramStatus';
 import { useNotifications } from './components/NotificationCenter';
-import { WalletBackup } from './components/WalletBackup';
-import { WalletSwitcher } from './components/WalletSwitcher';
+// import { WalletBackup } from './components/WalletBackup';
+// import { WalletSwitcher } from './components/WalletSwitcher';
 import { AnalyticsDashboard } from './components/AnalyticsDashboard';
-import { SettingsPanel } from './components/SettingsPanel';
+// import { SettingsPanel } from './components/SettingsPanel';
 // import { TransactionTimeline } from './components/TransactionTimeline';
 // import { ExportPanel } from './components/ExportPanel';
 import { Footer } from './components/Footer';
 import { HelpCenter } from './components/HelpCenter';
-import { SystemInfo } from './components/SystemInfo';
+// import { SystemInfo } from './components/SystemInfo';
 import { TechStack } from './components/TechStack';
 import { TipLinkCreator } from './components/TipLinkCreator';
 import { ShareCard } from './components/ShareCard';
@@ -51,20 +51,20 @@ import { initAccentColor } from './components/ThemeCustomizer';
 import { ChainComparison } from './components/ChainComparison';
 // import { FavoriteRecipients } from './components/FavoriteRecipients';
 // import { QuickActions } from './components/QuickActions';
-import { AuditLog } from './components/AuditLog';
+// import { AuditLog } from './components/AuditLog';
 // import { TipGoals } from './components/TipGoals';
-import { SpendingLimits } from './components/SpendingLimits';
+// import { SpendingLimits } from './components/SpendingLimits';
 import { BatchImport } from './components/BatchImport';
 import { TipReport } from './components/TipReport';
 import { DemoBanner } from './components/DemoBanner';
 import { DemoScenarios } from './components/DemoScenarios';
 import { RumbleIntegration } from './components/RumbleIntegration';
 // import { AutonomyPanel } from './components/AutonomyPanel';
-import { TreasuryPanel } from './components/TreasuryPanel';
-import { BridgePanel } from './components/BridgePanel';
-import { LendingPanel } from './components/LendingPanel';
+// import { TreasuryPanel } from './components/TreasuryPanel';
+// import { BridgePanel } from './components/BridgePanel';
+// import { LendingPanel } from './components/LendingPanel';
 // import { StreamingPanel } from './components/StreamingPanel';
-import { CryptoReceiptPanel } from './components/CryptoReceipt';
+// import { CryptoReceiptPanel } from './components/CryptoReceipt';
 // import { ReputationPanel } from './components/ReputationPanel';
 // import { OrchestratorPanel } from './components/OrchestratorPanel';
 // import { PredictorPanel } from './components/PredictorPanel';
@@ -78,7 +78,7 @@ import { CryptoReceiptPanel } from './components/CryptoReceipt';
 // import { CreatorDiscoveryPanel } from './components/CreatorDiscoveryPanel';
 // import { TipPropagationPanel } from './components/TipPropagationPanel';
 // import { ProofOfEngagementPanel } from './components/ProofOfEngagementPanel';
-import { HealthDashboard } from './components/HealthDashboard';
+// import { HealthDashboard } from './components/HealthDashboard';
 import { useHealth, useBalances, useAgentState, useHistory, useStats } from './hooks/useApi';
 import { useSpotlight } from './hooks/useSpotlight';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
@@ -95,20 +95,21 @@ import { SuccessCelebration } from './components/SuccessCelebration';
 import { ActivityHeatmap } from './components/ActivityHeatmap';
 import { FloatingMenu } from './components/FloatingMenu';
 import { InnovationShowcase } from './components/InnovationShowcase';
-import { IndexerPanel } from './components/IndexerPanel';
-import { WdkCapabilities } from './components/WdkCapabilities';
+// import { IndexerPanel } from './components/IndexerPanel';
+// import { WdkCapabilities } from './components/WdkCapabilities';
 import { DecisionAuditTrail } from './components/DecisionAuditTrail';
 import { AgentActivityFeed } from './components/AgentActivityFeed';
 import { EconomicsDashboard } from './components/EconomicsDashboard';
-import { PluginRegistry } from './components/PluginRegistry';
-import { DeveloperHub } from './components/DeveloperHub';
+// import { PluginRegistry } from './components/PluginRegistry';
+// import { DeveloperHub } from './components/DeveloperHub';
 import { ProtocolOverview } from './components/ProtocolOverview';
 // LiveMetrics — now used via ui-v3 DashboardHero
-import { ApiExplorer } from './components/ApiExplorer';
+// import { ApiExplorer } from './components/ApiExplorer';
 // import { AgentCapabilities } from './components/AgentCapabilities';
 import { DashboardHero, TipComposer, ContextFeed, WalletStrip, InsightBar } from './ui-v3/dashboard';
 import { HistoryPage } from './ui-v3/history';
 import { AiEnginePage } from './ui-v3/ai';
+import { SettingsPage } from './ui-v3/settings';
 
 function App() {
   const { health } = useHealth();
@@ -544,66 +545,14 @@ function App() {
             <AiEnginePage agentMode={(health as Record<string, string> | null)?.aiMode ?? 'rule-based'} chainCount={balances.length} />
           }
           settingsContent={
-            <div className="space-y-6 max-w-6xl">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <SettingsPanel theme={theme} onToggleTheme={toggleTheme} soundOn={soundOn} onToggleSound={toggleSound} />
-                <div className="space-y-5">
-                  <WalletBackup totalTransactions={stats?.totalTips ?? 0} />
-                  <WalletSwitcher onActiveChanged={() => refreshBalances()} />
-                </div>
-              </div>
-
-              <HealthDashboard />
-
-              <section>
-                <h2 className="text-lg font-bold text-text-primary mb-4">System Monitors</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                  <GasMonitor />
-                  <CurrencyConverter />
-                  <SecurityStatus />
-                  <NetworkHealth />
-                  <TelegramStatus />
-                  <SystemInfo />
-                </div>
-              </section>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                <TreasuryPanel />
-                <BridgePanel />
-                <LendingPanel />
-                <SpendingLimits />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <WdkCapabilities />
-                <CryptoReceiptPanel />
-                <IndexerPanel />
-              </div>
-
-              <details className="group rounded-xl bg-surface-2/50 border border-border">
-                <summary className="flex items-center justify-between cursor-pointer px-5 py-4 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">
-                  <span>Integrations & Webhooks</span>
-                  <svg className="w-4 h-4 text-text-muted transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                </summary>
-                <div className="px-5 pb-5 space-y-5 animate-slide-down">
-                  <WebhookManager />
-                  <AuditLog />
-                </div>
-              </details>
-
-              <details className="group rounded-xl bg-surface-2/50 border border-border">
-                <summary className="flex items-center justify-between cursor-pointer px-5 py-4 text-sm font-semibold text-text-primary hover:text-accent transition-colors select-none">
-                  <span>Developer Tools</span>
-                  <svg className="w-4 h-4 text-text-muted transition-transform duration-200 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                </summary>
-                <div className="px-5 pb-5 space-y-5 animate-slide-down">
-                  <ApiDocs />
-                  <DeveloperHub />
-                  <PluginRegistry />
-                  <ApiExplorer />
-                </div>
-              </details>
-            </div>
+            <SettingsPage
+              theme={theme}
+              onToggleTheme={toggleTheme}
+              soundOn={soundOn}
+              onToggleSound={toggleSound}
+              totalTips={stats?.totalTips ?? 0}
+              onWalletChanged={() => refreshBalances()}
+            />
           }
         />
       </main>
